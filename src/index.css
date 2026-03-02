@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
+
+body { margin: 0; background-color: #0f172a; overscroll-behavior-y: contain; }
+.font-display { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+.font-body { font-family: 'Inter', sans-serif; }
+
+.metallic-text {
+  background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0px 3px 2px rgba(0,0,0,0.8));
+}
+
+.text-glow-green { text-shadow: 0 0 10px rgba(74, 222, 128, 0.4), 0 0 20px rgba(74, 222, 128, 0.2); }
+.text-glow-blue { text-shadow: 0 0 10px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2); }
+.text-glow-red { text-shadow: 0 0 10px rgba(248, 113, 113, 0.6), 0 0 20px rgba(248, 113, 113, 0.3); }
+.text-glow-yellow { text-shadow: 0 0 10px rgba(250, 204, 21, 0.4), 0 0 20px rgba(250, 204, 21, 0.2); }
+.text-glow-orange { text-shadow: 0 0 10px rgba(251, 146, 60, 0.4), 0 0 20px rgba(251, 146, 60, 0.2); }
+.text-glow-purple { text-shadow: 0 0 10px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.3); }
+
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 1); border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 1); border-radius: 4px; }
+
+@keyframes floatUpFade {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); }
+}
+.floating-popup {
+  animation: floatUpFade 0.8s ease-out forwards;
+  will-change: transform, opacity;
+  font-family: 'Oswald', sans-serif;
+  text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 0px 0px 15px currentColor, 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9), 1px -1px 1px rgba(0,0,0,0.9), -1px 1px 1px rgba(0,0,0,0.9);
+}
+
+/* Mobile tap highlight fix */
+* { -webkit-tap-highlight-color: transparent; }
