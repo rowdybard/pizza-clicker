@@ -325,7 +325,7 @@ export default function App() {
     // eslint-disable-next-line
   }, []); 
 
-  // Money formatter — abbreviates large numbers
+  // Money formatter — abbreviates large numbers (returns plain string for non-JSX contexts)
   const formatMoney = (n) => {
     const abs = Math.abs(n);
     if (abs >= 1e15) return `$${(n / 1e15).toFixed(2)}Qu`;
@@ -334,6 +334,20 @@ export default function App() {
     if (abs >= 1e6)  return `$${(n / 1e6).toFixed(2)}M`;
     if (abs >= 1e4)  return `$${(n / 1e3).toFixed(1)}K`;
     return `$${n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  };
+
+  // JSX version — suffix gets an <abbr> tooltip on hover
+  const SUFFIX_LABELS = { Qu: 'Quadrillion', T: 'Trillion', B: 'Billion', M: 'Million', K: 'Thousand' };
+  const FM = ({ n }) => {
+    const abs = Math.abs(n);
+    let num, suffix;
+    if (abs >= 1e15) { num = `$${(n / 1e15).toFixed(2)}`; suffix = 'Qu'; }
+    else if (abs >= 1e12) { num = `$${(n / 1e12).toFixed(2)}`; suffix = 'T'; }
+    else if (abs >= 1e9)  { num = `$${(n / 1e9).toFixed(2)}`;  suffix = 'B'; }
+    else if (abs >= 1e6)  { num = `$${(n / 1e6).toFixed(2)}`;  suffix = 'M'; }
+    else if (abs >= 1e4)  { num = `$${(n / 1e3).toFixed(1)}`;  suffix = 'K'; }
+    else return <>{`$${n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}</>;
+    return <>{num}<abbr title={SUFFIX_LABELS[suffix]} style={{textDecoration:'none',cursor:'help'}}>{suffix}</abbr></>;
   };
 
   // Time formatter for Offline Report
@@ -371,7 +385,7 @@ export default function App() {
               </div>
               <div className="bg-green-900/20 p-4 rounded-xl border border-green-500/30 flex justify-between items-center">
                   <span className="text-green-500 font-bold tracking-widest uppercase text-xs">Money Earned</span>
-                  <span className="text-green-400 font-display text-2xl text-glow-green">+{formatMoney(offlineReport.money)}</span>
+                  <span className="text-green-400 font-display text-2xl text-glow-green">+<FM n={offlineReport.money} /></span>
               </div>
               <div className="bg-orange-900/20 p-4 rounded-xl border border-orange-500/30 flex justify-between items-center">
                   <span className="text-orange-500 font-bold tracking-widest uppercase text-xs">Pizzas Boxed</span>
@@ -463,7 +477,7 @@ export default function App() {
               <DollarSign className="w-3 h-3 text-green-400"/> Bank
             </span>
             <span className="text-2xl font-display tracking-wider text-green-400 text-glow-green">
-              {formatMoney(money)}
+              <FM n={money} />
             </span>
           </div>
 
@@ -472,7 +486,7 @@ export default function App() {
               <TrendingUp className="w-3 h-3"/> Profit / Sec
             </span>
             <span className={`text-2xl font-display tracking-wider ${isRush ? 'text-red-400 text-glow-red' : 'text-blue-400 text-glow-blue'}`}>
-              {formatMoney(profitPerSecond)}/s
+              <FM n={profitPerSecond} />/s
             </span>
           </div>
 
@@ -481,7 +495,7 @@ export default function App() {
               <Award className="w-3 h-3"/> Ticket Avg
             </span>
             <span className={`text-2xl font-display tracking-wider ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              {formatMoney(pizzaPrice)}
+              <FM n={pizzaPrice} />
             </span>
           </div>
         </div>
@@ -553,9 +567,9 @@ export default function App() {
                      {sideOrder.status}!
                   </div>
                   <div className="font-bold font-body text-lg text-white">
-                     {sideOrder.status === 'perfect' ? `Huge Bonus! +${formatMoney(sideOrder.rewardEarned)}` :
+                     {sideOrder.status === 'perfect' ? <span>Huge Bonus! +<FM n={sideOrder.rewardEarned} /></span> :
                       sideOrder.status === 'burnt' ? 'Ruined! $0' :
-                      `Okay. +${formatMoney(sideOrder.rewardEarned)}`}
+                      <span>Okay. +<FM n={sideOrder.rewardEarned} /></span>}
                   </div>
               </div>
             )}
@@ -597,7 +611,7 @@ export default function App() {
               <div className="pointer-events-none">
                 <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100 text-glow-red' : 'text-orange-100 text-glow-orange'}`}>Bake & Box</div>
                 <div className="text-xl text-orange-300 font-display bg-slate-900/50 px-4 py-1 rounded-full inline-block tracking-wider shadow-inner">
-                  +{formatMoney(pizzaPrice * currentClickPower)} / +{Math.ceil(currentClickPower)} Rep
+                  +<FM n={pizzaPrice * currentClickPower} /> / +{Math.ceil(currentClickPower)} Rep
                 </div>
               </div>
             </button>
@@ -623,9 +637,9 @@ export default function App() {
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg">{formatMoney(lifetimeMoney)}</strong></div>
+                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg"><FM n={lifetimeMoney} /></strong></div>
                   <div className="text-xs text-slate-500">
-                    Next license at {formatMoney(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}
+                    Next license at <FM n={Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST} />
                   </div>
                 </div>
                 
@@ -688,7 +702,7 @@ export default function App() {
                       </div>
                       <div className="text-right relative z-10 grayscale opacity-50">
                         <div className="font-display text-2xl text-slate-600 tracking-wider">
-                          {formatMoney(cost)}
+                          <FM n={cost} />
                         </div>
                         <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">
                           Base Cost
@@ -757,7 +771,7 @@ export default function App() {
                           Upgrade Cost
                         </div>
                         <div className={`font-display text-3xl tracking-wider ${canAfford ? 'text-green-400 text-glow-green' : 'text-slate-500'} drop-shadow-sm`}>
-                          {formatMoney(cost)}
+                          <FM n={cost} />
                         </div>
                       </div>
                       
