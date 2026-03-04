@@ -452,6 +452,14 @@ export default function App() {
         const timer = setTimeout(() => setSideOrder(null), 2000);
         return () => clearTimeout(timer);
     }
+    if (sideOrder && sideOrder.status === 'undercooked') {
+        const timer = setTimeout(() => setSideOrder(null), 2000);
+        return () => clearTimeout(timer);
+    }
+    if (sideOrder && sideOrder.status === 'perfect') {
+        const timer = setTimeout(() => setSideOrder(null), 2500);
+        return () => clearTimeout(timer);
+    }
     if (sideOrder && sideOrder.status === 'clean') {
         const timer = setTimeout(() => setSideOrder(null), 1500);
         return () => clearTimeout(timer);
