@@ -116,7 +116,7 @@ export default function App() {
     const y = (e.clientY - rect.top) + (Math.random() * 20 - 10);
     
     const popupId = Date.now() + Math.random();
-    setClickPopups(prev => [...prev, { id: popupId, x, y, value: moneyEarned.toFixed(2) }]);
+    setClickPopups(prev => [...prev, { id: popupId, x, y, value: formatMoney(moneyEarned) }]);
 
     setTimeout(() => {
       setClickPopups(prev => prev.filter(p => p.id !== popupId));
@@ -218,12 +218,12 @@ export default function App() {
       setRushTimeLeft(prev => Math.max(0, prev - 1));
 
       setVipSpawned(prevVip => {
-        if (!prevVip && rushTimeLeft === 0 && hasStarted && Math.random() < 0.005) return true;
+        if (!prevVip && rushTimeLeft === 0 && hasStarted && Math.random() < 0.002) return true;
         return prevVip;
       });
 
       setSideOrder(prevOrder => {
-        if (!prevOrder && !vipSpawned && rushTimeLeft === 0 && hasStarted && Math.random() < 0.025) {
+        if (!prevOrder && !vipSpawned && rushTimeLeft === 0 && hasStarted && Math.random() < 0.06) {
             const isWings = Math.random() > 0.5;
             return {
                 type: isWings ? 'wings' : 'bread',
@@ -266,6 +266,13 @@ export default function App() {
         return () => clearTimeout(timer);
     }
   }, [sideOrder?.status, sideOrder?.rewardEarned]);
+
+  // Auto-dismiss VIP banner after 8s if not clicked
+  useEffect(() => {
+    if (!vipSpawned) return;
+    const timer = setTimeout(() => setVipSpawned(false), 8000);
+    return () => clearTimeout(timer);
+  }, [vipSpawned]);
 
 
   // --- SAVE & LOAD SYSTEM ---
@@ -318,6 +325,17 @@ export default function App() {
     // eslint-disable-next-line
   }, []); 
 
+  // Money formatter — abbreviates large numbers
+  const formatMoney = (n) => {
+    const abs = Math.abs(n);
+    if (abs >= 1e15) return `$${(n / 1e15).toFixed(2)}Qu`;
+    if (abs >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
+    if (abs >= 1e9)  return `$${(n / 1e9).toFixed(2)}B`;
+    if (abs >= 1e6)  return `$${(n / 1e6).toFixed(2)}M`;
+    if (abs >= 1e4)  return `$${(n / 1e3).toFixed(1)}K`;
+    return `$${n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  };
+
   // Time formatter for Offline Report
   const formatTime = (seconds) => {
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
@@ -353,7 +371,7 @@ export default function App() {
               </div>
               <div className="bg-green-900/20 p-4 rounded-xl border border-green-500/30 flex justify-between items-center">
                   <span className="text-green-500 font-bold tracking-widest uppercase text-xs">Money Earned</span>
-                  <span className="text-green-400 font-display text-2xl text-glow-green">+${offlineReport.money.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span className="text-green-400 font-display text-2xl text-glow-green">+{formatMoney(offlineReport.money)}</span>
               </div>
               <div className="bg-orange-900/20 p-4 rounded-xl border border-orange-500/30 flex justify-between items-center">
                   <span className="text-orange-500 font-bold tracking-widest uppercase text-xs">Pizzas Boxed</span>
@@ -382,7 +400,7 @@ export default function App() {
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
                <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">-</span> You will reset all money, upgrades, and reputation.</div>
                <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> You will gain <span className="text-xl font-display text-glow-green leading-none">{pendingLicenses}</span> Franchise Licenses.</div>
-               <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts speed and prices by 20%!</div>
+               <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts pizza prices by 50%!</div>
             </div>
             
             <div className="flex gap-4">
@@ -445,7 +463,7 @@ export default function App() {
               <DollarSign className="w-3 h-3 text-green-400"/> Bank
             </span>
             <span className="text-2xl font-display tracking-wider text-green-400 text-glow-green">
-              ${money.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+              {formatMoney(money)}
             </span>
           </div>
 
@@ -454,7 +472,7 @@ export default function App() {
               <TrendingUp className="w-3 h-3"/> Profit / Sec
             </span>
             <span className={`text-2xl font-display tracking-wider ${isRush ? 'text-red-400 text-glow-red' : 'text-blue-400 text-glow-blue'}`}>
-              ${profitPerSecond.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+              {formatMoney(profitPerSecond)}/s
             </span>
           </div>
 
@@ -463,7 +481,7 @@ export default function App() {
               <Award className="w-3 h-3"/> Ticket Avg
             </span>
             <span className={`text-2xl font-display tracking-wider ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              ${pizzaPrice.toFixed(2)}
+              {formatMoney(pizzaPrice)}
             </span>
           </div>
         </div>
@@ -535,9 +553,9 @@ export default function App() {
                      {sideOrder.status}!
                   </div>
                   <div className="font-bold font-body text-lg text-white">
-                     {sideOrder.status === 'perfect' ? `Huge Bonus! +$${sideOrder.rewardEarned.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` :
+                     {sideOrder.status === 'perfect' ? `Huge Bonus! +${formatMoney(sideOrder.rewardEarned)}` :
                       sideOrder.status === 'burnt' ? 'Ruined! $0' :
-                      `Okay. +$${sideOrder.rewardEarned.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
+                      `Okay. +${formatMoney(sideOrder.rewardEarned)}`}
                   </div>
               </div>
             )}
@@ -552,8 +570,7 @@ export default function App() {
           <div className="flex-1 min-h-[300px]">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full h-full rounded-2xl p-6 shadow-xl border-b-8 flex flex-col items-center justify-center gap-6 group relative overflow-hidden select-none outline-none
-                transform transition-all duration-150 ease-[cubic-bezier(0.2,0.8,0.2,1)] active:scale-[0.97] active:border-b-4 active:translate-y-1
+              className={`w-full h-full rounded-2xl p-6 shadow-xl border-b-8 flex flex-col items-center justify-center gap-6 group relative overflow-hidden select-none outline-none transform transition-all duration-150 ease-[cubic-bezier(0.2,0.8,0.2,1)] active:scale-[0.97] active:border-b-4 active:translate-y-1
                 ${isRush ? 'bg-red-900/40 border-red-600 hover:bg-red-900/60' : 'bg-slate-800 border-orange-600 hover:bg-slate-750'}`}
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
@@ -568,7 +585,7 @@ export default function App() {
                     color: isRush ? '#f87171' : '#fcd34d' 
                   }}
                 >
-                  +${popup.value}
+                  +{popup.value}
                 </div>
               ))}
 
@@ -580,7 +597,7 @@ export default function App() {
               <div className="pointer-events-none">
                 <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100 text-glow-red' : 'text-orange-100 text-glow-orange'}`}>Bake & Box</div>
                 <div className="text-xl text-orange-300 font-display bg-slate-900/50 px-4 py-1 rounded-full inline-block tracking-wider shadow-inner">
-                  +${(pizzaPrice * currentClickPower).toFixed(2)} / +{Math.ceil(currentClickPower)} Rep
+                  +{formatMoney(pizzaPrice * currentClickPower)} / +{Math.ceil(currentClickPower)} Rep
                 </div>
               </div>
             </button>
@@ -606,9 +623,9 @@ export default function App() {
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg">${lifetimeMoney.toLocaleString('en-US', {maximumFractionDigits: 0})}</strong></div>
+                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg">{formatMoney(lifetimeMoney)}</strong></div>
                   <div className="text-xs text-slate-500">
-                    Next license at ${(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST).toLocaleString()}
+                    Next license at {formatMoney(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}
                   </div>
                 </div>
                 
@@ -671,7 +688,7 @@ export default function App() {
                       </div>
                       <div className="text-right relative z-10 grayscale opacity-50">
                         <div className="font-display text-2xl text-slate-600 tracking-wider">
-                          ${cost.toLocaleString()}
+                          {formatMoney(cost)}
                         </div>
                         <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">
                           Base Cost
@@ -740,7 +757,7 @@ export default function App() {
                           Upgrade Cost
                         </div>
                         <div className={`font-display text-3xl tracking-wider ${canAfford ? 'text-green-400 text-glow-green' : 'text-slate-500'} drop-shadow-sm`}>
-                          ${cost.toLocaleString()}
+                          {formatMoney(cost)}
                         </div>
                       </div>
                       
