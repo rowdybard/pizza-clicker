@@ -75,7 +75,7 @@ export default function App() {
 
   const totalEarnableLicenses = Math.floor(Math.sqrt(lifetimeMoney / FRANCHISE_BASE_COST));
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
-  const franchiseMultiplier = 1 + (franchiseLicenses * 0.20); 
+  const franchiseMultiplier = 1 + (franchiseLicenses * 0.50); 
 
   let baseProductionRate = 0;
   let basePizzaPrice = 2.50; 
@@ -90,9 +90,9 @@ export default function App() {
     if (u.type === 'click') baseClickPower += (u.baseValue * count * multi);
   });
 
-  const franchisedProduction = baseProductionRate * franchiseMultiplier;
+  const franchisedProduction = baseProductionRate;
   const franchisedPrice = basePizzaPrice * franchiseMultiplier;
-  const franchisedClick = baseClickPower * franchiseMultiplier;
+  const franchisedClick = baseClickPower;
 
   const isRush = rushTimeLeft > 0;
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
@@ -717,9 +717,9 @@ export default function App() {
                         
                         <div className="flex flex-col gap-1.5">
                           <p className="text-sm text-slate-300 font-medium flex items-center gap-2">
-                            {upgrade.type === 'production' && `Bakes ${+(upgrade.baseValue * multi * franchiseMultiplier).toFixed(2)} / sec`}
+                            {upgrade.type === 'production' && `Bakes ${+(upgrade.baseValue * multi).toFixed(2)} / sec`}
                             {upgrade.type === 'quality' && `+$${(upgrade.baseValue * multi * franchiseMultiplier).toFixed(2)} per Pizza`}
-                            {upgrade.type === 'click' && `+${+(upgrade.baseValue * multi * franchiseMultiplier).toFixed(2)} Pizzas / Click`}
+                            {upgrade.type === 'click' && `+${+(upgrade.baseValue * multi).toFixed(2)} Pizzas / Click`}
                             
                             {multi > 1 && (
                               <span className={`text-xs font-bold ${theme.text} bg-slate-950/60 px-2 py-0.5 rounded border border-current opacity-90`}>
