@@ -84,23 +84,26 @@ const DESTINATIONS = [
 // --- UPGRADE DEFINITIONS ---
 const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.25, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
-  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.15, baseValue: 0.2, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
-  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.15, baseValue: 1, reqStars: 1, icon: <Users className="text-blue-500" /> },
-  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.15, baseValue: 5, reqStars: 2, icon: <Flame className="text-green-500" /> },
-  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.15, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.15, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.15, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.6, baseValue: 1, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.6, baseValue: 1.5, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.6, baseValue: 3.5, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.6, baseValue: 12, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.6, baseValue: 45, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.6, baseValue: 200, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
+  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 2, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
+  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 15, reqStars: 3, icon: <Zap className="text-orange-300" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 100, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
+  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.2, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
+  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 1, reqStars: 1, icon: <Users className="text-blue-500" /> },
+  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 5, reqStars: 2, icon: <Flame className="text-green-500" /> },
+  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 1, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 1.5, reqStars: 1, icon: <Award className="text-yellow-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 3.5, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 12, reqStars: 3, icon: <Zap className="text-red-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 45, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 200, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
 const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
-const FRANCHISE_BASE_COST = 25000; 
+const FRANCHISE_BASE_COST = 150000; 
 
 const loadSaveData = () => {
   try {
@@ -590,6 +593,7 @@ export default function App() {
   const fmt = (n) => {
     if (n === null || n === undefined || isNaN(n)) return '0';
     const abs = Math.abs(n);
+    if (abs >= 1e18) return (n / 1e18).toFixed(2) + 'Qi';
     if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
     if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
     if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
@@ -601,6 +605,7 @@ export default function App() {
   const fmtInt = (n) => {
     if (n === null || n === undefined || isNaN(n)) return '0';
     const abs = Math.abs(n);
+    if (abs >= 1e18) return (n / 1e18).toFixed(2) + 'Qi';
     if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
     if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
     if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
@@ -611,6 +616,7 @@ export default function App() {
 
   const numWords = (n) => {
     const abs = Math.abs(n);
+    if (abs >= 1e18) return `${(n / 1e18).toFixed(2)} Quintillion`;
     if (abs >= 1e15) return `${(n / 1e15).toFixed(2)} Quadrillion`;
     if (abs >= 1e12) return `${(n / 1e12).toFixed(2)} Trillion`;
     if (abs >= 1e9)  return `${(n / 1e9).toFixed(2)} Billion`;
@@ -1087,7 +1093,7 @@ export default function App() {
                 <div className="text-right text-sm flex flex-col items-end gap-1.5">
                   <div>
                     <span className="text-purple-300">Click Multiplier: </span>
-                    <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{fmt(Math.round((franchiseMultiplier - 1) * 100))}%</span>
+                    <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{fmt((franchiseMultiplier - 1) * 100)}%</span>
                   </div>
                   <div className="flex gap-2">
                     <span className="text-slate-500 text-xs self-center">Click:</span>
@@ -1158,23 +1164,26 @@ export default function App() {
 
                 if (isLocked) {
                   return (
-                    <div key={upgrade.id} className="w-full relative overflow-hidden rounded-xl bg-slate-900/80 border border-slate-800/80 p-5 flex items-center justify-between opacity-75 backdrop-blur-sm">
-                      <div className="flex items-center gap-4 relative z-10 grayscale opacity-50">
-                        <div className="bg-slate-950 p-4 rounded-xl shadow-inner border border-slate-800">
+                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-5 flex items-center justify-between opacity-50 bg-gradient-to-br ${theme.bg} ${theme.border}`}>
+                      <div className="flex items-center gap-4 relative z-10">
+                        <div className={`p-4 rounded-xl shadow-inner border ${theme.iconBg} grayscale`}>
                           {upgrade.icon}
                         </div>
                         <div>
-                          <h3 className="font-display text-xl text-slate-500 tracking-wider">
-                            ???
-                          </h3>
-                          <p className="text-sm text-slate-500 font-bold flex items-center gap-1.5 mt-1 tabular-nums">
-                            <Star className="w-4 h-4" /> Requires {upgrade.reqStars} Stars
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-display text-xl text-slate-400 tracking-wider">
+                              {upgrade.name}
+                            </h3>
+                            <Lock className="w-4 h-4 text-slate-600" />
+                          </div>
+                          <p className="text-sm text-slate-500 font-bold flex items-center gap-1.5 tabular-nums">
+                            <Star className="w-4 h-4" /> Requires {upgrade.reqStars} Stars to unlock
                           </p>
                         </div>
                       </div>
-                      <div className="text-right relative z-10 grayscale opacity-50">
-                        <div className="font-display text-2xl text-slate-600 tracking-wider tabular-nums">
-                          $<Num value={cost} decimals={0} />
+                      <div className="text-right relative z-10">
+                        <div className={`font-display text-2xl ${theme.text} opacity-50 tracking-wider tabular-nums`}>
+                          <Num value={cost} prefix="$" decimals={0} />
                         </div>
                         <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">
                           Base Cost
