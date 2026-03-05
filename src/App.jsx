@@ -329,6 +329,18 @@ export default function App() {
     }
   };
 
+  const buyUpgradeN = (upgrade, n) => {
+    const currentCount = safeNum(inventory?.[upgrade.id], 0);
+    let totalCost = 0;
+    for (let i = 0; i < n; i++) {
+      totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
+    }
+    if (money >= totalCost) {
+      setMoney(prev => prev - totalCost);
+      setInventory(prev => ({ ...prev, [upgrade.id]: currentCount + n }));
+    }
+  };
+
   const triggerDelivery = (dest) => {
     const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
     if (cooldownRemaining > 0) return;
@@ -586,16 +598,29 @@ export default function App() {
     return Math.floor(n).toLocaleString();
   };
 
+  const numWords = (n) => {
+    const abs = Math.abs(n);
+    if (abs >= 1e15) return `${(n / 1e15).toFixed(2)} Quadrillion`;
+    if (abs >= 1e12) return `${(n / 1e12).toFixed(2)} Trillion`;
+    if (abs >= 1e9)  return `${(n / 1e9).toFixed(2)} Billion`;
+    if (abs >= 1e6)  return `${(n / 1e6).toFixed(2)} Million`;
+    if (abs >= 1e3)  return `${(n / 1e3).toFixed(2)} Thousand`;
+    return null;
+  };
+
   const Num = ({ value, prefix = '', suffix = '', decimals = 2, showFull = false }) => {
     const abs = Math.abs(value);
     if (abs < 1e3) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
-    const full = value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-    return (
-      <span>
-        {prefix}{fmt(value)}{suffix}
-        {showFull && <span className="text-slate-500 text-[0.7em] font-normal ml-1">({full})</span>}
-      </span>
-    );
+    const words = numWords(value);
+    if (showFull && words) {
+      return (
+        <span className="flex flex-col leading-tight">
+          <span>{prefix}{fmt(value)}{suffix}</span>
+          <span className="text-[0.6em] text-slate-500 font-normal tracking-wide normal-case">{prefix}{words}</span>
+        </span>
+      );
+    }
+    return <span>{prefix}{fmt(value)}{suffix}</span>;
   };
 
   const formatTime = (seconds) => {
@@ -1097,14 +1122,12 @@ export default function App() {
                 }
 
                 return (
-                  <button
+                  <div
                     key={upgrade.id}
-                    onClick={() => buyUpgrade(upgrade)}
-                    disabled={!canAfford}
                     className={`w-full group flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl transition-all duration-300 text-left relative overflow-hidden border bg-gradient-to-br ${theme.bg} ${
                       canAfford 
-                        ? `cursor-pointer ${theme.border} ${theme.hover} transform hover:-translate-y-1` 
-                        : 'cursor-not-allowed opacity-60 border-slate-700/50 grayscale-[30%]'
+                        ? `${theme.border} hover:-translate-y-1 hover:shadow-lg` 
+                        : 'opacity-60 border-slate-700/50 grayscale-[30%]'
                     }`}
                   >
                     {nextMilestone !== 'MAX' && (
@@ -1155,28 +1178,66 @@ export default function App() {
                       </div>
                     </div>
                     
-                    <div className="text-left sm:text-right relative z-10 w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t border-slate-700/50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                      <div>
-                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 hidden sm:block">
-                          Upgrade Cost
-                        </div>
-                        <div className={`font-display text-3xl tracking-wider tabular-nums ${canAfford ? 'text-green-400 text-glow-green' : 'text-slate-500'} drop-shadow-sm`}>
-                          $<Num value={cost} decimals={0} />
-                        </div>
-                      </div>
-                      
+                    <div className="relative z-10 w-full sm:w-auto flex flex-col items-stretch sm:items-end gap-2 border-t border-slate-700/50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
+                      {/* Buy x1 */}
+                      <button
+                        onClick={() => buyUpgrade(upgrade)}
+                        disabled={!canAfford}
+                        className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
+                          canAfford ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
+                        }`}
+                      >
+                        x1 — $<Num value={cost} decimals={0} /> each
+                      </button>
+
+                      {/* Buy x10 */}
+                      {(() => {
+                        let cost10 = 0;
+                        for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
+                        const can10 = money >= cost10;
+                        return (
+                          <button
+                            onClick={() => buyUpgradeN(upgrade, 10)}
+                            disabled={!can10}
+                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
+                              can10 ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
+                            }`}
+                          >
+                            x10 — $<Num value={cost10 / 10} decimals={0} /> each
+                          </button>
+                        );
+                      })()}
+
+                      {/* Buy x100 */}
+                      {(() => {
+                        let cost100 = 0;
+                        for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
+                        const can100 = money >= cost100;
+                        return (
+                          <button
+                            onClick={() => buyUpgradeN(upgrade, 100)}
+                            disabled={!can100}
+                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
+                              can100 ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
+                            }`}
+                          >
+                            x100 — $<Num value={cost100 / 100} decimals={0} /> each
+                          </button>
+                        );
+                      })()}
+
                       {nextMilestone !== 'MAX' && (
-                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1 sm:mt-2 bg-slate-950/40 border border-slate-800 px-2.5 py-1 rounded tabular-nums">
+                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider bg-slate-950/40 border border-slate-800 px-2.5 py-1 rounded tabular-nums text-center sm:text-right">
                           Next boost: <span className="text-slate-200">{count}/{nextMilestone}</span>
                         </div>
                       )}
                       {nextMilestone === 'MAX' && (
-                        <div className="text-xs text-amber-400 font-black uppercase tracking-wider mt-1 sm:mt-2 bg-amber-900/20 border border-amber-500/30 px-2.5 py-1 rounded">
+                        <div className="text-xs text-amber-400 font-black uppercase tracking-wider bg-amber-900/20 border border-amber-500/30 px-2.5 py-1 rounded text-center sm:text-right">
                           Max Boost Reached
                         </div>
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
 
