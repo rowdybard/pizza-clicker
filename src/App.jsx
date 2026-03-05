@@ -4,10 +4,10 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Navigation
+  Map, Home, Briefcase
 } from 'lucide-react';
 
-const SAVE_KEY = 'pizzaTycoonSave_v9_1';
+const SAVE_KEY = 'pizzaTycoonSave_v10';
 
 // --- ANTI-CORRUPTION SAVE SANITIZER ---
 const safeNum = (val, fallback = 0) => {
@@ -76,9 +76,9 @@ const ACHIEVEMENTS = [
 ];
 
 const DESTINATIONS = [
-  { id: 'suburb', name: 'Local Suburbs', baseTime: 45, multi: 50, icon: <Home className="w-8 h-8 text-green-400" />, bg: 'from-green-900/20 to-slate-800', border: 'border-green-500/30' },
-  { id: 'downtown', name: 'Downtown Office', baseTime: 180, multi: 250, icon: <Briefcase className="w-8 h-8 text-blue-400" />, bg: 'from-blue-900/20 to-slate-800', border: 'border-blue-500/30' },
-  { id: 'mansion', name: 'Billionaire Estate', baseTime: 600, multi: 1000, icon: <Gem className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800', border: 'border-purple-500/30' }
+  { id: 'suburb', name: 'Local Suburbs', warpSeconds: 180, rushSeconds: 0, vipToken: false, cooldown: 60, icon: <Home className="w-8 h-8 text-green-400" />, bg: 'from-green-900/20 to-slate-800', border: 'border-green-500/30', color: 'text-green-400', label: '3 Min Idle Drop', desc: 'Instantly collect 3 minutes of your current idle production.' },
+  { id: 'downtown', name: 'Downtown Office', warpSeconds: 900, rushSeconds: 60, vipToken: false, cooldown: 300, icon: <Briefcase className="w-8 h-8 text-blue-400" />, bg: 'from-blue-900/20 to-slate-800', border: 'border-blue-500/30', color: 'text-blue-400', label: '15 Min Drop + Dinner Rush', desc: 'Collect 15 minutes of idle production and trigger a 60-second Dinner Rush.' },
+  { id: 'mansion', name: 'Billionaire Estate', warpSeconds: 7200, rushSeconds: 0, vipToken: true, cooldown: 1800, icon: <Gem className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800', border: 'border-purple-500/30', color: 'text-purple-400', label: '2 Hr Drop + VIP Token', desc: 'Collect 2 hours of idle production and earn a permanent VIP Token (+5% to everything).' }
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -140,8 +140,9 @@ export default function App() {
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
 
-  const [activeDelivery, setActiveDelivery] = useState(initialData?.activeDelivery || null);
   const [deliveriesCompleted, setDeliveriesCompleted] = useState(safeNum(initialData?.deliveriesCompleted, 0));
+  const [vipTokens, setVipTokens] = useState(safeNum(initialData?.vipTokens, 0));
+  const [deliveryCooldowns, setDeliveryCooldowns] = useState({});
 
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
@@ -173,7 +174,8 @@ export default function App() {
   const totalEarnableLicenses = Math.floor(Math.sqrt(lifetimeMoney / FRANCHISE_BASE_COST));
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   const franchiseMultiplier = 1 + (franchiseLicenses * 0.50); 
-  const achievementMultiplier = 1 + (unlockedAchievements.length * 0.02); 
+  const achievementMultiplier = 1 + (unlockedAchievements.length * 0.02);
+  const vipTokenMultiplier = 1 + (vipTokens * 0.05);
 
   let baseProductionRate = 0;
   let basePizzaPrice = 2.50; 
@@ -191,9 +193,9 @@ export default function App() {
   const isClean = cleanBoostTimer > 0;
   const comboMultiplier = 1 + (combo * 0.01);
   
-  const franchisedProduction = baseProductionRate;
-  const franchisedPrice = basePizzaPrice * franchiseMultiplier * achievementMultiplier;
-  const franchisedClick = baseClickPower;
+  const franchisedProduction = baseProductionRate * franchiseMultiplier * vipTokenMultiplier;
+  const franchisedPrice = basePizzaPrice * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier;
+  const franchisedClick = baseClickPower * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 2 : franchisedPrice;
@@ -208,10 +210,6 @@ export default function App() {
   const displayProfitPerSec = idleProfitPerSec + activeProfitPerSec;
 
   const getCost = (upgrade) => Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
-
-  // Delivery Time Reduction Synergy (Max 75% reduction)
-  const deliveryUpgradesCount = safeNum(inventory?.driver, 0) + safeNum(inventory?.drone, 0) + safeNum(inventory?.orbital, 0);
-  const deliveryTimeMultiplier = Math.max(0.25, 1 - (deliveryUpgradesCount * 0.05));
 
   // --- DISHWASHING INTERACTION STATE ---
   const lastScrubPos = useRef({ x: 0, y: 0 });
@@ -280,7 +278,7 @@ export default function App() {
     const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
     
     const popupId = Date.now() + Math.random();
-    setClickPopups(prev => [...prev, { id: popupId, x, y, value: moneyEarned.toFixed(2) }]);
+    setClickPopups(prev => [...prev, { id: popupId, x, y, value: fmt(moneyEarned) }]);
 
     setTimeout(() => {
       setClickPopups(prev => prev.filter(p => p.id !== popupId));
@@ -331,27 +329,34 @@ export default function App() {
     }
   };
 
-  const startDelivery = (dest) => {
-     if (activeDelivery) return;
-     const finalTime = Math.max(1, Math.ceil(dest.baseTime * deliveryTimeMultiplier));
-     const finalReward = pizzaPrice * dest.multi;
-     setActiveDelivery({
-        id: dest.id, name: dest.name, time: finalTime, progress: 0, reward: finalReward, status: 'driving'
-     });
-  };
+  const triggerDelivery = (dest) => {
+    const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
+    if (cooldownRemaining > 0) return;
 
-  const claimDelivery = () => {
-     if (!activeDelivery || activeDelivery.status !== 'arrived') return;
-     setMoney(m => m + activeDelivery.reward);
-     setLifetimeMoney(m => m + activeDelivery.reward);
-     setDeliveriesCompleted(d => d + 1);
-     setActiveDelivery(null);
+    const warpMoney = idleProfitPerSec * dest.warpSeconds;
+    const warpPizzas = idlePizzasPerSec * dest.warpSeconds;
+    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec)) * dest.warpSeconds;
+
+    setMoney(m => m + warpMoney);
+    setLifetimeMoney(m => m + warpMoney);
+    setTotalPizzasSold(tp => tp + warpPizzas);
+    setReputation(r => r + warpRep);
+
+    if (dest.rushSeconds > 0) {
+      setRushTimeLeft(prev => prev + dest.rushSeconds);
+    }
+    if (dest.vipToken) {
+      setVipTokens(t => t + 1);
+    }
+
+    setDeliveriesCompleted(d => d + 1);
+    setDeliveryCooldowns(prev => ({ ...prev, [dest.id]: dest.cooldown }));
   };
 
   const confirmPrestige = () => {
     setFranchiseLicenses(prev => prev + pendingLicenses);
     setMoney(0); setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
-    setVipSpawned(false); setSideOrder(null); setCombo(0); setActiveDelivery(null);
+    setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
     setShowPrestigeModal(false);
   };
@@ -360,7 +365,7 @@ export default function App() {
   const handleExportSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
-       totalClicks, perfectBakes, unlockedAchievements, activeDelivery, deliveriesCompleted
+       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -375,7 +380,7 @@ export default function App() {
         setLifetimeMoney(safeNum(decoded.lifetimeMoney)); setFranchiseLicenses(safeNum(decoded.franchiseLicenses));
         setInventory(decoded.inventory || {}); setTotalClicks(safeNum(decoded.totalClicks)); setPerfectBakes(safeNum(decoded.perfectBakes));
         setUnlockedAchievements(decoded.unlockedAchievements || []);
-        setActiveDelivery(decoded.activeDelivery || null); setDeliveriesCompleted(safeNum(decoded.deliveriesCompleted));
+        setDeliveriesCompleted(safeNum(decoded.deliveriesCompleted)); setVipTokens(safeNum(decoded.vipTokens));
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -391,7 +396,7 @@ export default function App() {
   const handleManualSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
-       totalClicks, perfectBakes, unlockedAchievements, activeDelivery, deliveriesCompleted, lastSaveTime: Date.now() 
+       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -466,11 +471,10 @@ export default function App() {
               return prevOrder;
           });
 
-          setActiveDelivery(prev => {
-              if (!prev || prev.status !== 'driving') return prev;
-              const nextProg = prev.progress + 1;
-              if (nextProg >= prev.time) return { ...prev, progress: prev.time, status: 'arrived' };
-              return { ...prev, progress: nextProg };
+          setDeliveryCooldowns(prev => {
+              const next = { ...prev };
+              Object.keys(next).forEach(k => { next[k] = Math.max(0, next[k] - 1); });
+              return next;
           });
 
       }, 1000);
@@ -533,7 +537,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, activeDelivery, deliveriesCompleted };
+    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens };
   });
 
   useEffect(() => {
@@ -546,14 +550,6 @@ export default function App() {
   useEffect(() => {
     if (initialData && initialData.lastSaveTime) {
       const secondsAway = Math.floor((Date.now() - initialData.lastSaveTime) / 1000);
-      if (initialData.activeDelivery && initialData.activeDelivery.status === 'driving') {
-         setActiveDelivery(prev => {
-            if (!prev) return prev;
-            const newProg = prev.progress + secondsAway;
-            if (newProg >= prev.time) return { ...prev, progress: prev.time, status: 'arrived' };
-            return { ...prev, progress: newProg };
-         });
-      }
       if (secondsAway > 60 && franchisedProduction > 0) {
         const offlinePrice = basePizzaPrice * (1 + (safeNum(initialData.franchiseLicenses) * 0.50)) * (1 + ((initialData.unlockedAchievements?.length || 0) * 0.02));
         const generatedMoney = franchisedProduction * offlinePrice * secondsAway;
@@ -567,6 +563,44 @@ export default function App() {
     }
     // eslint-disable-next-line
   }, []); 
+
+  const fmt = (n) => {
+    if (n === null || n === undefined || isNaN(n)) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
+    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3)  return (n / 1e3).toFixed(2) + 'K';
+    return n.toFixed(2);
+  };
+
+  const fmtInt = (n) => {
+    if (n === null || n === undefined || isNaN(n)) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
+    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e3)  return (n / 1e3).toFixed(2) + 'K';
+    return Math.floor(n).toLocaleString();
+  };
+
+  const Num = ({ value, prefix = '', suffix = '', decimals = 2 }) => {
+    const abs = Math.abs(value);
+    const isAbbreviated = abs >= 1e3;
+    const full = prefix + (Number.isInteger(value) ? Math.floor(value).toLocaleString() : value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
+    const short = prefix + fmt(value) + suffix;
+    if (!isAbbreviated) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
+    return (
+      <span className="relative group/num cursor-help">
+        {short}
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-950 border border-slate-600 text-slate-200 text-xs font-bold rounded shadow-xl whitespace-nowrap opacity-0 group-hover/num:opacity-100 transition-opacity duration-150 pointer-events-none z-50 tabular-nums">
+          {full}
+        </span>
+      </span>
+    );
+  };
 
   const formatTime = (seconds) => {
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
@@ -670,8 +704,8 @@ export default function App() {
             <p className="text-slate-400 font-bold mb-6">Your crew kept the ovens hot while you were gone.</p>
             <div className="space-y-4 mb-8">
               <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex justify-between items-center"><span className="text-slate-400 font-bold tracking-widest uppercase text-xs">Time Away</span><span className="text-white font-display text-xl tabular-nums">{formatTime(offlineReport.time)}</span></div>
-              <div className="bg-green-900/20 p-4 rounded-xl border border-green-500/30 flex justify-between items-center"><span className="text-green-500 font-bold tracking-widest uppercase text-xs">Money Earned</span><span className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+${offlineReport.money.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-              <div className="bg-orange-900/20 p-4 rounded-xl border border-orange-500/30 flex justify-between items-center"><span className="text-orange-500 font-bold tracking-widest uppercase text-xs">Pizzas Boxed</span><span className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+{Math.floor(offlineReport.pizzas).toLocaleString()}</span></div>
+              <div className="bg-green-900/20 p-4 rounded-xl border border-green-500/30 flex justify-between items-center"><span className="text-green-500 font-bold tracking-widest uppercase text-xs">Money Earned</span><span className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+$<Num value={offlineReport.money} decimals={2} /></span></div>
+              <div className="bg-orange-900/20 p-4 rounded-xl border border-orange-500/30 flex justify-between items-center"><span className="text-orange-500 font-bold tracking-widest uppercase text-xs">Pizzas Boxed</span><span className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+<Num value={offlineReport.pizzas} decimals={0} /></span></div>
             </div>
             <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all">LET'S GET COOKING</button>
           </div>
@@ -718,7 +752,7 @@ export default function App() {
           <div className="w-full max-w-[280px]">
             <div className="flex justify-between text-[10px] text-slate-400 mb-1 font-bold uppercase tracking-widest tabular-nums">
               <span>Reputation</span>
-              <span>{Math.floor(reputation).toLocaleString()} / {nextStarReq.toLocaleString()}</span>
+              <span>{fmtInt(reputation)} / {fmtInt(nextStarReq)}</span>
             </div>
             <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700 shadow-inner">
               <div className="h-full bg-yellow-400 transition-all duration-500 shadow-[0_0_10px_rgba(250,204,21,0.5)]" style={{ width: `${Math.min(100, (reputation / nextStarReq) * 100)}%` }}></div>
@@ -734,7 +768,7 @@ export default function App() {
               <DollarSign className="w-3 h-3 text-green-400"/> Bank
             </span>
             <span className="text-xl sm:text-2xl font-display tracking-wider text-green-400 text-glow-green truncate tabular-nums">
-              ${money.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+              $<Num value={money} decimals={2} />
             </span>
           </div>
 
@@ -744,17 +778,17 @@ export default function App() {
               <TrendingUp className="w-3 h-3"/> Profit / Sec
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : recentCps > 0 ? 'text-orange-400 text-glow-orange scale-105' : 'text-blue-400 text-glow-blue'}`}>
-              ${displayProfitPerSec.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+              $<Num value={displayProfitPerSec} decimals={2} />
             </span>
           </div>
 
           {/* 3. Pizzas / Sec */}
-          <div className={`px-4 py-3 rounded-xl border flex flex-col justify-center shadow-inner transition-colors duration-300 ${isRush ? 'bg-red-900/50 border-red-500' : recentCps > 0 ? 'bg-orange-900/20 border-orange-500/50' : 'bg-slate-900 border-slate-700'}`}>
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1 ${isRush ? 'text-red-300' : recentCps > 0 ? 'text-orange-300' : 'text-slate-400'}`}>
+          <div className={`px-4 py-3 rounded-xl border flex flex-col justify-center shadow-inner transition-colors duration-300 ${isRush ? 'bg-red-900/50 border-red-500' : 'bg-slate-900 border-slate-700'}`}>
+            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1 ${isRush ? 'text-red-300' : 'text-slate-400'}`}>
               <Pizza className="w-3 h-3"/> Pizzas / Sec
             </span>
-            <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : recentCps > 0 ? 'text-orange-400 text-glow-orange scale-105' : 'text-slate-200'}`}>
-              {totalDisplayPizzasPerSec.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1})}
+            <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-slate-200'}`}>
+              <Num value={idlePizzasPerSec} decimals={1} />
             </span>
           </div>
 
@@ -764,7 +798,7 @@ export default function App() {
               <Award className="w-3 h-3"/> Ticket Avg
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              ${pizzaPrice.toFixed(2)}
+              $<Num value={pizzaPrice} decimals={2} />
             </span>
           </div>
         </div>
@@ -865,6 +899,7 @@ export default function App() {
               <div className="w-full h-full rounded-2xl border-2 bg-green-900/40 border-green-500 text-green-400 flex items-center justify-center flex-col gap-1 shadow-[0_0_20px_rgba(74,222,128,0.2)] p-4">
                   <Sparkles className="w-10 h-10 animate-spin-slow mb-1" />
                   <div className="text-3xl font-display tracking-widest uppercase text-glow-green">Spotless!</div>
+                  <div className="text-sm font-bold text-green-300 mt-1">2x Click Power for 60 seconds!</div>
               </div>
             )}
 
@@ -877,9 +912,9 @@ export default function App() {
                      {sideOrder.status}!
                   </div>
                   <div className="font-bold font-body text-lg text-white tabular-nums">
-                     {sideOrder.status === 'perfect' ? `Huge Bonus! +$${sideOrder.rewardEarned.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` :
+                     {sideOrder.status === 'perfect' ? `Huge Bonus! +$${fmt(sideOrder.rewardEarned)}` :
                       sideOrder.status === 'burnt' ? 'Ruined! $0' :
-                      `Okay. +$${sideOrder.rewardEarned.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
+                      `Okay. +$${fmt(sideOrder.rewardEarned)}`}
                   </div>
               </div>
             )}
@@ -949,7 +984,7 @@ export default function App() {
               <div className="pointer-events-none flex flex-col items-center z-10">
                 <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100 text-glow-red' : 'text-orange-100 text-glow-orange'}`}>Bake & Box</div>
                 <div className="text-sm md:text-base text-orange-300 font-display bg-slate-900/90 px-5 py-2 rounded-full inline-block tracking-wider shadow-inner border border-slate-700 backdrop-blur-sm tabular-nums">
-                  +${(pizzaPrice * currentClickPower).toFixed(2)} <span className="text-slate-500 mx-1">|</span> +{currentClickPower.toFixed(1)} Pizzas per Click
+                  +$<Num value={pizzaPrice * currentClickPower} decimals={2} /> <span className="text-slate-500 mx-1">|</span> +<Num value={currentClickPower} decimals={1} /> Pizzas per Click
                 </div>
               </div>
             </button>
@@ -975,9 +1010,9 @@ export default function App() {
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums">${Math.floor(lifetimeMoney).toLocaleString()}</strong></div>
+                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums">$<Num value={lifetimeMoney} decimals={0} /></strong></div>
                   <div className="text-xs text-slate-500 tabular-nums">
-                    Next license at ${(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST).toLocaleString()}
+                    Next license at $<Num value={Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST} decimals={0} />
                   </div>
                 </div>
                 
@@ -1049,7 +1084,7 @@ export default function App() {
                       </div>
                       <div className="text-right relative z-10 grayscale opacity-50">
                         <div className="font-display text-2xl text-slate-600 tracking-wider tabular-nums">
-                          ${cost.toLocaleString()}
+                          $<Num value={cost} decimals={0} />
                         </div>
                         <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">
                           Base Cost
@@ -1095,9 +1130,15 @@ export default function App() {
                         
                         <div className="flex flex-col gap-1.5">
                           <p className="text-sm text-slate-300 font-medium flex items-center gap-2 tabular-nums">
-                            {upgrade.type === 'production' && `Bakes ${+(upgrade.baseValue * count * multi * franchiseMultiplier).toFixed(2)} / sec`}
-                            {upgrade.type === 'quality' && `+$${(upgrade.baseValue * count * multi * franchiseMultiplier * achievementMultiplier).toFixed(2)} per Pizza`}
-                            {upgrade.type === 'click' && `+${+(upgrade.baseValue * count * multi * franchiseMultiplier).toFixed(2)} Pizzas / Click`}
+                            {upgrade.type === 'production' && (count === 0
+                              ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
+                              : <span>Bakes {fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} / sec</span>)}
+                            {upgrade.type === 'quality' && (count === 0
+                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier)} per Pizza</span></span>
+                              : <span>+${fmt(upgrade.baseValue * count * multi * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier)} per Pizza</span>)}
+                            {upgrade.type === 'click' && (count === 0
+                              ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
+                              : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
                             
                             {multi > 1 && count > 0 && (
                               <span className={`text-xs font-bold ${theme.text} bg-slate-950/60 px-2 py-0.5 rounded border border-current opacity-90 tabular-nums`}>
@@ -1118,7 +1159,7 @@ export default function App() {
                           Upgrade Cost
                         </div>
                         <div className={`font-display text-3xl tracking-wider tabular-nums ${canAfford ? 'text-green-400 text-glow-green' : 'text-slate-500'} drop-shadow-sm`}>
-                          ${cost.toLocaleString()}
+                          $<Num value={cost} decimals={0} />
                         </div>
                       </div>
                       
@@ -1137,79 +1178,88 @@ export default function App() {
                 );
               })}
 
-              {/* --- TAB: SIMPLE MAP LOGISTICS --- */}
+              {/* --- TAB: TIME WARP DELIVERIES --- */}
               {activeTab === 'map' && (
-                <div className="flex flex-col gap-6">
-                   
-                   {/* Logistics Explanation Banner */}
-                   <div className="bg-slate-900/80 rounded-xl p-5 border border-slate-700 shadow-inner flex items-start gap-4">
-                      <Navigation className="w-8 h-8 text-blue-400 shrink-0" />
+                <div className="flex flex-col gap-4">
+
+                  {/* Header Banner */}
+                  <div className="bg-slate-900/80 rounded-xl p-5 border border-slate-700 shadow-inner flex items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <Zap className="w-8 h-8 text-yellow-400 shrink-0 mt-0.5" />
                       <div>
-                         <h3 className="font-display text-xl text-blue-100 tracking-wider">Delivery Fleet</h3>
-                         <p className="text-sm text-slate-400 mt-1">Send pizzas out to special clients. <strong className="text-green-400">Drivers, Drones, and Orbital Upgrades permanently reduce delivery times!</strong></p>
-                         <div className="mt-3 inline-block bg-blue-900/40 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded">
-                            Current Speed Bonus: -{Math.floor((1 - deliveryTimeMultiplier) * 100)}% Time
-                         </div>
+                        <h3 className="font-display text-xl text-yellow-100 tracking-wider">Time Warp Deliveries</h3>
+                        <p className="text-sm text-slate-400 mt-1">Instantly collect hours of idle production. Each run is on cooldown after use.</p>
                       </div>
-                   </div>
+                    </div>
+                    {vipTokens > 0 && (
+                      <div className="shrink-0 flex flex-col items-center bg-purple-900/40 border border-purple-500/50 rounded-xl px-4 py-3 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                        <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
+                        <div className="font-display text-2xl text-purple-300 tabular-nums">{vipTokens}</div>
+                        <div className="text-[10px] text-purple-400 font-bold mt-1">+{vipTokens * 5}% All</div>
+                      </div>
+                    )}
+                  </div>
 
-                   {/* Map View */}
-                   {activeDelivery ? (
-                      <div className="bg-slate-900/80 border border-blue-500/40 rounded-2xl p-6 shadow-[0_0_20px_rgba(59,130,246,0.15)] relative overflow-hidden flex flex-col">
-                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="font-display text-xl sm:text-2xl text-blue-100 flex items-center gap-3">
-                               <Navigation className="w-6 h-6 text-blue-400 animate-pulse" /> To {activeDelivery.name}
-                            </h3>
-                            {activeDelivery.status === 'arrived' ? (
-                               <div className="bg-green-900/40 border border-green-500 text-green-400 px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-sm animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.3)]">
-                                  Arrived!
-                               </div>
+                  {/* Delivery Cards */}
+                  <div className="grid grid-cols-1 gap-4">
+                    {DESTINATIONS.map(dest => {
+                      const cooldown = deliveryCooldowns[dest.id] || 0;
+                      const onCooldown = cooldown > 0;
+                      const warpMoney = idleProfitPerSec * dest.warpSeconds;
+                      const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
+                      return (
+                        <button
+                          key={dest.id}
+                          onClick={() => triggerDelivery(dest)}
+                          disabled={onCooldown}
+                          className={`w-full p-5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between text-left transition-all duration-300 bg-gradient-to-br relative overflow-hidden group
+                            ${onCooldown ? `${dest.bg} ${dest.border} opacity-60 cursor-not-allowed grayscale-[40%]` : `${dest.bg} ${dest.border} hover:-translate-y-1 hover:shadow-lg cursor-pointer`}`}
+                        >
+                          {/* Cooldown drain bar */}
+                          {onCooldown && (
+                            <div className="absolute bottom-0 left-0 h-1 bg-slate-700 w-full">
+                              <div className="h-full bg-slate-400/60 transition-all duration-1000" style={{ width: `${cooldownPct}%` }} />
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-4 w-full sm:w-auto mb-3 sm:mb-0">
+                            <div className={`p-4 rounded-xl shadow-inner border bg-slate-950/50 ${dest.border} ${!onCooldown ? 'group-hover:scale-110' : ''} transition-transform shrink-0`}>
+                              {dest.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-display text-xl text-slate-100 tracking-wider mb-1">{dest.name}</h3>
+                              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-sm text-slate-400">{dest.desc}</p>
+                            </div>
+                          </div>
+
+                          <div className="w-full sm:w-auto sm:text-right shrink-0 border-t border-slate-700/50 sm:border-0 pt-3 sm:pt-0 sm:pl-4">
+                            {onCooldown ? (
+                              <div className="flex flex-col sm:items-end gap-1">
+                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Cooldown</div>
+                                <div className="font-display text-2xl text-slate-500 tabular-nums flex items-center gap-2">
+                                  <Clock className="w-5 h-5" />{Math.floor(cooldown / 60)}:{String(cooldown % 60).padStart(2, '0')}
+                                </div>
+                              </div>
                             ) : (
-                               <div className="bg-slate-800 border border-slate-700 text-slate-400 px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-sm tabular-nums">
-                                  Driving... {activeDelivery.time - activeDelivery.progress}s
-                               </div>
+                              <div className="flex flex-col sm:items-end gap-1">
+                                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
+                                <div className={`font-display text-2xl text-glow-green text-green-400 tabular-nums`}>
+                                  +$<Num value={warpMoney} decimals={0} />
+                                </div>
+                                {dest.rushSeconds > 0 && (
+                                  <div className="text-xs font-bold text-red-400 flex items-center gap-1 mt-1"><Zap className="w-3 h-3 fill-red-400" />{dest.rushSeconds}s Dinner Rush</div>
+                                )}
+                                {dest.vipToken && (
+                                  <div className="text-xs font-bold text-purple-400 flex items-center gap-1 mt-1"><Crown className="w-3 h-3" />+1 VIP Token (+5% All)</div>
+                                )}
+                              </div>
                             )}
-                         </div>
-
-                         <div className="relative h-12 mb-8 mx-4">
-                            <div className="absolute top-1/2 left-0 w-full h-2 bg-slate-800 -translate-y-1/2 rounded-full border border-slate-700"></div>
-                            <div className="absolute top-1/2 left-0 w-full h-0 border-t-2 border-dashed border-slate-600 -translate-y-1/2"></div>
-                            <Store className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 text-orange-500 bg-slate-900 p-1 rounded-full border border-slate-700" />
-                            <Car 
-                               className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)] transition-all ease-linear ${activeDelivery.status === 'driving' ? 'duration-1000' : ''}`}
-                               style={{ left: `calc(${(activeDelivery.progress / activeDelivery.time) * 100}% - 16px)` }}
-                            />
-                         </div>
-
-                         {activeDelivery.status === 'arrived' && (
-                            <button onClick={claimDelivery} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-display text-xl sm:text-2xl tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(74,222,128,0.4)] active:scale-[0.98]">
-                               CLAIM REWARD: +<span className="tabular-nums">${activeDelivery.reward.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                            </button>
-                         )}
-                      </div>
-                   ) : (
-                      <div className="grid grid-cols-1 gap-4">
-                         {DESTINATIONS.map(dest => {
-                            const estTime = Math.max(1, Math.ceil(dest.baseTime * deliveryTimeMultiplier));
-                            const estReward = pizzaPrice * dest.multi;
-                            return (
-                               <button key={dest.id} onClick={() => startDelivery(dest)} className={`w-full p-5 rounded-xl border flex flex-col sm:flex-row items-center justify-between text-left transition-all duration-300 bg-gradient-to-br ${dest.bg} ${dest.border} hover:-translate-y-1 hover:shadow-lg cursor-pointer group`}>
-                                  <div className="flex items-center gap-5 w-full sm:w-auto">
-                                     <div className={`p-4 rounded-xl shadow-inner border bg-slate-950/50 ${dest.border} group-hover:scale-110 transition-transform`}>{dest.icon}</div>
-                                     <div>
-                                        <h3 className="font-display text-2xl text-slate-100 tracking-wider mb-1">{dest.name}</h3>
-                                        <p className="text-sm text-slate-400 font-medium flex items-center gap-2 tabular-nums"><Clock className="w-4 h-4" /> Trip Time: {estTime}s</p>
-                                     </div>
-                                  </div>
-                                  <div className="w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-700 sm:border-t-0 flex flex-col sm:items-end">
-                                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Estimated Payout</div>
-                                     <div className="font-display text-2xl text-green-400 text-glow-green tabular-nums">${estReward.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
-                                  </div>
-                               </button>
-                            );
-                         })}
-                      </div>
-                   )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
