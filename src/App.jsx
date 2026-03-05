@@ -28,6 +28,51 @@ const ACHIEVEMENTS = [
   { id: 'dispo_sadge', name: 'Scammed Outta Dispo', desc: 'Have exactly $13.00 in the bank.', req: (s) => Math.floor(s.money) === 13 },
   { id: 'sellout', name: 'Corporate Sellout', desc: 'Prestige your restaurant for the first time.', req: (s) => s.franchiseLicenses > 0 },
   { id: 'billionaire', name: 'Pizza Billionaire', desc: 'Earn $1,000,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 1000000000 },
+
+  // Bank Balance
+  { id: 'bank_10k', name: 'Ten Grand', desc: 'Save $10,000 in the bank.', req: (s) => s.money >= 10000 },
+  { id: 'bank_100k', name: 'Six Figures', desc: 'Save $100,000 in the bank.', req: (s) => s.money >= 100000 },
+  { id: 'bank_1m', name: 'Liquid Millionaire', desc: 'Save $1,000,000 in the bank.', req: (s) => s.money >= 1000000 },
+  { id: 'bank_1b', name: 'Tres Commas', desc: 'Save $1,000,000,000 in the bank.', req: (s) => s.money >= 1000000000 },
+  { id: 'bank_1t', name: 'Trillionaire', desc: 'Save $1,000,000,000,000 in the bank.', req: (s) => s.money >= 1000000000000 },
+
+  // Lifetime Earnings
+  { id: 'life_10k', name: 'Humble Beginnings', desc: 'Earn $10,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000 },
+  { id: 'life_10m', name: 'Pizza Empire', desc: 'Earn $10,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000000 },
+  { id: 'life_1t', name: 'Infinite Wealth', desc: 'Earn $1,000,000,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 1000000000000 },
+
+  // Total Pizzas Sold
+  { id: 'pizza_100', name: 'Warming Up', desc: 'Sell 100 pizzas total.', req: (s) => s.totalPizzasSold >= 100 },
+  { id: 'pizza_100k', name: 'Neighborhood Favorite', desc: 'Sell 100,000 pizzas total.', req: (s) => s.totalPizzasSold >= 100000 },
+  { id: 'pizza_10m', name: 'National Chain', desc: 'Sell 10,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 10000000 },
+  { id: 'pizza_1b', name: 'Global Dominance', desc: 'Sell 1,000,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 1000000000 },
+
+  // Clicking
+  { id: 'click_100', name: 'Finger Stretches', desc: 'Click the pizza 100 times.', req: (s) => s.totalClicks >= 100 },
+  { id: 'click_10k', name: 'Clicking Machine', desc: 'Click the pizza 10,000 times.', req: (s) => s.totalClicks >= 10000 },
+  { id: 'click_100k', name: 'The Auto-Clicker', desc: 'Click the pizza 100,000 times.', req: (s) => s.totalClicks >= 100000 },
+
+  // Combos
+  { id: 'combo_10', name: 'Heating Up', desc: 'Reach a 10x Click Combo.', req: (s) => s.combo >= 10 },
+  { id: 'combo_50', name: 'Blazing Fast', desc: 'Reach a 50x Click Combo.', req: (s) => s.combo >= 50 },
+
+  // Perfect Bakes
+  { id: 'perfect_10', name: 'Oven Master', desc: 'Pull 10 Perfect pizzas from the oven.', req: (s) => s.perfectBakes >= 10 },
+  { id: 'perfect_50', name: 'Flawless Execution', desc: 'Pull 50 Perfect pizzas from the oven.', req: (s) => s.perfectBakes >= 50 },
+
+  // Deliveries
+  { id: 'delivery_50', name: 'Logistics Expert', desc: 'Complete 50 map deliveries.', req: (s) => s.deliveriesCompleted >= 50 },
+  { id: 'delivery_250', name: 'Worldwide Shipping', desc: 'Complete 250 map deliveries.', req: (s) => s.deliveriesCompleted >= 250 },
+
+  // Reputation
+  { id: 'rep_500', name: 'Rising Star', desc: 'Gain 500 Reputation.', req: (s) => s.reputation >= 500 },
+  { id: 'rep_10k', name: 'Household Name', desc: 'Gain 10,000 Reputation.', req: (s) => s.reputation >= 10000 },
+
+  // Franchise
+  { id: 'franchise_5', name: 'Corporate Board', desc: 'Gain 5 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 5 },
+
+  // Specific Upgrades
+  { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'Purchase a Michelin Star upgrade.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
 ];
 
 const DESTINATIONS = [
@@ -472,7 +517,7 @@ export default function App() {
 
   // 5. Achievement Loop
   useEffect(() => {
-     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted };
+     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted, reputation, inventory };
      let newlyUnlocked = [];
      ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements.includes(ach.id) && ach.req(stateSnapshot)) {
@@ -483,7 +528,7 @@ export default function App() {
         }
      });
      if (newlyUnlocked.length > 0) setUnlockedAchievements(prev => [...prev, ...newlyUnlocked]);
-  }, [totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, unlockedAchievements, combo, deliveriesCompleted]);
+  }, [totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, unlockedAchievements, combo, deliveriesCompleted, reputation, inventory]);
 
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
@@ -528,8 +573,30 @@ export default function App() {
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   };
 
+  const appBgClass = franchiseLicenses >= 5
+    ? 'bg-stone-950 text-stone-100'
+    : franchiseLicenses >= 1
+    ? 'bg-zinc-900 text-zinc-100'
+    : 'bg-slate-900 text-slate-100';
+
+  const hasTruffles = (inventory?.truffles || 0) > 0;
+  const hasWoodFire = (inventory?.woodFire || 0) > 0;
+  const hasMichelin = (inventory?.michelin || 0) > 0;
+  const hasPremiumMeat = (inventory?.premiumMeat || 0) > 0;
+  const hasGarlicCrust = (inventory?.garlicCrust || 0) > 0;
+
+  const pizzaColorClass = isRush
+    ? 'text-red-400'
+    : hasTruffles
+    ? 'text-cyan-300 drop-shadow-[0_0_18px_rgba(103,232,249,0.7)]'
+    : hasPremiumMeat
+    ? 'text-rose-500'
+    : hasGarlicCrust
+    ? 'text-yellow-400 drop-shadow-[0_0_14px_rgba(250,204,21,0.6)]'
+    : 'text-orange-400';
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden">
+    <div className={`min-h-screen p-4 md:p-8 font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-1000 ${appBgClass}`}>
       
       {/* HEADER: Achievements & Settings Button */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
@@ -864,7 +931,19 @@ export default function App() {
 
               <div className="relative pointer-events-none mt-4">
                  <div className={`absolute inset-0 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity rounded-full ${isRush ? 'bg-red-500' : 'bg-orange-500'}`}></div>
-                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 drop-shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-110 group-active:scale-90 ${isRush ? 'text-red-400' : 'text-orange-400'}`} />
+                 {hasWoodFire && !isRush && (
+                   <div className="absolute inset-0 bg-gradient-to-t from-red-600 to-orange-400 mix-blend-screen blur-3xl opacity-30 rounded-full animate-pulse pointer-events-none"></div>
+                 )}
+                 {hasMichelin && (
+                   <Crown className="absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)] animate-bounce z-20" />
+                 )}
+                 {hasTruffles && !isRush && (
+                   <>
+                     <Sparkles className="absolute -top-2 -left-3 w-5 h-5 text-cyan-300 opacity-80 animate-bounce z-20" style={{ animationDelay: '0s' }} />
+                     <Sparkles className="absolute -top-2 -right-3 w-5 h-5 text-cyan-300 opacity-80 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
+                   </>
+                 )}
+                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 drop-shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-110 group-active:scale-90 ${pizzaColorClass}`} />
               </div>
              
               <div className="pointer-events-none flex flex-col items-center z-10">
@@ -917,7 +996,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col h-[650px] overflow-hidden relative">
+          <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col overflow-hidden relative">
 
             <div className="flex items-center justify-between bg-slate-900/60 p-4 sm:p-6 border-b border-slate-700">
               <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 sm:pb-0 min-w-0">
@@ -935,7 +1014,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-800/30">
+            <div className="p-4 space-y-4 bg-slate-800/30">
               
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && UPGRADES.map((upgrade) => {
