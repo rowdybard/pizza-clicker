@@ -83,13 +83,13 @@ const DESTINATIONS = [
 
 // --- UPGRADE DEFINITIONS ---
 const UPGRADES = [
-  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.5, baseValue: 1, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
+  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.25, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.15, baseValue: 0.2, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.15, baseValue: 1, reqStars: 1, icon: <Users className="text-blue-500" /> },
-  { id: 'driver', name: 'Delivery Driver', type: 'production', baseCost: 2800, multi: 1.15, baseValue: 5, reqStars: 2, icon: <Car className="text-green-500" /> },
+  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.15, baseValue: 5, reqStars: 2, icon: <Flame className="text-green-500" /> },
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.15, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Delivery Drones', type: 'production', baseCost: 180000, multi: 1.15, baseValue: 180, reqStars: 4, icon: <Plane className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Orbital Pizzeria', type: 'production', baseCost: 1500000, multi: 1.15, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.15, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.15, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.6, baseValue: 1, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.6, baseValue: 1.5, reqStars: 1, icon: <Award className="text-yellow-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.6, baseValue: 3.5, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
@@ -586,18 +586,14 @@ export default function App() {
     return Math.floor(n).toLocaleString();
   };
 
-  const Num = ({ value, prefix = '', suffix = '', decimals = 2 }) => {
+  const Num = ({ value, prefix = '', suffix = '', decimals = 2, showFull = false }) => {
     const abs = Math.abs(value);
-    const isAbbreviated = abs >= 1e3;
-    const full = prefix + (Number.isInteger(value) ? Math.floor(value).toLocaleString() : value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
-    const short = prefix + fmt(value) + suffix;
-    if (!isAbbreviated) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
+    if (abs < 1e3) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
+    const full = value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     return (
-      <span className="relative group/num cursor-help">
-        {short}
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-950 border border-slate-600 text-slate-200 text-xs font-bold rounded shadow-xl whitespace-nowrap opacity-0 group-hover/num:opacity-100 transition-opacity duration-150 pointer-events-none z-50 tabular-nums">
-          {full}
-        </span>
+      <span>
+        {prefix}{fmt(value)}{suffix}
+        {showFull && <span className="text-slate-500 text-[0.7em] font-normal ml-1">({full})</span>}
       </span>
     );
   };
@@ -720,7 +716,7 @@ export default function App() {
             <h2 className="text-4xl font-display text-white tracking-widest mb-2 text-glow-purple">CORPORATE BUYOUT</h2>
             <p className="text-slate-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
-               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">-</span> You will reset all money, upgrades, vehicles, and drivers.</div>
+               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">-</span> You will reset all money and upgrades.</div>
                <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> You will gain <span className="text-xl font-display text-glow-green leading-none tabular-nums">{pendingLicenses}</span> Franchise Licenses.</div>
                <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts speed and prices by 50%!</div>
             </div>
@@ -768,7 +764,7 @@ export default function App() {
               <DollarSign className="w-3 h-3 text-green-400"/> Bank
             </span>
             <span className="text-xl sm:text-2xl font-display tracking-wider text-green-400 text-glow-green truncate tabular-nums">
-              $<Num value={money} decimals={2} />
+              $<Num value={money} decimals={2} showFull />
             </span>
           </div>
 
@@ -778,7 +774,7 @@ export default function App() {
               <TrendingUp className="w-3 h-3"/> Profit / Sec
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : recentCps > 0 ? 'text-orange-400 text-glow-orange scale-105' : 'text-blue-400 text-glow-blue'}`}>
-              $<Num value={displayProfitPerSec} decimals={2} />
+              $<Num value={displayProfitPerSec} decimals={2} showFull />
             </span>
           </div>
 
@@ -788,7 +784,7 @@ export default function App() {
               <Pizza className="w-3 h-3"/> Pizzas / Sec
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-slate-200'}`}>
-              <Num value={idlePizzasPerSec} decimals={1} />
+              <Num value={idlePizzasPerSec} decimals={1} showFull />
             </span>
           </div>
 
@@ -798,7 +794,7 @@ export default function App() {
               <Award className="w-3 h-3"/> Ticket Avg
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              $<Num value={pizzaPrice} decimals={2} />
+              $<Num value={pizzaPrice} decimals={2} showFull />
             </span>
           </div>
         </div>
@@ -1002,9 +998,15 @@ export default function App() {
                   <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
                   <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple">Corporate Office</h2>
                 </div>
-                <div className="text-right text-sm">
-                  <span className="text-purple-300">Global Multiplier: </span>
-                  <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{Math.round((franchiseMultiplier - 1) * 100)}%</span>
+                <div className="text-right text-sm flex flex-col items-end gap-1.5">
+                  <div>
+                    <span className="text-purple-300">Global Multiplier: </span>
+                    <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{fmt(Math.round((franchiseMultiplier - 1) * 100))}%</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Total Multiplier: </span>
+                    <span className="font-display text-yellow-300 bg-yellow-900/30 px-2 py-1 rounded border border-yellow-500/30 tabular-nums">{fmt(+(franchiseMultiplier * achievementMultiplier * vipTokenMultiplier).toFixed(2))}x</span>
+                  </div>
                 </div>
               </div>
 
@@ -1195,7 +1197,7 @@ export default function App() {
                       <div className="shrink-0 flex flex-col items-center bg-purple-900/40 border border-purple-500/50 rounded-xl px-4 py-3 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
                         <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
                         <div className="font-display text-2xl text-purple-300 tabular-nums">{vipTokens}</div>
-                        <div className="text-[10px] text-purple-400 font-bold mt-1">+{vipTokens * 5}% All</div>
+                        <div className="text-[10px] text-purple-400 font-bold mt-1">+{fmt(vipTokens * 5)}% All</div>
                       </div>
                     )}
                   </div>
