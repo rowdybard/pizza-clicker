@@ -891,7 +891,7 @@ export default function App() {
             )}
           </div>
 
-          <div className="flex-1 min-h-[300px] relative">
+          <div className="relative">
             <button 
               onClick={handleBakeAndBox}
               className={`w-full h-full rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center gap-6 group relative overflow-hidden select-none outline-none
@@ -999,7 +999,7 @@ export default function App() {
           <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col overflow-hidden relative">
 
             <div className="flex items-center justify-between bg-slate-900/60 p-4 sm:p-6 border-b border-slate-700">
-              <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 sm:pb-0 min-w-0">
+              <div className="flex gap-4 min-w-0">
                 <button onClick={() => setActiveTab('upgrades')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'upgrades' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
                   <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Upgrades
                 </button>
