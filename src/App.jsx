@@ -4,7 +4,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase
+  Map, Home, Briefcase, Moon
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
@@ -193,9 +193,9 @@ export default function App() {
   const isClean = cleanBoostTimer > 0;
   const comboMultiplier = 1 + (combo * 0.01);
   
-  const franchisedProduction = baseProductionRate * franchiseMultiplier * vipTokenMultiplier;
-  const franchisedPrice = basePizzaPrice * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier;
-  const franchisedClick = baseClickPower * vipTokenMultiplier;
+  const franchisedProduction = baseProductionRate * vipTokenMultiplier;
+  const franchisedPrice = basePizzaPrice * achievementMultiplier * vipTokenMultiplier;
+  const franchisedClick = baseClickPower * franchiseMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 2 : franchisedPrice;
@@ -562,15 +562,26 @@ export default function App() {
   useEffect(() => {
     if (initialData && initialData.lastSaveTime) {
       const secondsAway = Math.floor((Date.now() - initialData.lastSaveTime) / 1000);
-      if (secondsAway > 60 && franchisedProduction > 0) {
+      const OFFLINE_CAP = 8 * 3600;
+      const effectiveSeconds = Math.min(secondsAway, OFFLINE_CAP);
+      if (secondsAway > 600 && franchisedProduction > 0) {
         const offlinePrice = basePizzaPrice * (1 + (safeNum(initialData.franchiseLicenses) * 0.50)) * (1 + ((initialData.unlockedAchievements?.length || 0) * 0.02));
-        const generatedMoney = franchisedProduction * offlinePrice * secondsAway;
-        const generatedPizzas = franchisedProduction * secondsAway;
-        const generatedRep = Math.ceil(Math.sqrt(franchisedProduction)) * secondsAway;
+        const generatedMoney = franchisedProduction * offlinePrice * effectiveSeconds;
+        const generatedPizzas = franchisedProduction * effectiveSeconds;
+        const generatedRep = Math.ceil(Math.sqrt(franchisedProduction)) * effectiveSeconds;
 
         setMoney(prev => prev + generatedMoney); setLifetimeMoney(prev => prev + generatedMoney);
         setTotalPizzasSold(prev => prev + generatedPizzas); setReputation(prev => prev + generatedRep);
-        setOfflineReport({ time: secondsAway, money: generatedMoney, pizzas: generatedPizzas, rep: generatedRep });
+        setOfflineReport({
+          time: secondsAway,
+          effectiveTime: effectiveSeconds,
+          capped: secondsAway > OFFLINE_CAP,
+          money: generatedMoney,
+          pizzas: generatedPizzas,
+          rep: generatedRep,
+          ratePerSec: franchisedProduction * offlinePrice,
+          pizzasPerSec: franchisedProduction,
+        });
       }
     }
     // eslint-disable-next-line
@@ -710,16 +721,71 @@ export default function App() {
 
       {/* --- OFFLINE PROGRESS MODAL --- */}
       {offlineReport && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border-2 border-blue-500 rounded-2xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(59,130,246,0.2)] text-center relative">
-            <h2 className="text-4xl font-display text-white tracking-widest mb-2 text-glow-blue">WELCOME BACK!</h2>
-            <p className="text-slate-400 font-bold mb-6">Your crew kept the ovens hot while you were gone.</p>
-            <div className="space-y-4 mb-8">
-              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex justify-between items-center"><span className="text-slate-400 font-bold tracking-widest uppercase text-xs">Time Away</span><span className="text-white font-display text-xl tabular-nums">{formatTime(offlineReport.time)}</span></div>
-              <div className="bg-green-900/20 p-4 rounded-xl border border-green-500/30 flex justify-between items-center"><span className="text-green-500 font-bold tracking-widest uppercase text-xs">Money Earned</span><span className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+$<Num value={offlineReport.money} decimals={2} /></span></div>
-              <div className="bg-orange-900/20 p-4 rounded-xl border border-orange-500/30 flex justify-between items-center"><span className="text-orange-500 font-bold tracking-widest uppercase text-xs">Pizzas Boxed</span><span className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+<Num value={offlineReport.pizzas} decimals={0} /></span></div>
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border-2 border-blue-500/60 rounded-2xl max-w-lg w-full shadow-[0_0_60px_rgba(59,130,246,0.15)] relative overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-900/60 to-slate-900 px-8 pt-8 pb-6 border-b border-slate-700/50">
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-500/20 border border-blue-500/40 rounded-xl p-3">
+                  <Moon className="w-8 h-8 text-blue-400" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-display text-white tracking-widest text-glow-blue">OFFLINE REPORT</h2>
+                  <p className="text-slate-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                  <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">You were gone</span>
+                  <span className="text-white font-display text-lg tabular-nums">{formatTime(offlineReport.time)}</span>
+                </div>
+                {offlineReport.capped && (
+                  <div className="flex-1 bg-amber-900/30 border border-amber-500/40 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-amber-500 text-xs font-bold uppercase tracking-wider">Credited for</span>
+                    <span className="text-amber-400 font-display text-lg tabular-nums">{formatTime(offlineReport.effectiveTime)}</span>
+                  </div>
+                )}
+              </div>
+              {offlineReport.capped && (
+                <div className="mt-3 text-xs text-amber-400/80 font-bold bg-amber-900/20 border border-amber-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
+                  <span>⚠</span> Offline earnings are capped at 8 hours. Come back sooner to maximise gains!
+                </div>
+              )}
             </div>
-            <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all">LET'S GET COOKING</button>
+
+            {/* Breakdown rows */}
+            <div className="px-8 py-6 space-y-3">
+              <div className="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
+                <div>
+                  <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
+                  <div className="text-slate-400 text-xs tabular-nums"><Num value={offlineReport.ratePerSec} prefix="$" decimals={2} /> / sec</div>
+                </div>
+                <div className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+<Num value={offlineReport.money} prefix="$" decimals={2} /></div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-orange-900/20 border border-orange-500/30 rounded-xl">
+                <div>
+                  <div className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
+                  <div className="text-slate-400 text-xs tabular-nums"><Num value={offlineReport.pizzasPerSec} decimals={1} /> / sec</div>
+                </div>
+                <div className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+<Num value={offlineReport.pizzas} decimals={0} /></div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-xl">
+                <div>
+                  <div className="text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Reputation Gained</div>
+                  <div className="text-slate-400 text-xs">Builds your star rating</div>
+                </div>
+                <div className="text-yellow-400 font-display text-2xl tabular-nums">+<Num value={offlineReport.rep} decimals={0} /></div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-8 pb-8">
+              <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                LET'S GET COOKING
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -734,7 +800,7 @@ export default function App() {
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
                <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">-</span> You will reset all money and upgrades.</div>
                <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> You will gain <span className="text-xl font-display text-glow-green leading-none tabular-nums">{pendingLicenses}</span> Franchise Licenses.</div>
-               <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts speed and prices by 50%!</div>
+               <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts your click power by 50%!</div>
             </div>
             <div className="flex gap-4">
                 <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-xl tracking-widest rounded-xl transition-all">CANCEL</button>
@@ -1020,12 +1086,14 @@ export default function App() {
                 </div>
                 <div className="text-right text-sm flex flex-col items-end gap-1.5">
                   <div>
-                    <span className="text-purple-300">Global Multiplier: </span>
+                    <span className="text-purple-300">Click Multiplier: </span>
                     <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{fmt(Math.round((franchiseMultiplier - 1) * 100))}%</span>
                   </div>
-                  <div>
-                    <span className="text-slate-400">Total Multiplier: </span>
-                    <span className="font-display text-yellow-300 bg-yellow-900/30 px-2 py-1 rounded border border-yellow-500/30 tabular-nums">{fmt(+(franchiseMultiplier * achievementMultiplier * vipTokenMultiplier).toFixed(2))}x</span>
+                  <div className="flex gap-2">
+                    <span className="text-slate-500 text-xs self-center">Click:</span>
+                    <span className="font-display text-orange-300 bg-orange-900/20 px-2 py-1 rounded border border-orange-500/20 tabular-nums text-xs">{fmt(+(franchiseMultiplier * vipTokenMultiplier).toFixed(2))}x</span>
+                    <span className="text-slate-500 text-xs self-center">Idle:</span>
+                    <span className="font-display text-blue-300 bg-blue-900/20 px-2 py-1 rounded border border-blue-500/20 tabular-nums text-xs">{fmt(+(vipTokenMultiplier).toFixed(2))}x</span>
                   </div>
                 </div>
               </div>
@@ -1117,12 +1185,14 @@ export default function App() {
                 }
 
                 return (
-                  <div
+                  <button
                     key={upgrade.id}
+                    onClick={() => buyUpgrade(upgrade)}
+                    disabled={!canAfford}
                     className={`w-full group flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl transition-all duration-300 text-left relative overflow-hidden border bg-gradient-to-br ${theme.bg} ${
                       canAfford 
-                        ? `${theme.border} hover:-translate-y-1 hover:shadow-lg` 
-                        : 'opacity-60 border-slate-700/50 grayscale-[30%]'
+                        ? `${theme.border} hover:-translate-y-1 hover:shadow-lg cursor-pointer active:scale-[0.99]` 
+                        : 'opacity-60 border-slate-700/50 grayscale-[30%] cursor-not-allowed'
                     }`}
                   >
                     {nextMilestone !== 'MAX' && (
@@ -1152,10 +1222,10 @@ export default function App() {
                           <p className="text-sm text-slate-300 font-medium flex items-center gap-2 tabular-nums">
                             {upgrade.type === 'production' && (count === 0
                               ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
-                              : <span>Bakes {fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} / sec</span>)}
+                              : <span>Bakes {fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)} / sec</span>)}
                             {upgrade.type === 'quality' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier)} per Pizza</span></span>
-                              : <span>+${fmt(upgrade.baseValue * count * multi * franchiseMultiplier * achievementMultiplier * vipTokenMultiplier)} per Pizza</span>)}
+                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue * achievementMultiplier * vipTokenMultiplier)} per Pizza</span></span>
+                              : <span>+${fmt(upgrade.baseValue * count * multi * achievementMultiplier * vipTokenMultiplier)} per Pizza</span>)}
                             {upgrade.type === 'click' && (count === 0
                               ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
                               : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
@@ -1174,31 +1244,23 @@ export default function App() {
                     </div>
                     
                     <div className="relative z-10 w-full sm:w-auto flex flex-col items-stretch sm:items-end gap-2 border-t border-slate-700/50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                      {/* Buy x1 */}
-                      <button
-                        onClick={() => buyUpgrade(upgrade)}
-                        disabled={!canAfford}
-                        className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
-                          canAfford ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
-                        }`}
-                      >
-                        x1 — $<Num value={cost} decimals={0} /> each
-                      </button>
+                      {/* Cost label */}
+                      <div className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm tabular-nums text-center sm:text-right ${theme.text}`}>
+                        x1 — <Num value={cost} prefix="$" decimals={0} />
+                      </div>
 
                       {/* Buy x10 */}
                       {(() => {
                         let cost10 = 0;
                         for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
                         const can10 = money >= cost10;
+                        if (!can10) return null;
                         return (
                           <button
-                            onClick={() => buyUpgradeN(upgrade, 10)}
-                            disabled={!can10}
-                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
-                              can10 ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
-                            }`}
+                            onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
+                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${theme.border} border bg-slate-950/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95`}
                           >
-                            x10 — $<Num value={cost10 / 10} decimals={0} /> each
+                            x10 — <Num value={cost10 / 10} prefix="$" decimals={0} /> each
                           </button>
                         );
                       })()}
@@ -1208,15 +1270,13 @@ export default function App() {
                         let cost100 = 0;
                         for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
                         const can100 = money >= cost100;
+                        if (!can100) return null;
                         return (
                           <button
-                            onClick={() => buyUpgradeN(upgrade, 100)}
-                            disabled={!can100}
-                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${
-                              can100 ? `${theme.border} border bg-slate-900/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95` : 'border border-slate-700/50 bg-slate-900/30 text-slate-600 cursor-not-allowed'
-                            }`}
+                            onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
+                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${theme.border} border bg-slate-950/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95`}
                           >
-                            x100 — $<Num value={cost100 / 100} decimals={0} /> each
+                            x100 — <Num value={cost100 / 100} prefix="$" decimals={0} /> each
                           </button>
                         );
                       })()}
@@ -1232,7 +1292,7 @@ export default function App() {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
 
