@@ -1100,9 +1100,9 @@ export default function App() {
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums">$<Num value={lifetimeMoney} decimals={0} /></strong></div>
+                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
                   <div className="text-xs text-slate-500 tabular-nums">
-                    Next license at $<Num value={Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST} decimals={0} />
+                    Next license at <Num value={Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST} prefix="$" decimals={0} />
                   </div>
                 </div>
                 
@@ -1236,9 +1236,6 @@ export default function App() {
                               </span>
                             )}
                           </p>
-                          <span className={`text-[10px] font-bold uppercase tracking-widest ${theme.text} opacity-60`}>
-                            Type: {upgrade.type}
-                          </span>
                         </div>
                       </div>
                     </div>
