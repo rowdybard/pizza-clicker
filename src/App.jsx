@@ -381,11 +381,11 @@ export default function App() {
           }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
-          if (timeSinceClick > 1000) {
+          if (timeSinceClick > 2000) {
               setCombo(0);
               setComboDecayTimer(0);
           } else {
-              setComboDecayTimer(10 - Math.floor(timeSinceClick / 100));
+              setComboDecayTimer(20 - Math.floor(timeSinceClick / 100));
           }
       }, 100);
       return () => clearInterval(smoothTick);
@@ -462,6 +462,10 @@ export default function App() {
     }
     if (sideOrder && sideOrder.status === 'clean') {
         const timer = setTimeout(() => setSideOrder(null), 1500);
+        return () => clearTimeout(timer);
+    }
+    if (sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'dirty') {
+        const timer = setTimeout(() => setSideOrder(null), 8000);
         return () => clearTimeout(timer);
     }
   }, [sideOrder?.status, sideOrder?.rewardEarned]);
@@ -839,7 +843,7 @@ export default function App() {
                   
                   {/* Smooth Combo Decay Bar */}
                   <div className="w-24 h-1.5 bg-slate-900 rounded-full mt-2 overflow-hidden border border-slate-700">
-                    <div className="h-full bg-gradient-to-r from-yellow-400 to-red-500 transition-all duration-100" style={{ width: `${(comboDecayTimer / 10) * 100}%` }}></div>
+                    <div className="h-full bg-gradient-to-r from-yellow-400 to-red-500 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }}></div>
                   </div>
                 </div>
               )}
@@ -916,7 +920,7 @@ export default function App() {
           <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col h-[650px] overflow-hidden relative">
 
             <div className="flex items-center justify-between bg-slate-900/60 p-4 sm:p-6 border-b border-slate-700">
-              <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 sm:pb-0">
+              <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 sm:pb-0 min-w-0">
                 <button onClick={() => setActiveTab('upgrades')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'upgrades' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
                   <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Upgrades
                 </button>
