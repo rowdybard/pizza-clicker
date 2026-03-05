@@ -608,18 +608,9 @@ export default function App() {
     return null;
   };
 
-  const Num = ({ value, prefix = '', suffix = '', decimals = 2, showFull = false }) => {
+  const Num = ({ value, prefix = '', suffix = '', decimals = 2 }) => {
     const abs = Math.abs(value);
     if (abs < 1e3) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
-    const words = numWords(value);
-    if (showFull && words) {
-      return (
-        <span className="flex flex-col leading-tight">
-          <span>{prefix}{fmt(value)}{suffix}</span>
-          <span className="text-[0.6em] text-slate-500 font-normal tracking-wide normal-case">{prefix}{words}</span>
-        </span>
-      );
-    }
     return <span>{prefix}{fmt(value)}{suffix}</span>;
   };
 
@@ -789,8 +780,9 @@ export default function App() {
               <DollarSign className="w-3 h-3 text-green-400"/> Bank
             </span>
             <span className="text-xl sm:text-2xl font-display tracking-wider text-green-400 text-glow-green truncate tabular-nums">
-              $<Num value={money} decimals={2} showFull />
+              <Num value={money} prefix="$" decimals={2} />
             </span>
+            {numWords(money) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(money)}</div>}
           </div>
 
           {/* 2. Profit / Sec */}
@@ -799,8 +791,9 @@ export default function App() {
               <TrendingUp className="w-3 h-3"/> Profit / Sec
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : recentCps > 0 ? 'text-orange-400 text-glow-orange scale-105' : 'text-blue-400 text-glow-blue'}`}>
-              $<Num value={displayProfitPerSec} decimals={2} showFull />
+              <Num value={displayProfitPerSec} prefix="$" decimals={2} />
             </span>
+            {numWords(displayProfitPerSec) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(displayProfitPerSec)}</div>}
           </div>
 
           {/* 3. Pizzas / Sec */}
@@ -809,8 +802,9 @@ export default function App() {
               <Pizza className="w-3 h-3"/> Pizzas / Sec
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-slate-200'}`}>
-              <Num value={idlePizzasPerSec} decimals={1} showFull />
+              <Num value={idlePizzasPerSec} decimals={1} />
             </span>
+            {numWords(idlePizzasPerSec) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">{numWords(idlePizzasPerSec)}</div>}
           </div>
 
           {/* 4. Ticket Avg */}
@@ -819,8 +813,9 @@ export default function App() {
               <Award className="w-3 h-3"/> Ticket Avg
             </span>
             <span className={`text-xl sm:text-2xl font-display tracking-wider truncate tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              $<Num value={pizzaPrice} decimals={2} showFull />
+              <Num value={pizzaPrice} prefix="$" decimals={2} />
             </span>
+            {numWords(pizzaPrice) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(pizzaPrice)}</div>}
           </div>
         </div>
       </div>
