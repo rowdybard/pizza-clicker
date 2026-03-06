@@ -93,12 +93,12 @@ const UPGRADES = [
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
   { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
   { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 1, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 1.5, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 3.5, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 12, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 45, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 200, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 5, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 8, reqStars: 1, icon: <Award className="text-yellow-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 12, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 18, reqStars: 3, icon: <Zap className="text-red-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 25, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 35, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
@@ -164,12 +164,15 @@ export default function App() {
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
 
   // --- DERIVED STATS MATH ---
-  const starLevel = STAR_THRESHOLDS.filter(t => reputation >= t).length - 1;
-  const nextStarReq = STAR_THRESHOLDS[starLevel + 1] || STAR_THRESHOLDS[STAR_THRESHOLDS.length - 1];
+  const prestigeStarScale = 1 + (franchiseLicenses * 0.30);
+  const scaledStarThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * prestigeStarScale));
+  const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
+  const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
 
+  const MILESTONE_MULTS = [2, 1.75, 1.5, 1.25, 1.1];
   const getMilestoneMultiplier = (count) => {
     let multiplier = 1;
-    MILESTONES.forEach(m => { if (count >= m) multiplier *= 2; });
+    MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS[i]; });
     return multiplier;
   };
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
@@ -188,7 +191,7 @@ export default function App() {
     const count = safeNum(inventory?.[u.id], 0);
     const multi = getMilestoneMultiplier(count);
     if (u.type === 'production') baseProductionRate += (u.baseValue * count * multi);
-    if (u.type === 'quality') basePizzaPrice += (u.baseValue * count * multi);
+    if (u.type === 'quality') basePizzaPrice *= Math.pow(1 + (u.baseValue / 100), count * multi);
     if (u.type === 'click') baseClickPower += (u.baseValue * count * multi);
   });
 
@@ -201,7 +204,7 @@ export default function App() {
   const franchisedClick = baseClickPower * franchiseMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
-  const pizzaPrice = isRush ? franchisedPrice * 2 : franchisedPrice;
+  const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
   const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier; 
   
   const idlePizzasPerSec = productionRate;
@@ -348,9 +351,11 @@ export default function App() {
     const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
     if (cooldownRemaining > 0) return;
 
-    const warpMoney = idleProfitPerSec * dest.warpSeconds;
-    const warpPizzas = idlePizzasPerSec * dest.warpSeconds;
-    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec)) * dest.warpSeconds;
+    const WARP_CAP = 1e6; // softcap threshold: $1M/sec idle
+    const warpEfficiency = 1 / (1 + idleProfitPerSec / WARP_CAP);
+    const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
+    const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
+    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec)) * dest.warpSeconds * warpEfficiency;
 
     setMoney(m => m + warpMoney);
     setLifetimeMoney(m => m + warpMoney);
@@ -1085,24 +1090,59 @@ export default function App() {
           {(lifetimeMoney > 5000 || franchiseLicenses > 0) && (
             <div className="bg-gradient-to-br from-purple-900/40 to-slate-800 rounded-2xl p-6 shadow-xl border border-purple-500/30 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-              <div className="flex items-center justify-between mb-4 relative z-10">
-                <div className="flex items-center gap-3">
-                  <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-                  <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple">Corporate Office</h2>
+              <div className="flex items-center gap-3 mb-4 relative z-10">
+                <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
+                <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple">Corporate Office</h2>
+              </div>
+
+              {/* Multiplier Breakdown Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
+                {/* Franchise Licenses */}
+                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
+                  <div className="text-[9px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
+                  <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 50%</div>
+                  <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Click only</div>
                 </div>
-                <div className="text-right text-sm flex flex-col items-end gap-1.5">
-                  <div>
-                    <span className="text-purple-300">Click Multiplier: </span>
-                    <span className="font-display text-purple-400 bg-purple-900/50 px-2 py-1 rounded border border-purple-500/30 tabular-nums">+{fmt((franchiseMultiplier - 1) * 100)}%</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="text-slate-500 text-xs self-center">Click:</span>
-                    <span className="font-display text-orange-300 bg-orange-900/20 px-2 py-1 rounded border border-orange-500/20 tabular-nums text-xs">{fmt(+(franchiseMultiplier * vipTokenMultiplier).toFixed(2))}x</span>
-                    <span className="text-slate-500 text-xs self-center">Idle:</span>
-                    <span className="font-display text-blue-300 bg-blue-900/20 px-2 py-1 rounded border border-blue-500/20 tabular-nums text-xs">{fmt(+(vipTokenMultiplier).toFixed(2))}x</span>
-                  </div>
+
+                {/* Achievement Multiplier */}
+                <div className="bg-slate-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
+                  <div className="text-[9px] font-black uppercase tracking-widest text-yellow-400">Achievements</div>
+                  <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 2%</div>
+                  <div className="text-[9px] text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
+                </div>
+
+                {/* VIP Token Multiplier */}
+                <div className="bg-slate-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
+                  <div className="text-[9px] font-black uppercase tracking-widest text-purple-300">VIP Tokens</div>
+                  <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 5%</div>
+                  <div className="text-[9px] text-purple-400 font-bold uppercase mt-0.5">All stats</div>
+                </div>
+
+                {/* Per-Click Output */}
+                <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
+                  <div className="text-[9px] font-black uppercase tracking-widest text-orange-400">Per Click</div>
+                  <div className="font-display text-lg text-orange-300 tabular-nums leading-none"><Num value={currentClickPower} prefix="+" decimals={1} /></div>
+                  <div className="text-[10px] text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
+                  <div className="text-[10px] text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
                 </div>
               </div>
+
+              {franchiseLicenses > 0 && (
+                <div className="mb-3 relative z-10 bg-amber-900/20 border border-amber-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span className="text-xs text-amber-300 font-bold">Prestige Star Scaling</span>
+                  </div>
+                  <div className="flex items-center gap-3 tabular-nums text-xs">
+                    <span className="text-slate-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 30%</span>
+                    <span className="text-amber-400 font-display font-bold">{fmt(prestigeStarScale)}x harder</span>
+                    <span className="text-slate-500">→ ★5 needs {fmtInt(scaledStarThresholds[5])} rep</span>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
@@ -1142,6 +1182,10 @@ export default function App() {
                 <button onClick={() => setActiveTab('achievements')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'achievements' ? 'text-white text-glow-yellow' : 'text-slate-500 hover:text-slate-300'}`}>
                   <Trophy className="w-5 h-5 sm:w-6 sm:h-6" /> Trophies
                 </button>
+                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
+                <button onClick={() => setActiveTab('stats')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'stats' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> Stats
+                </button>
               </div>
             </div>
 
@@ -1177,7 +1221,7 @@ export default function App() {
                             <Lock className="w-4 h-4 text-slate-600" />
                           </div>
                           <p className="text-sm text-slate-500 font-bold flex items-center gap-1.5 tabular-nums">
-                            <Star className="w-4 h-4" /> Requires {upgrade.reqStars} Stars to unlock
+                            <Star className="w-4 h-4" /> Requires {upgrade.reqStars} ★ — {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
                           </p>
                         </div>
                       </div>
@@ -1233,8 +1277,8 @@ export default function App() {
                               ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
                               : <span>Bakes {fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)} / sec</span>)}
                             {upgrade.type === 'quality' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue * achievementMultiplier * vipTokenMultiplier)} per Pizza</span></span>
-                              : <span>+${fmt(upgrade.baseValue * count * multi * achievementMultiplier * vipTokenMultiplier)} per Pizza</span>)}
+                              ? <span>Lvl 1 → <span className="text-amber-300">+{fmt(upgrade.baseValue)}% per level</span></span>
+                              : <span className="text-amber-300">+{fmt(upgrade.baseValue * count * multi)}% total · <span className="text-slate-300">${fmt(pizzaPrice)}/pizza</span></span>)}
                             {upgrade.type === 'click' && (count === 0
                               ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
                               : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
@@ -1329,7 +1373,9 @@ export default function App() {
                     {DESTINATIONS.map(dest => {
                       const cooldown = deliveryCooldowns[dest.id] || 0;
                       const onCooldown = cooldown > 0;
-                      const warpMoney = idleProfitPerSec * dest.warpSeconds;
+                      const WARP_CAP = 1e6;
+                      const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
+                      const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
                       const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
                       return (
                         <button
@@ -1371,6 +1417,11 @@ export default function App() {
                                 <div className={`font-display text-2xl text-glow-green text-green-400 tabular-nums`}>
                                   +$<Num value={warpMoney} decimals={0} />
                                 </div>
+                                {warpEfficiencyDisplay < 0.99 && (
+                                  <div className="text-[10px] font-bold text-amber-500 tabular-nums mt-1">
+                                    {fmt(warpEfficiencyDisplay * 100)}% efficiency (softcap)
+                                  </div>
+                                )}
                                 {dest.rushSeconds > 0 && (
                                   <div className="text-xs font-bold text-red-400 flex items-center gap-1 mt-1"><Zap className="w-3 h-3 fill-red-400" />{dest.rushSeconds}s Dinner Rush</div>
                                 )}
@@ -1420,6 +1471,147 @@ export default function App() {
                          );
                       })}
                    </div>
+                </div>
+              )}
+
+              {/* --- TAB: STATS --- */}
+              {activeTab === 'stats' && (
+                <div className="flex flex-col gap-4">
+
+                  {/* Production */}
+                  <div className="bg-slate-900/60 border border-blue-500/20 rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 bg-blue-900/20 border-b border-blue-500/20 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-blue-400">Production</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+                      {[
+                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
+                        { label: 'Idle Profit / Sec', value: `$${fmt(idleProfitPerSec)}`, sub: 'without clicking' },
+                        { label: 'Pizza Price', value: `$${fmt(pizzaPrice)}`, sub: 'current ticket value' },
+                        { label: 'Base Price', value: `$${fmt(basePizzaPrice)}`, sub: 'before multipliers' },
+                        { label: 'VIP Boost', value: `${fmt(vipTokenMultiplier)}x`, sub: 'all stats' },
+                        { label: 'Ach. Boost', value: `${fmt(achievementMultiplier)}x`, sub: 'price only' },
+                      ].map(({ label, value, sub }) => (
+                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
+                          <div className="font-display text-lg text-blue-300 tabular-nums leading-tight">{value}</div>
+                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Clicking */}
+                  <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 bg-orange-900/20 border-b border-orange-500/20 flex items-center gap-2">
+                      <MousePointerClick className="w-4 h-4 text-orange-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-orange-400">Clicking</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+                      {[
+                        { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
+                        { label: 'Per Click $', value: `$${fmt(currentClickPower * pizzaPrice)}`, sub: 'money per click' },
+                        { label: 'Per Click Rep', value: fmt(currentClickPower), sub: 'rep per click' },
+                        { label: 'Total Clicks', value: fmtInt(totalClicks), sub: 'lifetime' },
+                        { label: 'Click Mult.', value: `${fmt(franchiseMultiplier)}x`, sub: `${franchiseLicenses} licenses` },
+                        { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
+                      ].map(({ label, value, sub }) => (
+                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
+                          <div className="font-display text-lg text-orange-300 tabular-nums leading-tight">{value}</div>
+                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lifetime */}
+                  <div className="bg-slate-900/60 border border-green-500/20 rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 bg-green-900/20 border-b border-green-500/20 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-green-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-green-400">Lifetime Totals</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+                      {[
+                        { label: 'Money Earned', value: `$${fmt(lifetimeMoney)}`, sub: fmtInt(lifetimeMoney) },
+                        { label: 'Pizzas Sold', value: fmtInt(totalPizzasSold), sub: 'all time' },
+                        { label: 'Perfect Bakes', value: fmtInt(perfectBakes), sub: 'oven mini-game' },
+                        { label: 'Deliveries', value: fmtInt(deliveriesCompleted), sub: 'time warp runs' },
+                        { label: 'VIP Tokens', value: fmtInt(vipTokens), sub: '+5% all per token' },
+                        { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 2}% price` },
+                      ].map(({ label, value, sub }) => (
+                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
+                          <div className="font-display text-lg text-green-300 tabular-nums leading-tight">{value}</div>
+                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Prestige & Reputation */}
+                  <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 bg-purple-900/20 border-b border-purple-500/20 flex items-center gap-2">
+                      <Building className="w-4 h-4 text-purple-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-purple-400">Prestige & Reputation</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+                      {[
+                        { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+50% click each' },
+                        { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
+                        { label: 'Reputation', value: fmtInt(reputation), sub: `${fmtInt(nextStarReq)} for next ★` },
+                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${starLevel} / 5` },
+                        { label: 'Star Scale', value: `${fmt(prestigeStarScale)}x`, sub: 'thresholds this run' },
+                        { label: 'Next License', value: `$${fmt(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}`, sub: 'lifetime earnings req.' },
+                      ].map(({ label, value, sub }) => (
+                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
+                          <div className="font-display text-lg text-purple-300 tabular-nums leading-tight">{value}</div>
+                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Upgrades Breakdown */}
+                  <div className="bg-slate-900/60 border border-slate-600/30 rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-2">
+                      <ShoppingCart className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
+                    </div>
+                    <div className="divide-y divide-slate-800/60">
+                      {['production', 'quality', 'click'].map(type => {
+                        const typeUpgrades = UPGRADES.filter(u => u.type === type);
+                        const colors = { production: 'text-blue-400', quality: 'text-amber-400', click: 'text-orange-400' };
+                        const labels = { production: 'Production', quality: 'Quality', click: 'Click' };
+                        return (
+                          <div key={type} className="px-4 py-3">
+                            <div className={`text-[9px] font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
+                            <div className="flex flex-wrap gap-2">
+                              {typeUpgrades.map(u => {
+                                const count = safeNum(inventory?.[u.id], 0);
+                                const locked = starLevel < u.reqStars;
+                                return (
+                                  <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold tabular-nums ${
+                                    locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
+                                    count > 0 ? `bg-slate-900/60 border-slate-600/40 ${colors[type]}` :
+                                    'bg-slate-900/40 border-slate-700/30 text-slate-500'
+                                  }`}>
+                                    {u.name}
+                                    <span className="bg-slate-950/60 px-1.5 py-0.5 rounded font-display">
+                                      {locked ? '🔒' : count}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                 </div>
               )}
 
