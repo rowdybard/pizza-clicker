@@ -76,9 +76,12 @@ const ACHIEVEMENTS = [
 ];
 
 const DESTINATIONS = [
-  { id: 'suburb', name: 'Local Suburbs', warpSeconds: 180, rushSeconds: 0, vipToken: false, cooldown: 60, icon: <Home className="w-8 h-8 text-green-400" />, bg: 'from-green-900/20 to-slate-800', border: 'border-green-500/30', color: 'text-green-400', label: '3 Min Idle Drop', desc: 'Instantly collect 3 minutes of your current idle production.' },
-  { id: 'downtown', name: 'Downtown Office', warpSeconds: 900, rushSeconds: 60, vipToken: false, cooldown: 300, icon: <Briefcase className="w-8 h-8 text-blue-400" />, bg: 'from-blue-900/20 to-slate-800', border: 'border-blue-500/30', color: 'text-blue-400', label: '15 Min Drop + Dinner Rush', desc: 'Collect 15 minutes of idle production and trigger a 60-second Dinner Rush.' },
-  { id: 'mansion', name: 'Billionaire Estate', warpSeconds: 7200, rushSeconds: 0, vipToken: true, cooldown: 1800, icon: <Gem className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800', border: 'border-purple-500/30', color: 'text-purple-400', label: '2 Hr Drop + VIP Token', desc: 'Collect 2 hours of idle production and earn a permanent VIP Token (+5% to everything).' }
+  { id: 'suburb',   name: 'Local Suburbs',     warpSeconds: 180,  rushSeconds: 0,  vipToken: false, cooldown: 60,   icon: <Home     className="w-8 h-8 text-green-400"  />, bg: 'from-green-900/20 to-slate-800',  border: 'border-green-500/30',  color: 'text-green-400',  label: '3 Min Idle Drop',             desc: 'Instantly collect 3 minutes of your current idle production.',
+    unlockReq: { pizzas: 50,    stars: 0, lifetime: 0       }, unlockHint: 'Sell 50 pizzas to open local routes.' },
+  { id: 'downtown', name: 'Downtown Office',    warpSeconds: 900,  rushSeconds: 60, vipToken: false, cooldown: 300,  icon: <Briefcase className="w-8 h-8 text-blue-400"   />, bg: 'from-blue-900/20 to-slate-800',   border: 'border-blue-500/30',   color: 'text-blue-400',   label: '15 Min Drop + Dinner Rush',   desc: 'Collect 15 minutes of idle production and trigger a 60-second Dinner Rush.',
+    unlockReq: { pizzas: 0,     stars: 1, lifetime: 0       }, unlockHint: 'Reach 1-star reputation to unlock city routes.' },
+  { id: 'mansion',  name: 'Billionaire Estate', warpSeconds: 7200, rushSeconds: 0,  vipToken: true,  cooldown: 1800, icon: <Gem      className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800', border: 'border-purple-500/30', color: 'text-purple-400', label: '2 Hr Drop + VIP Token',        desc: 'Collect 2 hours of idle production and earn a permanent VIP Token (+5% to everything).',
+    unlockReq: { pizzas: 0,     stars: 3, lifetime: 10000   }, unlockHint: 'Reach 3-star rep and earn $10,000 lifetime to access elite clients.' },
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -1528,6 +1531,8 @@ export default function App() {
                     {DESTINATIONS.map(dest => {
                       const cooldown = deliveryCooldowns[dest.id] || 0;
                       const onCooldown = cooldown > 0;
+                      const req = dest.unlockReq;
+                      const isUnlocked = totalPizzasSold >= req.pizzas && franchiseLicenses >= req.stars && lifetimeMoney >= req.lifetime;
                       const WARP_CAP = 1e6;
                       const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
                       const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
