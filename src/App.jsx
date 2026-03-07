@@ -557,7 +557,8 @@ export default function App() {
         playSound('error');
     }
 
-    const baseReward = sideOrder.type === 'wings' ? pizzaPrice * 20 : pizzaPrice * 10;
+    const profitSec = Math.max(productionRate, 1) * pizzaPrice;
+    const baseReward = sideOrder.type === 'wings' ? profitSec * 45 : profitSec * 20;
     const finalReward = baseReward * multi;
 
     setSideOrder(prev => ({ ...prev, status, rewardEarned: finalReward }));
@@ -1980,7 +1981,7 @@ export default function App() {
 
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
-                const isLocked = starLevel < upgrade.reqStars;
+                const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
                 const canAfford = money >= cost;
@@ -2413,7 +2414,7 @@ export default function App() {
                                 <div className="flex flex-wrap gap-2">
                                   {typeUpgrades.map(u => {
                                     const count = safeNum(inventory?.[u.id], 0);
-                                    const locked = starLevel < u.reqStars;
+                                    const locked = franchiseLicenses === 0 && starLevel < u.reqStars;
                                     return (
                                       <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold tabular-nums ${
                                         locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
