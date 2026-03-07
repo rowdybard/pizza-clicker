@@ -144,10 +144,10 @@ const DESTINATIONS = [
 
 // --- UPGRADE DEFINITIONS ---
 const UPGRADES = [
-  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.5, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
-  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 5, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
-  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 40, reqStars: 3, icon: <Zap className="text-orange-300" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
+  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
+  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
+  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 3, icon: <Zap className="text-orange-300" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 400, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.3, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 2, reqStars: 1, icon: <Users className="text-blue-500" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 12, reqStars: 2, icon: <Flame className="text-green-500" /> },
