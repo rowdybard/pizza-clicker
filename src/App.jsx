@@ -1320,8 +1320,8 @@ export default function App() {
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
 
-                // Show only revealed upgrades (path-gated); locked upgrades always show their locked state
-                if (!isLocked && !revealedUpgrades.has(upgrade.id)) return null;
+                // Show only revealed upgrades (path-gated); applies to locked and unlocked alike
+                if (!revealedUpgrades.has(upgrade.id)) return null;
 
                 // Projected pizza price after buying this upgrade (next level)
                 const nextCount = count + 1;
