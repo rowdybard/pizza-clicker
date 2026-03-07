@@ -345,7 +345,7 @@ export default function App() {
   const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier; 
   
   const idlePizzasPerSec = productionRate;
-  const activePizzasPerSec = recentCps * currentClickPower;
+  const activePizzasPerSec = smoothCps * currentClickPower;
   const totalDisplayPizzasPerSec = idlePizzasPerSec + activePizzasPerSec;
   
   const idleProfitPerSec = idlePizzasPerSec * pizzaPrice;
@@ -415,6 +415,7 @@ export default function App() {
     
     engineRefs.current.clicksThisSecond += 1;
     engineRefs.current.lastClickTime = Date.now();
+    engineRefs.current.clickTimestamps.push(Date.now());
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
@@ -563,8 +564,10 @@ export default function App() {
   const engineRefs = useRef({
       idleProfitPerSec: 0, idlePizzasPerSec: 0, idleRepPerSec: 0,
       lastClickTime: Date.now(), clicksThisSecond: 0,
-      rushTimeLeft: 0, vipSpawned: false, hasStarted: false
+      rushTimeLeft: 0, vipSpawned: false, hasStarted: false,
+      clickTimestamps: [], // ring buffer for rolling CPS
   });
+  const [smoothCps, setSmoothCps] = useState(0);
 
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
@@ -599,6 +602,12 @@ export default function App() {
           // Sweep expired click popups (replaces N individual setTimeouts)
           const now = Date.now();
           setClickPopups(prev => prev.length > 0 ? prev.filter(p => p.expiresAt > now) : prev);
+
+          // Rolling 3s CPS — trim old timestamps and count remainder
+          const cutoff = now - 3000;
+          engineRefs.current.clickTimestamps = engineRefs.current.clickTimestamps.filter(t => t > cutoff);
+          const rollingCps = engineRefs.current.clickTimestamps.length / 3;
+          setSmoothCps(prev => prev === rollingCps ? prev : rollingCps);
       }, 100);
       return () => clearInterval(smoothTick);
   }, []);
