@@ -627,7 +627,7 @@ export default function App() {
         const next = { ...prev };
         const nextTrends = {};
         Object.keys(next).forEach(key => {
-          const change = (Math.random() * 0.30) - 0.15; // -15% to +15%
+          const change = (Math.random() * 0.24) - 0.12; // -12% to +12%
           let newPrice = next[key] * (1 + change);
           const { min, max } = MARKET_BOUNDS[key];
           if (newPrice <= min) { newPrice = min * 1.05; nextTrends[key] = 1; }
@@ -645,7 +645,7 @@ export default function App() {
         });
         return next;
       });
-    }, 3000);
+    }, 15000);
     return () => clearInterval(marketTick);
   }, []);
 
@@ -1759,20 +1759,20 @@ export default function App() {
                   {!marketUnlocked ? (
                     /* Locked State */
                     <div className="flex flex-col items-center justify-center py-16 gap-6">
-                      <div className="p-6 rounded-full bg-green-900/20 border border-green-500/30">
-                        <TrendingUp className="w-16 h-16 text-green-400 drop-shadow-[0_0_16px_rgba(74,222,128,0.4)]" />
+                      <div className="p-6 rounded-full bg-zinc-800/60 border border-zinc-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                        <TrendingUp className="w-16 h-16 text-zinc-300 drop-shadow-[0_0_16px_rgba(200,200,200,0.3)]" />
                       </div>
                       <div className="text-center">
-                        <h2 className="font-display text-3xl text-green-100 tracking-widest mb-2">Pizza Tycoon Stock Exchange</h2>
-                        <p className="text-slate-400 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
+                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Tycoon Stock Exchange</h2>
+                        <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
                       </div>
-                      <div className="bg-slate-900/60 border border-green-500/20 rounded-xl px-8 py-5 text-center">
-                        <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
-                        <div className="font-display text-3xl text-green-400 tabular-nums mb-4">$25,000</div>
+                      <div className="bg-zinc-900/80 border border-zinc-600/40 rounded-xl px-8 py-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                        <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
+                        <div className="font-display text-3xl text-zinc-200 tabular-nums mb-4">$25,000</div>
                         <button
                           onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }}
                           disabled={money < 25000}
-                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest transition-all ${money >= 25000 ? 'bg-green-600 hover:bg-green-500 text-white shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:-translate-y-0.5' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
+                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest transition-all ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[0_2px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:-translate-y-0.5' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'}`}
                         >
                           {money >= 25000 ? 'Open the Exchange' : `Need $${fmt(25000 - money)} more`}
                         </button>
@@ -1782,17 +1782,17 @@ export default function App() {
                     /* Unlocked Market */
                     <>
                       {/* Header */}
-                      <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4 flex items-center justify-between">
+                      <div className="bg-gradient-to-r from-zinc-800/80 to-zinc-900/80 border border-zinc-600/50 rounded-xl p-4 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_2px_8px_rgba(0,0,0,0.4)]">
                         <div className="flex items-center gap-3">
-                          <TrendingUp className="w-6 h-6 text-green-400" />
+                          <TrendingUp className="w-6 h-6 text-zinc-300" />
                           <div>
-                            <h2 className="font-display text-xl text-green-100 tracking-widest">PTSE — Pizza Tycoon Stock Exchange</h2>
-                            <p className="text-xs text-slate-400 mt-0.5">Prices update every 3 seconds. Shares survive prestige.</p>
+                            <h2 className="font-display text-xl text-zinc-100 tracking-widest">PTSE — Pizza Tycoon Stock Exchange</h2>
+                            <p className="text-xs text-zinc-500 mt-0.5">Prices update every 15 seconds. Shares survive prestige.</p>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Portfolio Value</div>
-                          <div className="font-display text-xl text-green-300 tabular-nums">
+                          <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Portfolio Value</div>
+                          <div className="font-display text-xl text-zinc-200 tabular-nums">
                             ${fmt(
                               marketShares.flour * marketPrices.flour +
                               marketShares.cheese * marketPrices.cheese +
@@ -1807,15 +1807,15 @@ export default function App() {
                       {(marketShares.flour > 0 || marketShares.pepperoni > 0) && (
                         <div className="grid grid-cols-2 gap-3">
                           {marketShares.flour > 0 && (
-                            <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
-                              <span className="text-xs text-blue-300 font-bold">🌾 Flour Synergy</span>
-                              <span className="font-display text-blue-400 tabular-nums text-sm">+{fmt(marketShares.flour * 0.1)}% Production</span>
+                            <div className="bg-zinc-800/60 border border-zinc-600/40 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                              <span className="text-xs text-zinc-300 font-bold">🌾 Flour Synergy</span>
+                              <span className="font-display text-zinc-200 tabular-nums text-sm">+{fmt(marketShares.flour * 0.1)}% Production</span>
                             </div>
                           )}
                           {marketShares.pepperoni > 0 && (
-                            <div className="bg-red-900/20 border border-red-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
-                              <span className="text-xs text-red-300 font-bold">🍕 Pepperoni Synergy</span>
-                              <span className="font-display text-red-400 tabular-nums text-sm">+{fmt(marketShares.pepperoni * 0.1)}% Price</span>
+                            <div className="bg-zinc-800/60 border border-zinc-600/40 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                              <span className="text-xs text-zinc-300 font-bold">🍕 Pepperoni Synergy</span>
+                              <span className="font-display text-zinc-200 tabular-nums text-sm">+{fmt(marketShares.pepperoni * 0.1)}% Price</span>
                             </div>
                           )}
                         </div>
@@ -1824,15 +1824,15 @@ export default function App() {
                       {/* 2x2 Commodity Grid */}
                       {(() => {
                         const COMMODITIES = [
-                          { key: 'flour',     label: 'Flour',     emoji: '🌾', color: 'yellow', synergy: 'Every 10 shares → +1% Production' },
-                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀', color: 'amber',  synergy: null },
-                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕', color: 'red',    synergy: 'Every 10 shares → +1% Pizza Price' },
-                          { key: 'truffles',  label: 'Truffles',  emoji: '💎', color: 'cyan',   synergy: null },
+                          { key: 'flour',     label: 'Flour',     emoji: '🌾', color: 'flour',     synergy: 'Every 10 shares → +1% Production' },
+                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀', color: 'cheese',    synergy: null },
+                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕', color: 'pepperoni', synergy: 'Every 10 shares → +1% Pizza Price' },
+                          { key: 'truffles',  label: 'Truffles',  emoji: '💎', color: 'truffles',  synergy: null },
                         ];
-                        const borderColors = { yellow: 'border-yellow-500/30', amber: 'border-amber-500/30', red: 'border-red-500/30', cyan: 'border-cyan-500/30' };
-                        const bgColors    = { yellow: 'bg-yellow-900/10', amber: 'bg-amber-900/10', red: 'bg-red-900/10', cyan: 'bg-cyan-900/10' };
-                        const textColors  = { yellow: 'text-yellow-300', amber: 'text-amber-300', red: 'text-red-300', cyan: 'text-cyan-300' };
-                        const subColors   = { yellow: 'text-yellow-500', amber: 'text-amber-500', red: 'text-red-500', cyan: 'text-cyan-500' };
+                        const borderColors = { flour: 'border-zinc-500/40', cheese: 'border-zinc-600/40', pepperoni: 'border-zinc-500/40', truffles: 'border-zinc-400/30' };
+                        const bgColors    = { flour: 'bg-zinc-800/50', cheese: 'bg-zinc-900/60', pepperoni: 'bg-zinc-800/50', truffles: 'bg-zinc-900/40' };
+                        const textColors  = { flour: 'text-zinc-200', cheese: 'text-zinc-300', pepperoni: 'text-zinc-200', truffles: 'text-zinc-100' };
+                        const subColors   = { flour: 'text-zinc-400', cheese: 'text-zinc-500', pepperoni: 'text-zinc-400', truffles: 'text-zinc-300' };
 
                         return (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1858,55 +1858,77 @@ export default function App() {
                               };
 
                               const history = marketHistory[key] || [];
-                              const candleStickColors = { yellow: { up: '#fde68a', down: '#92400e', wick: '#fbbf24' }, amber: { up: '#fcd34d', down: '#78350f', wick: '#f59e0b' }, red: { up: '#fca5a5', down: '#7f1d1d', wick: '#f87171' }, cyan: { up: '#67e8f9', down: '#164e63', wick: '#22d3ee' } };
-                              const csColor = candleStickColors[color];
-                              const CANDLE_COUNT = 10;
-                              const grouped = [];
-                              const step = Math.floor(history.length / CANDLE_COUNT);
-                              for (let i = 0; i < CANDLE_COUNT; i++) {
-                                const slice = history.slice(i * step, i * step + step);
-                                if (slice.length === 0) continue;
-                                const open = slice[0];
-                                const close = slice[slice.length - 1];
-                                const high = Math.max(...slice);
-                                const low = Math.min(...slice);
-                                grouped.push({ open, close, high, low });
+                              const csColor = { up: '#22c55e', down: '#ef4444', wick: '#71717a' };
+                              // Each consecutive pair of history points forms one candle
+                              const candles = [];
+                              for (let i = 1; i < history.length; i++) {
+                                const open  = history[i - 1];
+                                const close = history[i];
+                                const high  = Math.max(open, close) * (1 + 0.005); // slight wick
+                                const low   = Math.min(open, close) * (1 - 0.005);
+                                candles.push({ open, close, high, low });
                               }
-                              const allPrices = grouped.flatMap(c => [c.high, c.low]);
+                              // Keep last 14 candles
+                              const grouped = candles.slice(-14);
+                              const allPrices = grouped.length > 0
+                                ? grouped.flatMap(c => [c.high, c.low])
+                                : [price * 0.9, price * 1.1];
                               const priceMin = Math.min(...allPrices);
                               const priceMax = Math.max(...allPrices);
-                              const priceRange = priceMax - priceMin || 1;
-                              const svgH = 52, svgW = 180, padT = 4, padB = 4, padL = 2, padR = 2;
+                              const priceRange = priceMax - priceMin || price * 0.1 || 1;
+                              const labelW = 36;
+                              const svgH = 80, svgW = 200, padT = 6, padB = 6, padL = labelW + 2, padR = 4;
                               const chartH = svgH - padT - padB;
                               const chartW = svgW - padL - padR;
                               const toY = (p) => padT + chartH - ((p - priceMin) / priceRange) * chartH;
-                              const candleW = Math.floor(chartW / CANDLE_COUNT);
+                              const candleW = grouped.length > 0 ? Math.floor(chartW / grouped.length) : chartW;
+                              const midPrice = (priceMin + priceMax) / 2;
+                              const gridLines = [
+                                { p: priceMax, label: fmt(priceMax) },
+                                { p: midPrice, label: fmt(midPrice) },
+                                { p: priceMin, label: fmt(priceMin) },
+                              ];
 
                               return (
-                                <div key={key} className={`rounded-xl border p-5 flex flex-col gap-3 ${bgColors[color]} ${borderColors[color]}`}>
+                                <div key={key} className={`rounded-xl border p-4 flex flex-col gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_2px_6px_rgba(0,0,0,0.3)] ${bgColors[color]} ${borderColors[color]}`}>
                                   {/* Header row */}
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                       <span className="text-2xl">{emoji}</span>
                                       <div>
-                                        <div className="font-display text-lg tracking-wider text-slate-100">{label}</div>
+                                        <div className="font-display text-lg tracking-wider text-zinc-100">{label}</div>
                                         {synergy && <div className={`text-[9px] font-black uppercase tracking-widest ${subColors[color]}`}>{synergy}</div>}
                                       </div>
                                     </div>
                                     <div className="text-right">
                                       <div className="flex items-center gap-1 justify-end">
                                         {trend === 1
-                                          ? <TrendingUp className={`w-4 h-4 ${textColors[color]}`} />
-                                          : <TrendingDown className={`w-4 h-4 text-red-400`} />}
-                                        <span className={`font-display text-xl tabular-nums ${trend === 1 ? textColors[color] : 'text-red-400'}`}>${fmt(price)}</span>
+                                          ? <TrendingUp className="w-4 h-4 text-green-400" />
+                                          : <TrendingDown className="w-4 h-4 text-red-400" />}
+                                        <span className={`font-display text-xl tabular-nums ${trend === 1 ? 'text-green-400' : 'text-red-400'}`}>${fmt(price)}</span>
                                       </div>
-                                      <div className="text-[10px] text-slate-500 tabular-nums">per share</div>
+                                      <div className="text-[10px] text-zinc-600 tabular-nums">per share</div>
                                     </div>
                                   </div>
 
                                   {/* Candlestick Chart */}
-                                  <div className="rounded-lg overflow-hidden bg-slate-950/50 border border-slate-700/30">
-                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '52px' }}>
+                                  <div className="rounded-lg overflow-hidden bg-zinc-950/70 border border-zinc-700/40">
+                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '80px' }}>
+                                      {/* Grid lines + price labels */}
+                                      {gridLines.map(({ p, label }) => {
+                                        const y = toY(p);
+                                        return (
+                                          <g key={label}>
+                                            <line x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#3f3f46" strokeWidth="0.5" strokeDasharray="2,2" />
+                                            <text x={labelW - 2} y={y + 3} textAnchor="end" fontSize="6" fill="#71717a" fontFamily="monospace">{label}</text>
+                                          </g>
+                                        );
+                                      })}
+                                      {/* Current price line */}
+                                      {grouped.length > 0 && (
+                                        <line x1={padL} y1={toY(price)} x2={svgW - padR} y2={toY(price)} stroke={trend === 1 ? '#22c55e' : '#ef4444'} strokeWidth="0.5" strokeOpacity="0.5" strokeDasharray="3,1" />
+                                      )}
+                                      {/* Candles */}
                                       {grouped.map((c, i) => {
                                         const isUp = c.close >= c.open;
                                         const fillColor = isUp ? csColor.up : csColor.down;
@@ -1916,45 +1938,49 @@ export default function App() {
                                         const bodyH = Math.max(bodyBot - bodyTop, 1);
                                         const wickTop = toY(c.high);
                                         const wickBot = toY(c.low);
-                                        const bw = Math.max(candleW * 0.55, 2);
+                                        const bw = Math.max(candleW * 0.6, 2);
                                         return (
                                           <g key={i}>
-                                            <line x1={x} y1={wickTop} x2={x} y2={wickBot} stroke={csColor.wick} strokeWidth="1" strokeOpacity="0.6" />
-                                            <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={fillColor} rx="0.5" />
+                                            <line x1={x} y1={wickTop} x2={x} y2={wickBot} stroke={csColor.wick} strokeWidth="0.8" strokeOpacity="0.7" />
+                                            <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={fillColor} fillOpacity="0.9" rx="0.5" />
                                           </g>
                                         );
                                       })}
+                                      {/* "Waiting for data" placeholder */}
+                                      {grouped.length === 0 && (
+                                        <text x={svgW / 2} y={svgH / 2 + 3} textAnchor="middle" fontSize="7" fill="#52525b" fontFamily="monospace">Waiting for price data...</text>
+                                      )}
                                     </svg>
                                   </div>
 
                                   {/* Holdings */}
-                                  <div className="bg-slate-950/40 rounded-lg px-3 py-2 flex items-center justify-between">
+                                  <div className="bg-zinc-950/50 border border-zinc-700/30 rounded-lg px-3 py-2 flex items-center justify-between">
                                     <div>
-                                      <div className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Shares Owned</div>
+                                      <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Shares Owned</div>
                                       <div className={`font-display text-lg tabular-nums ${textColors[color]}`}>{fmtInt(shares)}</div>
                                     </div>
                                     <div className="text-right">
-                                      <div className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Holding Value</div>
-                                      <div className="font-display text-lg text-green-300 tabular-nums">${fmt(holdingValue)}</div>
+                                      <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Holding Value</div>
+                                      <div className="font-display text-lg text-zinc-200 tabular-nums">${fmt(holdingValue)}</div>
                                     </div>
                                   </div>
 
                                   {/* Buy buttons */}
                                   <div className="flex gap-2">
                                     <button onClick={() => buyShares(1)} disabled={!canBuy1}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${canBuy1 ? `bg-slate-800 hover:bg-slate-700 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
                                       Buy 1
                                     </button>
                                     <button onClick={() => buyShares(10)} disabled={!canBuy10}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${canBuy10 ? `bg-slate-800 hover:bg-slate-700 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
                                       Buy 10
                                     </button>
                                     <button onClick={() => buyShares(maxBuy)} disabled={maxBuy <= 0}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${maxBuy > 0 ? `bg-slate-700 hover:bg-slate-600 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
                                       Max ({fmtInt(maxBuy)})
                                     </button>
                                     <button onClick={sellAll} disabled={shares <= 0}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${shares > 0 ? 'bg-red-900/40 hover:bg-red-800/60 text-red-400' : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${shares > 0 ? 'bg-red-950/60 hover:bg-red-900/80 text-red-400 border border-red-800/40' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
                                       Sell All
                                     </button>
                                   </div>
