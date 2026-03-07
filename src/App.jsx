@@ -165,7 +165,7 @@ const UPGRADES = [
 const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
-const FRANCHISE_BASE_COST = 1e14; // license #100 requires ~$1 quintillion lifetime
+const FRANCHISE_BASE_COST = 5e12; // scaled down so licenses 5-15 are reachable
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
@@ -410,12 +410,12 @@ export default function App() {
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
-  // Licenses boost production + click (not price). Exponential past 10 licenses.
+  // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = franchiseLicenses <= 10
-    ? 1 + (franchiseLicenses * 0.75)
-    : (1 + 10 * 0.75) * Math.pow(1.12, franchiseLicenses - 10);
-  // Licenses also boost pizza price: +15% per license (compounding)
-  const franchisePriceMultiplier = Math.pow(1.15, franchiseLicenses);
+    ? 1 + (franchiseLicenses * 1.2)
+    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10);
+  // Licenses boost pizza price: +25% per license (compounding)
+  const franchisePriceMultiplier = Math.pow(1.25, franchiseLicenses);
   // Star level gives a compounding production+click bonus (1.6^stars)
   const starPowerMultiplier = Math.pow(1.6, starLevel);
   // Price-side multipliers (flat, additive base)
@@ -442,8 +442,10 @@ export default function App() {
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
 
+  // License passive floor: guaranteed pizzas/sec even with no upgrades
+  const licenseProductionFloor = franchiseLicenses > 0 ? 50 * Math.pow(1.5, franchiseLicenses) : 0;
   // Production and click both benefit from licenses + star power
-  const franchisedProduction = baseProductionRate * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
+  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
   const franchisedClick = baseClickPower * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
   
@@ -642,9 +644,11 @@ export default function App() {
   };
 
   const confirmPrestige = () => {
-    setFranchiseLicenses(prev => prev + pendingLicenses);
-    // shadowCapital perk: start new run with $100,000 instead of $0
-    setMoney(syndicatePerks.shadowCapital ? 100000 : 0);
+    const newLicenses = franchiseLicenses + pendingLicenses;
+    setFranchiseLicenses(newLicenses);
+    // Starting cash: $500 * licenses^2, or shadowCapital if larger
+    const licenseStartMoney = 500 * Math.pow(newLicenses, 2);
+    setMoney(Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney));
     setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
     setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
@@ -1237,9 +1241,19 @@ export default function App() {
             <h2 className="text-4xl font-display text-white tracking-widest mb-2 text-glow-purple">CORPORATE BUYOUT</h2>
             <p className="text-slate-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
-               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">-</span> You will reset all money and upgrades.</div>
-               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> You will gain <span className="text-xl font-display text-glow-green leading-none tabular-nums">{pendingLicenses}</span> Franchise Licenses.</div>
-               <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Each license permanently boosts your click power by 50%!</div>
+               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money, upgrades &amp; reputation reset.</div>
+               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display text-glow-green leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
+               {(() => {
+                 const newLics = franchiseLicenses + pendingLicenses;
+                 const startCash = 500 * Math.pow(newLics, 2);
+                 const floorPizzas = 50 * Math.pow(1.5, newLics);
+                 const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
+                 return (<>
+                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Start next run with <span className="font-display tabular-nums">${fmt(startCash)}</span> cash.</div>
+                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Passive floor: ~<span className="font-display tabular-nums">${fmt(floorMoney)}</span>/sec before upgrades.</div>
+                   <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> {fmt(1 + newLics * 1.2)}× prod/click · {fmt(Math.pow(1.25, newLics))}× pizza price.</div>
+                 </>);
+               })()}
             </div>
             <div className="flex gap-4">
                 <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-xl tracking-widest rounded-xl transition-all">CANCEL</button>
@@ -1619,7 +1633,9 @@ export default function App() {
                 const confirmAscend = () => {
                   setShowAscendModal(false);
                   setGoldenSlices(g => g + slicesOnAscend);
-                  setMoney(syndicatePerks.shadowCapital ? 100000 : 0);
+                  const newLics = 0; // ascend resets licenses
+                  const licenseStartMoney2 = 500 * Math.pow(newLics, 2);
+                  setMoney(Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney2));
                   setLifetimeMoney(0);
                   setReputation(0);
                   setTotalPizzasSold(0);
