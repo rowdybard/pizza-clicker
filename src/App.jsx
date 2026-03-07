@@ -1534,7 +1534,7 @@ export default function App() {
                       const cooldown = deliveryCooldowns[dest.id] || 0;
                       const onCooldown = cooldown > 0;
                       const req = dest.unlockReq;
-                      const isUnlocked = totalPizzasSold >= req.pizzas && franchiseLicenses >= req.stars && lifetimeMoney >= req.lifetime;
+                      const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime;
                       const WARP_CAP = 1e6;
                       const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
                       const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
@@ -1542,7 +1542,7 @@ export default function App() {
                       if (!isUnlocked) {
                         const conditions = [
                           req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,        current: totalPizzasSold,  target: req.pizzas  },
-                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,        current: franchiseLicenses, target: req.stars  },
+                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,        current: starLevel, target: req.stars  },
                           req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,      current: lifetimeMoney,    target: req.lifetime },
                         ].filter(Boolean);
                         return (
@@ -2189,6 +2189,7 @@ export default function App() {
           text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 0px 0px 15px currentColor, 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9), 1px -1px 1px rgba(0,0,0,0.9), -1px 1px 1px rgba(0,0,0,0.9);
         }
       `}} />
+
     </div>
   );
 }
