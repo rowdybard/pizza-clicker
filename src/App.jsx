@@ -4,7 +4,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Moon
+  Map, Home, Briefcase, Moon, Mic, MicOff
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
@@ -16,7 +16,9 @@ const getAudioCtx = () => {
   if (_audioCtx.state === 'suspended') _audioCtx.resume();
   return _audioCtx;
 };
+let _isMuted = false;
 const playSound = (type) => {
+  if (_isMuted) return;
   try {
     const ctx = getAudioCtx();
     const now = ctx.currentTime;
@@ -328,6 +330,7 @@ export default function App() {
   // --- MODAL STATE ---
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
 
   // --- JUICE STATE ---
   const [isShaking, setIsShaking] = useState(false);
@@ -2740,6 +2743,17 @@ export default function App() {
                 <span>Support development</span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { const next = !isMuted; setIsMuted(next); _isMuted = next; }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${
+                    isMuted
+                      ? 'bg-white border-white text-slate-900'
+                      : 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                  }`}
+                >
+                  {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
+                  {isMuted ? 'Muted' : 'Sound'}
+                </button>
                 <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
                   <Moon className="w-3 h-3" /> Remove Ads
                 </button>
