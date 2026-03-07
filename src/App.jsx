@@ -93,12 +93,12 @@ const UPGRADES = [
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
   { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
   { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.10, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.25, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 0.75, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 2.50, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 8.00, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 25.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 8.00, reqStars: 3, icon: <Zap className="text-red-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 30.00, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 100.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
@@ -171,6 +171,36 @@ export default function App() {
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
   const [upgradeFilter, setUpgradeFilter] = useState('all');
   const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
+  const [revealedUpgrades, setRevealedUpgrades] = useState(() => {
+    // First upgrade of each path is always revealed
+    const initial = new Set();
+    ['click','production','quality'].forEach(type => {
+      const first = UPGRADES.find(u => u.type === type);
+      if (first) initial.add(first.id);
+    });
+    return initial;
+  });
+
+  // --- UPGRADE REVEAL EFFECT ---
+  useEffect(() => {
+    setRevealedUpgrades(prev => {
+      const next = new Set(prev);
+      ['click','production','quality'].forEach(type => {
+        const path = UPGRADES.filter(u => u.type === type);
+        path.forEach((upgrade, idx) => {
+          if (idx === 0) { next.add(upgrade.id); return; }
+          const prev_upgrade = path[idx - 1];
+          const prevCount = safeNum(inventory?.[prev_upgrade.id], 0);
+          const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
+          if (prevCount >= 1 && money >= cost * 0.8) {
+            next.add(upgrade.id);
+          }
+        });
+      });
+      return next;
+    });
+  // eslint-disable-next-line
+  }, [money, inventory]);
 
   // --- DERIVED STATS MATH ---
   const prestigeStarScale = 1 + (franchiseLicenses * 0.30);
@@ -206,7 +236,8 @@ export default function App() {
 
   const isRush = rushTimeLeft > 0;
   const isClean = cleanBoostTimer > 0;
-  const comboMultiplier = 1 + (combo * 0.01);
+  const heatBarPct = comboDecayTimer / 20;
+  const comboMultiplier = (combo >= 100 && heatBarPct >= 0.9) ? 3 : 1 + (combo * 0.01);
   
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
@@ -1082,7 +1113,7 @@ export default function App() {
               {/* COMBO METER */}
               {combo > 0 && (
                 <div className="absolute top-6 right-6 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums ${combo > 50 ? 'text-red-400 text-glow-red scale-110' : combo > 20 ? 'text-orange-400 text-glow-orange' : 'text-yellow-400 text-glow-yellow'}`}>
+                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white text-glow-blue scale-125 animate-pulse' : combo > 50 ? 'text-red-400 text-glow-red scale-110' : combo > 20 ? 'text-orange-400 text-glow-orange' : 'text-yellow-400 text-glow-yellow'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
                   <div className="text-[10px] md:text-xs font-black tracking-widest uppercase text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded shadow-inner mt-1">Heat Combo</div>
@@ -1283,8 +1314,8 @@ export default function App() {
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
 
-                // Hide unaffordable upgrades until player is 80% of the way to the cost; locked upgrades always show
-                if (!isLocked && money < cost * 0.8) return null;
+                // Show only revealed upgrades (path-gated); locked upgrades always show their locked state
+                if (!isLocked && !revealedUpgrades.has(upgrade.id)) return null;
 
                 // Projected pizza price after buying this upgrade (next level)
                 const nextCount = count + 1;
