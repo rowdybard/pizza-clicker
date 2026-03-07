@@ -242,7 +242,7 @@ export default function App() {
   const isRush = rushTimeLeft > 0;
   const isClean = cleanBoostTimer > 0;
   const heatBarPct = comboDecayTimer / 20;
-  const comboMultiplier = (combo >= 100 && heatBarPct >= 0.9) ? 3 : 1 + (combo * 0.01);
+  const comboMultiplier = (combo >= 100 && heatBarPct > 0) ? 3 : 1 + (combo * 0.01);
   
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
