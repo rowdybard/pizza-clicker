@@ -150,7 +150,7 @@ export default function App() {
   // --- MARKET STATE ---
   const [marketUnlocked, setMarketUnlocked] = useState(initialData?.marketUnlocked || false);
   const [marketShares, setMarketShares] = useState(initialData?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
-  const [marketPrices, setMarketPrices] = useState({ flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
+  const [marketPrices, setMarketPrices] = useState(initialData?.marketPrices || { flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
   const [marketTrends, setMarketTrends] = useState({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
   const [marketHistory, setMarketHistory] = useState({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
@@ -604,7 +604,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares };
+    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices };
   });
 
   useEffect(() => {
