@@ -86,16 +86,16 @@ const DESTINATIONS = [
 
 // --- UPGRADE DEFINITIONS ---
 const UPGRADES = [
-  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.25, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
-  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 2, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
-  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 15, reqStars: 3, icon: <Zap className="text-orange-300" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 100, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
-  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.2, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
-  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 1, reqStars: 1, icon: <Users className="text-blue-500" /> },
-  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 5, reqStars: 2, icon: <Flame className="text-green-500" /> },
-  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.5, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
+  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 5, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
+  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 40, reqStars: 3, icon: <Zap className="text-orange-300" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
+  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.3, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
+  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 2, reqStars: 1, icon: <Users className="text-blue-500" /> },
+  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 12, reqStars: 2, icon: <Flame className="text-green-500" /> },
+  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 80, reqStars: 3, icon: <Store className="text-purple-500" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 500, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 3000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
@@ -105,6 +105,7 @@ const UPGRADES = [
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
+const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
 const FRANCHISE_BASE_COST = 150000; 
 
@@ -163,9 +164,15 @@ const computeOfflineEarnings = (data) => {
 
   const getMult = (count) => {
     let m = 1;
-    MILESTONES.forEach((ms, i) => { if (count >= ms) m *= [2,1.75,1.5,1.25,1.1][i]; });
+    MILESTONES.forEach((ms, i) => { if (count >= ms) m *= MILESTONE_MULTS_OVERRIDE[i]; });
     return m;
   };
+
+  // Reproduce star level from saved reputation
+  const rep = safeNum(data.reputation, 0);
+  const starScale = 1 + (licenses * 0.30);
+  const scaledThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * starScale));
+  const starLevel = scaledThresholds.filter(t => rep >= t).length - 1;
 
   let prodRate = 0, pizzaPrice = 2.50;
   UPGRADES.forEach(u => {
@@ -174,14 +181,17 @@ const computeOfflineEarnings = (data) => {
     if (u.type === 'quality')    pizzaPrice += u.baseValue * count;
   });
 
-  const franchiseMult    = 1 + (licenses * 0.50);
-  const achievementMult  = 1 + (achievements * 0.02);
-  const vipMult          = 1 + (vipToks * 0.05);
-  const flourMult        = 1 + (flourShares * 0.001);
-  const pepMult          = 1 + (pepShares * 0.001);
+  const franchiseMult   = licenses <= 10
+    ? 1 + (licenses * 0.75)
+    : (1 + 10 * 0.75) * Math.pow(1.12, licenses - 10);
+  const starPowerMult   = Math.pow(1.6, starLevel);
+  const achievementMult = 1 + (achievements * 0.03);
+  const vipMult         = 1 + (vipToks * 0.08);
+  const flourMult       = 1 + (flourShares * 0.001);
+  const pepMult         = 1 + (pepShares * 0.001);
 
-  const finalProdRate  = prodRate * vipMult * flourMult;
-  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult * franchiseMult;
+  const finalProdRate  = prodRate * franchiseMult * starPowerMult * vipMult * flourMult;
+  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult;
   const profitPerSec   = finalProdRate * finalPrice;
   const pizzasPerSec   = finalProdRate;
 
@@ -303,19 +313,24 @@ export default function App() {
   const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
   const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
 
-  const MILESTONE_MULTS = [2, 1.75, 1.5, 1.25, 1.1];
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
-    MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS[i]; });
+    MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS_OVERRIDE[i]; });
     return multiplier;
   }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
   const totalEarnableLicenses = Math.floor(Math.sqrt(lifetimeMoney / FRANCHISE_BASE_COST));
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
-  const franchiseMultiplier = 1 + (franchiseLicenses * 0.50); 
-  const achievementMultiplier = 1 + (unlockedAchievements.length * 0.02);
-  const vipTokenMultiplier = 1 + (vipTokens * 0.05);
+  // Licenses boost production + click (not price). Exponential past 10 licenses.
+  const franchiseMultiplier = franchiseLicenses <= 10
+    ? 1 + (franchiseLicenses * 0.75)
+    : (1 + 10 * 0.75) * Math.pow(1.12, franchiseLicenses - 10);
+  // Star level gives a compounding production+click bonus (1.6^stars)
+  const starPowerMultiplier = Math.pow(1.6, starLevel);
+  // Price-side multipliers (flat, additive base)
+  const achievementMultiplier = 1 + (unlockedAchievements.length * 0.03);
+  const vipTokenMultiplier = 1 + (vipTokens * 0.08);
 
   const { baseProductionRate, basePizzaPrice, baseClickPower } = useMemo(() => {
     let prod = 0, price = 2.50, click = 1;
@@ -337,9 +352,10 @@ export default function App() {
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
 
-  const franchisedProduction = baseProductionRate * vipTokenMultiplier * flourSynergyMult;
+  // Production and click both benefit from licenses + star power
+  const franchisedProduction = baseProductionRate * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
   const franchisedPrice = basePizzaPrice * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
-  const franchisedClick = baseClickPower * franchiseMultiplier * vipTokenMultiplier;
+  const franchisedClick = baseClickPower * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
@@ -1829,18 +1845,18 @@ export default function App() {
                         { label: 'Pizzas Sold', value: fmtInt(totalPizzasSold), sub: 'all time' },
                         { label: 'Perfect Bakes', value: fmtInt(perfectBakes), sub: 'oven mini-game' },
                         { label: 'Deliveries', value: fmtInt(deliveriesCompleted), sub: 'time warp runs' },
-                        { label: 'VIP Tokens', value: fmtInt(vipTokens), sub: '+5% all per token' },
-                        { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 2}% price` },
+                        { label: 'VIP Tokens', value: fmtInt(vipTokens), sub: '+8% all per token' },
+                        { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 3}% price` },
                       ]}
                     />
                     <AccSection sKey="prestige" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
                       accentBorder="border-purple-500/20" accentBg="bg-purple-900/20" accentText="text-purple-400" valueColor="text-purple-300"
                       rows={[
-                        { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+50% click each' },
+                        { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+prod & click' },
+                        { label: 'Franchise Mult', value: `${fmt(franchiseMultiplier)}x`, sub: 'prod + click boost' },
+                        { label: 'Star Power', value: `${fmt(starPowerMultiplier)}x`, sub: `1.6^${starLevel} stars` },
                         { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
-                        { label: 'Reputation', value: fmtInt(reputation), sub: `${fmtInt(nextStarReq)} for next ★` },
-                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${starLevel} / 5` },
-                        { label: 'Star Scale', value: `${fmt(prestigeStarScale)}x`, sub: 'thresholds this run' },
+                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${fmtInt(nextStarReq)} rep for next` },
                         { label: 'Next License', value: `$${fmt(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}`, sub: 'lifetime earnings req.' },
                       ]}
                     />
