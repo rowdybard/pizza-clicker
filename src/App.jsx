@@ -1474,137 +1474,135 @@ export default function App() {
 
                 if (isLocked) {
                   return (
-                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-5 flex items-center justify-between opacity-50 bg-gradient-to-br ${theme.bg} ${theme.border}`}>
-                      <div className="flex items-center gap-4 relative z-10">
-                        <div className={`p-4 rounded-xl shadow-inner border ${theme.iconBg} grayscale`}>
+                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-4 flex items-center justify-between gap-4 opacity-50 bg-gradient-to-br ${theme.bg} ${theme.border}`}>
+                      <div className="flex items-center gap-3 relative z-10 min-w-0">
+                        <div className={`p-3 rounded-xl shadow-inner border shrink-0 ${theme.iconBg} grayscale`}>
                           {upgrade.icon}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-display text-xl text-slate-400 tracking-wider">
-                              {upgrade.name}
-                            </h3>
-                            <Lock className="w-4 h-4 text-slate-600" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-display text-base text-slate-400 tracking-wider truncate">{upgrade.name}</h3>
+                            <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0" />
                           </div>
-                          <p className="text-sm text-slate-500 font-bold flex items-center gap-1.5 tabular-nums">
-                            <Star className="w-4 h-4" /> Requires {upgrade.reqStars} ★ — {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-1.5">
+                            <Star className="w-3 h-3 shrink-0" /> Requires {upgrade.reqStars} ★ · {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
                           </p>
                         </div>
                       </div>
-                      <div className="text-right relative z-10">
-                        <div className={`font-display text-2xl ${theme.text} opacity-50 tracking-wider tabular-nums`}>
-                          <Num value={cost} prefix="$" decimals={0} />
-                        </div>
-                        <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">
-                          Base Cost
-                        </div>
+                      <div className="text-right relative z-10 shrink-0">
+                        <div className="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
+                        <div className={`font-display text-base font-black ${theme.text} opacity-50 tabular-nums`}>${fmt(cost)}</div>
                       </div>
                     </div>
                   );
                 }
+
+                let cost10 = 0;
+                for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
+                let cost100 = 0;
+                for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
+                const can10 = money >= cost10;
+                const can100 = money >= cost100;
 
                 return (
                   <button
                     key={upgrade.id}
                     onClick={() => buyUpgrade(upgrade)}
                     disabled={!canAfford}
-                    className={`w-full group flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl transition-all duration-300 text-left relative overflow-hidden border bg-gradient-to-br ${theme.bg} ${
-                      canAfford 
-                        ? `${theme.border} hover:-translate-y-1 hover:shadow-lg cursor-pointer active:scale-[0.99]` 
+                    className={`w-full group flex flex-col p-4 rounded-xl transition-all duration-300 text-left relative overflow-hidden border bg-gradient-to-br ${theme.bg} ${
+                      canAfford
+                        ? `${theme.border} hover:-translate-y-0.5 hover:shadow-lg cursor-pointer active:scale-[0.99]`
                         : 'opacity-60 border-slate-700/50 grayscale-[30%] cursor-not-allowed'
                     }`}
                   >
+                    {/* milestone progress bar */}
                     {nextMilestone !== 'MAX' && (
-                      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-900/50">
-                        <div 
-                          className={`h-full ${theme.bar} transition-all duration-500 ease-out shadow-[0_0_10px_currentColor]`}
-                          style={{ width: `${(count / nextMilestone) * 100}%` }}
-                        />
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-900/50">
+                        <div className={`h-full ${theme.bar} transition-all duration-500 ease-out`} style={{ width: `${(count / nextMilestone) * 100}%` }} />
                       </div>
                     )}
 
-                    <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto mb-4 sm:mb-0">
-                      <div className={`p-4 rounded-xl shadow-inner border ${theme.iconBg} transform transition-transform duration-300 group-hover:scale-110 group-active:scale-95`}>
+                    {/* ── ROW 1: icon + name + level badge ── */}
+                    <div className="flex items-center gap-3 relative z-10">
+                      <div className={`p-3 rounded-xl shadow-inner border shrink-0 ${theme.iconBg} transform transition-transform duration-300 group-hover:scale-110 group-active:scale-95`}>
                         {upgrade.icon}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <h3 className="font-display text-xl text-slate-100 tracking-wider">
-                            {upgrade.name}
-                          </h3>
-                          <span className="text-xs font-black bg-slate-950 border border-slate-700 px-2.5 py-1 rounded-full text-slate-300 shadow-inner tabular-nums">
-                            Lvl {count}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-base text-slate-100 tracking-wider leading-tight">{upgrade.name}</h3>
+                          <span className={`text-[10px] font-black ${theme.text} bg-slate-950/70 border border-current/30 px-2 py-0.5 rounded-full tabular-nums shrink-0`}>
+                            LVL {count}
                           </span>
+                          {multi > 1 && count > 0 && (
+                            <span className={`text-[10px] font-black ${theme.text} bg-slate-950/70 border border-current/30 px-2 py-0.5 rounded-full tabular-nums shrink-0`}>
+                              {multi}x
+                            </span>
+                          )}
                         </div>
-                        
-                        <div className="flex flex-col gap-1.5">
-                          <p className="text-sm text-slate-300 font-medium flex items-center gap-2 tabular-nums">
-                            {upgrade.type === 'production' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
-                              : <span>Bakes {fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)} / sec</span>)}
-                            {upgrade.type === 'quality' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue)}/pizza · </span><span className="text-slate-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>
-                              : <span className="text-amber-300">+${fmt(upgrade.baseValue * count)}/pizza now · <span className="text-green-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
-                            {upgrade.type === 'click' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
-                              : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
-                            
-                            {multi > 1 && count > 0 && (
-                              <span className={`text-xs font-bold ${theme.text} bg-slate-950/60 px-2 py-0.5 rounded border border-current opacity-90 tabular-nums`}>
-                                {multi}x Power
-                              </span>
-                            )}
-                          </p>
-                        </div>
+                        {/* stat line */}
+                        <p className="text-xs text-slate-400 font-medium mt-0.5 tabular-nums">
+                          {upgrade.type === 'production' && (count === 0
+                            ? <span>First level: <span className="text-blue-300 font-bold">+{fmt(upgrade.baseValue)}/sec</span></span>
+                            : <span className="text-blue-300 font-bold">{fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)}/sec</span>)}
+                          {upgrade.type === 'quality' && (count === 0
+                            ? <span>First level: <span className="text-amber-300 font-bold">+${fmt(upgrade.baseValue)}/pizza</span></span>
+                            : <span><span className="text-amber-300 font-bold">+${fmt(upgrade.baseValue * count)}/pizza</span> · <span className="text-green-300 font-bold">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
+                          {upgrade.type === 'click' && (count === 0
+                            ? <span>First level: <span className="text-orange-300 font-bold">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} pizzas/click</span></span>
+                            : <span className="text-orange-300 font-bold">+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} pizzas/click</span>)}
+                        </p>
                       </div>
                     </div>
-                    
-                    <div className="relative z-10 w-full sm:w-auto flex flex-col items-stretch sm:items-end gap-2 border-t border-slate-700/50 sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                      {/* Cost label */}
-                      <div className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm tabular-nums text-center sm:text-right ${theme.text}`}>
-                        x1 — <Num value={cost} prefix="$" decimals={0} />
+
+                    {/* ── SPACER ── */}
+                    <div className="relative z-10 mt-3 mb-2.5 border-t border-slate-700/40" />
+
+                    {/* ── ROW 2: price · milestone · bulk buttons ── */}
+                    <div className="relative z-10 flex items-center gap-2">
+
+                      {/* Price pill — clear focal anchor */}
+                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-lg shrink-0 ${
+                        canAfford ? 'bg-slate-950/70 border border-slate-700/60' : 'bg-slate-900/40 border border-slate-800/40'
+                      }`}>
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">$</span>
+                        <span className={`font-display text-lg font-black ${canAfford ? theme.text : 'text-slate-600'} tabular-nums leading-none`}>
+                          {fmt(cost)}
+                        </span>
                       </div>
 
-                      {/* Buy x10 */}
-                      {(() => {
-                        let cost10 = 0;
-                        for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                        const can10 = money >= cost10;
-                        if (!can10) return null;
-                        return (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
-                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${theme.border} border bg-slate-950/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95`}
-                          >
-                            x10 — <Num value={cost10 / 10} prefix="$" decimals={0} /> each
-                          </button>
-                        );
-                      })()}
+                      {/* Milestone tracker — middle, fills remaining space */}
+                      <div className="flex-1 flex items-center justify-center min-w-0">
+                        {nextMilestone !== 'MAX' ? (
+                          <span className="text-[10px] text-slate-500 font-bold tabular-nums truncate">
+                            <span className={`${theme.text} font-black`}>{count}</span>
+                            <span className="text-slate-700 mx-0.5">/</span>
+                            <span className="text-slate-300 font-black">{nextMilestone}</span>
+                            <span className="text-slate-600 ml-1">next boost</span>
+                          </span>
+                        ) : (
+                          <span className={`text-[10px] font-black uppercase tracking-wider ${theme.text}`}>✦ Max Boost</span>
+                        )}
+                      </div>
 
-                      {/* Buy x100 */}
-                      {(() => {
-                        let cost100 = 0;
-                        for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                        const can100 = money >= cost100;
-                        if (!can100) return null;
-                        return (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
-                            className={`px-4 py-2 rounded-lg font-display tracking-wider text-sm transition-all tabular-nums ${theme.border} border bg-slate-950/60 ${theme.text} hover:bg-slate-800 cursor-pointer active:scale-95`}
-                          >
-                            x100 — <Num value={cost100 / 100} prefix="$" decimals={0} /> each
-                          </button>
-                        );
-                      })()}
-
-                      {nextMilestone !== 'MAX' && (
-                        <div className="text-xs text-slate-400 font-bold uppercase tracking-wider bg-slate-950/40 border border-slate-800 px-2.5 py-1 rounded tabular-nums text-center sm:text-right">
-                          Next boost: <span className="text-slate-200">{count}/{nextMilestone}</span>
-                        </div>
-                      )}
-                      {nextMilestone === 'MAX' && (
-                        <div className="text-xs text-amber-400 font-black uppercase tracking-wider bg-amber-900/20 border border-amber-500/30 px-2.5 py-1 rounded text-center sm:text-right">
-                          Max Boost Reached
+                      {/* Bulk buy buttons — right-aligned, shown only when affordable */}
+                      {(can10 || can100) && (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {can10 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
+                              className={`px-2 py-1 rounded-lg font-display text-[10px] tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                            >
+                              ×10
+                            </button>
+                          )}
+                          {can100 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
+                              className={`px-2 py-1 rounded-lg font-display text-[10px] tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                            >
+                              ×100
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
