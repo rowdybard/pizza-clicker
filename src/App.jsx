@@ -2559,12 +2559,13 @@ export default function App() {
                               const trend = marketTrends[key];
                               const shares = marketShares[key];
                               const holdingValue = shares * price;
-                              const canBuy1  = money >= price;
-                              const canBuy10 = money >= price * 10;
-                              const maxBuy   = Math.floor(money / price);
+                              const canBuy1  = money >= price * 1.005;
+                              const canBuy10 = money >= price * 10 * 1.005;
+                              const maxBuy   = Math.floor(money / (price * 1.005));
 
+                              const FEE = 0.005;
                               const buyShares = (n) => {
-                                const cost = price * n;
+                                const cost = price * n * (1 + FEE);
                                 if (money < cost) return;
                                 setMoney(m => m - cost);
                                 setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
@@ -2572,7 +2573,8 @@ export default function App() {
                               };
                               const sellAll = () => {
                                 if (shares <= 0) return;
-                                setMoney(m => m + shares * price);
+                                const proceeds = shares * price * (1 - FEE);
+                                setMoney(m => m + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
                               };
