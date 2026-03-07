@@ -155,8 +155,8 @@ export default function App() {
   const [marketShares, setMarketShares] = useState(initialData?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
   const [marketPrices, setMarketPrices] = useState(initialData?.marketPrices || { flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
   const [marketTrends, setMarketTrends] = useState({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
-  const [portfolioDelta, setPortfolioDelta] = useState(null);
-  const [marketHistory, setMarketHistory] = useState({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
+  const [portfolioDelta, setPortfolioDelta] = useState(initialData?.portfolioDelta ?? null);
+  const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
@@ -608,7 +608,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices };
+    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta };
   });
 
   useEffect(() => {
@@ -1842,84 +1842,103 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    /* Unlocked Market */
+                    /* Unlocked Market — Terminal UI */
                     <>
-                      {/* Header */}
-                      <div className="bg-gradient-to-r from-zinc-800/80 to-zinc-900/80 border border-zinc-600/50 rounded-xl p-4 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_2px_8px_rgba(0,0,0,0.4)]">
-                        <div className="flex items-center gap-3">
-                          <TrendingUp className="w-6 h-6 text-zinc-300" />
-                          <div>
-                            <h2 className="font-display text-xl text-zinc-100 tracking-widest">PTSE — Pizza Tycoon Stock Exchange</h2>
-                            <p className="text-xs text-zinc-500 mt-0.5">Prices update every 15 seconds. Shares survive prestige.</p>
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Portfolio Value</div>
-                          <div className="font-display text-xl text-zinc-200 tabular-nums">
-                            ${fmt(
-                              marketShares.flour * marketPrices.flour +
-                              marketShares.cheese * marketPrices.cheese +
-                              marketShares.pepperoni * marketPrices.pepperoni +
-                              marketShares.truffles * marketPrices.truffles
-                            )}
-                          </div>
-                          {portfolioDelta !== null && portfolioDelta !== 0 && (
-                            <div className={`flex items-center justify-end gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {portfolioDelta > 0
-                                  ? <polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                                  : <polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
-                                {portfolioDelta > 0
-                                  ? <polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                                  : <polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
-                              </svg>
-                              <span className="text-[10px] font-black tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)}</span>
+                      {/* ── Terminal Header Bar ── */}
+                      <div className="bg-zinc-900 border border-zinc-700/60 rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                        {/* Top chrome strip */}
+                        <div className="bg-gradient-to-r from-zinc-800 to-zinc-850 border-b border-zinc-700/50 px-4 py-2.5 flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex gap-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                             </div>
-                          )}
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PTSE — Pizza Tycoon Stock Exchange</span>
+                          </div>
+                          <span className="text-[10px] text-zinc-600 font-mono tabular-nums">15s interval · live</span>
+                        </div>
+
+                        {/* Portfolio summary row */}
+                        {(() => {
+                          const totalVal = marketShares.flour * marketPrices.flour + marketShares.cheese * marketPrices.cheese + marketShares.pepperoni * marketPrices.pepperoni + marketShares.truffles * marketPrices.truffles;
+                          const totalShares = marketShares.flour + marketShares.cheese + marketShares.pepperoni + marketShares.truffles;
+                          const hasSynergy = marketShares.flour > 0 || marketShares.pepperoni > 0;
+                          return (
+                            <div className="px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+                              <div>
+                                <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Total Portfolio</div>
+                                <div className="font-mono text-2xl text-zinc-100 tabular-nums font-bold">${fmt(totalVal)}</div>
+                                {portfolioDelta !== null && portfolioDelta !== 0 && (
+                                  <div className={`flex items-center gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                      {portfolioDelta > 0
+                                        ? <><polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>
+                                        : <><polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
+                                    </svg>
+                                    <span className="text-[10px] font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} last tick</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex gap-4">
+                                <div className="text-right">
+                                  <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Shares Held</div>
+                                  <div className="font-mono text-lg text-zinc-300 tabular-nums font-bold">{fmtInt(totalShares)}</div>
+                                </div>
+                                {hasSynergy && (
+                                  <div className="text-right border-l border-zinc-700/50 pl-4">
+                                    <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Active Synergies</div>
+                                    <div className="flex flex-col items-end gap-0.5">
+                                      {marketShares.flour > 0 && <span className="text-[10px] text-zinc-300 font-mono">🌾 +{fmt(marketShares.flour * 0.1)}% Prod</span>}
+                                      {marketShares.pepperoni > 0 && <span className="text-[10px] text-zinc-300 font-mono">🍕 +{fmt(marketShares.pepperoni * 0.1)}% Price</span>}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Ticker tape */}
+                        <div className="border-t border-zinc-700/50 bg-zinc-950/60 px-4 py-1.5 flex gap-6 overflow-x-auto scrollbar-none">
+                          {[
+                            { key: 'flour', ticker: 'FLUR' },
+                            { key: 'cheese', ticker: 'CHSE' },
+                            { key: 'pepperoni', ticker: 'PPRI' },
+                            { key: 'truffles', ticker: 'TRFL' },
+                          ].map(({ key, ticker }) => (
+                            <div key={key} className="flex items-center gap-2 shrink-0">
+                              <span className="text-[10px] font-black text-zinc-500 tracking-widest font-mono">{ticker}</span>
+                              <span className={`text-[10px] font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-green-400' : 'text-red-400'}`}>
+                                ${fmt(marketPrices[key])}
+                              </span>
+                              <span className={`text-[9px] font-mono ${marketTrends[key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
+                                {marketTrends[key] === 1 ? '▲' : '▼'}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Synergy Banner */}
-                      {(marketShares.flour > 0 || marketShares.pepperoni > 0) && (
-                        <div className="grid grid-cols-2 gap-3">
-                          {marketShares.flour > 0 && (
-                            <div className="bg-zinc-800/60 border border-zinc-600/40 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                              <span className="text-xs text-zinc-300 font-bold">🌾 Flour Synergy</span>
-                              <span className="font-display text-zinc-200 tabular-nums text-sm">+{fmt(marketShares.flour * 0.1)}% Production</span>
-                            </div>
-                          )}
-                          {marketShares.pepperoni > 0 && (
-                            <div className="bg-zinc-800/60 border border-zinc-600/40 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                              <span className="text-xs text-zinc-300 font-bold">🍕 Pepperoni Synergy</span>
-                              <span className="font-display text-zinc-200 tabular-nums text-sm">+{fmt(marketShares.pepperoni * 0.1)}% Price</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 2x2 Commodity Grid */}
+                      {/* ── Commodity Cards ── */}
                       {(() => {
                         const COMMODITIES = [
-                          { key: 'flour',     label: 'Flour',     emoji: '🌾', color: 'flour',     synergy: 'Every 10 shares → +1% Production' },
-                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀', color: 'cheese',    synergy: null },
-                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕', color: 'pepperoni', synergy: 'Every 10 shares → +1% Pizza Price' },
-                          { key: 'truffles',  label: 'Truffles',  emoji: '💎', color: 'truffles',  synergy: null },
+                          { key: 'flour',     label: 'Flour',     ticker: 'FLUR', emoji: '🌾', synergy: '+1% Production per 10 shares' },
+                          { key: 'cheese',    label: 'Cheese',    ticker: 'CHSE', emoji: '🧀', synergy: null },
+                          { key: 'pepperoni', label: 'Pepperoni', ticker: 'PPRI', emoji: '🍕', synergy: '+1% Pizza Price per 10 shares' },
+                          { key: 'truffles',  label: 'Truffles',  ticker: 'TRFL', emoji: '💎', synergy: null },
                         ];
-                        const borderColors = { flour: 'border-zinc-500/40', cheese: 'border-zinc-600/40', pepperoni: 'border-zinc-500/40', truffles: 'border-zinc-400/30' };
-                        const bgColors    = { flour: 'bg-zinc-800/50', cheese: 'bg-zinc-900/60', pepperoni: 'bg-zinc-800/50', truffles: 'bg-zinc-900/40' };
-                        const textColors  = { flour: 'text-zinc-200', cheese: 'text-zinc-300', pepperoni: 'text-zinc-200', truffles: 'text-zinc-100' };
-                        const subColors   = { flour: 'text-zinc-400', cheese: 'text-zinc-500', pepperoni: 'text-zinc-400', truffles: 'text-zinc-300' };
 
                         return (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {COMMODITIES.map(({ key, label, emoji, color, synergy }) => {
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {COMMODITIES.map(({ key, label, ticker, emoji, synergy }) => {
                               const price = marketPrices[key];
                               const trend = marketTrends[key];
                               const shares = marketShares[key];
                               const holdingValue = shares * price;
-                              const canBuy1   = money >= price;
-                              const canBuy10  = money >= price * 10;
-                              const maxBuy    = Math.floor(money / price);
+                              const canBuy1  = money >= price;
+                              const canBuy10 = money >= price * 10;
+                              const maxBuy   = Math.floor(money / price);
 
                               const buyShares = (n) => {
                                 const cost = price * n;
@@ -1933,131 +1952,155 @@ export default function App() {
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                               };
 
+                              // Chart math
                               const history = marketHistory[key] || [];
-                              const csColor = { up: '#22c55e', down: '#ef4444', wick: '#71717a' };
-                              // Each consecutive pair of history points forms one candle
+                              const csColor = { up: '#22c55e', down: '#ef4444', wick: '#52525b' };
                               const candles = [];
                               for (let i = 1; i < history.length; i++) {
                                 const open  = history[i - 1];
                                 const close = history[i];
-                                const high  = Math.max(open, close) * (1 + 0.005); // slight wick
-                                const low   = Math.min(open, close) * (1 - 0.005);
+                                const high  = Math.max(open, close) * 1.005;
+                                const low   = Math.min(open, close) * 0.995;
                                 candles.push({ open, close, high, low });
                               }
-                              // Keep last 14 candles
-                              const grouped = candles.slice(-14);
-                              const allPrices = grouped.length > 0
-                                ? grouped.flatMap(c => [c.high, c.low])
-                                : [price * 0.9, price * 1.1];
+                              const grouped = candles.slice(-16);
+                              const allPrices = grouped.length > 0 ? grouped.flatMap(c => [c.high, c.low]) : [price * 0.9, price * 1.1];
                               const priceMin = Math.min(...allPrices);
                               const priceMax = Math.max(...allPrices);
                               const priceRange = priceMax - priceMin || price * 0.1 || 1;
                               const labelW = 44;
-                              const svgH = 100, svgW = 220, padT = 8, padB = 8, padL = labelW + 2, padR = 4;
+                              const svgH = 110, svgW = 240, padT = 10, padB = 10, padL = labelW + 4, padR = 6;
                               const chartH = svgH - padT - padB;
                               const chartW = svgW - padL - padR;
                               const toY = (p) => padT + chartH - ((p - priceMin) / priceRange) * chartH;
-                              const candleW = grouped.length > 0 ? Math.floor(chartW / grouped.length) : chartW;
+                              const candleW = grouped.length > 0 ? chartW / grouped.length : chartW;
                               const midPrice = (priceMin + priceMax) / 2;
-                              const gridLines = [
-                                { p: priceMax, label: fmt(priceMax) },
-                                { p: midPrice, label: fmt(midPrice) },
-                                { p: priceMin, label: fmt(priceMin) },
-                              ];
+                              // Session high/low from history
+                              const sessionHigh = history.length > 0 ? Math.max(...history) : price;
+                              const sessionLow  = history.length > 0 ? Math.min(...history) : price;
+                              const sessionRange = sessionHigh - sessionLow || 1;
+                              const pricePosPct = Math.min(100, Math.max(0, ((price - sessionLow) / sessionRange) * 100));
 
                               return (
-                                <div key={key} className={`rounded-xl border p-4 flex flex-col gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_2px_6px_rgba(0,0,0,0.3)] ${bgColors[color]} ${borderColors[color]}`}>
-                                  {/* Header row */}
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-2xl">{emoji}</span>
+                                <div key={key} className="bg-zinc-900 border border-zinc-700/50 rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.04)]">
+
+                                  {/* Card header */}
+                                  <div className="px-4 pt-3 pb-2 flex items-start justify-between border-b border-zinc-800">
+                                    <div className="flex items-center gap-2.5">
+                                      <span className="text-xl leading-none">{emoji}</span>
                                       <div>
-                                        <div className="font-display text-lg tracking-wider text-zinc-100">{label}</div>
-                                        {synergy && <div className={`text-[9px] font-black uppercase tracking-widest ${subColors[color]}`}>{synergy}</div>}
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-mono text-xs font-black text-zinc-400 tracking-widest">{ticker}</span>
+                                          {synergy && <span className="text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-500 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider">SYNERGY</span>}
+                                        </div>
+                                        <div className="font-display text-base text-zinc-100 tracking-wide leading-tight">{label}</div>
                                       </div>
                                     </div>
                                     <div className="text-right">
-                                      <div className="flex items-center gap-1 justify-end">
-                                        {trend === 1
-                                          ? <TrendingUp className="w-4 h-4 text-green-400" />
-                                          : <TrendingDown className="w-4 h-4 text-red-400" />}
-                                        <span className={`font-display text-xl tabular-nums ${trend === 1 ? 'text-green-400' : 'text-red-400'}`}>${fmt(price)}</span>
+                                      <div className={`font-mono text-xl font-bold tabular-nums leading-tight ${trend === 1 ? 'text-green-400' : 'text-red-400'}`}>
+                                        ${fmt(price)}
                                       </div>
-                                      <div className="text-[10px] text-zinc-600 tabular-nums">per share</div>
+                                      <div className={`flex items-center justify-end gap-1 text-[10px] font-mono ${trend === 1 ? 'text-green-600' : 'text-red-600'}`}>
+                                        {trend === 1 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                        <span>{trend === 1 ? 'BID UP' : 'BID DOWN'}</span>
+                                      </div>
                                     </div>
                                   </div>
 
-                                  {/* Candlestick Chart */}
-                                  <div className="rounded-lg overflow-hidden bg-zinc-950/70 border border-zinc-700/40">
-                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '100px' }}>
-                                      {/* Grid lines + price labels */}
-                                      {gridLines.map(({ p, label }) => {
+                                  {/* Candlestick chart */}
+                                  <div className="bg-zinc-950 border-b border-zinc-800">
+                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '110px' }}>
+                                      {/* BG grid */}
+                                      {[priceMax, midPrice, priceMin].map((p, gi) => {
                                         const y = toY(p);
                                         return (
-                                          <g key={label}>
-                                            <line x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#3f3f46" strokeWidth="0.5" strokeDasharray="2,2" />
-                                            <text x={labelW - 2} y={y + 3} textAnchor="end" fontSize="8" fill="#a1a1aa" fontFamily="monospace">{label}</text>
+                                          <g key={gi}>
+                                            <line x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#27272a" strokeWidth="0.8" />
+                                            <text x={labelW} y={y - 2} textAnchor="end" fontSize="7.5" fill="#71717a" fontFamily="monospace">${fmt(p)}</text>
                                           </g>
                                         );
                                       })}
-                                      {/* Current price line */}
-                                      {grouped.length > 0 && (
-                                        <line x1={padL} y1={toY(price)} x2={svgW - padR} y2={toY(price)} stroke={trend === 1 ? '#22c55e' : '#ef4444'} strokeWidth="0.5" strokeOpacity="0.5" strokeDasharray="3,1" />
-                                      )}
+                                      {/* Current price dashed line */}
+                                      {grouped.length > 0 && (() => {
+                                        const cy = toY(price);
+                                        return <>
+                                          <line x1={padL} y1={cy} x2={svgW - padR} y2={cy} stroke={trend === 1 ? '#16a34a' : '#dc2626'} strokeWidth="0.6" strokeDasharray="3,2" strokeOpacity="0.7" />
+                                          <rect x={svgW - padR} y={cy - 5} width={padR + 2} height={10} fill={trend === 1 ? '#16a34a' : '#dc2626'} fillOpacity="0.15" />
+                                        </>;
+                                      })()}
                                       {/* Candles */}
                                       {grouped.map((c, i) => {
                                         const isUp = c.close >= c.open;
-                                        const fillColor = isUp ? csColor.up : csColor.down;
                                         const x = padL + i * candleW + candleW / 2;
                                         const bodyTop = toY(Math.max(c.open, c.close));
                                         const bodyBot = toY(Math.min(c.open, c.close));
-                                        const bodyH = Math.max(bodyBot - bodyTop, 1);
-                                        const wickTop = toY(c.high);
-                                        const wickBot = toY(c.low);
-                                        const bw = Math.max(candleW * 0.6, 2);
+                                        const bodyH = Math.max(bodyBot - bodyTop, 1.5);
+                                        const bw = Math.max(candleW * 0.55, 2);
                                         return (
                                           <g key={i}>
-                                            <line x1={x} y1={wickTop} x2={x} y2={wickBot} stroke={csColor.wick} strokeWidth="0.8" strokeOpacity="0.7" />
-                                            <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={fillColor} fillOpacity="0.9" rx="0.5" />
+                                            <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={isUp ? '#16a34a' : '#dc2626'} strokeWidth="0.8" strokeOpacity="0.6" />
+                                            <rect x={x - bw/2} y={bodyTop} width={bw} height={bodyH} fill={isUp ? '#22c55e' : '#ef4444'} fillOpacity={isUp ? '0.85' : '0.9'} rx="0.5" />
                                           </g>
                                         );
                                       })}
-                                      {/* "Waiting for data" placeholder */}
                                       {grouped.length === 0 && (
-                                        <text x={svgW / 2} y={svgH / 2 + 3} textAnchor="middle" fontSize="7" fill="#52525b" fontFamily="monospace">Waiting for price data...</text>
+                                        <text x={svgW/2} y={svgH/2+3} textAnchor="middle" fontSize="7" fill="#3f3f46" fontFamily="monospace">awaiting price data</text>
                                       )}
                                     </svg>
                                   </div>
 
-                                  {/* Holdings */}
-                                  <div className="bg-zinc-950/50 border border-zinc-700/30 rounded-lg px-3 py-2 flex items-center justify-between">
-                                    <div>
-                                      <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Shares Owned</div>
-                                      <div className={`font-display text-lg tabular-nums ${textColors[color]}`}>{fmtInt(shares)}</div>
+                                  {/* Session range bar */}
+                                  <div className="px-4 py-2 border-b border-zinc-800 flex items-center gap-3">
+                                    <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">L ${fmt(sessionLow)}</span>
+                                    <div className="flex-1 h-1 bg-zinc-800 rounded-full relative">
+                                      <div className="absolute h-1 bg-gradient-to-r from-red-500 to-green-500 rounded-full" style={{ width: '100%', opacity: 0.25 }} />
+                                      <div className="absolute w-2 h-2 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.6)] -top-0.5 -translate-x-1/2" style={{ left: `${pricePosPct}%` }} />
                                     </div>
-                                    <div className="text-right">
-                                      <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Holding Value</div>
-                                      <div className="font-display text-lg text-zinc-200 tabular-nums">${fmt(holdingValue)}</div>
+                                    <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">H ${fmt(sessionHigh)}</span>
+                                  </div>
+
+                                  {/* Stats row */}
+                                  <div className="px-4 py-2 grid grid-cols-3 gap-2 border-b border-zinc-800">
+                                    <div>
+                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Shares</div>
+                                      <div className="font-mono text-sm text-zinc-200 tabular-nums font-bold">{fmtInt(shares)}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Value</div>
+                                      <div className="font-mono text-sm text-zinc-200 tabular-nums font-bold">${fmt(holdingValue)}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Avg Cost</div>
+                                      <div className="font-mono text-sm text-zinc-400 tabular-nums">{shares > 0 ? `$${fmt(price)}` : '—'}</div>
                                     </div>
                                   </div>
 
-                                  {/* Buy buttons */}
-                                  <div className="flex gap-2">
+                                  {/* Synergy info */}
+                                  {synergy && shares > 0 && (
+                                    <div className="px-4 py-1.5 bg-zinc-950/40 border-b border-zinc-800 flex items-center justify-between">
+                                      <span className="text-[9px] text-zinc-500 font-mono">{synergy}</span>
+                                      <span className="text-[9px] text-green-500 font-mono font-bold">ACTIVE</span>
+                                    </div>
+                                  )}
+
+                                  {/* Action bar */}
+                                  <div className="p-3 flex gap-2">
                                     <button onClick={() => buyShares(1)} disabled={!canBuy1}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
-                                      Buy 1
+                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      +1
                                     </button>
                                     <button onClick={() => buyShares(10)} disabled={!canBuy10}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
-                                      Buy 10
+                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      +10
                                     </button>
                                     <button onClick={() => buyShares(maxBuy)} disabled={maxBuy <= 0}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
-                                      Max ({fmtInt(maxBuy)})
+                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      MAX
                                     </button>
+                                    <div className="w-px bg-zinc-700 mx-1 self-stretch" />
                                     <button onClick={sellAll} disabled={shares <= 0}
-                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${shares > 0 ? 'bg-red-950/60 hover:bg-red-900/80 text-red-400 border border-red-800/40' : 'bg-zinc-900/40 text-zinc-600 cursor-not-allowed'}`}>
-                                      Sell All
+                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${shares > 0 ? 'bg-red-950 hover:bg-red-900 text-red-400 border border-red-800/60 shadow-[inset_0_1px_0_rgba(255,100,100,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      SELL
                                     </button>
                                   </div>
                                 </div>
