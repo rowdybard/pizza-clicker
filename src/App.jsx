@@ -118,6 +118,61 @@ const loadSaveData = () => {
   return null;
 };
 
+const computeOfflineEarnings = (data) => {
+  if (!data?.lastSaveTime || !data?.inventory) return null;
+  const goneMs = Date.now() - data.lastSaveTime;
+  const goneSec = Math.min(goneMs / 1000, 8 * 3600); // cap at 8 hours
+  if (goneSec < 30) return null; // ignore tiny gaps
+
+  // Reproduce the same upgrade math from the component
+  const inv = data.inventory || {};
+  const licenses = safeNum(data.franchiseLicenses, 0);
+  const vipToks  = safeNum(data.vipTokens, 0);
+  const achievements = (data.unlockedAchievements || []).length;
+  const flourShares = safeNum(data.marketShares?.flour, 0);
+  const pepShares   = safeNum(data.marketShares?.pepperoni, 0);
+
+  const getMult = (count) => {
+    let m = 1;
+    MILESTONES.forEach((ms, i) => { if (count >= ms) m *= [2,1.75,1.5,1.25,1.1][i]; });
+    return m;
+  };
+
+  let prodRate = 0, pizzaPrice = 2.50;
+  UPGRADES.forEach(u => {
+    const count = safeNum(inv[u.id], 0);
+    if (u.type === 'production') prodRate  += u.baseValue * count * getMult(count);
+    if (u.type === 'quality')    pizzaPrice += u.baseValue * count;
+  });
+
+  const franchiseMult    = 1 + (licenses * 0.50);
+  const achievementMult  = 1 + (achievements * 0.02);
+  const vipMult          = 1 + (vipToks * 0.05);
+  const flourMult        = 1 + (flourShares * 0.001);
+  const pepMult          = 1 + (pepShares * 0.001);
+
+  const finalProdRate  = prodRate * vipMult * flourMult;
+  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult * franchiseMult;
+  const profitPerSec   = finalProdRate * finalPrice;
+  const pizzasPerSec   = finalProdRate;
+
+  if (profitPerSec <= 0) return null;
+
+  // Apply 50% offline efficiency
+  const efficiency = 0.5;
+  const moneyEarned  = profitPerSec * goneSec * efficiency;
+  const pizzasEarned = pizzasPerSec * goneSec * efficiency;
+
+  return {
+    goneMs,
+    goneSec,
+    moneyEarned,
+    pizzasEarned,
+    profitPerSec,
+    efficiency,
+  };
+};
+
 export default function App() {
   // --- EMERGENCY UNLOCK EFFECT ---
   useEffect(() => {
@@ -126,12 +181,18 @@ export default function App() {
   }, []);
 
   const [initialData] = useState(() => loadSaveData());
+  // Compute offline earnings once at load time — reused for both state init and modal display
+  const _offlineCalc = useState(() => {
+    const d = loadSaveData();
+    return { data: d, report: computeOfflineEarnings(d) };
+  })[0];
+  const [offlineReport, setOfflineReport] = useState(() => _offlineCalc.report);
 
   // --- CORE STATE ---
-  const [money, setMoney] = useState(safeNum(initialData?.money, 0));
-  const [totalPizzasSold, setTotalPizzasSold] = useState(safeNum(initialData?.totalPizzasSold, 0));
+  const [money, setMoney] = useState(() => safeNum(_offlineCalc.data?.money, 0) + (_offlineCalc.report?.moneyEarned ?? 0));
+  const [totalPizzasSold, setTotalPizzasSold] = useState(() => safeNum(_offlineCalc.data?.totalPizzasSold, 0) + (_offlineCalc.report?.pizzasEarned ?? 0));
   const [reputation, setReputation] = useState(safeNum(initialData?.reputation, 0));
-  const [lifetimeMoney, setLifetimeMoney] = useState(safeNum(initialData?.lifetimeMoney, 0));
+  const [lifetimeMoney, setLifetimeMoney] = useState(() => safeNum(_offlineCalc.data?.lifetimeMoney, 0) + (_offlineCalc.report?.moneyEarned ?? 0));
   const [franchiseLicenses, setFranchiseLicenses] = useState(safeNum(initialData?.franchiseLicenses, 0));
   const [inventory, setInventory] = useState(initialData?.inventory || {});
 
@@ -169,7 +230,6 @@ export default function App() {
   const [sideOrder, setSideOrder] = useState(null); 
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
-  const [offlineReport, setOfflineReport] = useState(null);
   
   const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
@@ -849,75 +909,81 @@ export default function App() {
       )}
 
       {/* --- OFFLINE PROGRESS MODAL --- */}
-      {offlineReport && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border-2 border-blue-500/60 rounded-2xl max-w-lg w-full shadow-[0_0_60px_rgba(59,130,246,0.15)] relative overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-900/60 to-slate-900 px-8 pt-8 pb-6 border-b border-slate-700/50">
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-500/20 border border-blue-500/40 rounded-xl p-3">
-                  <Moon className="w-8 h-8 text-blue-400" />
+      {offlineReport && (() => {
+        const r = offlineReport;
+        const hrs  = Math.floor(r.goneSec / 3600);
+        const mins = Math.floor((r.goneSec % 3600) / 60);
+        const secs = Math.floor(r.goneSec % 60);
+        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        const wasCapped = r.goneMs / 1000 > 8 * 3600;
+        return (
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-slate-900 border-2 border-blue-500/60 rounded-2xl max-w-lg w-full shadow-[0_0_60px_rgba(59,130,246,0.15)] relative overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-900/60 to-slate-900 px-8 pt-8 pb-6 border-b border-slate-700/50">
+                <div className="flex items-center gap-4">
+                  <div className="bg-blue-500/20 border border-blue-500/40 rounded-xl p-3">
+                    <Moon className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-display text-white tracking-widest text-glow-blue">OFFLINE REPORT</h2>
+                    <p className="text-slate-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl font-display text-white tracking-widest text-glow-blue">OFFLINE REPORT</h2>
-                  <p className="text-slate-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">You were gone</span>
+                    <span className="text-white font-display text-lg tabular-nums">{timeStr}</span>
+                  </div>
+                  <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Efficiency</span>
+                    <span className="text-blue-300 font-display text-lg tabular-nums">{Math.round(r.efficiency * 100)}%</span>
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 flex items-center gap-3">
-                <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                  <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">You were gone</span>
-                  <span className="text-white font-display text-lg tabular-nums">{formatTime(offlineReport.time)}</span>
-                </div>
-                {offlineReport.capped && (
-                  <div className="flex-1 bg-amber-900/30 border border-amber-500/40 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-amber-500 text-xs font-bold uppercase tracking-wider">Credited for</span>
-                    <span className="text-amber-400 font-display text-lg tabular-nums">{formatTime(offlineReport.effectiveTime)}</span>
+                {wasCapped && (
+                  <div className="mt-3 text-xs text-amber-400/80 font-bold bg-amber-900/20 border border-amber-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
+                    <span>⚠</span> Offline earnings are capped at 8 hours. Come back sooner to maximise gains!
                   </div>
                 )}
               </div>
-              {offlineReport.capped && (
-                <div className="mt-3 text-xs text-amber-400/80 font-bold bg-amber-900/20 border border-amber-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
-                  <span>⚠</span> Offline earnings are capped at 8 hours. Come back sooner to maximise gains!
-                </div>
-              )}
-            </div>
 
-            {/* Breakdown rows */}
-            <div className="px-8 py-6 space-y-3">
-              <div className="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
-                <div>
-                  <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
-                  <div className="text-slate-400 text-xs tabular-nums"><Num value={offlineReport.ratePerSec} prefix="$" decimals={2} /> / sec</div>
+              {/* Breakdown rows */}
+              <div className="px-8 py-6 space-y-3">
+                <div className="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
+                  <div>
+                    <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
+                    <div className="text-slate-400 text-xs tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
+                  </div>
+                  <div className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+${fmt(r.moneyEarned)}</div>
                 </div>
-                <div className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+<Num value={offlineReport.money} prefix="$" decimals={2} /></div>
+
+                <div className="flex items-center justify-between p-4 bg-orange-900/20 border border-orange-500/30 rounded-xl">
+                  <div>
+                    <div className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
+                    <div className="text-slate-400 text-xs tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
+                  </div>
+                  <div className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700/50 rounded-xl">
+                  <div>
+                    <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Time Active</div>
+                    <div className="text-slate-500 text-xs">50% of full rate while offline</div>
+                  </div>
+                  <div className="text-slate-300 font-display text-2xl tabular-nums">{timeStr}</div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-orange-900/20 border border-orange-500/30 rounded-xl">
-                <div>
-                  <div className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
-                  <div className="text-slate-400 text-xs tabular-nums"><Num value={offlineReport.pizzasPerSec} decimals={1} /> / sec</div>
-                </div>
-                <div className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+<Num value={offlineReport.pizzas} decimals={0} /></div>
+              {/* Footer */}
+              <div className="px-8 pb-8">
+                <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                  LET'S GET COOKING
+                </button>
               </div>
-
-              <div className="flex items-center justify-between p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-xl">
-                <div>
-                  <div className="text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Reputation Gained</div>
-                  <div className="text-slate-400 text-xs">Builds your star rating</div>
-                </div>
-                <div className="text-yellow-400 font-display text-2xl tabular-nums">+<Num value={offlineReport.rep} decimals={0} /></div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-8 pb-8">
-              <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                LET'S GET COOKING
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* --- PRESTIGE MODAL --- */}
       {showPrestigeModal && (
