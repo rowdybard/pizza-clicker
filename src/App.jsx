@@ -616,23 +616,43 @@ export default function App() {
 
   // --- MARKET PRICE ENGINE ---
   useEffect(() => {
-    const MARKET_BOUNDS = {
-      flour:     { min: 5,   max: 40   },
-      cheese:    { min: 20,  max: 120  },
-      pepperoni: { min: 100, max: 600  },
-      truffles:  { min: 500, max: 4000 },
+    // Baseline "fair value" — prices drift back toward these over time
+    const MARKET_BASE = {
+      flour:     15,
+      cheese:    60,
+      pepperoni: 250,
+      truffles:  1500,
+    };
+    // Absolute floor — can't crash below 20% of baseline
+    const MARKET_FLOOR = {
+      flour:     3,
+      cheese:    12,
+      pepperoni: 50,
+      truffles:  300,
     };
     const marketTick = setInterval(() => {
       setMarketPrices(prev => {
         const next = { ...prev };
         const nextTrends = {};
         Object.keys(next).forEach(key => {
-          const change = (Math.random() * 0.24) - 0.12; // -12% to +12%
-          let newPrice = next[key] * (1 + change);
-          const { min, max } = MARKET_BOUNDS[key];
-          if (newPrice <= min) { newPrice = min * 1.05; nextTrends[key] = 1; }
-          else if (newPrice >= max) { newPrice = max * 0.95; nextTrends[key] = -1; }
-          else { nextTrends[key] = newPrice > next[key] ? 1 : -1; }
+          const base  = MARKET_BASE[key];
+          const floor = MARKET_FLOOR[key];
+          const cur   = next[key];
+
+          // Mean reversion pull: nudges price 4% back toward baseline each tick
+          const reversion = (base - cur) / base * 0.04;
+
+          // Volatility damping: full ±12% near baseline, shrinks to ±3% far from it
+          const deviation = Math.abs(cur - base) / base; // 0 at base, grows with distance
+          const dampedVol = 0.12 * Math.max(0.25, 1 - deviation * 0.8);
+
+          const randomChange = (Math.random() * dampedVol * 2) - dampedVol;
+          let newPrice = cur * (1 + randomChange + reversion);
+
+          // Hard floor — never below minimum
+          if (newPrice < floor) newPrice = floor * (1 + Math.random() * 0.05);
+
+          nextTrends[key] = newPrice > cur ? 1 : -1;
           next[key] = parseFloat(newPrice.toFixed(2));
         });
         setMarketTrends(nextTrends);
