@@ -761,6 +761,12 @@ export default function App() {
          ))}
       </div>
 
+      {/* DEV BUTTON — delete this block to remove */}
+      <button onClick={() => { setMoney(m => m + 1000000); setLifetimeMoney(m => m + 1000000); }} className="absolute top-4 right-16 z-50 bg-red-900/80 px-3 py-2 rounded-full border border-red-500/60 text-red-300 text-xs font-black uppercase tracking-widest hover:bg-red-800 transition-all shadow-lg">
+        +$1M
+      </button>
+      {/* END DEV BUTTON */}
+
       <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 z-50 bg-slate-800 p-2 rounded-full border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 hover:bg-slate-700 transition-all shadow-lg">
         <Settings className="w-6 h-6" />
       </button>
