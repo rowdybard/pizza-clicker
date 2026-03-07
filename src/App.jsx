@@ -414,6 +414,8 @@ export default function App() {
   const franchiseMultiplier = franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 0.75)
     : (1 + 10 * 0.75) * Math.pow(1.12, franchiseLicenses - 10);
+  // Licenses also boost pizza price: +15% per license (compounding)
+  const franchisePriceMultiplier = Math.pow(1.15, franchiseLicenses);
   // Star level gives a compounding production+click bonus (1.6^stars)
   const starPowerMultiplier = Math.pow(1.6, starLevel);
   // Price-side multipliers (flat, additive base)
@@ -442,7 +444,7 @@ export default function App() {
 
   // Production and click both benefit from licenses + star power
   const franchisedProduction = baseProductionRate * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
-  const franchisedPrice = basePizzaPrice * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
+  const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
   const franchisedClick = baseClickPower * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
@@ -1543,6 +1545,7 @@ export default function App() {
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
                   <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
                   <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
+                  <div className="text-[9px] font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                 </div>
 
                 {/* Achievement Multiplier */}
@@ -2344,6 +2347,7 @@ export default function App() {
                       rows={[
                         { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+prod & click' },
                         { label: 'Franchise Mult', value: `${fmt(franchiseMultiplier)}x`, sub: 'prod + click boost' },
+                        { label: 'Franchise Price', value: `${fmt(franchisePriceMultiplier)}x`, sub: '+15% $/pizza per license' },
                         { label: 'Star Power', value: `${fmt(starPowerMultiplier)}x`, sub: `1.6^${starLevel} stars` },
                         { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
                         { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${fmtInt(nextStarReq)} rep for next` },
@@ -2674,7 +2678,8 @@ export default function App() {
                                     <button
                                       onClick={() => {
                                         if (marketCooldowns.rumors > 0) return;
-                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * 0.3).toFixed(2)) }));
+                                        const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
+                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * crashMult).toFixed(2)) }));
                                         setMarketCooldowns(c => ({ ...c, rumors: 600 }));
                                       }}
                                       disabled={marketCooldowns.rumors > 0}
@@ -2689,7 +2694,8 @@ export default function App() {
                                     <button
                                       onClick={() => {
                                         if (marketCooldowns.squeeze > 0) return;
-                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * 2.5).toFixed(2)) }));
+                                        const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
+                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * squeezeMult).toFixed(2)) }));
                                         setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
                                       }}
                                       disabled={marketCooldowns.squeeze > 0}
