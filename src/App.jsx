@@ -232,6 +232,7 @@ export default function App() {
   
   const [combo, setCombo] = useState(0);
   const [comboDecayTimer, setComboDecayTimer] = useState(0);
+  const [smoothCps, setSmoothCps] = useState(0);
   
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
@@ -567,8 +568,6 @@ export default function App() {
       rushTimeLeft: 0, vipSpawned: false, hasStarted: false,
       clickTimestamps: [], // ring buffer for rolling CPS
   });
-  const [smoothCps, setSmoothCps] = useState(0);
-
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
       engineRefs.current.idlePizzasPerSec = idlePizzasPerSec;
