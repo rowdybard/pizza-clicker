@@ -327,6 +327,7 @@ export default function App() {
 
   // --- MODAL STATE ---
   const [showAscendModal, setShowAscendModal] = useState(false);
+  const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
 
   // --- JUICE STATE ---
   const [isShaking, setIsShaking] = useState(false);
@@ -1192,7 +1193,7 @@ export default function App() {
                     <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
                     <div className="text-slate-400 text-xs tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
                   </div>
-                  <div className="text-green-400 font-display text-2xl text-glow-green tabular-nums">+${fmt(r.moneyEarned)}</div>
+                  <div className="text-money font-display text-2xl text-glow-green tabular-nums">+${fmt(r.moneyEarned)}</div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-orange-900/20 border border-orange-500/30 rounded-xl">
@@ -1276,9 +1277,9 @@ export default function App() {
           {/* 1. Bank */}
           <div className="bg-slate-900 px-4 py-3 rounded-xl border border-slate-700 flex flex-col justify-center shadow-inner relative overflow-hidden">
             <span className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
-              <DollarSign className="w-3 h-3 text-green-400"/> Bank
+              <DollarSign className="w-3 h-3 text-money"/> Bank
             </span>
-            <span className="text-xl sm:text-2xl font-display tracking-wider text-green-400 text-glow-green truncate tabular-nums">
+            <span className="text-xl sm:text-2xl font-display tracking-wider text-money text-glow-green truncate tabular-nums">
               <Num value={money} prefix="$" decimals={2} />
             </span>
             {numWords(money) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(money)}</div>}
@@ -1519,12 +1520,17 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col gap-6 transition-all duration-300 opacity-100">
           
           {(lifetimeMoney > 5000 || franchiseLicenses > 0) && (
-            <div className="bg-gradient-to-br from-purple-900/40 to-slate-800 rounded-2xl p-6 shadow-xl border border-purple-500/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-              <div className="flex items-center gap-3 mb-4 relative z-10">
-                <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-                <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple">Corporate Office</h2>
-              </div>
+            <div className="bg-gradient-to-br from-purple-900/40 to-slate-800 rounded-2xl shadow-xl border border-purple-500/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              <button
+                onClick={() => setCorpOfficeOpen(o => !o)}
+                className="w-full flex items-center gap-3 px-6 py-4 relative z-10 hover:brightness-110 transition-all"
+              >
+                <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)] shrink-0" />
+                <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple flex-1 text-left">Corporate Office</h2>
+                <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              {corpOfficeOpen && <div className="px-6 pb-6">
 
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
@@ -1577,7 +1583,7 @@ export default function App() {
 
               <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
+                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-money font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
                   <div className="text-xs text-slate-500 tabular-nums">
                     Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
                   </div>
@@ -1735,6 +1741,7 @@ export default function App() {
                   </>
                 );
               })()}
+            </div>}
             </div>
           )}
 
@@ -1978,7 +1985,7 @@ export default function App() {
                       </div>
                       <div className="text-right relative z-10 shrink-0">
                         <div className="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
-                        <div className={`font-display text-base font-black ${theme.text} opacity-50 tabular-nums`}>${fmt(cost)}</div>
+                        <div className="font-display text-base font-black text-money opacity-50 tabular-nums">${fmt(cost)}</div>
                       </div>
                     </div>
                   );
@@ -2028,15 +2035,25 @@ export default function App() {
                         </div>
                         {/* stat line */}
                         <p className="text-xs text-slate-400 font-medium mt-0.5 tabular-nums">
-                          {upgrade.type === 'production' && (count === 0
-                            ? <span>First level: <span className="text-blue-300 font-bold">+{fmt(upgrade.baseValue)}/sec</span></span>
-                            : <span className="text-blue-300 font-bold">{fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)}/sec</span>)}
-                          {upgrade.type === 'quality' && (count === 0
-                            ? <span>First level: <span className="text-amber-300 font-bold">+${fmt(upgrade.baseValue)}/pizza</span></span>
-                            : <span><span className="text-amber-300 font-bold">+${fmt(upgrade.baseValue * count)}/pizza</span> · <span className="text-green-300 font-bold">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
-                          {upgrade.type === 'click' && (count === 0
-                            ? <span>First level: <span className="text-orange-300 font-bold">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} pizzas/click</span></span>
-                            : <span className="text-orange-300 font-bold">+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} pizzas/click</span>)}
+                          {upgrade.type === 'production' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-blue-300 font-bold">+{nxt}/sec</span></span>
+                              : <span><span className="text-blue-300 font-bold">{cur}/sec</span><span className="text-slate-600 mx-1">→</span><span className="text-blue-200 font-bold">{nxt}/sec</span></span>;
+                          })()}
+                          {upgrade.type === 'quality' && (() => {
+                            return count === 0
+                              ? <span>Next: <span className="text-amber-300 font-bold">+<span className="text-money">${fmt(upgrade.baseValue)}</span>/pizza</span></span>
+                              : <span><span className="text-amber-300 font-bold">+<span className="text-money">${fmt(upgrade.baseValue * count)}</span>/pizza</span><span className="text-slate-600 mx-1">→</span><span className="text-money font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
+                          })()}
+                          {upgrade.type === 'click' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-orange-300 font-bold">+{nxt} pizzas/click</span></span>
+                              : <span><span className="text-orange-300 font-bold">{cur}/click</span><span className="text-slate-600 mx-1">→</span><span className="text-orange-200 font-bold">{nxt}/click</span></span>;
+                          })()}
                         </p>
                       </div>
                     </div>
@@ -2051,9 +2068,8 @@ export default function App() {
                       <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-lg shrink-0 ${
                         canAfford ? 'bg-slate-950/70 border border-slate-700/60' : 'bg-slate-900/40 border border-slate-800/40'
                       }`}>
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">$</span>
-                        <span className={`font-display text-lg font-black ${canAfford ? theme.text : 'text-slate-600'} tabular-nums leading-none`}>
-                          {fmt(cost)}
+                        <span className={`font-display text-lg font-black tabular-nums leading-none ${canAfford ? 'text-money' : 'text-slate-600'}`}>
+                          ${fmt(cost)}
                         </span>
                       </div>
 
@@ -2203,7 +2219,7 @@ export default function App() {
                             ) : (
                               <div className="flex flex-col sm:items-end gap-1">
                                 <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
-                                <div className={`font-display text-2xl text-glow-green text-green-400 tabular-nums`}>
+                                <div className="font-display text-2xl text-glow-green text-money tabular-nums">
                                   +$<Num value={warpMoney} decimals={0} />
                                 </div>
                                 {warpEfficiencyDisplay < 0.99 && (
@@ -2435,7 +2451,7 @@ export default function App() {
                                 <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Total Portfolio</div>
                                 <div className="font-mono text-2xl text-zinc-100 tabular-nums font-bold">${fmt(totalVal)}</div>
                                 {portfolioDelta !== null && portfolioDelta !== 0 && (
-                                  <div className={`flex items-center gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  <div className={`flex items-center gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-money' : 'text-red-400'}`}>
                                     <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                                       {portfolioDelta > 0
                                         ? <><polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>
@@ -2474,7 +2490,7 @@ export default function App() {
                           ].map(({ key, ticker }) => (
                             <div key={key} className="flex items-center gap-2 shrink-0">
                               <span className="text-[10px] font-black text-zinc-500 tracking-widest font-mono">{ticker}</span>
-                              <span className={`text-[10px] font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-green-400' : 'text-red-400'}`}>
+                              <span className={`text-[10px] font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-money' : 'text-red-400'}`}>
                                 ${fmt(marketPrices[key])}
                               </span>
                               <span className={`text-[9px] font-mono ${marketTrends[key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
@@ -2763,7 +2779,8 @@ export default function App() {
           filter: drop-shadow(0px 3px 2px rgba(0,0,0,0.8));
         }
 
-        .text-glow-green { text-shadow: 0 0 10px rgba(74, 222, 128, 0.4), 0 0 20px rgba(74, 222, 128, 0.2); }
+        .text-money { color: #84cc16; }
+        .text-glow-green { text-shadow: 0 0 10px rgba(132, 204, 22, 0.4), 0 0 20px rgba(132, 204, 22, 0.2); }
         .text-glow-blue { text-shadow: 0 0 10px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2); }
         .text-glow-red { text-shadow: 0 0 10px rgba(248, 113, 113, 0.6), 0 0 20px rgba(248, 113, 113, 0.3); }
         .text-glow-yellow { text-shadow: 0 0 10px rgba(250, 204, 21, 0.4), 0 0 20px rgba(250, 204, 21, 0.2); }
