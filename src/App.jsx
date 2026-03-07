@@ -443,7 +443,7 @@ export default function App() {
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades
-  const licenseProductionFloor = franchiseLicenses > 0 ? 50 * Math.pow(1.5, franchiseLicenses) : 0;
+  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, franchiseLicenses) : 0;
   // Production and click both benefit from licenses + star power
   const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
@@ -1246,7 +1246,7 @@ export default function App() {
                {(() => {
                  const newLics = franchiseLicenses + pendingLicenses;
                  const startCash = 500 * Math.pow(newLics, 2);
-                 const floorPizzas = 50 * Math.pow(1.5, newLics);
+                 const floorPizzas = 2 * Math.pow(1.4, newLics);
                  const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
                  return (<>
                    <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Start next run with <span className="font-display tabular-nums">${fmt(startCash)}</span> cash.</div>
@@ -1554,12 +1554,30 @@ export default function App() {
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
                 {/* Franchise Licenses */}
-                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
+                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1 relative group">
                   <div className="text-[9px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
                   <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
                   <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
                   <div className="text-[9px] font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
+                  {franchiseLicenses > 0 && (
+                    <div className="flex items-center gap-1 mt-1 cursor-default">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Floor</span>
+                      <span className="text-[9px] text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
+                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-[8px] text-slate-400 font-black cursor-help shrink-0">?</span>
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-0 mb-2 w-52 bg-slate-950 border border-purple-500/40 rounded-xl p-3 shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col gap-1.5">
+                        <div className="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
+                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">Base (2 × 1.4^{franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
+                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
+                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
+                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× VIP tokens</span><span className="text-slate-200 tabular-nums font-bold">{fmt(vipTokenMultiplier)}x</span></div>
+                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Flour synergy</span><span className="text-slate-200 tabular-nums font-bold">{fmt(flourSynergyMult)}x</span></div>
+                        <div className="border-t border-slate-700 pt-1 mt-0.5 flex justify-between text-[10px]"><span className="text-money font-black uppercase">Final</span><span className="text-money tabular-nums font-black">{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)} pizzas/sec</span></div>
+                        <div className="text-[9px] text-slate-500 mt-0.5">Earns even with no upgrades.</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Achievement Multiplier */}
