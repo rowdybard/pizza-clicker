@@ -152,6 +152,7 @@ export default function App() {
   const [marketShares, setMarketShares] = useState(initialData?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
   const [marketPrices, setMarketPrices] = useState(initialData?.marketPrices || { flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
   const [marketTrends, setMarketTrends] = useState({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
+  const [portfolioDelta, setPortfolioDelta] = useState(null);
   const [marketHistory, setMarketHistory] = useState({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
   // --- VISUAL & MODAL STATE ---
@@ -656,6 +657,13 @@ export default function App() {
           next[key] = parseFloat(newPrice.toFixed(2));
         });
         setMarketTrends(nextTrends);
+        // Portfolio delta — how much the value changed this tick
+        setPortfolioDelta(prevDelta => {
+          const sharesSnap = saveStateRef.current?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 };
+          const oldVal = Object.keys(sharesSnap).reduce((s, k) => s + sharesSnap[k] * (prev[k] || 0), 0);
+          const newVal = Object.keys(sharesSnap).reduce((s, k) => s + sharesSnap[k] * (next[k] || 0), 0);
+          return newVal - oldVal;
+        });
         setMarketHistory(prevH => {
           const nextH = {};
           Object.keys(prevH).forEach(key => {
@@ -1814,6 +1822,19 @@ export default function App() {
                               marketShares.truffles * marketPrices.truffles
                             )}
                           </div>
+                          {portfolioDelta !== null && portfolioDelta !== 0 && (
+                            <div className={`flex items-center justify-end gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {portfolioDelta > 0
+                                  ? <polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                                  : <polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
+                                {portfolioDelta > 0
+                                  ? <polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                                  : <polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
+                              </svg>
+                              <span className="text-[10px] font-black tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
