@@ -9,10 +9,16 @@ import {
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
 
-// --- WEB AUDIO SYNTHESIZER (no external files) ---
+// --- WEB AUDIO SYNTHESIZER (singleton context, always resumed) ---
+let _audioCtx = null;
+const getAudioCtx = () => {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+};
 const playSound = (type) => {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
     const now = ctx.currentTime;
     if (type === 'pop') {
       const osc = ctx.createOscillator();
