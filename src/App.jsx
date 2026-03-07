@@ -108,6 +108,35 @@ const MILESTONES = [10, 25, 50, 100, 250];
 const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
 const FRANCHISE_BASE_COST = 150000; 
 
+const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
+  const open = statsOpen[sKey];
+  return (
+    <div className={`bg-slate-900/60 border ${accentBorder} rounded-xl overflow-hidden`}>
+      <button
+        onClick={() => setStatsOpen(prev => ({ ...prev, [sKey]: !prev[sKey] }))}
+        className={`w-full px-4 py-2.5 ${accentBg} flex items-center justify-between gap-2 hover:brightness-110 transition-all`}
+      >
+        <div className="flex items-center gap-2">
+          <span className={accentText}>{icon}</span>
+          <span className={`text-xs font-black uppercase tracking-widest ${accentText}`}>{label}</span>
+        </div>
+        <span className={`text-xs font-black ${accentText} transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+          {rows.map(({ label: rl, value, sub }) => (
+            <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
+              <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{rl}</div>
+              <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
+              <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const loadSaveData = () => {
   try {
     const saved = localStorage.getItem(SAVE_KEY);
@@ -1763,37 +1792,9 @@ export default function App() {
 
               {/* --- TAB: STATS --- */}
               {activeTab === 'stats' && (() => {
-                const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows }) => {
-                  const open = statsOpen[sKey];
-                  return (
-                    <div className={`bg-slate-900/60 border ${accentBorder} rounded-xl overflow-hidden`}>
-                      <button
-                        onClick={() => setStatsOpen(prev => ({ ...prev, [sKey]: !prev[sKey] }))}
-                        className={`w-full px-4 py-2.5 ${accentBg} flex items-center justify-between gap-2 hover:brightness-110 transition-all`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className={accentText}>{icon}</span>
-                          <span className={`text-xs font-black uppercase tracking-widest ${accentText}`}>{label}</span>
-                        </div>
-                        <span className={`text-xs font-black ${accentText} transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
-                      </button>
-                      {open && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
-                          {rows.map(({ label: rl, value, sub }) => (
-                            <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
-                              <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{rl}</div>
-                              <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
-                              <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                };
                 return (
                   <div className="flex flex-col gap-2">
-                    <AccSection sKey="production" icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
+                    <AccSection sKey="production" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
                       accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
                       rows={[
                         { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
@@ -1804,7 +1805,7 @@ export default function App() {
                         { label: 'Ach. Boost', value: `${fmt(achievementMultiplier)}x`, sub: 'price only' },
                       ]}
                     />
-                    <AccSection sKey="clicking" icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
+                    <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
                       accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
                       rows={[
                         { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
@@ -1815,7 +1816,7 @@ export default function App() {
                         { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
                       ]}
                     />
-                    <AccSection sKey="lifetime" icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
+                    <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
                       accentBorder="border-green-500/20" accentBg="bg-green-900/20" accentText="text-green-400" valueColor="text-green-300"
                       rows={[
                         { label: 'Money Earned', value: `$${fmt(lifetimeMoney)}`, sub: fmtInt(lifetimeMoney) },
@@ -1826,7 +1827,7 @@ export default function App() {
                         { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 2}% price` },
                       ]}
                     />
-                    <AccSection sKey="prestige" icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
+                    <AccSection sKey="prestige" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
                       accentBorder="border-purple-500/20" accentBg="bg-purple-900/20" accentText="text-purple-400" valueColor="text-purple-300"
                       rows={[
                         { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+50% click each' },
