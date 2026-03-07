@@ -93,12 +93,12 @@ const UPGRADES = [
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 40, reqStars: 3, icon: <Store className="text-purple-500" /> },
   { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 180, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
   { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 1000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 5, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 8, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 12, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 18, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 25, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 35, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.10, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.25, reqStars: 1, icon: <Award className="text-yellow-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 0.75, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 2.50, reqStars: 3, icon: <Zap className="text-red-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 8.00, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 25.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
@@ -200,7 +200,7 @@ export default function App() {
     const count = safeNum(inventory?.[u.id], 0);
     const multi = getMilestoneMultiplier(count);
     if (u.type === 'production') baseProductionRate += (u.baseValue * count * multi);
-    if (u.type === 'quality') basePizzaPrice *= Math.pow(1 + (u.baseValue / 100), count * multi);
+    if (u.type === 'quality') basePizzaPrice += u.baseValue * count;
     if (u.type === 'click') baseClickPower += (u.baseValue * count * multi);
   });
 
@@ -1288,13 +1288,11 @@ export default function App() {
 
                 // Projected pizza price after buying this upgrade (next level)
                 const nextCount = count + 1;
-                const nextMulti = getMilestoneMultiplier(nextCount);
-                let projectedPizzaPrice = basePizzaPrice;
+                let projectedPizzaPrice = 2.50;
                 UPGRADES.forEach(u => {
                   if (u.type !== 'quality') return;
                   const c = u.id === upgrade.id ? nextCount : safeNum(inventory?.[u.id], 0);
-                  const m = u.id === upgrade.id ? nextMulti : getMilestoneMultiplier(c);
-                  projectedPizzaPrice *= Math.pow(1 + (u.baseValue / 100), c * m);
+                  projectedPizzaPrice += u.baseValue * c;
                 });
                 projectedPizzaPrice *= achievementMultiplier * vipTokenMultiplier;
 
@@ -1375,8 +1373,8 @@ export default function App() {
                               ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
                               : <span>Bakes {fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)} / sec</span>)}
                             {upgrade.type === 'quality' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-amber-300">+{fmt(upgrade.baseValue)}% · <span className="text-slate-300">${fmt(projectedPizzaPrice)}/pizza next</span></span></span>
-                              : <span className="text-amber-300">+{fmt(upgrade.baseValue * count * multi)}% now · <span className="text-green-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
+                              ? <span>Lvl 1 → <span className="text-amber-300">+${fmt(upgrade.baseValue)}/pizza · </span><span className="text-slate-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>
+                              : <span className="text-amber-300">+${fmt(upgrade.baseValue * count)}/pizza now · <span className="text-green-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
                             {upgrade.type === 'click' && (count === 0
                               ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
                               : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
