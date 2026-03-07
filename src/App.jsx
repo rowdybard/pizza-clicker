@@ -2075,7 +2075,7 @@ export default function App() {
                                     </div>
                                     <div>
                                       <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Avg Cost</div>
-                                      <div className="font-mono text-sm text-zinc-400 tabular-nums">{shares > 0 ? `$${fmt(price)}` : '—'}</div>
+                                      <div className="font-mono text-sm text-zinc-400 tabular-nums">{shares > 0 && marketCostBasis[key] > 0 ? `$${fmt(marketCostBasis[key] / shares)}` : '—'}</div>
                                     </div>
                                   </div>
 
