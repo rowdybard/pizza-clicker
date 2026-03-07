@@ -9,6 +9,56 @@ import {
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
 
+// --- WEB AUDIO SYNTHESIZER (no external files) ---
+const playSound = (type) => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    if (type === 'pop') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.linearRampToValueAtTime(600, now + 0.05);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+      osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'chaching') {
+      [800, 1200].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, now + i * 0.07);
+        gain.gain.setValueAtTime(0.12, now + i * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.07 + 0.08);
+        osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.08);
+      });
+    } else if (type === 'sizzle') {
+      const bufSize = ctx.sampleRate * 0.5;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.15;
+      const src = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      src.buffer = buf; src.connect(gain); gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(1, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      src.start(now); src.stop(now + 0.5);
+    } else if (type === 'error') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(150, now);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    }
+  } catch (e) { /* AudioContext blocked silently */ }
+};
+
 // --- ANTI-CORRUPTION SAVE SANITIZER ---
 const safeNum = (val, fallback = 0) => {
   const parsed = Number(val);
@@ -269,6 +319,17 @@ export default function App() {
   const [marketCostBasis, setMarketCostBasis] = useState(initialData?.marketCostBasis || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
   const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
+  // --- MODAL STATE ---
+  const [showAscendModal, setShowAscendModal] = useState(false);
+
+  // --- JUICE STATE ---
+  const [isShaking, setIsShaking] = useState(false);
+  const [frenzyMultiplier, setFrenzyMultiplier] = useState(1);
+  const [goldenSliceEvent, setGoldenSliceEvent] = useState(null);
+
+  // --- MARKET MANIPULATION STATE ---
+  const [marketCooldowns, setMarketCooldowns] = useState({ rumors: 0, squeeze: 0 });
+
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
   const [achievementToasts, setAchievementToasts] = useState([]);
@@ -376,7 +437,7 @@ export default function App() {
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
-  const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier; 
+  const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier * frenzyMultiplier; 
   
   const idlePizzasPerSec = productionRate;
   const activePizzasPerSec = smoothCps * currentClickPower;
@@ -436,6 +497,7 @@ export default function App() {
 
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
+    playSound('pop');
     const moneyEarned = pizzaPrice * currentClickPower;
 
     setMoney(prev => prev + moneyEarned);
@@ -472,9 +534,13 @@ export default function App() {
         multi = 5; 
         repBonus = 25; 
         setPerfectBakes(prev => prev + 1);
+        playSound('chaching');
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 400);
     } else if (p > 88) {
         status = 'burnt';
         multi = 0;
+        playSound('error');
     }
 
     const baseReward = sideOrder.type === 'wings' ? pizzaPrice * 20 : pizzaPrice * 10;
@@ -515,6 +581,27 @@ export default function App() {
     }
   };
 
+  const handleGoldenSliceClick = () => {
+    if (!goldenSliceEvent) return;
+    const { type } = goldenSliceEvent;
+    playSound('chaching');
+    if (type === 'frenzy') {
+      setFrenzyMultiplier(777);
+      setTimeout(() => setFrenzyMultiplier(1), 15000);
+    } else if (type === 'marketCrash') {
+      setMarketPrices(prev => {
+        const next = {};
+        Object.keys(prev).forEach(k => { next[k] = parseFloat((prev[k] * 0.4).toFixed(2)); });
+        return next;
+      });
+    } else if (type === 'instantCash') {
+      const bonus = engineRefs.current.idleProfitPerSec * 600;
+      setMoney(m => m + bonus);
+      setLifetimeMoney(m => m + bonus);
+    }
+    setGoldenSliceEvent(null);
+  };
+
   const triggerDelivery = (dest) => {
     const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
     if (cooldownRemaining > 0) return;
@@ -537,6 +624,7 @@ export default function App() {
       setVipTokens(t => t + 1);
     }
 
+    playSound('chaching');
     setDeliveriesCompleted(d => d + 1);
     setDeliveryCooldowns(prev => ({ ...prev, [dest.id]: dest.cooldown }));
   };
@@ -689,6 +777,29 @@ export default function App() {
               Object.keys(next).forEach(k => { next[k] = Math.max(0, next[k] - 1); });
               return next;
           });
+
+          // Golden Slice event spawning (0.5% chance per second)
+          setGoldenSliceEvent(prev => {
+            if (prev) {
+              if (Date.now() > prev.expiresAt) return null;
+              return prev;
+            }
+            if (!state.hasStarted || Math.random() >= 0.005) return prev;
+            const types = ['frenzy', 'marketCrash', 'instantCash'];
+            return {
+              id: Date.now(),
+              type: types[Math.floor(Math.random() * types.length)],
+              x: 10 + Math.random() * 70,
+              y: 10 + Math.random() * 70,
+              expiresAt: Date.now() + 15000,
+            };
+          });
+
+          // Market manipulation cooldowns
+          setMarketCooldowns(prev => ({
+            rumors: Math.max(0, prev.rumors - 1),
+            squeeze: Math.max(0, prev.squeeze - 1),
+          }));
 
           // autoArm perk: simulate 1 free click per second
           if (state.syndicatePerks.autoArm && state.hasStarted) {
@@ -934,7 +1045,36 @@ export default function App() {
     : 'text-orange-400';
 
   return (
-    <div className={`min-h-screen p-4 md:p-8 font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-1000 ${appBgClass}`}>
+    <div className={`min-h-screen p-4 md:p-8 font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-1000 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+
+      {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
+      {goldenSliceEvent && (
+        <button
+          onClick={handleGoldenSliceClick}
+          style={{ position: 'fixed', left: `${goldenSliceEvent.x}%`, top: `${goldenSliceEvent.y}%`, zIndex: 9999 }}
+          className="group cursor-pointer border-0 bg-transparent p-0 focus:outline-none"
+          title={goldenSliceEvent.type === 'frenzy' ? '777x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
+        >
+          <div className="relative animate-bounce">
+            <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-xl scale-150 animate-pulse" />
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-yellow-200 shadow-[0_0_24px_rgba(234,179,8,0.8)] flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Pizza className="w-7 h-7 text-yellow-900" />
+            </div>
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-300 bg-slate-900/80 px-1.5 py-0.5 rounded border border-yellow-500/40">
+              {goldenSliceEvent.type === 'frenzy' ? '777x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
+            </div>
+          </div>
+        </button>
+      )}
+
+      {/* ── FRENZY ACTIVE BANNER ── */}
+      {frenzyMultiplier > 1 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none">
+          <div className="px-6 py-2 rounded-full bg-gradient-to-r from-yellow-600 to-amber-500 border border-yellow-300 shadow-[0_0_30px_rgba(234,179,8,0.6)] animate-pulse">
+            <span className="font-display text-lg text-black tracking-widest">⚡ 777x CLICK FRENZY ACTIVE ⚡</span>
+          </div>
+        </div>
+      )}
       
       {/* HEADER: Achievements & Settings Button */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
@@ -1456,7 +1596,10 @@ export default function App() {
                 const canAscend = slicesOnAscend > 0;
                 const handleAscend = () => {
                   if (!canAscend) return;
-                  if (!window.confirm(`Ascend to The Syndicate?\n\nYou will receive ${slicesOnAscend} Golden Slice${slicesOnAscend > 1 ? 's' : ''}.\n\nWARNING: All money, reputation, inventory, licenses, and VIP tokens will be wiped. Achievements and Golden Slices are kept forever.\n\nThis cannot be undone.`)) return;
+                  setShowAscendModal(true);
+                };
+                const confirmAscend = () => {
+                  setShowAscendModal(false);
                   setGoldenSlices(g => g + slicesOnAscend);
                   setMoney(syndicatePerks.shadowCapital ? 100000 : 0);
                   setLifetimeMoney(0);
@@ -1474,48 +1617,116 @@ export default function App() {
                   setDeliveryCooldowns({});
                 };
                 return (
-                  <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-slate-900">
-                    {/* Background shimmer */}
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.07),transparent_60%)] pointer-events-none" />
-                    <div className="relative z-10 px-5 py-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-2.5">
-                          <Moon className="w-5 h-5 text-yellow-400" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black uppercase tracking-widest text-yellow-500/70">Hard Prestige</div>
-                          <h3 className="font-display text-lg text-yellow-100 tracking-wider leading-tight">The Culinary Syndicate</h3>
-                        </div>
-                        {goldenSlices > 0 && (
-                          <div className="ml-auto flex items-center gap-1.5 bg-yellow-900/40 border border-yellow-500/40 rounded-full px-3 py-1">
-                            <Gem className="w-3.5 h-3.5 text-yellow-400" />
-                            <span className="font-display text-sm text-yellow-300 tabular-nums">{goldenSlices}</span>
+                  <>
+                    <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-slate-900">
+                      {/* Background shimmer */}
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.07),transparent_60%)] pointer-events-none" />
+                      <div className="relative z-10 px-5 py-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-2.5">
+                            <Moon className="w-5 h-5 text-yellow-400" />
                           </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                        Sacrifice everything. <span className="text-yellow-400 font-bold">Gain Golden Slices</span> — permanent currency that unlocks game-breaking perks across all future runs. Every 25 licenses converts to 1 Golden Slice.
-                      </p>
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="text-sm tabular-nums">
-                          <span className="text-slate-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
-                          <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-slate-600'}`}>{slicesOnAscend}</span>
-                          <span className="text-slate-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
+                          <div>
+                            <div className="text-xs font-black uppercase tracking-widest text-yellow-500/70">Hard Prestige</div>
+                            <h3 className="font-display text-lg text-yellow-100 tracking-wider leading-tight">The Culinary Syndicate</h3>
+                          </div>
+                          {goldenSlices > 0 && (
+                            <div className="ml-auto flex items-center gap-1.5 bg-yellow-900/40 border border-yellow-500/40 rounded-full px-3 py-1">
+                              <Gem className="w-3.5 h-3.5 text-yellow-400" />
+                              <span className="font-display text-sm text-yellow-300 tabular-nums">{goldenSlices}</span>
+                            </div>
+                          )}
                         </div>
-                        <button
-                          onClick={handleAscend}
-                          disabled={!canAscend}
-                          className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm transition-all whitespace-nowrap ${
-                            canAscend
-                              ? 'bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] cursor-pointer active:scale-95'
-                              : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
-                          }`}
-                        >
-                          {canAscend ? 'Ascend to the Syndicate' : `Need 25 licenses (${franchiseLicenses}/25)`}
-                        </button>
+                        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                          Sacrifice everything. <span className="text-yellow-400 font-bold">Gain Golden Slices</span> — permanent currency that unlocks game-breaking perks across all future runs. Every 25 licenses converts to 1 Golden Slice.
+                        </p>
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                          <div className="text-sm tabular-nums">
+                            <span className="text-slate-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
+                            <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-slate-600'}`}>{slicesOnAscend}</span>
+                            <span className="text-slate-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
+                          </div>
+                          <button
+                            onClick={handleAscend}
+                            disabled={!canAscend}
+                            className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm transition-all whitespace-nowrap ${
+                              canAscend
+                                ? 'bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] cursor-pointer active:scale-95'
+                                : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
+                            }`}
+                          >
+                            {canAscend ? 'Ascend to the Syndicate' : `Need 25 licenses (${franchiseLicenses}/25)`}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+
+                    {/* ── SYNDICATE ASCEND CONFIRMATION MODAL ── */}
+                    {showAscendModal && (
+                      <div className="fixed inset-0 z-[110] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div className="relative bg-slate-900 border-2 border-yellow-500/60 rounded-2xl p-8 max-w-md w-full shadow-[0_0_60px_rgba(234,179,8,0.15)] overflow-hidden text-center">
+                          {/* Gold radial glow */}
+                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,179,8,0.08),transparent_60%)] pointer-events-none" />
+
+                          <div className="relative z-10">
+                            {/* Icon */}
+                            <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                              <Moon className="w-8 h-8 text-yellow-400" />
+                            </div>
+
+                            <div className="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
+                            <h2 className="font-display text-3xl text-yellow-100 tracking-widest mb-2">Ascend?</h2>
+                            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                              You are about to sacrifice your entire empire to join <span className="text-yellow-400 font-bold">The Culinary Syndicate</span>.
+                            </p>
+
+                            {/* Reward callout */}
+                            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl px-5 py-4 mb-5 flex items-center justify-center gap-3">
+                              <Gem className="w-6 h-6 text-yellow-400 shrink-0" />
+                              <div className="text-left">
+                                <div className="text-[9px] font-black uppercase tracking-widest text-yellow-600">You will receive</div>
+                                <div className="font-display text-3xl text-yellow-300 tabular-nums leading-none">
+                                  {slicesOnAscend} <span className="text-lg">Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* What you lose / keep */}
+                            <div className="bg-slate-950/50 border border-slate-700/60 rounded-xl p-4 mb-6 text-left space-y-2">
+                              {[
+                                { lose: true,  text: 'All money, reputation & upgrades' },
+                                { lose: true,  text: 'All franchise licenses & VIP tokens' },
+                                { lose: true,  text: 'All deliveries, combos & timers' },
+                                { lose: false, text: 'Achievements — kept forever' },
+                                { lose: false, text: 'Golden Slices & Syndicate perks' },
+                                ...(syndicatePerks.shadowCapital ? [{ lose: false, text: 'Shadow Capital: start with $100K' }] : []),
+                              ].map((row, i) => (
+                                <div key={i} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${row.lose ? 'text-red-400' : 'text-green-400'}`}>
+                                  <span className="text-base leading-none">{row.lose ? '−' : '+'}</span>
+                                  {row.text}
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => setShowAscendModal(false)}
+                                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-display text-lg tracking-widest rounded-xl transition-all border border-slate-700"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={confirmAscend}
+                                className="flex-1 py-3 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-display font-black text-lg tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_35px_rgba(234,179,8,0.5)] active:scale-95"
+                              >
+                                Ascend
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 );
               })()}
             </div>
@@ -2433,8 +2644,42 @@ export default function App() {
                                     </div>
                                   )}
 
+                                  {/* Market Manipulation Buttons */}
+                                  <div className="px-3 pb-2 flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        if (marketCooldowns.rumors > 0) return;
+                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * 0.3).toFixed(2)) }));
+                                        setMarketCooldowns(c => ({ ...c, rumors: 600 }));
+                                      }}
+                                      disabled={marketCooldowns.rumors > 0}
+                                      className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
+                                        marketCooldowns.rumors > 0
+                                          ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                          : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
+                                      }`}
+                                    >
+                                      {marketCooldowns.rumors > 0 ? `📉 ${Math.floor(marketCooldowns.rumors / 60)}m${marketCooldowns.rumors % 60}s` : '📉 Rumor'}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (marketCooldowns.squeeze > 0) return;
+                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * 2.5).toFixed(2)) }));
+                                        setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
+                                      }}
+                                      disabled={marketCooldowns.squeeze > 0}
+                                      className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
+                                        marketCooldowns.squeeze > 0
+                                          ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                          : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
+                                      }`}
+                                    >
+                                      {marketCooldowns.squeeze > 0 ? `📈 ${Math.floor(marketCooldowns.squeeze / 60)}m${marketCooldowns.squeeze % 60}s` : '📈 Squeeze'}
+                                    </button>
+                                  </div>
+
                                   {/* Action bar */}
-                                  <div className="p-3 flex gap-2">
+                                  <div className="p-3 pt-0 flex gap-2">
                                     <button onClick={() => buyShares(1)} disabled={!canBuy1}
                                       className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
                                       +1
@@ -2524,6 +2769,17 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 1); border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
         
+        @keyframes shake {
+          0%   { transform: translate(0, 0) rotate(0deg); }
+          15%  { transform: translate(-4px, 3px) rotate(-1deg); }
+          30%  { transform: translate(4px, -3px) rotate(1deg); }
+          45%  { transform: translate(-3px, 4px) rotate(0.5deg); }
+          60%  { transform: translate(3px, -2px) rotate(-0.5deg); }
+          75%  { transform: translate(-2px, 3px) rotate(0.3deg); }
+          90%  { transform: translate(2px, -1px) rotate(-0.3deg); }
+          100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
         @keyframes floatUpFade {
           0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
           100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); }
