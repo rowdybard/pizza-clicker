@@ -156,6 +156,7 @@ export default function App() {
   const [marketPrices, setMarketPrices] = useState(initialData?.marketPrices || { flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
   const [marketTrends, setMarketTrends] = useState({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
   const [portfolioDelta, setPortfolioDelta] = useState(initialData?.portfolioDelta ?? null);
+  const [marketCostBasis, setMarketCostBasis] = useState(initialData?.marketCostBasis || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
   const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
   // --- VISUAL & MODAL STATE ---
@@ -608,7 +609,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta };
+    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis };
   });
 
   useEffect(() => {
@@ -660,12 +661,13 @@ export default function App() {
           next[key] = parseFloat(newPrice.toFixed(2));
         });
         setMarketTrends(nextTrends);
-        // Portfolio delta — how much the value changed this tick
-        setPortfolioDelta(prevDelta => {
+        // Session P&L: current holding value minus total cost basis
+        setPortfolioDelta(() => {
           const sharesSnap = saveStateRef.current?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 };
-          const oldVal = Object.keys(sharesSnap).reduce((s, k) => s + sharesSnap[k] * (prev[k] || 0), 0);
-          const newVal = Object.keys(sharesSnap).reduce((s, k) => s + sharesSnap[k] * (next[k] || 0), 0);
-          return newVal - oldVal;
+          const basisSnap  = saveStateRef.current?.marketCostBasis || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 };
+          const curVal  = Object.keys(sharesSnap).reduce((s, k) => s + sharesSnap[k] * (next[k] || 0), 0);
+          const totCost = Object.values(basisSnap).reduce((s, v) => s + v, 0);
+          return totCost > 0 ? curVal - totCost : null;
         });
         setMarketHistory(prevH => {
           const nextH = {};
@@ -1876,7 +1878,7 @@ export default function App() {
                                         ? <><polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>
                                         : <><polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
                                     </svg>
-                                    <span className="text-[10px] font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} last tick</span>
+                                    <span className="text-[10px] font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} session P&L</span>
                                   </div>
                                 )}
                               </div>
@@ -1945,11 +1947,13 @@ export default function App() {
                                 if (money < cost) return;
                                 setMoney(m => m - cost);
                                 setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
+                                setMarketCostBasis(prev => ({ ...prev, [key]: prev[key] + cost }));
                               };
                               const sellAll = () => {
                                 if (shares <= 0) return;
                                 setMoney(m => m + shares * price);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
+                                setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
                               };
 
                               // Chart math
