@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Pizza, Car, Store, TrendingUp, ShoppingCart, 
+  Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
@@ -147,6 +147,13 @@ export default function App() {
   const [vipTokens, setVipTokens] = useState(safeNum(initialData?.vipTokens, 0));
   const [deliveryCooldowns, setDeliveryCooldowns] = useState({});
 
+  // --- MARKET STATE ---
+  const [marketUnlocked, setMarketUnlocked] = useState(initialData?.marketUnlocked || false);
+  const [marketShares, setMarketShares] = useState(initialData?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
+  const [marketPrices, setMarketPrices] = useState({ flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
+  const [marketTrends, setMarketTrends] = useState({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
+  const [marketHistory, setMarketHistory] = useState({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
+
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
   const [achievementToasts, setAchievementToasts] = useState([]);
@@ -199,8 +206,11 @@ export default function App() {
   const isClean = cleanBoostTimer > 0;
   const comboMultiplier = 1 + (combo * 0.01);
   
-  const franchisedProduction = baseProductionRate * vipTokenMultiplier;
-  const franchisedPrice = basePizzaPrice * achievementMultiplier * vipTokenMultiplier;
+  const flourSynergyMult = 1 + (marketShares.flour * 0.001);
+  const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
+
+  const franchisedProduction = baseProductionRate * vipTokenMultiplier * flourSynergyMult;
+  const franchisedPrice = basePizzaPrice * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
   const franchisedClick = baseClickPower * franchiseMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
@@ -385,7 +395,8 @@ export default function App() {
   const handleExportSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
-       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens
+       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
+       marketUnlocked, marketShares
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -401,6 +412,8 @@ export default function App() {
         setInventory(decoded.inventory || {}); setTotalClicks(safeNum(decoded.totalClicks)); setPerfectBakes(safeNum(decoded.perfectBakes));
         setUnlockedAchievements(decoded.unlockedAchievements || []);
         setDeliveriesCompleted(safeNum(decoded.deliveriesCompleted)); setVipTokens(safeNum(decoded.vipTokens));
+        setMarketUnlocked(decoded.marketUnlocked || false);
+        setMarketShares(decoded.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -416,7 +429,8 @@ export default function App() {
   const handleManualSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
-       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, lastSaveTime: Date.now() 
+       totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
+       marketUnlocked, marketShares, lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -557,7 +571,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens };
+    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares };
   });
 
   useEffect(() => {
@@ -565,6 +579,41 @@ export default function App() {
       if (saveStateRef.current) localStorage.setItem(SAVE_KEY, JSON.stringify({ ...saveStateRef.current, lastSaveTime: Date.now() }));
     }, 2000);
     return () => clearInterval(saveLoop);
+  }, []);
+
+  // --- MARKET PRICE ENGINE ---
+  useEffect(() => {
+    const MARKET_BOUNDS = {
+      flour:     { min: 5,   max: 40   },
+      cheese:    { min: 20,  max: 120  },
+      pepperoni: { min: 100, max: 600  },
+      truffles:  { min: 500, max: 4000 },
+    };
+    const marketTick = setInterval(() => {
+      setMarketPrices(prev => {
+        const next = { ...prev };
+        const nextTrends = {};
+        Object.keys(next).forEach(key => {
+          const change = (Math.random() * 0.30) - 0.15; // -15% to +15%
+          let newPrice = next[key] * (1 + change);
+          const { min, max } = MARKET_BOUNDS[key];
+          if (newPrice <= min) { newPrice = min * 1.05; nextTrends[key] = 1; }
+          else if (newPrice >= max) { newPrice = max * 0.95; nextTrends[key] = -1; }
+          else { nextTrends[key] = newPrice > next[key] ? 1 : -1; }
+          next[key] = parseFloat(newPrice.toFixed(2));
+        });
+        setMarketTrends(nextTrends);
+        setMarketHistory(prevH => {
+          const nextH = {};
+          Object.keys(prevH).forEach(key => {
+            nextH[key] = [...prevH[key].slice(-19), next[key]];
+          });
+          return nextH;
+        });
+        return next;
+      });
+    }, 3000);
+    return () => clearInterval(marketTick);
   }, []);
 
   useEffect(() => {
@@ -1186,6 +1235,10 @@ export default function App() {
                 <button onClick={() => setActiveTab('stats')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'stats' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
                   <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> Stats
                 </button>
+                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
+                <button onClick={() => setActiveTab('market')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'market' ? 'text-white text-glow-green' : 'text-slate-500 hover:text-slate-300'}`}>
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" /> {marketUnlocked ? 'PTSE' : 'Market'}
+                </button>
               </div>
             </div>
 
@@ -1612,6 +1665,174 @@ export default function App() {
                     </div>
                   </div>
 
+                </div>
+              )}
+
+              {/* --- TAB: MARKET --- */}
+              {activeTab === 'market' && (
+                <div className="flex flex-col gap-4">
+                  {!marketUnlocked ? (
+                    /* Locked State */
+                    <div className="flex flex-col items-center justify-center py-16 gap-6">
+                      <div className="p-6 rounded-full bg-green-900/20 border border-green-500/30">
+                        <TrendingUp className="w-16 h-16 text-green-400 drop-shadow-[0_0_16px_rgba(74,222,128,0.4)]" />
+                      </div>
+                      <div className="text-center">
+                        <h2 className="font-display text-3xl text-green-100 tracking-widest mb-2">Pizza Tycoon Stock Exchange</h2>
+                        <p className="text-slate-400 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
+                      </div>
+                      <div className="bg-slate-900/60 border border-green-500/20 rounded-xl px-8 py-5 text-center">
+                        <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
+                        <div className="font-display text-3xl text-green-400 tabular-nums mb-4">$25,000</div>
+                        <button
+                          onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }}
+                          disabled={money < 25000}
+                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest transition-all ${money >= 25000 ? 'bg-green-600 hover:bg-green-500 text-white shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:-translate-y-0.5' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
+                        >
+                          {money >= 25000 ? 'Open the Exchange' : `Need $${fmt(25000 - money)} more`}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Unlocked Market */
+                    <>
+                      {/* Header */}
+                      <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <TrendingUp className="w-6 h-6 text-green-400" />
+                          <div>
+                            <h2 className="font-display text-xl text-green-100 tracking-widest">PTSE — Pizza Tycoon Stock Exchange</h2>
+                            <p className="text-xs text-slate-400 mt-0.5">Prices update every 3 seconds. Shares survive prestige.</p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Portfolio Value</div>
+                          <div className="font-display text-xl text-green-300 tabular-nums">
+                            ${fmt(
+                              marketShares.flour * marketPrices.flour +
+                              marketShares.cheese * marketPrices.cheese +
+                              marketShares.pepperoni * marketPrices.pepperoni +
+                              marketShares.truffles * marketPrices.truffles
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Synergy Banner */}
+                      {(marketShares.flour > 0 || marketShares.pepperoni > 0) && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {marketShares.flour > 0 && (
+                            <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                              <span className="text-xs text-blue-300 font-bold">🌾 Flour Synergy</span>
+                              <span className="font-display text-blue-400 tabular-nums text-sm">+{fmt(marketShares.flour * 0.1)}% Production</span>
+                            </div>
+                          )}
+                          {marketShares.pepperoni > 0 && (
+                            <div className="bg-red-900/20 border border-red-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                              <span className="text-xs text-red-300 font-bold">🍕 Pepperoni Synergy</span>
+                              <span className="font-display text-red-400 tabular-nums text-sm">+{fmt(marketShares.pepperoni * 0.1)}% Price</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 2x2 Commodity Grid */}
+                      {(() => {
+                        const COMMODITIES = [
+                          { key: 'flour',     label: 'Flour',     emoji: '🌾', color: 'yellow', synergy: 'Every 10 shares → +1% Production' },
+                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀', color: 'amber',  synergy: null },
+                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕', color: 'red',    synergy: 'Every 10 shares → +1% Pizza Price' },
+                          { key: 'truffles',  label: 'Truffles',  emoji: '💎', color: 'cyan',   synergy: null },
+                        ];
+                        const borderColors = { yellow: 'border-yellow-500/30', amber: 'border-amber-500/30', red: 'border-red-500/30', cyan: 'border-cyan-500/30' };
+                        const bgColors    = { yellow: 'bg-yellow-900/10', amber: 'bg-amber-900/10', red: 'bg-red-900/10', cyan: 'bg-cyan-900/10' };
+                        const textColors  = { yellow: 'text-yellow-300', amber: 'text-amber-300', red: 'text-red-300', cyan: 'text-cyan-300' };
+                        const subColors   = { yellow: 'text-yellow-500', amber: 'text-amber-500', red: 'text-red-500', cyan: 'text-cyan-500' };
+
+                        return (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {COMMODITIES.map(({ key, label, emoji, color, synergy }) => {
+                              const price = marketPrices[key];
+                              const trend = marketTrends[key];
+                              const shares = marketShares[key];
+                              const holdingValue = shares * price;
+                              const canBuy1   = money >= price;
+                              const canBuy10  = money >= price * 10;
+                              const maxBuy    = Math.floor(money / price);
+
+                              const buyShares = (n) => {
+                                const cost = price * n;
+                                if (money < cost) return;
+                                setMoney(m => m - cost);
+                                setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
+                              };
+                              const sellAll = () => {
+                                if (shares <= 0) return;
+                                setMoney(m => m + shares * price);
+                                setMarketShares(prev => ({ ...prev, [key]: 0 }));
+                              };
+
+                              return (
+                                <div key={key} className={`rounded-xl border p-5 flex flex-col gap-3 ${bgColors[color]} ${borderColors[color]}`}>
+                                  {/* Header row */}
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-2xl">{emoji}</span>
+                                      <div>
+                                        <div className="font-display text-lg tracking-wider text-slate-100">{label}</div>
+                                        {synergy && <div className={`text-[9px] font-black uppercase tracking-widest ${subColors[color]}`}>{synergy}</div>}
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="flex items-center gap-1 justify-end">
+                                        {trend === 1
+                                          ? <TrendingUp className={`w-4 h-4 ${textColors[color]}`} />
+                                          : <TrendingDown className={`w-4 h-4 text-red-400`} />}
+                                        <span className={`font-display text-xl tabular-nums ${trend === 1 ? textColors[color] : 'text-red-400'}`}>${fmt(price)}</span>
+                                      </div>
+                                      <div className="text-[10px] text-slate-500 tabular-nums">per share</div>
+                                    </div>
+                                  </div>
+
+                                  {/* Holdings */}
+                                  <div className="bg-slate-950/40 rounded-lg px-3 py-2 flex items-center justify-between">
+                                    <div>
+                                      <div className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Shares Owned</div>
+                                      <div className={`font-display text-lg tabular-nums ${textColors[color]}`}>{fmtInt(shares)}</div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Holding Value</div>
+                                      <div className="font-display text-lg text-green-300 tabular-nums">${fmt(holdingValue)}</div>
+                                    </div>
+                                  </div>
+
+                                  {/* Buy buttons */}
+                                  <div className="flex gap-2">
+                                    <button onClick={() => buyShares(1)} disabled={!canBuy1}
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${canBuy1 ? `bg-slate-800 hover:bg-slate-700 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      Buy 1
+                                    </button>
+                                    <button onClick={() => buyShares(10)} disabled={!canBuy10}
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${canBuy10 ? `bg-slate-800 hover:bg-slate-700 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      Buy 10
+                                    </button>
+                                    <button onClick={() => buyShares(maxBuy)} disabled={maxBuy <= 0}
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${maxBuy > 0 ? `bg-slate-700 hover:bg-slate-600 ${textColors[color]}` : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      Max ({fmtInt(maxBuy)})
+                                    </button>
+                                    <button onClick={sellAll} disabled={shares <= 0}
+                                      className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${shares > 0 ? 'bg-red-900/40 hover:bg-red-800/60 text-red-400' : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'}`}>
+                                      Sell All
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </>
+                  )}
                 </div>
               )}
 
