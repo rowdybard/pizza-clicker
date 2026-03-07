@@ -1537,6 +1537,42 @@ export default function App() {
                       const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
                       const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
                       const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
+                      if (!isUnlocked) {
+                        const conditions = [
+                          req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,        current: totalPizzasSold,  target: req.pizzas  },
+                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,        current: franchiseLicenses, target: req.stars  },
+                          req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,      current: lifetimeMoney,    target: req.lifetime },
+                        ].filter(Boolean);
+                        return (
+                          <div key={dest.id} className="w-full p-5 rounded-xl border border-slate-700/50 bg-slate-900/60 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
+                            <div className="p-4 rounded-xl border border-slate-700 bg-slate-950/60 shrink-0">
+                              <Lock className="w-8 h-8 text-slate-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-display text-xl text-slate-400 tracking-wider mb-0.5">{dest.name}</h3>
+                              <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-xs text-slate-500 italic mb-3">{dest.unlockHint}</p>
+                              <div className="flex flex-col gap-1.5">
+                                {conditions.map(({ label, current, target }) => {
+                                  const pct = Math.min(100, (current / target) * 100);
+                                  return (
+                                    <div key={label}>
+                                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">
+                                        <span>{label}</span>
+                                        <span className="tabular-nums text-slate-400">{pct >= 100 ? '✓' : `${Math.floor(pct)}%`}</span>
+                                      </div>
+                                      <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-green-500' : 'bg-slate-600'}`} style={{ width: `${pct}%` }} />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <button
                           key={dest.id}
