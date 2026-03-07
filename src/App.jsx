@@ -251,6 +251,15 @@ export default function App() {
   const [vipTokens, setVipTokens] = useState(safeNum(initialData?.vipTokens, 0));
   const [deliveryCooldowns, setDeliveryCooldowns] = useState({});
 
+  // --- SYNDICATE STATE ---
+  const [goldenSlices, setGoldenSlices] = useState(safeNum(initialData?.goldenSlices, 0));
+  const [syndicatePerks, setSyndicatePerks] = useState(() => ({
+    shadowCapital:  initialData?.syndicatePerks?.shadowCapital  ?? false,
+    quantumOven:    initialData?.syndicatePerks?.quantumOven    ?? false,
+    insiderTrading: initialData?.syndicatePerks?.insiderTrading ?? false,
+    autoArm:        initialData?.syndicatePerks?.autoArm        ?? false,
+  }));
+
   // --- MARKET STATE ---
   const [marketUnlocked, setMarketUnlocked] = useState(initialData?.marketUnlocked || false);
   const [marketShares, setMarketShares] = useState(initialData?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
@@ -534,7 +543,9 @@ export default function App() {
 
   const confirmPrestige = () => {
     setFranchiseLicenses(prev => prev + pendingLicenses);
-    setMoney(0); setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
+    // shadowCapital perk: start new run with $100,000 instead of $0
+    setMoney(syndicatePerks.shadowCapital ? 100000 : 0);
+    setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
     setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
     setShowPrestigeModal(false);
@@ -545,7 +556,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -563,6 +574,8 @@ export default function App() {
         setDeliveriesCompleted(safeNum(decoded.deliveriesCompleted)); setVipTokens(safeNum(decoded.vipTokens));
         setMarketUnlocked(decoded.marketUnlocked || false);
         setMarketShares(decoded.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
+        if (decoded.goldenSlices !== undefined) setGoldenSlices(safeNum(decoded.goldenSlices));
+        if (decoded.syndicatePerks) setSyndicatePerks(p => ({ ...p, ...decoded.syndicatePerks }));
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -579,7 +592,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -591,6 +604,8 @@ export default function App() {
       lastClickTime: Date.now(), clicksThisSecond: 0,
       rushTimeLeft: 0, vipSpawned: false, hasStarted: false,
       clickTimestamps: [], // ring buffer for rolling CPS
+      syndicatePerks: { shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false },
+      currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0,
   });
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
@@ -599,7 +614,11 @@ export default function App() {
       engineRefs.current.rushTimeLeft = rushTimeLeft;
       engineRefs.current.vipSpawned = vipSpawned;
       engineRefs.current.hasStarted = totalPizzasSold > 0;
-  }, [idleProfitPerSec, idlePizzasPerSec, rushTimeLeft, vipSpawned, totalPizzasSold]);
+      engineRefs.current.syndicatePerks = syndicatePerks;
+      engineRefs.current.currentClickPower = currentClickPower;
+      engineRefs.current.pizzaPrice = pizzaPrice;
+      engineRefs.current.idleClickMoney = currentClickPower * pizzaPrice;
+  }, [idleProfitPerSec, idlePizzasPerSec, rushTimeLeft, vipSpawned, totalPizzasSold, syndicatePerks, currentClickPower, pizzaPrice]);
 
   // 1. The 100ms Smooth Ticker & Combo Engine
   useEffect(() => {
@@ -671,17 +690,29 @@ export default function App() {
               return next;
           });
 
+          // autoArm perk: simulate 1 free click per second
+          if (state.syndicatePerks.autoArm && state.hasStarted) {
+              const autoMoney = state.idleClickMoney;
+              setMoney(m => m + autoMoney);
+              setLifetimeMoney(lm => lm + autoMoney);
+              setTotalPizzasSold(tp => tp + state.currentClickPower);
+              setReputation(r => r + state.currentClickPower);
+              setTotalClicks(tc => tc + 1);
+          }
+
       }, 1000);
       return () => clearInterval(eventTick);
   }, []);
 
   // 3. Fast Mini-Game Loop (For the oven progress bar)
+  // quantumOven perk: halves the speed multiplier, making it much easier to hit 'perfect'
   useEffect(() => {
     if (!sideOrder || sideOrder.status !== 'cooking') return;
     const tick = setInterval(() => {
       setSideOrder(prev => {
         if (!prev || prev.status !== 'cooking') return prev;
-        const nextProg = prev.progress + (prev.speed * 2);
+        const speedMult = engineRefs.current.syndicatePerks.quantumOven ? 1 : 2;
+        const nextProg = prev.progress + (prev.speed * speedMult);
         if (nextProg >= 100) return { ...prev, progress: 100, status: 'burnt', rewardEarned: 0 };
         return { ...prev, progress: nextProg };
       });
@@ -734,7 +765,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
@@ -802,9 +833,9 @@ export default function App() {
         });
         return next;
       });
-    }, 15000);
+    }, syndicatePerks.insiderTrading ? 7500 : 15000);
     return () => clearInterval(marketTick);
-  }, []);
+  }, [syndicatePerks.insiderTrading]);
 
   useEffect(() => {
     if (initialData && initialData.lastSaveTime) {
@@ -1418,6 +1449,75 @@ export default function App() {
                   {pendingLicenses > 0 ? `Sell Store for ${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}` : 'Not enough for Franchise'}
                 </button>
               </div>
+
+              {/* ── THE CULINARY SYNDICATE ── */}
+              {(franchiseLicenses >= 25 || goldenSlices > 0) && (() => {
+                const slicesOnAscend = Math.floor(franchiseLicenses / 25);
+                const canAscend = slicesOnAscend > 0;
+                const handleAscend = () => {
+                  if (!canAscend) return;
+                  if (!window.confirm(`Ascend to The Syndicate?\n\nYou will receive ${slicesOnAscend} Golden Slice${slicesOnAscend > 1 ? 's' : ''}.\n\nWARNING: All money, reputation, inventory, licenses, and VIP tokens will be wiped. Achievements and Golden Slices are kept forever.\n\nThis cannot be undone.`)) return;
+                  setGoldenSlices(g => g + slicesOnAscend);
+                  setMoney(syndicatePerks.shadowCapital ? 100000 : 0);
+                  setLifetimeMoney(0);
+                  setReputation(0);
+                  setTotalPizzasSold(0);
+                  setFranchiseLicenses(0);
+                  setVipTokens(0);
+                  setInventory({});
+                  setDeliveriesCompleted(0);
+                  setRushTimeLeft(0);
+                  setVipTimeLeft(0);
+                  setVipSpawned(false);
+                  setSideOrder(null);
+                  setCombo(0);
+                  setDeliveryCooldowns({});
+                };
+                return (
+                  <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-slate-900">
+                    {/* Background shimmer */}
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.07),transparent_60%)] pointer-events-none" />
+                    <div className="relative z-10 px-5 py-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-2.5">
+                          <Moon className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <div>
+                          <div className="text-xs font-black uppercase tracking-widest text-yellow-500/70">Hard Prestige</div>
+                          <h3 className="font-display text-lg text-yellow-100 tracking-wider leading-tight">The Culinary Syndicate</h3>
+                        </div>
+                        {goldenSlices > 0 && (
+                          <div className="ml-auto flex items-center gap-1.5 bg-yellow-900/40 border border-yellow-500/40 rounded-full px-3 py-1">
+                            <Gem className="w-3.5 h-3.5 text-yellow-400" />
+                            <span className="font-display text-sm text-yellow-300 tabular-nums">{goldenSlices}</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Sacrifice everything. <span className="text-yellow-400 font-bold">Gain Golden Slices</span> — permanent currency that unlocks game-breaking perks across all future runs. Every 25 licenses converts to 1 Golden Slice.
+                      </p>
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div className="text-sm tabular-nums">
+                          <span className="text-slate-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
+                          <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-slate-600'}`}>{slicesOnAscend}</span>
+                          <span className="text-slate-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
+                        </div>
+                        <button
+                          onClick={handleAscend}
+                          disabled={!canAscend}
+                          className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm transition-all whitespace-nowrap ${
+                            canAscend
+                              ? 'bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] cursor-pointer active:scale-95'
+                              : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
+                          }`}
+                        >
+                          {canAscend ? 'Ascend to the Syndicate' : `Need 25 licenses (${franchiseLicenses}/25)`}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1432,6 +1532,7 @@ export default function App() {
                   { id: 'achievements', icon: <Trophy       className="w-4 h-4" />, label: 'Trophies',  glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' },
                   { id: 'stats',        icon: <TrendingUp   className="w-4 h-4" />, label: 'Stats',     glow: 'text-sky-400',    active: 'bg-sky-600/20 border-sky-500/60 text-sky-300'       },
                   { id: 'market',       icon: <DollarSign   className="w-4 h-4" />, label: marketUnlocked ? 'PTSE' : 'Market', glow: 'text-emerald-400', active: 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300' },
+                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-4 h-4" />, label: 'Vault', glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' }] : []),
                 ].map(({ id, icon, label, active }) => (
                   <button
                     key={id}
@@ -1477,6 +1578,142 @@ export default function App() {
 
             <div className="p-4 space-y-4 bg-slate-800/30">
               
+              {/* --- TAB: VAULT --- */}
+              {activeTab === 'vault' && (() => {
+                const SYNDICATE_PERKS_DEF = [
+                  {
+                    id: 'shadowCapital',
+                    name: 'Shadow Capital',
+                    cost: 1,
+                    icon: <DollarSign className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Begin every new run with $100,000 in seed money. No more starting from scratch.',
+                    effect: 'Start each run with $100K',
+                  },
+                  {
+                    id: 'quantumOven',
+                    name: 'Quantum Oven',
+                    cost: 2,
+                    icon: <Flame className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Warps the oven clock. Side orders advance at half-speed, making Perfect bakes trivially easy.',
+                    effect: 'Oven 2× slower — always hit Perfect',
+                  },
+                  {
+                    id: 'insiderTrading',
+                    name: 'Insider Trading',
+                    cost: 3,
+                    icon: <TrendingUp className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Your market connections feed you live data. Market prices update twice as fast.',
+                    effect: 'Market ticks every 7.5s instead of 15s',
+                  },
+                  {
+                    id: 'autoArm',
+                    name: 'Auto-Arm',
+                    cost: 5,
+                    icon: <Rocket className="w-6 h-6 text-yellow-300" />,
+                    desc: 'A robotic arm bakes and boxes one pizza every second automatically. Scales with all click multipliers.',
+                    effect: '+1 free click per second (with all multipliers)',
+                  },
+                ];
+                return (
+                  <div className="flex flex-col gap-4">
+                    {/* Header */}
+                    <div className="relative overflow-hidden rounded-xl border border-yellow-500/40 bg-gradient-to-br from-yellow-950/60 to-slate-900 p-5">
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,179,8,0.08),transparent_65%)] pointer-events-none" />
+                      <div className="relative z-10 flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-4">
+                          <div className="bg-yellow-500/10 border border-yellow-500/40 rounded-xl p-3">
+                            <Moon className="w-7 h-7 text-yellow-400" />
+                          </div>
+                          <div>
+                            <div className="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">Hard Prestige Layer</div>
+                            <h2 className="font-display text-2xl text-yellow-100 tracking-widest">The Syndicate Vault</h2>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-yellow-900/40 border border-yellow-500/40 rounded-xl px-4 py-3">
+                          <Gem className="w-5 h-5 text-yellow-400" />
+                          <div>
+                            <div className="text-[9px] font-black uppercase tracking-widest text-yellow-600">Golden Slices</div>
+                            <div className="font-display text-2xl text-yellow-300 tabular-nums leading-none">{goldenSlices}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="relative z-10 text-xs text-slate-500 mt-3 leading-relaxed">
+                        Golden Slices are permanent currency earned by ascending through The Culinary Syndicate. Spend them on perks that persist across all future runs.
+                      </p>
+                    </div>
+
+                    {/* Perk Cards */}
+                    {SYNDICATE_PERKS_DEF.map(perk => {
+                      const owned = syndicatePerks[perk.id];
+                      const canBuy = !owned && goldenSlices >= perk.cost;
+                      return (
+                        <div
+                          key={perk.id}
+                          className={`relative overflow-hidden rounded-xl border transition-all duration-300 ${
+                            owned
+                              ? 'border-yellow-400/60 bg-gradient-to-br from-yellow-950/50 to-slate-900 shadow-[0_0_20px_rgba(234,179,8,0.12)]'
+                              : 'border-slate-700/50 bg-slate-900/60'
+                          }`}
+                        >
+                          {owned && <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.06),transparent_60%)] pointer-events-none" />}
+                          <div className="relative z-10 p-4">
+                            <div className="flex items-start gap-4">
+                              <div className={`p-3 rounded-xl border shrink-0 ${
+                                owned ? 'bg-yellow-900/40 border-yellow-500/50' : 'bg-slate-800/60 border-slate-700'
+                              }`}>
+                                {perk.icon}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-slate-300'}`}>{perk.name}</h3>
+                                  {owned && (
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-500 mb-2 leading-relaxed">{perk.desc}</p>
+                                <div className={`text-[10px] font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-slate-600'}`}>
+                                  ✦ {perk.effect}
+                                </div>
+                              </div>
+                              <div className="shrink-0 flex flex-col items-end gap-2">
+                                {owned ? (
+                                  <div className="flex items-center gap-1.5 text-yellow-400">
+                                    <Gem className="w-4 h-4" />
+                                    <span className="font-display text-sm">Owned</span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="flex items-center gap-1 text-right">
+                                      <Gem className="w-3.5 h-3.5 text-yellow-500" />
+                                      <span className={`font-display text-lg tabular-nums ${canBuy ? 'text-yellow-300' : 'text-slate-600'}`}>{perk.cost}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        if (!canBuy) return;
+                                        setGoldenSlices(g => g - perk.cost);
+                                        setSyndicatePerks(p => ({ ...p, [perk.id]: true }));
+                                      }}
+                                      disabled={!canBuy}
+                                      className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider transition-all ${
+                                        canBuy
+                                          ? 'bg-gradient-to-r from-yellow-600 to-amber-500 text-black font-black hover:from-yellow-500 hover:to-amber-400 cursor-pointer active:scale-95 shadow-[0_0_12px_rgba(234,179,8,0.25)]'
+                                          : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
+                                      }`}
+                                    >
+                                      {canBuy ? 'Unlock' : goldenSlices < perk.cost ? `Need ${perk.cost - goldenSlices} more` : 'Unlock'}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = starLevel < upgrade.reqStars;
