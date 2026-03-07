@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -214,11 +214,11 @@ export default function App() {
   const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
 
   const MILESTONE_MULTS = [2, 1.75, 1.5, 1.25, 1.1];
-  const getMilestoneMultiplier = (count) => {
+  const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
     MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS[i]; });
     return multiplier;
-  };
+  }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
   const totalEarnableLicenses = Math.floor(Math.sqrt(lifetimeMoney / FRANCHISE_BASE_COST));
@@ -227,17 +227,17 @@ export default function App() {
   const achievementMultiplier = 1 + (unlockedAchievements.length * 0.02);
   const vipTokenMultiplier = 1 + (vipTokens * 0.05);
 
-  let baseProductionRate = 0;
-  let basePizzaPrice = 2.50; 
-  let baseClickPower = 1; 
-
-  UPGRADES.forEach(u => {
-    const count = safeNum(inventory?.[u.id], 0);
-    const multi = getMilestoneMultiplier(count);
-    if (u.type === 'production') baseProductionRate += (u.baseValue * count * multi);
-    if (u.type === 'quality') basePizzaPrice += u.baseValue * count;
-    if (u.type === 'click') baseClickPower += (u.baseValue * count * multi);
-  });
+  const { baseProductionRate, basePizzaPrice, baseClickPower } = useMemo(() => {
+    let prod = 0, price = 2.50, click = 1;
+    UPGRADES.forEach(u => {
+      const count = safeNum(inventory?.[u.id], 0);
+      const multi = getMilestoneMultiplier(count);
+      if (u.type === 'production') prod  += (u.baseValue * count * multi);
+      if (u.type === 'quality')    price += u.baseValue * count;
+      if (u.type === 'click')      click += (u.baseValue * count * multi);
+    });
+    return { baseProductionRate: prod, basePizzaPrice: price, baseClickPower: click };
+  }, [inventory, getMilestoneMultiplier]);
 
   const isRush = rushTimeLeft > 0;
   const isClean = cleanBoostTimer > 0;
@@ -331,12 +331,8 @@ export default function App() {
     const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
     const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
     
-    const popupId = Date.now() + Math.random();
-    setClickPopups(prev => [...prev, { id: popupId, x, y, value: fmt(moneyEarned) }]);
-
-    setTimeout(() => {
-      setClickPopups(prev => prev.filter(p => p.id !== popupId));
-    }, 1000);
+    const now = Date.now();
+    setClickPopups(prev => [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]);
   };
 
   const handlePullFromOven = () => {
@@ -504,11 +500,16 @@ export default function App() {
 
           const timeSinceClick = Date.now() - state.lastClickTime;
           if (timeSinceClick > 2000) {
-              setCombo(0);
-              setComboDecayTimer(0);
+              setCombo(prev => prev > 0 ? 0 : prev);
+              setComboDecayTimer(prev => prev > 0 ? 0 : prev);
           } else {
-              setComboDecayTimer(20 - Math.floor(timeSinceClick / 100));
+              const nextDecay = 20 - Math.floor(timeSinceClick / 100);
+              setComboDecayTimer(prev => prev === nextDecay ? prev : nextDecay);
           }
+
+          // Sweep expired click popups (replaces N individual setTimeouts)
+          const now = Date.now();
+          setClickPopups(prev => prev.length > 0 ? prev.filter(p => p.expiresAt > now) : prev);
       }, 100);
       return () => clearInterval(smoothTick);
   }, []);
@@ -604,13 +605,15 @@ export default function App() {
         }
      });
      if (newlyUnlocked.length > 0) setUnlockedAchievements(prev => [...prev, ...newlyUnlocked]);
-  }, [totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, unlockedAchievements, combo, deliveriesCompleted, reputation, inventory]);
+  // money/reputation/combo update every 100ms — excluded from deps to prevent render storms.
+  // Achievements that depend on them (combo_max etc.) will still fire because totalPizzasSold
+  // and totalClicks are updated on every click/tick and will re-trigger this effect.
+  }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory]);
 
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
-  useEffect(() => {
-    saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis };
-  });
+  // Use a ref to always have fresh values without triggering re-renders
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
