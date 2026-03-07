@@ -1283,8 +1283,8 @@ export default function App() {
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
 
-                // Hide unaffordable upgrades until player is 80% of the way there (but always show owned or locked)
-                if (!isLocked && count === 0 && money < cost * 0.8) return null;
+                // Hide unaffordable upgrades until player is 80% of the way to the cost; locked upgrades always show
+                if (!isLocked && money < cost * 0.8) return null;
 
                 // Projected pizza price after buying this upgrade (next level)
                 const nextCount = count + 1;
