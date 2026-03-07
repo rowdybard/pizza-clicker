@@ -107,7 +107,7 @@ const UPGRADES = [
 const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
-const FRANCHISE_BASE_COST = 150000; 
+const FRANCHISE_BASE_COST = 1e14; // license #100 requires ~$1 quintillion lifetime
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
@@ -320,7 +320,15 @@ export default function App() {
   }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
-  const totalEarnableLicenses = Math.floor(Math.sqrt(lifetimeMoney / FRANCHISE_BASE_COST));
+  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve toward quintillion at #100
+  const earlyLicenses = Math.min(5, Math.floor(Math.sqrt(lifetimeMoney / 50000)));
+  const mainLicenses = Math.floor(Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST));
+  const totalEarnableLicenses = earlyLicenses + mainLicenses;
+  const nextLicenseCost = (() => {
+    const n = totalEarnableLicenses;
+    if (n < 5) return Math.pow(n + 1, 2) * 50000;
+    return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
+  })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   // Licenses boost production + click (not price). Exponential past 10 licenses.
   const franchiseMultiplier = franchiseLicenses <= 10
@@ -1313,8 +1321,17 @@ export default function App() {
              
               <div className="pointer-events-none flex flex-col items-center z-10">
                 <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100 text-glow-red' : 'text-orange-100 text-glow-orange'}`}>Bake & Box</div>
-                <div className="text-sm md:text-base text-orange-300 font-display bg-slate-900/90 px-5 py-2 rounded-full inline-block tracking-wider shadow-inner border border-slate-700 backdrop-blur-sm tabular-nums">
-                  +$<Num value={pizzaPrice * currentClickPower} decimals={2} /> <span className="text-slate-500 mx-1">|</span> +<Num value={currentClickPower} decimals={1} /> Pizzas per Click
+                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider shadow-inner backdrop-blur-sm tabular-nums transition-all duration-300 ${
+                  isClean
+                    ? 'text-cyan-200 bg-cyan-950/80 border border-cyan-400/60 shadow-[0_0_16px_rgba(34,211,238,0.35)] animate-pulse'
+                    : 'text-orange-300 bg-slate-900/90 border border-slate-700'
+                }`}>
+                  {isClean && (
+                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
+                  )}
+                  <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
+                  <span className={isClean ? 'text-cyan-600' : 'text-slate-500'}>|</span>
+                  <span>+<Num value={currentClickPower} decimals={1} /> Pizzas per Click</span>
                 </div>
               </div>
             </button>
@@ -1338,15 +1355,15 @@ export default function App() {
                 <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-[9px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 50%</div>
-                  <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Click only</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
+                  <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
                 </div>
 
                 {/* Achievement Multiplier */}
                 <div className="bg-slate-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-[9px] font-black uppercase tracking-widest text-yellow-400">Achievements</div>
                   <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 2%</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
                   <div className="text-[9px] text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
                 </div>
 
@@ -1354,7 +1371,7 @@ export default function App() {
                 <div className="bg-slate-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-[9px] font-black uppercase tracking-widest text-purple-300">VIP Tokens</div>
                   <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 5%</div>
+                  <div className="text-[10px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
                   <div className="text-[9px] text-purple-400 font-bold uppercase mt-0.5">All stats</div>
                 </div>
 
@@ -1385,7 +1402,7 @@ export default function App() {
                 <div>
                   <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-green-400 font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
                   <div className="text-xs text-slate-500 tabular-nums">
-                    Next license at <Num value={Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST} prefix="$" decimals={0} />
+                    Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
                   </div>
                 </div>
                 
@@ -1857,7 +1874,7 @@ export default function App() {
                         { label: 'Star Power', value: `${fmt(starPowerMultiplier)}x`, sub: `1.6^${starLevel} stars` },
                         { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
                         { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${fmtInt(nextStarReq)} rep for next` },
-                        { label: 'Next License', value: `$${fmt(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}`, sub: 'lifetime earnings req.' },
+                        { label: 'Next License', value: `$${fmt(nextLicenseCost)}`, sub: 'lifetime earnings req.' },
                       ]}
                     />
 
