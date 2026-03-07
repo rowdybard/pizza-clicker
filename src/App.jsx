@@ -169,6 +169,8 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [upgradeFilter, setUpgradeFilter] = useState('all');
+  const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
 
   // --- DERIVED STATS MATH ---
   const prestigeStarScale = 1 + (franchiseLicenses * 0.30);
@@ -1218,40 +1220,83 @@ export default function App() {
 
           <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col overflow-hidden relative">
 
-            <div className="flex items-center justify-between bg-slate-900/60 p-4 sm:p-6 border-b border-slate-700">
-              <div className="flex gap-4 min-w-0">
-                <button onClick={() => setActiveTab('upgrades')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'upgrades' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
-                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" /> Upgrades
-                </button>
-                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
-                <button onClick={() => setActiveTab('map')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'map' ? 'text-white text-glow-green' : 'text-slate-500 hover:text-slate-300'}`}>
-                  <Map className="w-5 h-5 sm:w-6 sm:h-6" /> Map
-                </button>
-                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
-                <button onClick={() => setActiveTab('achievements')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'achievements' ? 'text-white text-glow-yellow' : 'text-slate-500 hover:text-slate-300'}`}>
-                  <Trophy className="w-5 h-5 sm:w-6 sm:h-6" /> Trophies
-                </button>
-                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
-                <button onClick={() => setActiveTab('stats')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'stats' ? 'text-white text-glow-blue' : 'text-slate-500 hover:text-slate-300'}`}>
-                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> Stats
-                </button>
-                <div className="w-px bg-slate-700 my-1 hidden sm:block"></div>
-                <button onClick={() => setActiveTab('market')} className={`text-xl sm:text-2xl font-display tracking-widest flex items-center gap-2 transition-colors whitespace-nowrap ${activeTab === 'market' ? 'text-white text-glow-green' : 'text-slate-500 hover:text-slate-300'}`}>
-                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" /> {marketUnlocked ? 'PTSE' : 'Market'}
-                </button>
+            {/* ── TAB NAV ── */}
+            <div className="bg-slate-900/70 border-b border-slate-700/80 px-3 pt-3 pb-0">
+              <div className="grid grid-cols-3 gap-1.5 mb-3">
+                {[
+                  { id: 'upgrades',     icon: <ShoppingCart className="w-4 h-4" />, label: 'Upgrades',  glow: 'text-blue-400',   active: 'bg-blue-600/20 border-blue-500/60 text-blue-300'   },
+                  { id: 'map',          icon: <Map          className="w-4 h-4" />, label: 'Map',       glow: 'text-green-400',  active: 'bg-green-600/20 border-green-500/60 text-green-300' },
+                  { id: 'achievements', icon: <Trophy       className="w-4 h-4" />, label: 'Trophies',  glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' },
+                  { id: 'stats',        icon: <TrendingUp   className="w-4 h-4" />, label: 'Stats',     glow: 'text-sky-400',    active: 'bg-sky-600/20 border-sky-500/60 text-sky-300'       },
+                  { id: 'market',       icon: <DollarSign   className="w-4 h-4" />, label: marketUnlocked ? 'PTSE' : 'Market', glow: 'text-emerald-400', active: 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300' },
+                ].map(({ id, icon, label, active }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg border font-display text-xs tracking-widest uppercase transition-all duration-150 ${
+                      activeTab === id
+                        ? `${active} shadow-inner`
+                        : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/60'
+                    }`}
+                  >
+                    {icon}
+                    <span className="hidden sm:inline">{label}</span>
+                    <span className="sm:hidden text-[10px]">{label}</span>
+                  </button>
+                ))}
               </div>
+
+              {/* Upgrades sub-filter pills — only shown on upgrades tab */}
+              {activeTab === 'upgrades' && (
+                <div className="flex gap-1.5 pb-3">
+                  {[
+                    { id: 'all',        label: 'All',        color: 'text-slate-300',  activeBg: 'bg-slate-700 border-slate-500 text-white' },
+                    { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
+                    { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
+                    { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setUpgradeFilter(f.id)}
+                      className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${
+                        upgradeFilter === f.id ? f.activeBg : `border-slate-700 ${f.color} hover:border-slate-600 bg-slate-900/30`
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                  <div className="ml-auto text-[10px] text-slate-600 font-bold uppercase tracking-widest self-center">
+                    {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-4 space-y-4 bg-slate-800/30">
               
               {/* --- TAB: UPGRADES --- */}
-              {activeTab === 'upgrades' && UPGRADES.map((upgrade) => {
+              {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
                 const canAfford = money >= cost;
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
+
+                // Hide unaffordable upgrades until player is 80% of the way there (but always show owned or locked)
+                if (!isLocked && count === 0 && money < cost * 0.8) return null;
+
+                // Projected pizza price after buying this upgrade (next level)
+                const nextCount = count + 1;
+                const nextMulti = getMilestoneMultiplier(nextCount);
+                let projectedPizzaPrice = basePizzaPrice;
+                UPGRADES.forEach(u => {
+                  if (u.type !== 'quality') return;
+                  const c = u.id === upgrade.id ? nextCount : safeNum(inventory?.[u.id], 0);
+                  const m = u.id === upgrade.id ? nextMulti : getMilestoneMultiplier(c);
+                  projectedPizzaPrice *= Math.pow(1 + (u.baseValue / 100), c * m);
+                });
+                projectedPizzaPrice *= achievementMultiplier * vipTokenMultiplier;
 
                 const theme = {
                   production: { bg: 'from-blue-900/20 to-slate-800', border: 'border-blue-500/30', hover: 'hover:border-blue-400 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]', iconBg: 'bg-blue-950/60 border-blue-800/50', bar: 'bg-blue-500', text: 'text-blue-400' },
@@ -1330,8 +1375,8 @@ export default function App() {
                               ? <span>Lvl 1 → <span className="text-blue-300">+{fmt(upgrade.baseValue)} / sec</span></span>
                               : <span>Bakes {fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)} / sec</span>)}
                             {upgrade.type === 'quality' && (count === 0
-                              ? <span>Lvl 1 → <span className="text-amber-300">+{fmt(upgrade.baseValue)}% per level</span></span>
-                              : <span className="text-amber-300">+{fmt(upgrade.baseValue * count * multi)}% total · <span className="text-slate-300">${fmt(pizzaPrice)}/pizza</span></span>)}
+                              ? <span>Lvl 1 → <span className="text-amber-300">+{fmt(upgrade.baseValue)}% · <span className="text-slate-300">${fmt(projectedPizzaPrice)}/pizza next</span></span></span>
+                              : <span className="text-amber-300">+{fmt(upgrade.baseValue * count * multi)}% now · <span className="text-green-300">${fmt(projectedPizzaPrice)}/pizza next</span></span>)}
                             {upgrade.type === 'click' && (count === 0
                               ? <span>Lvl 1 → <span className="text-orange-300">+{fmt(upgrade.baseValue * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span></span>
                               : <span>+{fmt(upgrade.baseValue * count * multi * franchiseMultiplier * vipTokenMultiplier)} Pizzas / Click</span>)}
@@ -1493,180 +1538,185 @@ export default function App() {
 
               {/* --- TAB: ACHIEVEMENTS --- */}
               {activeTab === 'achievements' && (
-                <div className="flex flex-col gap-4">
-                   <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-5 mb-2 flex items-center justify-between shadow-inner">
-                      <div className="flex items-center gap-3">
-                         <Trophy className="w-8 h-8 text-yellow-500" />
-                         <div>
-                            <h3 className="font-display text-xl text-yellow-100 tracking-widest">Trophy Case</h3>
-                            <p className="text-sm text-yellow-500/70 font-bold">Unlocking achievements boosts your pizza price permanently.</p>
-                         </div>
+                <div className="flex flex-col gap-3">
+                  {/* Header bar */}
+                  <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
+                      <div>
+                        <div className="font-display text-base text-yellow-100 tracking-widest leading-tight">Trophy Case</div>
+                        <div className="text-[10px] text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} unlocked</div>
                       </div>
-                      <div className="text-right">
-                         <div className="text-[10px] text-yellow-500/70 font-bold uppercase tracking-widest mb-1">Global Achievement Bonus</div>
-                         <div className="font-display text-2xl text-yellow-400 text-glow-yellow tabular-nums">+{unlockedAchievements.length * 2}%</div>
-                      </div>
-                   </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[9px] text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
+                      <div className="font-display text-xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 2}%</div>
+                    </div>
+                  </div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {ACHIEVEMENTS.map(ach => {
-                         const isUnlocked = unlockedAchievements.includes(ach.id);
-                         return (
-                            <div key={ach.id} className={`p-4 rounded-xl border flex items-center gap-4 transition-all ${isUnlocked ? 'bg-gradient-to-br from-yellow-900/20 to-slate-800 border-yellow-500/30 shadow-[0_0_10px_rgba(250,204,21,0.05)]' : 'bg-slate-900/50 border-slate-700/50 grayscale opacity-60'}`}>
-                               <div className={`p-3 rounded-full border shadow-inner shrink-0 ${isUnlocked ? 'bg-yellow-950/60 border-yellow-600/50 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
-                                  {isUnlocked ? <CheckCircle className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
-                               </div>
-                               <div>
-                                  <h3 className={`font-display text-lg tracking-wider leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-slate-400'}`}>{ach.name}</h3>
-                                  <p className={`text-xs font-medium mt-1 ${isUnlocked ? 'text-slate-300' : 'text-slate-500'}`}>{ach.desc}</p>
-                               </div>
+                  {/* Progress bar */}
+                  <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700/50">
+                    <div className="h-full bg-gradient-to-r from-yellow-500 to-amber-400 transition-all duration-500 shadow-[0_0_8px_rgba(250,204,21,0.4)]"
+                      style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
+                  </div>
+
+                  {/* Compact badge grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {ACHIEVEMENTS.map(ach => {
+                      const isUnlocked = unlockedAchievements.includes(ach.id);
+                      return (
+                        <div
+                          key={ach.id}
+                          title={ach.desc}
+                          className={`group relative flex flex-col gap-1 p-3 rounded-xl border transition-all cursor-default ${
+                            isUnlocked
+                              ? 'bg-gradient-to-br from-yellow-900/25 to-slate-900 border-yellow-500/40 shadow-[0_0_8px_rgba(250,204,21,0.06)]'
+                              : 'bg-slate-900/40 border-slate-800/60 opacity-50 grayscale'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-slate-600'}`}>
+                              {isUnlocked ? <CheckCircle className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                             </div>
-                         );
-                      })}
-                   </div>
+                            <span className={`font-display text-[11px] tracking-wide leading-tight truncate ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
+                              {ach.name}
+                            </span>
+                          </div>
+                          <p className={`text-[9px] font-medium leading-tight line-clamp-2 ${isUnlocked ? 'text-slate-400' : 'text-slate-600'}`}>
+                            {ach.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
               {/* --- TAB: STATS --- */}
-              {activeTab === 'stats' && (
-                <div className="flex flex-col gap-4">
-
-                  {/* Production */}
-                  <div className="bg-slate-900/60 border border-blue-500/20 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2.5 bg-blue-900/20 border-b border-blue-500/20 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-black uppercase tracking-widest text-blue-400">Production</span>
+              {activeTab === 'stats' && (() => {
+                const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows }) => {
+                  const open = statsOpen[sKey];
+                  return (
+                    <div className={`bg-slate-900/60 border ${accentBorder} rounded-xl overflow-hidden`}>
+                      <button
+                        onClick={() => setStatsOpen(prev => ({ ...prev, [sKey]: !prev[sKey] }))}
+                        className={`w-full px-4 py-2.5 ${accentBg} flex items-center justify-between gap-2 hover:brightness-110 transition-all`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={accentText}>{icon}</span>
+                          <span className={`text-xs font-black uppercase tracking-widest ${accentText}`}>{label}</span>
+                        </div>
+                        <span className={`text-xs font-black ${accentText} transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+                      {open && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+                          {rows.map(({ label: rl, value, sub }) => (
+                            <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
+                              <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{rl}</div>
+                              <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
+                              <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
-                      {[
+                  );
+                };
+                return (
+                  <div className="flex flex-col gap-2">
+                    <AccSection sKey="production" icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
+                      accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
+                      rows={[
                         { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
                         { label: 'Idle Profit / Sec', value: `$${fmt(idleProfitPerSec)}`, sub: 'without clicking' },
                         { label: 'Pizza Price', value: `$${fmt(pizzaPrice)}`, sub: 'current ticket value' },
                         { label: 'Base Price', value: `$${fmt(basePizzaPrice)}`, sub: 'before multipliers' },
                         { label: 'VIP Boost', value: `${fmt(vipTokenMultiplier)}x`, sub: 'all stats' },
                         { label: 'Ach. Boost', value: `${fmt(achievementMultiplier)}x`, sub: 'price only' },
-                      ].map(({ label, value, sub }) => (
-                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
-                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
-                          <div className="font-display text-lg text-blue-300 tabular-nums leading-tight">{value}</div>
-                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Clicking */}
-                  <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2.5 bg-orange-900/20 border-b border-orange-500/20 flex items-center gap-2">
-                      <MousePointerClick className="w-4 h-4 text-orange-400" />
-                      <span className="text-xs font-black uppercase tracking-widest text-orange-400">Clicking</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
-                      {[
+                      ]}
+                    />
+                    <AccSection sKey="clicking" icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
+                      accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
+                      rows={[
                         { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
                         { label: 'Per Click $', value: `$${fmt(currentClickPower * pizzaPrice)}`, sub: 'money per click' },
                         { label: 'Per Click Rep', value: fmt(currentClickPower), sub: 'rep per click' },
                         { label: 'Total Clicks', value: fmtInt(totalClicks), sub: 'lifetime' },
                         { label: 'Click Mult.', value: `${fmt(franchiseMultiplier)}x`, sub: `${franchiseLicenses} licenses` },
                         { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
-                      ].map(({ label, value, sub }) => (
-                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
-                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
-                          <div className="font-display text-lg text-orange-300 tabular-nums leading-tight">{value}</div>
-                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Lifetime */}
-                  <div className="bg-slate-900/60 border border-green-500/20 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2.5 bg-green-900/20 border-b border-green-500/20 flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-400" />
-                      <span className="text-xs font-black uppercase tracking-widest text-green-400">Lifetime Totals</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
-                      {[
+                      ]}
+                    />
+                    <AccSection sKey="lifetime" icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
+                      accentBorder="border-green-500/20" accentBg="bg-green-900/20" accentText="text-green-400" valueColor="text-green-300"
+                      rows={[
                         { label: 'Money Earned', value: `$${fmt(lifetimeMoney)}`, sub: fmtInt(lifetimeMoney) },
                         { label: 'Pizzas Sold', value: fmtInt(totalPizzasSold), sub: 'all time' },
                         { label: 'Perfect Bakes', value: fmtInt(perfectBakes), sub: 'oven mini-game' },
                         { label: 'Deliveries', value: fmtInt(deliveriesCompleted), sub: 'time warp runs' },
                         { label: 'VIP Tokens', value: fmtInt(vipTokens), sub: '+5% all per token' },
                         { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 2}% price` },
-                      ].map(({ label, value, sub }) => (
-                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
-                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
-                          <div className="font-display text-lg text-green-300 tabular-nums leading-tight">{value}</div>
-                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Prestige & Reputation */}
-                  <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2.5 bg-purple-900/20 border-b border-purple-500/20 flex items-center gap-2">
-                      <Building className="w-4 h-4 text-purple-400" />
-                      <span className="text-xs font-black uppercase tracking-widest text-purple-400">Prestige & Reputation</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
-                      {[
+                      ]}
+                    />
+                    <AccSection sKey="prestige" icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
+                      accentBorder="border-purple-500/20" accentBg="bg-purple-900/20" accentText="text-purple-400" valueColor="text-purple-300"
+                      rows={[
                         { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+50% click each' },
                         { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
                         { label: 'Reputation', value: fmtInt(reputation), sub: `${fmtInt(nextStarReq)} for next ★` },
                         { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${starLevel} / 5` },
                         { label: 'Star Scale', value: `${fmt(prestigeStarScale)}x`, sub: 'thresholds this run' },
                         { label: 'Next License', value: `$${fmt(Math.pow(totalEarnableLicenses + 1, 2) * FRANCHISE_BASE_COST)}`, sub: 'lifetime earnings req.' },
-                      ].map(({ label, value, sub }) => (
-                        <div key={label} className="px-4 py-3 flex flex-col gap-0.5">
-                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{label}</div>
-                          <div className="font-display text-lg text-purple-300 tabular-nums leading-tight">{value}</div>
-                          <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+                      ]}
+                    />
+
+                    {/* Upgrades Owned — inline accordion */}
+                    <div className="bg-slate-900/60 border border-slate-600/30 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setStatsOpen(prev => ({ ...prev, owned: !prev.owned }))}
+                        className="w-full px-4 py-2.5 bg-slate-800/40 flex items-center justify-between gap-2 hover:brightness-110 transition-all"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="w-4 h-4 text-slate-400" />
+                          <span className="text-xs font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
                         </div>
-                      ))}
+                        <span className={`text-xs font-black text-slate-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+                      {statsOpen.owned && (
+                        <div className="divide-y divide-slate-800/60">
+                          {['production', 'quality', 'click'].map(type => {
+                            const typeUpgrades = UPGRADES.filter(u => u.type === type);
+                            const colors = { production: 'text-blue-400', quality: 'text-amber-400', click: 'text-orange-400' };
+                            const labels = { production: 'Production', quality: 'Quality', click: 'Click' };
+                            return (
+                              <div key={type} className="px-4 py-3">
+                                <div className={`text-[9px] font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {typeUpgrades.map(u => {
+                                    const count = safeNum(inventory?.[u.id], 0);
+                                    const locked = starLevel < u.reqStars;
+                                    return (
+                                      <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold tabular-nums ${
+                                        locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
+                                        count > 0 ? `bg-slate-900/60 border-slate-600/40 ${colors[type]}` :
+                                        'bg-slate-900/40 border-slate-700/30 text-slate-500'
+                                      }`}>
+                                        {u.name}
+                                        <span className="bg-slate-950/60 px-1.5 py-0.5 rounded font-display">
+                                          {locked ? '🔒' : count}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  {/* Upgrades Breakdown */}
-                  <div className="bg-slate-900/60 border border-slate-600/30 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-2">
-                      <ShoppingCart className="w-4 h-4 text-slate-400" />
-                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
-                    </div>
-                    <div className="divide-y divide-slate-800/60">
-                      {['production', 'quality', 'click'].map(type => {
-                        const typeUpgrades = UPGRADES.filter(u => u.type === type);
-                        const colors = { production: 'text-blue-400', quality: 'text-amber-400', click: 'text-orange-400' };
-                        const labels = { production: 'Production', quality: 'Quality', click: 'Click' };
-                        return (
-                          <div key={type} className="px-4 py-3">
-                            <div className={`text-[9px] font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
-                            <div className="flex flex-wrap gap-2">
-                              {typeUpgrades.map(u => {
-                                const count = safeNum(inventory?.[u.id], 0);
-                                const locked = starLevel < u.reqStars;
-                                return (
-                                  <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold tabular-nums ${
-                                    locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
-                                    count > 0 ? `bg-slate-900/60 border-slate-600/40 ${colors[type]}` :
-                                    'bg-slate-900/40 border-slate-700/30 text-slate-500'
-                                  }`}>
-                                    {u.name}
-                                    <span className="bg-slate-950/60 px-1.5 py-0.5 rounded font-display">
-                                      {locked ? '🔒' : count}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-              )}
+                );
+              })()}
 
               {/* --- TAB: MARKET --- */}
               {activeTab === 'market' && (
@@ -1772,6 +1822,31 @@ export default function App() {
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                               };
 
+                              const history = marketHistory[key] || [];
+                              const candleStickColors = { yellow: { up: '#fde68a', down: '#92400e', wick: '#fbbf24' }, amber: { up: '#fcd34d', down: '#78350f', wick: '#f59e0b' }, red: { up: '#fca5a5', down: '#7f1d1d', wick: '#f87171' }, cyan: { up: '#67e8f9', down: '#164e63', wick: '#22d3ee' } };
+                              const csColor = candleStickColors[color];
+                              const CANDLE_COUNT = 10;
+                              const grouped = [];
+                              const step = Math.floor(history.length / CANDLE_COUNT);
+                              for (let i = 0; i < CANDLE_COUNT; i++) {
+                                const slice = history.slice(i * step, i * step + step);
+                                if (slice.length === 0) continue;
+                                const open = slice[0];
+                                const close = slice[slice.length - 1];
+                                const high = Math.max(...slice);
+                                const low = Math.min(...slice);
+                                grouped.push({ open, close, high, low });
+                              }
+                              const allPrices = grouped.flatMap(c => [c.high, c.low]);
+                              const priceMin = Math.min(...allPrices);
+                              const priceMax = Math.max(...allPrices);
+                              const priceRange = priceMax - priceMin || 1;
+                              const svgH = 52, svgW = 180, padT = 4, padB = 4, padL = 2, padR = 2;
+                              const chartH = svgH - padT - padB;
+                              const chartW = svgW - padL - padR;
+                              const toY = (p) => padT + chartH - ((p - priceMin) / priceRange) * chartH;
+                              const candleW = Math.floor(chartW / CANDLE_COUNT);
+
                               return (
                                 <div key={key} className={`rounded-xl border p-5 flex flex-col gap-3 ${bgColors[color]} ${borderColors[color]}`}>
                                   {/* Header row */}
@@ -1792,6 +1867,29 @@ export default function App() {
                                       </div>
                                       <div className="text-[10px] text-slate-500 tabular-nums">per share</div>
                                     </div>
+                                  </div>
+
+                                  {/* Candlestick Chart */}
+                                  <div className="rounded-lg overflow-hidden bg-slate-950/50 border border-slate-700/30">
+                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '52px' }}>
+                                      {grouped.map((c, i) => {
+                                        const isUp = c.close >= c.open;
+                                        const fillColor = isUp ? csColor.up : csColor.down;
+                                        const x = padL + i * candleW + candleW / 2;
+                                        const bodyTop = toY(Math.max(c.open, c.close));
+                                        const bodyBot = toY(Math.min(c.open, c.close));
+                                        const bodyH = Math.max(bodyBot - bodyTop, 1);
+                                        const wickTop = toY(c.high);
+                                        const wickBot = toY(c.low);
+                                        const bw = Math.max(candleW * 0.55, 2);
+                                        return (
+                                          <g key={i}>
+                                            <line x1={x} y1={wickTop} x2={x} y2={wickBot} stroke={csColor.wick} strokeWidth="1" strokeOpacity="0.6" />
+                                            <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={fillColor} rx="0.5" />
+                                          </g>
+                                        );
+                                      })}
+                                    </svg>
                                   </div>
 
                                   {/* Holdings */}
@@ -1837,6 +1935,23 @@ export default function App() {
               )}
 
             </div>
+
+            {/* ── MONETIZATION STRIP ── */}
+            <div className="border-t border-slate-700/60 bg-slate-900/50 px-4 py-2.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <Zap className="w-3 h-3 text-slate-600" />
+                <span>Support development</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
+                  <Moon className="w-3 h-3" /> Remove Ads
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-600/40 bg-amber-900/20 text-[10px] font-black uppercase tracking-widest text-amber-400 hover:bg-amber-900/40 hover:border-amber-500/60 transition-all shadow-[0_0_8px_rgba(217,119,6,0.1)]">
+                  <Crown className="w-3 h-3" /> Premium Pass
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
 
