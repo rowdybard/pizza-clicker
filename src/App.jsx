@@ -4,7 +4,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Moon, Mic, MicOff
+  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
@@ -337,8 +337,15 @@ export default function App() {
   const [frenzyMultiplier, setFrenzyMultiplier] = useState(1);
   const [goldenSliceEvent, setGoldenSliceEvent] = useState(null);
 
+  // --- MONEY LOG STATE ---
+  const [moneyLog, setMoneyLog] = useState([]);
+  const pendingClickRef = useRef({ total: 0, count: 0, lastFlush: Date.now() });
+
   // --- MARKET MANIPULATION STATE ---
-  const [marketCooldowns, setMarketCooldowns] = useState({ rumors: 0, squeeze: 0 });
+  const [marketCooldowns, setMarketCooldowns] = useState({
+    rumors:  { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 },
+    squeeze: { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 },
+  });
 
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
@@ -509,6 +516,13 @@ export default function App() {
   };
 
 
+  // --- MONEY LOG HELPER ---
+  // category: 'click' | 'idle' | 'oven' | 'delivery' | 'market' | 'golden' | 'spend'
+  const pushLog = useCallback((category, label, amount) => {
+    const entry = { id: Date.now() + Math.random(), ts: Date.now(), category, label, amount };
+    setMoneyLog(prev => [entry, ...prev].slice(0, 200));
+  }, []);
+
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
     playSound('pop');
@@ -517,9 +531,20 @@ export default function App() {
     setMoney(prev => prev + moneyEarned);
     setLifetimeMoney(prev => prev + moneyEarned);
     setTotalPizzasSold(prev => prev + currentClickPower);
-    setReputation(prev => prev + currentClickPower); // FIXED: No longer rounds up aggressively
+    setReputation(prev => prev + currentClickPower);
     setTotalClicks(prev => prev + 1);
-    
+
+    // Accumulate clicks for log — flush every 5s or when hitting combo 100
+    const pc = pendingClickRef.current;
+    pc.total += moneyEarned;
+    pc.count += 1;
+    const flushNow = Date.now();
+    const shouldFlush = (flushNow - pc.lastFlush > 5000) || (combo + 1 >= 100);
+    if (shouldFlush && pc.count > 0) {
+      pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
+      pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
+    }
+
     setCombo(prev => Math.min(prev + 1, 100));
     setComboDecayTimer(10); 
     
@@ -565,7 +590,7 @@ export default function App() {
     
     if (finalReward > 0) {
         setMoney(m => m + finalReward);
-        setLifetimeMoney(m => m + finalReward);
+        pushLog('oven', `${status === 'perfect' ? '🔥 Perfect' : 'Oven'} Pull (${sideOrder.type === 'wings' ? 'Wings' : 'Bread'})`, finalReward);
         if (repBonus > 0) setReputation(r => r + repBonus);
     }
   };
@@ -615,7 +640,7 @@ export default function App() {
       const efficiency = 1 / (1 + ips / WARP_CAP);
       const bonus = Math.min(ips * 600 * efficiency, 1e12);
       setMoney(m => m + bonus);
-      setLifetimeMoney(m => m + bonus);
+      pushLog('golden', '✨ Golden Slice — Instant Cash', bonus);
     }
     setGoldenSliceEvent(null);
   };
@@ -632,6 +657,7 @@ export default function App() {
 
     setMoney(m => m + warpMoney);
     setLifetimeMoney(m => m + warpMoney);
+    pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
     setTotalPizzasSold(tp => tp + warpPizzas);
     setReputation(r => r + warpRep);
 
@@ -705,6 +731,10 @@ export default function App() {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
   };
+
+  const idleLogTickRef = useRef(0);
+  const pushLogRef = useRef(null);
+  useEffect(() => { pushLogRef.current = pushLog; }, [pushLog]);
 
   // --- HIGH PERFORMANCE ENGINE REF CACHING ---
   const engineRefs = useRef({
@@ -815,11 +845,19 @@ export default function App() {
             };
           });
 
-          // Market manipulation cooldowns
-          setMarketCooldowns(prev => ({
-            rumors: Math.max(0, prev.rumors - 1),
-            squeeze: Math.max(0, prev.squeeze - 1),
-          }));
+          // Market manipulation cooldowns (per-commodity)
+          setMarketCooldowns(prev => {
+            const dec = (obj) => Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, Math.max(0, v-1)]));
+            return { rumors: dec(prev.rumors), squeeze: dec(prev.squeeze) };
+          });
+
+          // Idle income log — batch every 30s
+          idleLogTickRef.current = (idleLogTickRef.current || 0) + 1;
+          if (idleLogTickRef.current >= 30 && state.idleProfitPerSec > 0) {
+            const idleBatch = state.idleProfitPerSec * 30;
+            pushLogRef.current('idle', '⚙️ Idle Production (30s)', idleBatch);
+            idleLogTickRef.current = 0;
+          }
 
           // autoArm perk: simulate 1 free click per second
           if (state.syndicatePerks.autoArm && state.hasStarted) {
@@ -996,38 +1034,81 @@ export default function App() {
     // eslint-disable-next-line
   }, []); 
 
+  // Cookie Clicker-style large number naming
+  const BIG_NAMES = [
+    [1e303, 'Centillion'],
+    [1e100, 'Googol'],
+    [1e63,  'Vigintillion'],
+    [1e60,  'Novemdecillion'],
+    [1e57,  'Octodecillion'],
+    [1e54,  'Septendecillion'],
+    [1e51,  'Sexdecillion'],
+    [1e48,  'Quindecillion'],
+    [1e45,  'Quattuordecillion'],
+    [1e42,  'Tredecillion'],
+    [1e39,  'Duodecillion'],
+    [1e36,  'Undecillion'],
+    [1e33,  'Decillion'],
+    [1e30,  'Nonillion'],
+    [1e27,  'Octillion'],
+    [1e24,  'Septillion'],
+    [1e21,  'Sextillion'],
+    [1e18,  'Quintillion'],
+    [1e15,  'Quadrillion'],
+    [1e12,  'Trillion'],
+    [1e9,   'Billion'],
+    [1e6,   'Million'],
+    [1e3,   'Thousand'],
+  ];
+  const BIG_ABBR = [
+    [1e303, 'Ce'],
+    [1e100, 'Gg'],
+    [1e63,  'Vg'],
+    [1e60,  'Nvd'],
+    [1e57,  'Otd'],
+    [1e54,  'Spd'],
+    [1e51,  'Sxd'],
+    [1e48,  'Qnd'],
+    [1e45,  'Qtd'],
+    [1e42,  'Trd'],
+    [1e39,  'Dud'],
+    [1e36,  'Und'],
+    [1e33,  'Dc'],
+    [1e30,  'No'],
+    [1e27,  'Oc'],
+    [1e24,  'Sp'],
+    [1e21,  'Sx'],
+    [1e18,  'Qi'],
+    [1e15,  'Qu'],
+    [1e12,  'T'],
+    [1e9,   'B'],
+    [1e6,   'M'],
+    [1e3,   'K'],
+  ];
+
   const fmt = (n) => {
-    if (n === null || n === undefined || isNaN(n)) return '0';
+    if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
     const abs = Math.abs(n);
-    if (abs >= 1e18) return (n / 1e18).toFixed(2) + 'Qi';
-    if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
-    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-    if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
-    if (abs >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
-    if (abs >= 1e3)  return (n / 1e3).toFixed(2) + 'K';
+    for (const [thresh, abbr] of BIG_ABBR) {
+      if (abs >= thresh) return (n / thresh).toFixed(2) + abbr;
+    }
     return n.toFixed(2);
   };
 
   const fmtInt = (n) => {
-    if (n === null || n === undefined || isNaN(n)) return '0';
+    if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
     const abs = Math.abs(n);
-    if (abs >= 1e18) return (n / 1e18).toFixed(2) + 'Qi';
-    if (abs >= 1e15) return (n / 1e15).toFixed(2) + 'Qu';
-    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-    if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
-    if (abs >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
-    if (abs >= 1e3)  return (n / 1e3).toFixed(2) + 'K';
+    for (const [thresh, abbr] of BIG_ABBR) {
+      if (abs >= thresh) return (n / thresh).toFixed(2) + abbr;
+    }
     return Math.floor(n).toLocaleString();
   };
 
   const numWords = (n) => {
     const abs = Math.abs(n);
-    if (abs >= 1e18) return `${(n / 1e18).toFixed(2)} Quintillion`;
-    if (abs >= 1e15) return `${(n / 1e15).toFixed(2)} Quadrillion`;
-    if (abs >= 1e12) return `${(n / 1e12).toFixed(2)} Trillion`;
-    if (abs >= 1e9)  return `${(n / 1e9).toFixed(2)} Billion`;
-    if (abs >= 1e6)  return `${(n / 1e6).toFixed(2)} Million`;
-    if (abs >= 1e3)  return `${(n / 1e3).toFixed(2)} Thousand`;
+    for (const [thresh, name] of BIG_NAMES) {
+      if (abs >= thresh) return `${(n / thresh).toFixed(2)} ${name}`;
+    }
     return null;
   };
 
@@ -1800,6 +1881,7 @@ export default function App() {
                   { id: 'achievements', icon: <Trophy       className="w-4 h-4" />, label: 'Trophies',  glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' },
                   { id: 'stats',        icon: <TrendingUp   className="w-4 h-4" />, label: 'Stats',     glow: 'text-sky-400',    active: 'bg-sky-600/20 border-sky-500/60 text-sky-300'       },
                   { id: 'market',       icon: <DollarSign   className="w-4 h-4" />, label: marketUnlocked ? 'PTSE' : 'Market', glow: 'text-emerald-400', active: 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300' },
+                  { id: 'log',          icon: <ScrollText   className="w-4 h-4" />, label: 'Log',       glow: 'text-slate-400',  active: 'bg-slate-600/20 border-slate-500/60 text-slate-300'   },
                   ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-4 h-4" />, label: 'Vault', glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' }] : []),
                 ].map(({ id, icon, label, active }) => (
                   <button
@@ -2573,13 +2655,17 @@ export default function App() {
                                 setMoney(m => m - cost);
                                 setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: prev[key] + cost }));
+                                pushLog('market', `📉 Buy ${n}× ${label} @ $${fmt(price)}`, -cost);
                               };
                               const sellAll = () => {
                                 if (shares <= 0) return;
                                 const proceeds = shares * price * (1 - FEE);
+                                const basis = marketCostBasis[key] || 0;
+                                const pnl = proceeds - basis;
                                 setMoney(m => m + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
+                                pushLog('market', `📈 Sell ${shares}× ${label} (P&L: ${pnl >= 0 ? '+' : ''}$${fmt(pnl)})`, proceeds);
                               };
 
                               // Chart math
@@ -2715,38 +2801,54 @@ export default function App() {
 
                                   {/* Market Manipulation Buttons */}
                                   <div className="px-3 pb-2 flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        if (marketCooldowns.rumors > 0) return;
-                                        const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
-                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * crashMult).toFixed(2)) }));
-                                        setMarketCooldowns(c => ({ ...c, rumors: 600 }));
-                                      }}
-                                      disabled={marketCooldowns.rumors > 0}
-                                      className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
-                                        marketCooldowns.rumors > 0
-                                          ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                          : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
-                                      }`}
-                                    >
-                                      {marketCooldowns.rumors > 0 ? `📉 ${Math.floor(marketCooldowns.rumors / 60)}m${marketCooldowns.rumors % 60}s` : '📉 Rumor'}
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        if (marketCooldowns.squeeze > 0) return;
-                                        const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
-                                        setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * squeezeMult).toFixed(2)) }));
-                                        setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
-                                      }}
-                                      disabled={marketCooldowns.squeeze > 0}
-                                      className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
-                                        marketCooldowns.squeeze > 0
-                                          ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                          : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
-                                      }`}
-                                    >
-                                      {marketCooldowns.squeeze > 0 ? `📈 ${Math.floor(marketCooldowns.squeeze / 60)}m${marketCooldowns.squeeze % 60}s` : '📈 Squeeze'}
-                                    </button>
+                                    {(() => {
+                                      const rumorCd = marketCooldowns.rumors[key] || 0;
+                                      const squeezeCd = marketCooldowns.squeeze[key] || 0;
+                                      const forceSell = () => {
+                                        // liquidate holdings at current price (with fee) before manipulation
+                                        if (shares > 0) {
+                                          setMoney(m => m + shares * price * 0.995);
+                                          setMarketShares(prev => ({ ...prev, [key]: 0 }));
+                                          setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
+                                        }
+                                      };
+                                      return (<>
+                                        <button
+                                          onClick={() => {
+                                            if (rumorCd > 0) return;
+                                            forceSell();
+                                            const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
+                                            setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * crashMult).toFixed(2)) }));
+                                            setMarketCooldowns(c => ({ ...c, rumors: { ...c.rumors, [key]: 600 } }));
+                                          }}
+                                          disabled={rumorCd > 0}
+                                          className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
+                                            rumorCd > 0
+                                              ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                              : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
+                                          }`}
+                                        >
+                                          {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Rumor'}
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            if (squeezeCd > 0) return;
+                                            forceSell();
+                                            const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
+                                            setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * squeezeMult).toFixed(2)) }));
+                                            setMarketCooldowns(c => ({ ...c, squeeze: { ...c.squeeze, [key]: 600 } }));
+                                          }}
+                                          disabled={squeezeCd > 0}
+                                          className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
+                                            squeezeCd > 0
+                                              ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                              : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
+                                          }`}
+                                        >
+                                          {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Squeeze'}
+                                        </button>
+                                      </>);
+                                    })()}
                                   </div>
 
                                   {/* Action bar */}
@@ -2779,6 +2881,91 @@ export default function App() {
                   )}
                 </div>
               )}
+
+              {/* --- TAB: LOG --- */}
+              {activeTab === 'log' && (() => {
+                const CAT_META = {
+                  click:    { icon: '🖱️', label: 'Click Income',      color: 'text-orange-400', bg: 'bg-orange-900/20 border-orange-500/20' },
+                  idle:     { icon: '⚙️', label: 'Idle Production',   color: 'text-blue-400',   bg: 'bg-blue-900/20 border-blue-500/20'   },
+                  oven:     { icon: '🔥', label: 'Oven Pull',         color: 'text-amber-400',  bg: 'bg-amber-900/20 border-amber-500/20' },
+                  delivery: { icon: '🚗', label: 'Delivery',          color: 'text-green-400',  bg: 'bg-green-900/20 border-green-500/20' },
+                  golden:   { icon: '✨', label: 'Golden Slice',      color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-500/20'},
+                  market:   { icon: '📈', label: 'Market',            color: 'text-emerald-400',bg: 'bg-emerald-900/20 border-emerald-500/20'},
+                  spend:    { icon: '💸', label: 'Expense',           color: 'text-red-400',    bg: 'bg-red-900/20 border-red-500/20'     },
+                };
+                const totals = moneyLog.reduce((acc, e) => {
+                  acc[e.category] = (acc[e.category] || 0) + e.amount;
+                  return acc;
+                }, {});
+                const now = Date.now();
+                const fmtAge = (ts) => {
+                  const s = Math.floor((now - ts) / 1000);
+                  if (s < 60) return `${s}s ago`;
+                  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+                  return `${Math.floor(s/3600)}h ago`;
+                };
+                return (
+                  <div className="flex flex-col gap-3">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ScrollText className="w-4 h-4 text-slate-400" />
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-400">Transaction Log</span>
+                        <span className="text-[9px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
+                      </div>
+                      <button
+                        onClick={() => setMoneyLog([])}
+                        className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-red-400 transition-colors border border-slate-700 hover:border-red-800 px-2 py-1 rounded"
+                      >Clear</button>
+                    </div>
+
+                    {/* Summary pills */}
+                    {moneyLog.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.entries(totals).map(([cat, total]) => {
+                          const m = CAT_META[cat] || CAT_META.idle;
+                          return (
+                            <div key={cat} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[9px] font-bold ${m.bg}`}>
+                              <span>{m.icon}</span>
+                              <span className="text-slate-400 uppercase tracking-widest">{m.label}</span>
+                              <span className={`font-display tabular-nums ${m.color}`}>${fmt(total)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Empty state */}
+                    {moneyLog.length === 0 && (
+                      <div className="flex flex-col items-center justify-center py-12 gap-3 text-slate-600">
+                        <ScrollText className="w-10 h-10 opacity-30" />
+                        <p className="text-xs font-bold uppercase tracking-widest">No transactions yet</p>
+                        <p className="text-[10px] text-slate-700">Start clicking or wait for idle income.</p>
+                      </div>
+                    )}
+
+                    {/* Entries */}
+                    <div className="flex flex-col divide-y divide-slate-800/60">
+                      {moneyLog.map((entry) => {
+                        const m = CAT_META[entry.category] || CAT_META.idle;
+                        const isPositive = entry.amount >= 0;
+                        return (
+                          <div key={entry.id} className="flex items-center gap-3 py-2.5 px-1">
+                            <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-bold text-slate-300 truncate">{entry.label}</div>
+                              <div className="text-[9px] text-slate-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
+                            </div>
+                            <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
+                              {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
             </div>
 
