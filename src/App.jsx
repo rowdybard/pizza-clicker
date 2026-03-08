@@ -342,10 +342,8 @@ export default function App() {
   const pendingClickRef = useRef({ total: 0, count: 0, lastFlush: Date.now() });
 
   // --- MARKET MANIPULATION STATE ---
-  const [marketCooldowns, setMarketCooldowns] = useState({
-    rumors:  { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 },
-    squeeze: { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 },
-  });
+  const [marketCooldowns, setMarketCooldowns] = useState({ rumors: 0, squeeze: 0 });
+  const [manipTarget, setManipTarget] = useState('flour');
 
   // --- VISUAL & MODAL STATE ---
   const [activeTab, setActiveTab] = useState('upgrades'); 
@@ -850,11 +848,11 @@ export default function App() {
             };
           });
 
-          // Market manipulation cooldowns (per-commodity)
-          setMarketCooldowns(prev => {
-            const dec = (obj) => Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, Math.max(0, v-1)]));
-            return { rumors: dec(prev.rumors), squeeze: dec(prev.squeeze) };
-          });
+          // Market manipulation cooldowns (global)
+          setMarketCooldowns(prev => ({
+            rumors:  Math.max(0, prev.rumors  - 1),
+            squeeze: Math.max(0, prev.squeeze - 1),
+          }));
 
           // Idle income log — batch every 30s
           idleLogTickRef.current = (idleLogTickRef.current || 0) + 1;
@@ -2633,6 +2631,85 @@ export default function App() {
                         </div>
                       </div>
 
+                      {/* ── Market Controls (shared global cooldown) ── */}
+                      {(() => {
+                        const TARGETS = [
+                          { key: 'flour',     label: 'Flour',     emoji: '🌾' },
+                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀' },
+                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕' },
+                          { key: 'truffles',  label: 'Truffles',  emoji: '💎' },
+                        ];
+                        const rumorCd   = marketCooldowns.rumors;
+                        const squeezeCd = marketCooldowns.squeeze;
+                        const targetPrice = marketPrices[manipTarget];
+                        const targetShares = marketShares[manipTarget];
+                        const forceSellTarget = () => {
+                          if (targetShares > 0) {
+                            setMoney(m => m + targetShares * targetPrice * 0.995);
+                            setMarketShares(prev => ({ ...prev, [manipTarget]: 0 }));
+                            setMarketCostBasis(prev => ({ ...prev, [manipTarget]: 0 }));
+                          }
+                        };
+                        return (
+                          <div className="bg-zinc-900/80 border border-zinc-700/60 rounded-xl p-3 flex flex-col gap-2.5">
+                            <div className="text-[9px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+                              <Briefcase className="w-3 h-3" /> Market Controls
+                              <span className="ml-auto text-zinc-700 font-mono">one action locks all</span>
+                            </div>
+                            {/* Target selector */}
+                            <div className="flex gap-1.5">
+                              {TARGETS.map(t => (
+                                <button key={t.key} onClick={() => setManipTarget(t.key)}
+                                  className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all flex items-center justify-center gap-1 ${
+                                    manipTarget === t.key
+                                      ? 'bg-zinc-600 text-zinc-100 border border-zinc-400/60'
+                                      : 'bg-zinc-800 text-zinc-500 border border-zinc-700 hover:text-zinc-300'
+                                  }`}>
+                                  <span>{t.emoji}</span><span className="hidden sm:inline">{t.label}</span>
+                                </button>
+                              ))}
+                            </div>
+                            {/* Action buttons */}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  if (rumorCd > 0) return;
+                                  forceSellTarget();
+                                  const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
+                                  setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * crashMult).toFixed(2)) }));
+                                  setMarketCooldowns(c => ({ ...c, rumors: 600 }));
+                                }}
+                                disabled={rumorCd > 0}
+                                className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${
+                                  rumorCd > 0
+                                    ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                    : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
+                                }`}
+                              >
+                                {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Spread Rumor'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (squeezeCd > 0) return;
+                                  forceSellTarget();
+                                  const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
+                                  setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * squeezeMult).toFixed(2)) }));
+                                  setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
+                                }}
+                                disabled={squeezeCd > 0}
+                                className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${
+                                  squeezeCd > 0
+                                    ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
+                                    : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
+                                }`}
+                              >
+                                {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Short Squeeze'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       {/* ── Commodity Cards ── */}
                       {(() => {
                         const COMMODITIES = [
@@ -2803,58 +2880,6 @@ export default function App() {
                                       <span className="text-[9px] text-green-500 font-mono font-bold">ACTIVE</span>
                                     </div>
                                   )}
-
-                                  {/* Market Manipulation Buttons */}
-                                  <div className="px-3 pb-2 flex gap-2">
-                                    {(() => {
-                                      const rumorCd = marketCooldowns.rumors[key] || 0;
-                                      const squeezeCd = marketCooldowns.squeeze[key] || 0;
-                                      const forceSell = () => {
-                                        // liquidate holdings at current price (with fee) before manipulation
-                                        if (shares > 0) {
-                                          setMoney(m => m + shares * price * 0.995);
-                                          setMarketShares(prev => ({ ...prev, [key]: 0 }));
-                                          setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
-                                        }
-                                      };
-                                      return (<>
-                                        <button
-                                          onClick={() => {
-                                            if (rumorCd > 0) return;
-                                            forceSell();
-                                            const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
-                                            setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * crashMult).toFixed(2)) }));
-                                            setMarketCooldowns(c => ({ ...c, rumors: { ...c.rumors, [key]: 600 } }));
-                                          }}
-                                          disabled={rumorCd > 0}
-                                          className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
-                                            rumorCd > 0
-                                              ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                              : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
-                                          }`}
-                                        >
-                                          {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Rumor'}
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            if (squeezeCd > 0) return;
-                                            forceSell();
-                                            const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
-                                            setMarketPrices(p => ({ ...p, [key]: parseFloat((p[key] * squeezeMult).toFixed(2)) }));
-                                            setMarketCooldowns(c => ({ ...c, squeeze: { ...c.squeeze, [key]: 600 } }));
-                                          }}
-                                          disabled={squeezeCd > 0}
-                                          className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all ${
-                                            squeezeCd > 0
-                                              ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                              : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
-                                          }`}
-                                        >
-                                          {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Squeeze'}
-                                        </button>
-                                      </>);
-                                    })()}
-                                  </div>
 
                                   {/* Action bar */}
                                   <div className="p-3 pt-0 flex gap-2">
