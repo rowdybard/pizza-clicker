@@ -341,6 +341,10 @@ export default function App() {
   const [moneyLog, setMoneyLog] = useState([]);
   const pendingClickRef = useRef({ total: 0, count: 0, lastFlush: Date.now() });
 
+  // --- EVENT VISUAL STATE ---
+  const [marketCrashBanner, setMarketCrashBanner] = useState(false);
+  const [instantCashPopup, setInstantCashPopup] = useState(null); // dollar amount string
+
   // --- MARKET MANIPULATION STATE ---
   const [marketCooldowns, setMarketCooldowns] = useState({ rumors: 0, squeeze: 0 });
   const [manipTarget, setManipTarget] = useState('flour');
@@ -623,7 +627,7 @@ export default function App() {
     const { type } = goldenSliceEvent;
     playSound('chaching');
     if (type === 'frenzy') {
-      setFrenzyMultiplier(777);
+      setFrenzyMultiplier(77);
       setTimeout(() => setFrenzyMultiplier(1), 15000);
     } else if (type === 'marketCrash') {
       setMarketPrices(prev => {
@@ -631,6 +635,10 @@ export default function App() {
         Object.keys(prev).forEach(k => { next[k] = parseFloat((prev[k] * 0.4).toFixed(2)); });
         return next;
       });
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 600);
+      setMarketCrashBanner(true);
+      setTimeout(() => setMarketCrashBanner(false), 4000);
     } else if (type === 'instantCash') {
       const WARP_CAP = 1e6;
       const ips = engineRefs.current.idleProfitPerSec;
@@ -638,6 +646,8 @@ export default function App() {
       const bonus = Math.min(ips * 600 * efficiency, 1e12);
       setMoney(m => m + bonus);
       pushLog('golden', '✨ Golden Slice — Instant Cash', bonus);
+      setInstantCashPopup('$' + fmt(bonus));
+      setTimeout(() => setInstantCashPopup(null), 3500);
     }
     setGoldenSliceEvent(null);
   };
@@ -687,7 +697,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -707,6 +717,8 @@ export default function App() {
         setMarketShares(decoded.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
         if (decoded.goldenSlices !== undefined) setGoldenSlices(safeNum(decoded.goldenSlices));
         if (decoded.syndicatePerks) setSyndicatePerks(p => ({ ...p, ...decoded.syndicatePerks }));
+        if (decoded.marketCooldowns) setMarketCooldowns(decoded.marketCooldowns);
+        if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -723,7 +735,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -937,7 +949,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
@@ -1157,7 +1169,7 @@ export default function App() {
           onClick={handleGoldenSliceClick}
           style={{ position: 'fixed', left: `${goldenSliceEvent.x}%`, top: `${goldenSliceEvent.y}%`, zIndex: 9999 }}
           className="group cursor-pointer border-0 bg-transparent p-0 focus:outline-none"
-          title={goldenSliceEvent.type === 'frenzy' ? '777x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
+          title={goldenSliceEvent.type === 'frenzy' ? '77x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
         >
           <div className="relative animate-bounce">
             <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-xl scale-150 animate-pulse" />
@@ -1165,7 +1177,7 @@ export default function App() {
               <Pizza className="w-7 h-7 text-yellow-900" />
             </div>
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-300 bg-slate-900/80 px-1.5 py-0.5 rounded border border-yellow-500/40">
-              {goldenSliceEvent.type === 'frenzy' ? '777x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
+              {goldenSliceEvent.type === 'frenzy' ? '77x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
             </div>
           </div>
         </button>
@@ -1175,11 +1187,39 @@ export default function App() {
       {frenzyMultiplier > 1 && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none">
           <div className="px-6 py-2 rounded-full bg-gradient-to-r from-yellow-600 to-amber-500 border border-yellow-300 shadow-[0_0_30px_rgba(234,179,8,0.6)] animate-pulse">
-            <span className="font-display text-lg text-black tracking-widest">⚡ 777x CLICK FRENZY ACTIVE ⚡</span>
+            <span className="font-display text-lg text-black tracking-widest">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
           </div>
         </div>
       )}
       
+      {/* ── MARKET CRASH BANNER ── */}
+      {marketCrashBanner && (
+        <div className="fixed inset-x-0 top-0 z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
+          <div className="w-full bg-red-700 border-b-4 border-red-400 shadow-[0_0_60px_rgba(239,68,68,0.8)] flex items-center justify-center py-4 gap-4">
+            <TrendingDown className="w-8 h-8 text-red-200 shrink-0" />
+            <span className="font-display text-3xl md:text-4xl font-black tracking-[0.2em] text-white uppercase" style={{ textShadow: '0 0 20px rgba(255,100,100,0.8)' }}>
+              ⚠ MARKET CRASH ⚠
+            </span>
+            <TrendingDown className="w-8 h-8 text-red-200 shrink-0" />
+          </div>
+          <div className="bg-red-950/90 border-b border-red-800 w-full text-center py-1.5">
+            <span className="text-red-400 text-xs font-black uppercase tracking-widest font-mono">All commodity prices collapsed −60%</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── INSTANT CASH POPUP ── */}
+      {instantCashPopup && (
+        <div className="fixed inset-0 z-[9996] pointer-events-none flex items-center justify-center">
+          <div className="animate-[floatUpFade_3.5s_ease-out_forwards] flex flex-col items-center gap-1">
+            <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums" style={{ textShadow: '0 0 30px rgba(132,204,22,0.7), 0 0 60px rgba(132,204,22,0.4)' }}>
+              +{instantCashPopup}
+            </span>
+            <span className="text-xs font-black uppercase tracking-widest text-yellow-400">✨ Golden Slice Bonus</span>
+          </div>
+        </div>
+      )}
+
       {/* HEADER: Achievements & Settings Button */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
