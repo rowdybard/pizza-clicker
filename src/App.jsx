@@ -534,13 +534,12 @@ export default function App() {
     setReputation(prev => prev + currentClickPower);
     setTotalClicks(prev => prev + 1);
 
-    // Accumulate clicks for log — flush every 5s or when hitting combo 100
+    // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
     pc.total += moneyEarned;
     pc.count += 1;
     const flushNow = Date.now();
-    const shouldFlush = (flushNow - pc.lastFlush > 5000) || (combo + 1 >= 100);
-    if (shouldFlush && pc.count > 0) {
+    if (flushNow - pc.lastFlush > 5000 && pc.count > 0) {
       pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
       pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
     }
