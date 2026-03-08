@@ -7,6 +7,7 @@ import {
   Map, Home, Briefcase, Moon, Mic, MicOff
 } from 'lucide-react';
 
+import { Analytics } from '@vercel/analytics/react';
 const SAVE_KEY = 'pizzaTycoonSave_v10';
 
 // --- WEB AUDIO SYNTHESIZER (singleton context, always resumed) ---
@@ -2875,6 +2876,7 @@ export default function App() {
         }
       `}} />
 
+      <Analytics />
     </div>
   );
 }
