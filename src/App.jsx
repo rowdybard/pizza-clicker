@@ -610,7 +610,10 @@ export default function App() {
         return next;
       });
     } else if (type === 'instantCash') {
-      const bonus = engineRefs.current.idleProfitPerSec * 600;
+      const WARP_CAP = 1e6;
+      const ips = engineRefs.current.idleProfitPerSec;
+      const efficiency = 1 / (1 + ips / WARP_CAP);
+      const bonus = Math.min(ips * 600 * efficiency, 1e12);
       setMoney(m => m + bonus);
       setLifetimeMoney(m => m + bonus);
     }
