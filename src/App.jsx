@@ -2949,24 +2949,30 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Entries */}
-                    <div className="flex flex-col divide-y divide-slate-800/60">
-                      {moneyLog.map((entry) => {
-                        const m = CAT_META[entry.category] || CAT_META.idle;
-                        const isPositive = entry.amount >= 0;
-                        return (
-                          <div key={entry.id} className="flex items-center gap-3 py-2.5 px-1">
-                            <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-slate-300 truncate">{entry.label}</div>
-                              <div className="text-[9px] text-slate-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
+                    {/* Entries — fixed height, fades at bottom, new entries slide in */}
+                    <div className="relative">
+                      <div className="overflow-y-auto flex flex-col" style={{ maxHeight: '420px' }}>
+                        {moneyLog.map((entry) => {
+                          const m = CAT_META[entry.category] || CAT_META.idle;
+                          const isPositive = entry.amount >= 0;
+                          return (
+                            <div key={entry.id}
+                              className="flex items-center gap-3 py-2.5 px-1 border-b border-slate-800/60 animate-[logSlideIn_0.2s_ease-out]"
+                            >
+                              <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-bold text-slate-300 truncate">{entry.label}</div>
+                                <div className="text-[9px] text-slate-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
+                              </div>
+                              <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
+                                {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
+                              </div>
                             </div>
-                            <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
-                              {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
+                      {/* Fade overlay at bottom */}
+                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-800 to-transparent" />
                     </div>
                   </div>
                 );
@@ -3044,6 +3050,10 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 1); border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
         
+        @keyframes logSlideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
         @keyframes shake {
           0%   { transform: translate(0, 0) rotate(0deg); }
           15%  { transform: translate(-4px, 3px) rotate(-1deg); }
