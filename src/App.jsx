@@ -771,6 +771,12 @@ export default function App() {
 
           const timeSinceClick = Date.now() - state.lastClickTime;
           if (timeSinceClick > 2000) {
+              // Flush any pending click batch to log when player stops clicking
+              const pc = pendingClickRef.current;
+              if (pc.count > 0) {
+                pushLogRef.current?.('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
+                pc.total = 0; pc.count = 0; pc.lastFlush = Date.now();
+              }
               setCombo(prev => prev > 0 ? 0 : prev);
               setComboDecayTimer(prev => prev > 0 ? 0 : prev);
           } else {
