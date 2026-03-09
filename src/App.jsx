@@ -1698,28 +1698,16 @@ export default function App() {
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
                 {/* Franchise Licenses */}
-                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1 relative group">
+                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-sm font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
                   <div className="text-sm text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
                   <div className="text-sm text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
                   <div className="text-sm font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                   {franchiseLicenses > 0 && (
-                    <div className="flex items-center gap-1 mt-1 cursor-default">
-                      <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Floor</span>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">BASE PROD</span>
                       <span className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
-                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-sm text-slate-400 font-black cursor-help shrink-0">?</span>
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-0 mb-2 w-52 bg-slate-950 border border-purple-500/40 rounded-xl p-3 shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col gap-1.5">
-                        <div className="text-sm font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">Base (0.5 × {franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">× VIP tokens</span><span className="text-slate-200 tabular-nums font-bold">{fmt(vipTokenMultiplier)}x</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Flour synergy</span><span className="text-slate-200 tabular-nums font-bold">{fmt(flourSynergyMult)}x</span></div>
-                        <div className="border-t border-slate-700 pt-1 mt-0.5 flex justify-between text-sm"><span className="text-money font-black uppercase">Final</span><span className="text-money tabular-nums font-black">{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)} pizzas/sec</span></div>
-                        <div className="text-sm text-slate-500 mt-0.5">Earns even with no upgrades.</div>
-                      </div>
                     </div>
                   )}
                 </div>
