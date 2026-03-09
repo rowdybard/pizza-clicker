@@ -1229,11 +1229,11 @@ export default function App() {
       {/* HEADER: Achievements & Settings Button */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
-            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 animate-[floatUpFade_4s_ease-out_forwards]">
-               <Trophy className="w-6 h-6 text-yellow-900" />
+            <div key={toast.id} className="bg-yellow-500 border-b-[4px] border-yellow-800 px-8 py-4 rounded-2xl flex items-center gap-4 animate-[floatUpFade_6s_ease-out_forwards] shadow-2xl">
+               <Trophy className="w-8 h-8 text-yellow-900" />
                <div>
-                  <div className="text-[10px] text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
-                  <div className="text-lg font-display text-yellow-900 tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
+                  <div className="text-xs text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
+                  <div className="text-xl font-display text-yellow-900 tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
                </div>
             </div>
          ))}
