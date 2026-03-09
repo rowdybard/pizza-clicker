@@ -390,13 +390,15 @@ export default function App() {
   const [upgradeFilter, setUpgradeFilter] = useState('all');
   const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
   const [revealedUpgrades, setRevealedUpgrades] = useState(() => {
-    // First upgrade of each path is always revealed
-    const initial = new Set();
+    // Load from save, or default to first upgrade of each type
+    const saved = initialData?.revealedUpgrades;
+    if (saved && Array.isArray(saved)) return new Set(saved);
+    const fallback = new Set();
     ['click','production','quality'].forEach(type => {
       const first = UPGRADES.find(u => u.type === type);
-      if (first) initial.add(first.id);
+      if (first) fallback.add(first.id);
     });
-    return initial;
+    return fallback;
   });
 
   // --- UPGRADE REVEAL EFFECT ---
@@ -726,7 +728,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -749,6 +751,7 @@ export default function App() {
         if (decoded.marketCooldowns) setMarketCooldowns(decoded.marketCooldowns);
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
         if (decoded.deliveryCooldowns) setDeliveryCooldowns(decoded.deliveryCooldowns);
+        if (decoded.revealedUpgrades) setRevealedUpgrades(new Set(decoded.revealedUpgrades));
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -765,7 +768,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -979,7 +982,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
@@ -1780,6 +1783,8 @@ export default function App() {
                   setSideOrder(null);
                   setCombo(0);
                   setDeliveryCooldowns({});
+                  // Reset upgrade reveals to first of each type (fresh run behavior)
+                  setRevealedUpgrades(new Set(['click', 'production', 'quality']));
                 };
                 return (
                   <>
@@ -2761,6 +2766,7 @@ export default function App() {
                                 const proceeds = shares * price * (1 - FEE);
                                 const basis = marketCostBasis[key] || 0;
                                 const pnl = proceeds - basis;
+                                console.log('SELL ALL:', { shares, price, proceeds, basis, pnl, label });
                                 setMoney(m => m + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
@@ -3023,19 +3029,17 @@ export default function App() {
             </div>
 
             {/* ── MONETIZATION STRIP ── */}
-            <div className="border-t border-slate-700/60 bg-slate-900/50 px-4 py-2.5 flex items-center justify-between gap-3">
+            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-slate-700 bg-slate-900 px-4 py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                 <Zap className="w-3 h-3 text-slate-600" />
-                <span>Support development</span>
+                Monetization
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => { const next = !isMuted; setIsMuted(next); _isMuted = next; }}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${
-                    isMuted
-                      ? 'bg-white border-white text-slate-900'
-                      : 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
-                  }`}
+                <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
+                  isMuted
+                    ? 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                  : 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                }`}
                 >
                   {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
                   {isMuted ? 'Muted' : 'Sound'}
