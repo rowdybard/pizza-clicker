@@ -1484,44 +1484,44 @@ export default function App() {
             </svg>
             
             {/* Content */}
-            <div className="relative z-10 p-12 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
-              <h1 className="text-5xl font-bold text-amber-900 mb-8" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            <div className="relative z-10 p-12 text-center" style={{ fontFamily: "'Dancing Script', cursive", fontSize: '14pt' }}>
+              <h1 className="text-5xl font-bold text-amber-900 mb-8" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)', fontSize: '28pt' }}>
                 The Legend of Pizza Empire
               </h1>
               
-              <div className="space-y-6 text-amber-800 max-w-2xl mx-auto">
-                <p className="text-xl leading-relaxed">
+              <div className="space-y-6 text-amber-800 max-w-2xl mx-auto" style={{ fontSize: '16pt' }}>
+                <p className="leading-relaxed">
                   In a world where dough rises like the morning sun,
                 </p>
-                <p className="text-xl leading-relaxed">
+                <p className="leading-relaxed">
                   Where cheese flows like rivers of gold,
                 </p>
-                <p className="text-xl leading-relaxed">
+                <p className="leading-relaxed">
                   One hero dared to dream of pizza perfection.
                 </p>
               </div>
               
               <div className="mt-12 pt-12 border-t-2 border-amber-700/30 max-w-2xl mx-auto">
-                <p className="text-2xl font-semibold text-amber-900 mb-4">
+                <p className="font-semibold text-amber-900 mb-4" style={{ fontSize: '20pt' }}>
                   Chapter {franchiseLicenses}: The Empire Grows
                 </p>
-                <p className="text-lg mt-3 text-amber-800">
-                  With <span className="font-bold">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold">${fmtInt(lifetimeMoney)}</span> earned,
+                <p className="mt-3 text-amber-800" style={{ fontSize: '16pt' }}>
+                  With <span className="font-bold text-orange-600">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold text-green-600">${fmtInt(lifetimeMoney)}</span> earned,
                 </p>
-                <p className="text-lg text-amber-800">
+                <p className="text-amber-800" style={{ fontSize: '16pt' }}>
                   your legacy spreads across the land.
                 </p>
               </div>
               
-              <div className="mt-12 text-sm text-amber-700 italic max-w-lg mx-auto">
+              <div className="mt-12 text-amber-700 italic max-w-lg mx-auto" style={{ fontSize: '14pt' }}>
                 <p>"From humble oven to global dominion,"</p>
                 <p>"the slice that conquered all."</p>
               </div>
               
               <button
                 onClick={() => setShowParchmentModal(false)}
-                className="mt-12 px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors text-lg"
-                style={{ fontFamily: "'Dancing Script', cursive" }}
+                className="mt-12 px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors"
+                style={{ fontFamily: "'Dancing Script', cursive", fontSize: '16pt' }}
               >
                 Close This Chapter
               </button>
