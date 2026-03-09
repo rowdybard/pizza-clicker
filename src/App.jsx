@@ -67,6 +67,69 @@ const playSound = (type) => {
   } catch (e) { /* AudioContext blocked silently */ }
 };
 
+// --- PROCEDURAL DRUM MACHINE SYNTHS ---
+const playKick = (ctx, time) => {
+  const osc = ctx.createOscillator(); const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.frequency.setValueAtTime(150, time);
+  osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.1);
+  gain.gain.setValueAtTime(0.5, time);
+  gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+  osc.start(time); osc.stop(time + 0.1);
+};
+const playSnare = (ctx, time) => {
+  const osc = ctx.createOscillator(); const gain = ctx.createGain();
+  osc.type = 'triangle'; osc.connect(gain); gain.connect(ctx.destination);
+  osc.frequency.setValueAtTime(250, time);
+  gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+  osc.start(time); osc.stop(time + 0.1);
+  // Noise burst
+  const noiseSize = ctx.sampleRate * 0.1; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+  const output = noiseBuf.getChannelData(0); for (let i = 0; i < noiseSize; i++) output[i] = Math.random() * 2 - 1;
+  const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
+  const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type = 'highpass'; noiseFilter.frequency.value = 1000;
+  noise.connect(noiseFilter); noiseFilter.connect(gain);
+  noise.start(time);
+};
+const playHiHat = (ctx, time) => {
+  const gain = ctx.createGain(); gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0.1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+  const noiseSize = ctx.sampleRate * 0.05; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+  const output = noiseBuf.getChannelData(0); for (let i = 0; i < noiseSize; i++) output[i] = Math.random() * 2 - 1;
+  const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
+  const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 5000;
+  noise.connect(filter); filter.connect(gain); noise.start(time);
+};
+const playBass = (ctx, time, noteFreq) => {
+  const osc = ctx.createOscillator(); const gain = ctx.createGain();
+  osc.type = 'triangle'; osc.connect(gain); gain.connect(ctx.destination);
+  osc.frequency.setValueAtTime(noteFreq, time);
+  gain.gain.setValueAtTime(0.3, time); gain.gain.linearRampToValueAtTime(0.01, time + 0.3);
+  osc.start(time); osc.stop(time + 0.3);
+};
+
+// --- GLOBAL SCHEDULER VARIABLES ---
+const TRACK_BPM = 100; let nextNoteTime = 0; let current16thNote = 0; let schedulerTimer = null; let isMusicRunning = false;
+
+// --- SCHEDULING LOOP ---
+const scheduleNote = (step, time, ctx) => {
+  if (step % 2 === 0) playHiHat(ctx, time); // 8th notes
+  if (step === 0 || step === 8) playKick(ctx, time); // Beats 1, 3
+  if (step === 4 || step === 12) playSnare(ctx, time); // Beats 2, 4
+  const bassNotes = [65.41, 73.42, 98.00, 87.31]; // C2, D2, G2, F2
+  if (step % 4 === 0) playBass(ctx, time, bassNotes[(step / 4) % 4]);
+};
+const runScheduler = () => {
+  if (!isMusicRunning) return;
+  const ctx = getAudioCtx();
+  while (nextNoteTime < ctx.currentTime + 0.1) {
+    scheduleNote(current16thNote, nextNoteTime, ctx);
+    nextNoteTime += 0.25 * (60.0 / TRACK_BPM);
+    current16thNote = (current16thNote + 1) % 16;
+  }
+  schedulerTimer = setTimeout(runScheduler, 25);
+};
+
 // --- ANTI-CORRUPTION SAVE SANITIZER ---
 const safeNum = (val, fallback = 0) => {
   const parsed = Number(val);
@@ -321,11 +384,11 @@ export default function App() {
   const [totalClicks, setTotalClicks] = useState(safeNum(initialData?.totalClicks, 0));
   const [perfectBakes, setPerfectBakes] = useState(safeNum(initialData?.perfectBakes, 0));
   const [unlockedAchievements, setUnlockedAchievements] = useState(initialData?.unlockedAchievements || []);
-  
+
   const [combo, setCombo] = useState(0);
-  const [comboDecayTimer, setComboDecayTimer] = useState(0);
-  const [smoothCps, setSmoothCps] = useState(0);
-  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [beatPhase, setBeatPhase] = useState(0);
+
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
 
@@ -476,8 +539,7 @@ export default function App() {
 
   const isRush = rushTimeLeft > 0;
   const isClean = cleanBoostTimer > 0;
-  const heatBarPct = comboDecayTimer / 20;
-  const comboMultiplier = (combo >= 100 && heatBarPct > 0) ? 3 : 1 + (combo * 0.01);
+  const comboMultiplier = 1 + (combo * 0.1);
   
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
@@ -494,7 +556,7 @@ export default function App() {
   const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier * frenzyMultiplier; 
   
   const idlePizzasPerSec = productionRate;
-  const activePizzasPerSec = smoothCps * currentClickPower;
+  const activePizzasPerSec = 0; // Removed CPS calculation
   const totalDisplayPizzasPerSec = idlePizzasPerSec + activePizzasPerSec;
   
   const idleProfitPerSec = idlePizzasPerSec * pizzaPrice;
@@ -560,36 +622,52 @@ export default function App() {
   const handleBakeAndBox = (e) => {
     playSound('pop');
     const moneyEarned = pizzaPrice * currentClickPower;
-
-    setMoney(prev => prev + moneyEarned);
-    setLifetimeMoney(prev => prev + moneyEarned);
-    setTotalPizzasSold(prev => prev + currentClickPower);
-    setReputation(prev => prev + currentClickPower);
     setTotalClicks(prev => prev + 1);
 
-    // Accumulate clicks for log — flush every 5s regardless of click rate
-    const pc = pendingClickRef.current;
-    pc.total += moneyEarned;
-    pc.count += 1;
-    const flushNow = Date.now();
-    if (flushNow - pc.lastFlush > 5000 && pc.count > 0) {
-      pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
-      pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
+    // Rhythm check
+    const isPerfect = !isPlaying || (beatPhase > 0.80 || beatPhase < 0.20);
+    
+    if (isPerfect) {
+      setCombo(prev => Math.min(prev + 1, 100));
+      setMoney(prev => prev + moneyEarned);
+      setLifetimeMoney(prev => prev + moneyEarned);
+      setTotalPizzasSold(prev => prev + currentClickPower);
+      setReputation(prev => prev + currentClickPower);
+      
+      // Accumulate clicks for log — flush every 5s regardless of click rate
+      const pc = pendingClickRef.current;
+      pc.total += moneyEarned;
+      pc.count += 1;
+      const flushNow = Date.now();
+      if (flushNow - pc.lastFlush > 5000 && pc.count > 0) {
+        pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
+        pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
+      }
+      
+      if (isPlaying) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
+        const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
+        setClickPopups(prev => [...prev, { 
+          id: Date.now() + Math.random(), 
+          x, y, 
+          value: 'PERFECT!', 
+          expiresAt: Date.now() + 1000 
+        }]);
+      }
+    } else {
+      setCombo(0);
+      playSound('error');
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
+      const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
+      setClickPopups(prev => [...prev, { 
+        id: Date.now() + Math.random(), 
+        x, y, 
+        value: 'MISS!', 
+        expiresAt: Date.now() + 1000 
+      }]);
     }
-
-    setCombo(prev => Math.min(prev + 1, 100));
-    setComboDecayTimer(10); 
-    
-    engineRefs.current.clicksThisSecond += 1;
-    engineRefs.current.lastClickTime = Date.now();
-    engineRefs.current.clickTimestamps.push(Date.now());
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
-    const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
-    
-    const now = Date.now();
-    setClickPopups(prev => [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]);
   };
 
   const handlePullFromOven = () => {
@@ -600,7 +678,7 @@ export default function App() {
     let multi = 1;
     let repBonus = 0;
 
-    if (p >= 75 && p <= 88) {
+    if (p >= 65 && p <= 92) {
         status = 'perfect';
         multi = 5; 
         repBonus = 25; 
@@ -608,6 +686,7 @@ export default function App() {
         playSound('chaching');
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 400);
+    } else if (p > 92) {
     } else if (p > 88) {
         status = 'burnt';
         multi = 0;
@@ -822,7 +901,6 @@ export default function App() {
                 pc.total = 0; pc.count = 0; pc.lastFlush = Date.now();
               }
               setCombo(prev => prev > 0 ? 0 : prev);
-              setComboDecayTimer(prev => prev > 0 ? 0 : prev);
           } else {
               const nextDecay = 20 - Math.floor(timeSinceClick / 100);
               setComboDecayTimer(prev => prev === nextDecay ? prev : nextDecay);
@@ -930,7 +1008,7 @@ export default function App() {
       setSideOrder(prev => {
         if (!prev || prev.status !== 'cooking') return prev;
         const speedMult = engineRefs.current.syndicatePerks.quantumOven ? 1 : 2;
-        const nextProg = prev.progress + (prev.speed * speedMult);
+        const nextProg = prev.progress + (prev.speed * 0.75);
         if (nextProg >= 100) return { ...prev, progress: 100, status: 'burnt', rewardEarned: 0 };
         return { ...prev, progress: nextProg };
       });
@@ -938,7 +1016,24 @@ export default function App() {
     return () => clearInterval(tick);
   }, [sideOrder?.status, sideOrder?.speed]);
 
-  // 4. Modal Cleanup Loop
+  // 4. Beat Phase Animation Loop
+  useEffect(() => {
+    if (!isPlaying) return;
+    const ctx = getAudioCtx();
+    const beatLength = 60.0 / TRACK_BPM;
+    
+    const animate = () => {
+      const now = ctx.currentTime;
+      const phase = (now % beatLength) / beatLength;
+      setBeatPhase(phase);
+      requestAnimationFrame(animate);
+    };
+    
+    const rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [isPlaying]);
+
+  // 5. Modal Cleanup Loop
   useEffect(() => {
     if (sideOrder && sideOrder.status === 'burnt' && sideOrder.rewardEarned === 0) {
         const timer = setTimeout(() => setSideOrder(null), 2000);
@@ -1226,10 +1321,10 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER: Achievements & Settings Button */}
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
+      {/* ACHIEVEMENT TOASTS - Bottom Right Stack */}
+      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col-reverse gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
-            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 animate-[floatUpFade_4s_ease-out_forwards]">
+            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-300">
                <Trophy className="w-6 h-6 text-yellow-900" />
                <div>
                   <div className="text-[10px] text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
@@ -1286,8 +1381,31 @@ export default function App() {
               <Award className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
               <span className="font-display text-xl md:text-2xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
             </div>
-            {/* Tip + Settings */}
+            {/* Music + Tip + Settings */}
             <div className="flex items-center gap-1.5 ml-1">
+              <button 
+                onClick={() => {
+                  if (isPlaying) {
+                    isMusicRunning = false;
+                    clearTimeout(schedulerTimer);
+                    setIsPlaying(false);
+                  } else {
+                    isMusicRunning = true;
+                    getAudioCtx().resume();
+                    nextNoteTime = getAudioCtx().currentTime + 0.05;
+                    runScheduler();
+                    setIsPlaying(true);
+                  }
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-b-[3px] shrink-0 font-display text-xs tracking-widest uppercase btn-tactile ${
+                  isPlaying 
+                    ? 'bg-green-800 border-green-950 text-green-200' 
+                    : 'bg-slate-800 border-slate-950 text-slate-400'
+                }`}
+              >
+                {isPlaying ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
+                {isPlaying ? 'Playing' : 'Play Music'}
+              </button>
               <a
                 href="https://ko-fi.com/pizzalord"
                 target="_blank"
@@ -1606,7 +1724,7 @@ export default function App() {
                   </div>
                   <div className="text-[10px] font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
                   <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
-                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
+                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(combo / 100) * 100}%` }} />
                   </div>
                 </div>
               )}
@@ -1634,6 +1752,17 @@ export default function App() {
                      <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
                      <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
                    </>
+                 )}
+                 {/* Beat phase ring */}
+                 {isPlaying && (
+                   <div 
+                     className="absolute inset-0 rounded-full border-4 border-green-400 pointer-events-none"
+                     style={{
+                       transform: `scale(${1 + beatPhase * 0.2})`,
+                       opacity: beatPhase > 0.8 || beatPhase < 0.2 ? 1 : 0.3,
+                       transition: 'all 0.05s ease-out'
+                     }}
+                   />
                  )}
                  {/* Pizza icon — slow continuous spin */}
                  <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 group-active:scale-90 transition-transform duration-150 ${pizzaColorClass}`} />
