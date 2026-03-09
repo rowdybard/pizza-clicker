@@ -346,6 +346,7 @@ export default function App() {
     quantumOven:    initialData?.syndicatePerks?.quantumOven    ?? false,
     insiderTrading: initialData?.syndicatePerks?.insiderTrading ?? false,
     autoArm:        initialData?.syndicatePerks?.autoArm        ?? false,
+    goldenPowerCount: initialData?.syndicatePerks?.goldenPowerCount ?? 0,
   }));
 
   // --- MARKET STATE ---
@@ -491,16 +492,17 @@ export default function App() {
   // Vault perk multipliers
   const realityBendMult = syndicatePerks.realityBend ? 2 : 1;
   const goldenTouchMult = syndicatePerks.goldenTouch ? 3 : 1;
+  const goldenPowerMult = 1 + (syndicatePerks.goldenPowerCount * 0.05); // 5% per purchase
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades
   const licenseProductionFloor = franchiseLicenses > 0 ? franchiseLicenses * 0.5 : 0;
   // Production and click both benefit from licenses + star power
-  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult;
+  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
   
   // Ascension perk: clicks gain +10% of /sec production
   const synergisticClickBonus = syndicatePerks.ascension ? (displayProfitPerSec * 0.10) / pizzaPrice : 0;
-  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
+  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
@@ -2109,6 +2111,15 @@ export default function App() {
                     desc: 'Your clicks become synergistic with your production. Each click gains +10% of your current /sec production as bonus power.',
                     effect: 'Clicks gain +10% of /sec production',
                   },
+                  {
+                    id: 'goldenPower',
+                    name: 'Golden Power',
+                    cost: 10,
+                    icon: <Star className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Channel the essence of golden slices into pure power. Increases all production and click multipliers by 5% permanently. This can be purchased repeatedly.',
+                    effect: '+5% global multiplier per purchase (repeatable)',
+                    repeatable: true,
+                  },
                 ];
                 return (
                   <div className="flex flex-col gap-4">
@@ -2140,7 +2151,8 @@ export default function App() {
                     {/* Perk Cards */}
                     {SYNDICATE_PERKS_DEF.map(perk => {
                       const owned = syndicatePerks[perk.id];
-                      const canBuy = !owned && goldenSlices >= perk.cost;
+                      const canBuy = (!owned || perk.repeatable) && goldenSlices >= perk.cost;
+                      const currentCount = perk.repeatable ? syndicatePerks.goldenPowerCount || 0 : (owned ? 1 : 0);
                       return (
                         <div
                           key={perk.id}
@@ -2158,8 +2170,11 @@ export default function App() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                   <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-slate-300'}`}>{perk.name}</h3>
-                                  {owned && (
+                                  {owned && !perk.repeatable && (
                                     <span className="text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
+                                  )}
+                                  {perk.repeatable && currentCount > 0 && (
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">×{currentCount}</span>
                                   )}
                                 </div>
                                 <p className="text-xs text-slate-500 mb-2 leading-relaxed">{perk.desc}</p>
@@ -2168,7 +2183,7 @@ export default function App() {
                                 </div>
                               </div>
                               <div className="shrink-0 flex flex-col items-end gap-2">
-                                {owned ? (
+                                {owned && !perk.repeatable ? (
                                   <div className="flex items-center gap-1.5 text-yellow-400">
                                     <Gem className="w-4 h-4" />
                                     <span className="font-display text-sm">Owned</span>
@@ -2183,7 +2198,11 @@ export default function App() {
                                       onClick={() => {
                                         if (!canBuy) return;
                                         setGoldenSlices(g => g - perk.cost);
-                                        setSyndicatePerks(p => ({ ...p, [perk.id]: true }));
+                                        if (perk.repeatable) {
+                                          setSyndicatePerks(p => ({ ...p, goldenPowerCount: (p.goldenPowerCount || 0) + 1 }));
+                                        } else {
+                                          setSyndicatePerks(p => ({ ...p, [perk.id]: true }));
+                                        }
                                       }}
                                       disabled={!canBuy}
                                       className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider btn-tactile ${
@@ -2192,7 +2211,7 @@ export default function App() {
                                           : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
                                       }`}
                                     >
-                                      {canBuy ? 'Unlock' : goldenSlices < perk.cost ? `Need ${perk.cost - goldenSlices} more` : 'Unlock'}
+                                      {canBuy ? (perk.repeatable ? 'Buy' : 'Unlock') : goldenSlices < perk.cost ? `Need ${perk.cost - goldenSlices} more` : (perk.repeatable ? 'Buy' : 'Unlock')}
                                     </button>
                                   </>
                                 )}
