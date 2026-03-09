@@ -483,7 +483,7 @@ export default function App() {
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades
-  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, franchiseLicenses) : 0;
+  const licenseProductionFloor = franchiseLicenses > 0 ? franchiseLicenses * 0.5 : 0;
   // Production and click both benefit from licenses + star power
   const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
@@ -1706,7 +1706,7 @@ export default function App() {
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-0 mb-2 w-52 bg-slate-950 border border-purple-500/40 rounded-xl p-3 shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col gap-1.5">
                         <div className="text-sm font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-400">Base (2 × 1.4^{franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">Base (0.5 × {franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
                         <div className="flex justify-between text-sm"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
                         <div className="flex justify-between text-sm"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
                         <div className="flex justify-between text-sm"><span className="text-slate-400">× VIP tokens</span><span className="text-slate-200 tabular-nums font-bold">{fmt(vipTokenMultiplier)}x</span></div>
@@ -1928,7 +1928,7 @@ export default function App() {
 
             {/* ── TAB NAV ── */}
             <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
-              <div className="bg-slate-800 p-1 rounded-full border border-slate-700 flex gap-1 flex-wrap">
+              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700 grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 gap-1">
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
@@ -1941,7 +1941,7 @@ export default function App() {
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
+                    className={`flex items-center justify-center gap-1 py-2 px-2 rounded-lg font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
                       activeTab === id
                         ? active
                         : 'text-slate-500 hover:text-slate-300'
@@ -1955,7 +1955,7 @@ export default function App() {
 
               {/* Upgrades sub-filter pills — only shown on upgrades tab */}
               {activeTab === 'upgrades' && (
-                <div className="flex gap-1.5 pb-3">
+                <div className="grid grid-cols-2 gap-1.5 pb-3">
                   {[
                     { id: 'all',        label: 'All',        color: 'text-slate-300',  activeBg: 'bg-slate-700 border-slate-500 text-white' },
                     { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
@@ -1972,7 +1972,7 @@ export default function App() {
                       {f.label}
                     </button>
                   ))}
-                  <div className="ml-auto text-sm text-slate-600 font-bold uppercase tracking-widest self-center">
+                  <div className="col-span-2 text-center text-sm text-slate-600 font-bold uppercase tracking-widest pt-1">
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
