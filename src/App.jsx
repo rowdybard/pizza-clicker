@@ -1167,7 +1167,7 @@ export default function App() {
     : 'text-orange-400';
 
   return (
-    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-28 md:pb-32 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
@@ -1285,10 +1285,20 @@ export default function App() {
               <Award className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
               <span className="font-display text-xl md:text-2xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
             </div>
-            {/* Settings */}
-            <button onClick={() => setShowSettings(true)} className="ml-1 bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
-              <Settings className="w-4 h-4" />
-            </button>
+            {/* Tip + Settings */}
+            <div className="flex items-center gap-1.5 ml-1">
+              <a
+                href="https://ko-fi.com/pizzalord"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-amber-600 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-200 hover:bg-amber-800 btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]"
+              >
+                <Moon className="w-3 h-3" /> Tip Me
+              </a>
+              <button onClick={() => setShowSettings(true)} className="bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
+                <Settings className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -3029,7 +3039,7 @@ export default function App() {
             </div>
 
             {/* ── MONETIZATION STRIP ── */}
-            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-slate-700 bg-slate-900 px-4 py-3 flex items-center justify-between gap-3">
+            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-slate-700 bg-slate-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                 <Zap className="w-3 h-3 text-slate-600" />
                 Monetization
@@ -3044,9 +3054,6 @@ export default function App() {
                   {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
                   {isMuted ? 'Muted' : 'Sound'}
                 </button>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
-                  <Moon className="w-3 h-3" /> Remove Ads
-                </button>
                 <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-700 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-300 hover:bg-amber-800 transition-colors btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]">
                   <Crown className="w-3 h-3" /> Premium Pass
                 </button>
@@ -3054,6 +3061,16 @@ export default function App() {
             </div>
 
           </div>
+        </div>
+
+        <div className="fixed top-0 right-0 z-40 p-4 flex gap-2">
+          <button onClick={() => setHudSettingsOpen(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500">
+            <Cog className="w-3 h-3" />
+            HUD Settings
+          </button>
+          <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
+            <Moon className="w-3 h-3" /> Remove Ads
+          </button>
         </div>
 
       </div>
