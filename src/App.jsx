@@ -251,7 +251,7 @@ const computeOfflineEarnings = (data) => {
 
   // Reproduce star level from saved reputation
   const rep = safeNum(data.reputation, 0);
-  const starScale = 1 + (licenses * 0.30);
+  const starScale = Math.min(3.0, 1 + (licenses * 0.30));
   const scaledThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * starScale));
   const starLevel = scaledThresholds.filter(t => rep >= t).length - 1;
 
@@ -263,15 +263,16 @@ const computeOfflineEarnings = (data) => {
   });
 
   const franchiseMult   = licenses <= 10
-    ? 1 + (licenses * 0.75)
-    : (1 + 10 * 0.75) * Math.pow(1.12, licenses - 10);
+    ? 1 + (licenses * 1.2)
+    : (1 + 10 * 1.2) * Math.pow(1.20, licenses - 10);
   const starPowerMult   = Math.pow(1.6, starLevel);
   const achievementMult = 1 + (achievements * 0.03);
   const vipMult         = 1 + (vipToks * 0.08);
   const flourMult       = 1 + (flourShares * 0.001);
   const pepMult         = 1 + (pepShares * 0.001);
 
-  const finalProdRate  = prodRate * franchiseMult * starPowerMult * vipMult * flourMult;
+  const licenseFloor   = licenses > 0 ? 2 * Math.pow(1.4, licenses) : 0;
+  const finalProdRate  = (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourMult;
   const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult;
   const profitPerSec   = finalProdRate * finalPrice;
   const pizzasPerSec   = finalProdRate;
@@ -1045,33 +1046,6 @@ export default function App() {
     return () => clearInterval(marketTick);
   }, [syndicatePerks.insiderTrading]);
 
-  useEffect(() => {
-    if (initialData && initialData.lastSaveTime) {
-      const secondsAway = Math.floor((Date.now() - initialData.lastSaveTime) / 1000);
-      const OFFLINE_CAP = 8 * 3600;
-      const effectiveSeconds = Math.min(secondsAway, OFFLINE_CAP);
-      if (secondsAway > 600 && franchisedProduction > 0) {
-        const offlinePrice = basePizzaPrice * (1 + (safeNum(initialData.franchiseLicenses) * 0.50)) * (1 + ((initialData.unlockedAchievements?.length || 0) * 0.02));
-        const generatedMoney = franchisedProduction * offlinePrice * effectiveSeconds;
-        const generatedPizzas = franchisedProduction * effectiveSeconds;
-        const generatedRep = Math.ceil(Math.sqrt(franchisedProduction)) * effectiveSeconds;
-
-        setMoney(prev => prev + generatedMoney); setLifetimeMoney(prev => prev + generatedMoney);
-        setTotalPizzasSold(prev => prev + generatedPizzas); setReputation(prev => prev + generatedRep);
-        setOfflineReport({
-          time: secondsAway,
-          effectiveTime: effectiveSeconds,
-          capped: secondsAway > OFFLINE_CAP,
-          money: generatedMoney,
-          pizzas: generatedPizzas,
-          rep: generatedRep,
-          ratePerSec: franchisedProduction * offlinePrice,
-          pizzasPerSec: franchisedProduction,
-        });
-      }
-    }
-    // eslint-disable-next-line
-  }, []); 
 
   // Cookie Clicker-style large number naming
   const BIG_NAMES = [
