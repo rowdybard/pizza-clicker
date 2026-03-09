@@ -321,11 +321,11 @@ export default function App() {
   const [totalClicks, setTotalClicks] = useState(safeNum(initialData?.totalClicks, 0));
   const [perfectBakes, setPerfectBakes] = useState(safeNum(initialData?.perfectBakes, 0));
   const [unlockedAchievements, setUnlockedAchievements] = useState(initialData?.unlockedAchievements || []);
-
+  
   const [combo, setCombo] = useState(0);
   const [comboDecayTimer, setComboDecayTimer] = useState(0);
   const [smoothCps, setSmoothCps] = useState(0);
-
+  
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
 
@@ -476,7 +476,8 @@ export default function App() {
 
   const isRush = rushTimeLeft > 0;
   const isClean = cleanBoostTimer > 0;
-  const comboMultiplier = 1 + (combo * 0.1);
+  const heatBarPct = comboDecayTimer / 20;
+  const comboMultiplier = (combo >= 100 && heatBarPct > 0) ? 3 : 1 + (combo * 0.01);
   
   const flourSynergyMult = 1 + (marketShares.flour * 0.001);
   const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
@@ -493,7 +494,7 @@ export default function App() {
   const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier * frenzyMultiplier; 
   
   const idlePizzasPerSec = productionRate;
-  const activePizzasPerSec = 0; // Removed CPS calculation
+  const activePizzasPerSec = smoothCps * currentClickPower;
   const totalDisplayPizzasPerSec = idlePizzasPerSec + activePizzasPerSec;
   
   const idleProfitPerSec = idlePizzasPerSec * pizzaPrice;
@@ -559,15 +560,13 @@ export default function App() {
   const handleBakeAndBox = (e) => {
     playSound('pop');
     const moneyEarned = pizzaPrice * currentClickPower;
+
     setMoney(prev => prev + moneyEarned);
     setLifetimeMoney(prev => prev + moneyEarned);
     setTotalPizzasSold(prev => prev + currentClickPower);
     setReputation(prev => prev + currentClickPower);
     setTotalClicks(prev => prev + 1);
-    engineRefs.current.lastClickTime = Date.now();
-    engineRefs.current.clickTimestamps.push(Date.now());
-    setComboDecayTimer(10);
-    
+
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
     pc.total += moneyEarned;
@@ -577,17 +576,20 @@ export default function App() {
       pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
       pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
     }
+
+    setCombo(prev => Math.min(prev + 1, 100));
+    setComboDecayTimer(10); 
     
-    // Create click popup
+    engineRefs.current.clicksThisSecond += 1;
+    engineRefs.current.lastClickTime = Date.now();
+    engineRefs.current.clickTimestamps.push(Date.now());
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
     const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
-    setClickPopups(prev => [...prev, { 
-      id: Date.now() + Math.random(), 
-      x, y, 
-      value: moneyEarned, 
-      expiresAt: Date.now() + 1000 
-    }]);
+    
+    const now = Date.now();
+    setClickPopups(prev => [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]);
   };
 
   const handlePullFromOven = () => {
@@ -598,7 +600,7 @@ export default function App() {
     let multi = 1;
     let repBonus = 0;
 
-    if (p >= 65 && p <= 92) {
+    if (p >= 75 && p <= 88) {
         status = 'perfect';
         multi = 5; 
         repBonus = 25; 
@@ -606,7 +608,6 @@ export default function App() {
         playSound('chaching');
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 400);
-    } else if (p > 92) {
     } else if (p > 88) {
         status = 'burnt';
         multi = 0;
@@ -821,6 +822,7 @@ export default function App() {
                 pc.total = 0; pc.count = 0; pc.lastFlush = Date.now();
               }
               setCombo(prev => prev > 0 ? 0 : prev);
+              setComboDecayTimer(prev => prev > 0 ? 0 : prev);
           } else {
               const nextDecay = 20 - Math.floor(timeSinceClick / 100);
               setComboDecayTimer(prev => prev === nextDecay ? prev : nextDecay);
@@ -928,7 +930,7 @@ export default function App() {
       setSideOrder(prev => {
         if (!prev || prev.status !== 'cooking') return prev;
         const speedMult = engineRefs.current.syndicatePerks.quantumOven ? 1 : 2;
-        const nextProg = prev.progress + (prev.speed * 0.75);
+        const nextProg = prev.progress + (prev.speed * speedMult);
         if (nextProg >= 100) return { ...prev, progress: 100, status: 'burnt', rewardEarned: 0 };
         return { ...prev, progress: nextProg };
       });
@@ -936,124 +938,7 @@ export default function App() {
     return () => clearInterval(tick);
   }, [sideOrder?.status, sideOrder?.speed]);
 
-  // 4. Beat Phase Animation Loop
-  useEffect(() => {
-    if (!isPlaying) return;
-    const ctx = getAudioCtx();
-    const beatLength = 60.0 / TRACK_BPM;
-    
-    const animate = () => {
-      const now = ctx.currentTime;
-      const phase = (now % beatLength) / beatLength;
-      setBeatPhase(phase);
-      requestAnimationFrame(animate);
-    };
-    
-    const rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, [isPlaying]);
-
-  // Add pattern state for UI display
-  const [currentPatternName, setCurrentPatternName] = useState('');
-
-  // Update pattern display when music starts
-  useEffect(() => {
-    if (isPlaying) {
-      window.currentPatternSetter = setCurrentPatternName;
-      setCurrentPatternName(PATTERNS[currentPattern].name);
-      window.spawnHitCircle = (beatTime) => {
-        setHitCircles(prev => {
-          // Remove expired circles
-          const now = Date.now();
-          const filtered = prev.filter(circle => circle.targetTime > now);
-          
-          // Add new circle if within reasonable timeframe
-          if (beatTime - now < 2000) { // Only spawn circles within 2 seconds
-            // Constrain to bake button area (leave margin for circle radius)
-            const marginPercent = 15; // 15% margin from edges
-            const newCircle = {
-              id: Date.now() + Math.random(),
-              x: marginPercent + Math.random() * (100 - marginPercent * 2), // Constrained X
-              y: marginPercent + Math.random() * (100 - marginPercent * 2), // Constrained Y
-              targetTime: beatTime,
-              radius: 40,
-              hit: false
-            };
-            return [...filtered, newCircle];
-          }
-          return filtered;
-        });
-      };
-    } else {
-      window.currentPatternSetter = null;
-      window.spawnHitCircle = null;
-      setCurrentPatternName('');
-      setHitCircles([]);
-    }
-    return () => {
-      window.currentPatternSetter = null;
-      window.spawnHitCircle = null;
-    };
-  }, [isPlaying]);
-
-  // Clean up expired hit circles
-  useEffect(() => {
-    const cleanup = setInterval(() => {
-      const now = Date.now();
-      setHitCircles(prev => prev.filter(circle => 
-        circle.targetTime > now - 500 && !circle.hit // Keep for 500ms after target time if not hit
-      ));
-      setClickEffects(prev => prev.filter(effect => 
-        effect.expiresAt > now
-      ));
-    }, 100);
-    return () => clearInterval(cleanup);
-  }, []);
-
-  // Handle hit circle clicks
-  const handleHitCircleClick = (circle, e) => {
-    e.stopPropagation();
-    const now = Date.now();
-    const timingDiff = Math.abs(now - circle.targetTime);
-    
-    // Check if it's a good hit (within 150ms)
-    if (timingDiff < 150) {
-      const isPerfect = timingDiff < 50;
-      
-      // Mark as hit
-      setHitCircles(prev => prev.map(c => 
-        c.id === circle.id ? { ...c, hit: true } : c
-      ));
-      
-      // Add click effect
-      setClickEffects(prev => [...prev, {
-        id: Date.now(),
-        x: circle.x,
-        y: circle.y,
-        type: isPerfect ? 'perfect' : 'good',
-        expiresAt: now + 1000
-      }]);
-      
-      // Update combo and money
-      setCombo(prev => prev + 1);
-      const multiplier = isPerfect ? 3 : 2;
-      const earnings = currentClickPower * pizzaPrice * multiplier;
-      setMoney(m => m + earnings);
-      setLifetimeMoney(lm => lm + earnings);
-      setTotalPizzasSold(tp => tp + currentClickPower);
-      setReputation(r => r + currentClickPower);
-      setTotalClicks(tc => tc + 1);
-      
-      // Play sound
-      playSound(isPerfect ? 'chaching' : 'pop');
-    } else {
-      // Missed click
-      setCombo(0);
-      playSound('error');
-    }
-  };
-
-  // 5. Modal Cleanup Loop
+  // 4. Modal Cleanup Loop
   useEffect(() => {
     if (sideOrder && sideOrder.status === 'burnt' && sideOrder.rewardEarned === 0) {
         const timer = setTimeout(() => setSideOrder(null), 2000);
@@ -1294,10 +1179,10 @@ export default function App() {
           title={goldenSliceEvent.type === 'frenzy' ? '77x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
         >
           <div className="relative animate-bounce">
-            <div className="w-24 h-24 rounded-full bg-yellow-500 border-6 border-yellow-800 border-b-[8px] flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
-              <Pizza className="w-12 h-12 text-yellow-900" />
+            <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Pizza className="w-7 h-7 text-yellow-900" />
             </div>
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-4 py-2 rounded-lg shadow-lg">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
               {goldenSliceEvent.type === 'frenzy' ? '77x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
             </div>
           </div>
@@ -1307,8 +1192,8 @@ export default function App() {
       {/* ── FRENZY ACTIVE BANNER ── */}
       {frenzyMultiplier > 1 && (
         <div className="fixed top-[72px] inset-x-0 z-[9998] pointer-events-none flex justify-center">
-          <div className="px-12 py-6 bg-yellow-500 border-b-[6px] border-yellow-800 rounded-b-2xl animate-pulse shadow-2xl">
-            <span className="font-display text-3xl md:text-4xl text-yellow-900 tracking-widest font-black">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
+          <div className="px-8 py-2 bg-yellow-500 border-b-[4px] border-yellow-800 rounded-b-2xl animate-pulse">
+            <span className="font-display text-base text-yellow-900 tracking-widest">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
           </div>
         </div>
       )}
@@ -1316,15 +1201,15 @@ export default function App() {
       {/* ── MARKET CRASH BANNER ── */}
       {marketCrashBanner && (
         <div className="fixed inset-x-0 top-[68px] z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
-          <div className="w-full bg-red-600 border-b-6 border-red-950 flex items-center justify-center py-6 gap-6 shadow-2xl">
-            <TrendingDown className="w-16 h-16 text-red-100 shrink-0 animate-pulse" />
-            <span className="font-display text-4xl md:text-5xl font-black tracking-[0.2em] text-white uppercase animate-pulse">
+          <div className="w-full bg-red-700 border-b-4 border-red-950 flex items-center justify-center py-3 gap-4">
+            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
+            <span className="font-display text-2xl md:text-3xl font-black tracking-[0.2em] text-white uppercase">
               ⚠ MARKET CRASH ⚠
             </span>
-            <TrendingDown className="w-16 h-16 text-red-100 shrink-0 animate-pulse" />
+            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
           </div>
-          <div className="bg-red-950 border-b-4 border-red-800 w-full text-center py-3">
-            <span className="text-red-200 text-lg font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
+          <div className="bg-red-950 border-b-2 border-red-800 w-full text-center py-1">
+            <span className="text-red-300 text-xs font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
           </div>
         </div>
       )}
@@ -1341,10 +1226,10 @@ export default function App() {
         </div>
       )}
 
-      {/* ACHIEVEMENT TOASTS - Bottom Right Stack */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col-reverse gap-2 pointer-events-none">
+      {/* HEADER: Achievements & Settings Button */}
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
-            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-300">
+            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 animate-[floatUpFade_4s_ease-out_forwards]">
                <Trophy className="w-6 h-6 text-yellow-900" />
                <div>
                   <div className="text-[10px] text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
@@ -1401,31 +1286,8 @@ export default function App() {
               <Award className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
               <span className="font-display text-xl md:text-2xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
             </div>
-            {/* Music + Tip + Settings */}
+            {/* Tip + Settings */}
             <div className="flex items-center gap-1.5 ml-1">
-              <button 
-                onClick={() => {
-                  if (isPlaying) {
-                    isMusicRunning = false;
-                    clearTimeout(schedulerTimer);
-                    setIsPlaying(false);
-                  } else {
-                    isMusicRunning = true;
-                    getAudioCtx().resume();
-                    nextNoteTime = getAudioCtx().currentTime + 0.05;
-                    runScheduler();
-                    setIsPlaying(true);
-                  }
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-b-[3px] shrink-0 font-display text-xs tracking-widest uppercase btn-tactile ${
-                  isPlaying 
-                    ? 'bg-green-800 border-green-950 text-green-200' 
-                    : 'bg-slate-800 border-slate-950 text-slate-400'
-                }`}
-              >
-                {isPlaying ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
-                {isPlaying ? `${TRACK_BPM} BPM` : 'Play Music'}
-              </button>
               <a
                 href="https://ko-fi.com/pizzalord"
                 target="_blank"
@@ -1744,7 +1606,7 @@ export default function App() {
                   </div>
                   <div className="text-[10px] font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
                   <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
-                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(combo / 100) * 100}%` }} />
+                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
                 </div>
               )}
@@ -1772,17 +1634,6 @@ export default function App() {
                      <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
                      <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
                    </>
-                 )}
-                 {/* REMOVED */}
-                 {isPlaying && (
-                   <div 
-                     className="absolute inset-0 rounded-full border-4 border-green-400 pointer-events-none"
-                     style={{
-                       transform: `scale(${1 + beatPhase * 0.2})`,
-                       opacity: beatPhase > 0.8 || beatPhase < 0.2 ? 1 : 0.3,
-                       transition: 'all 0.05s ease-out'
-                     }}
-                   />
                  )}
                  {/* Pizza icon — slow continuous spin */}
                  <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 group-active:scale-90 transition-transform duration-150 ${pizzaColorClass}`} />
