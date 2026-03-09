@@ -1973,7 +1973,7 @@ export default function App() {
               )}
             </div>
 
-            <div className="p-4 space-y-4 bg-slate-900">
+            <div className="p-4 pt-8 space-y-4 bg-slate-900">
               
               {/* --- TAB: VAULT --- */}
               {activeTab === 'vault' && (() => {
