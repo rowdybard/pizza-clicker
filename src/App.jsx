@@ -1591,9 +1591,9 @@ export default function App() {
                      {sideOrder.status}!
                   </div>
                   <div className="font-bold font-body text-lg text-white tabular-nums">
-                     {sideOrder.status === 'perfect' ? `Huge Bonus! +$${fmt(sideOrder.rewardEarned)}` :
+                     {sideOrder.status === 'perfect' ? <>Huge Bonus! +<Num value={sideOrder.rewardEarned} prefix="$" /></> :
                       sideOrder.status === 'burnt' ? 'Ruined! $0' :
-                      `Okay. +$${fmt(sideOrder.rewardEarned)}`}
+                      <>Okay. +<Num value={sideOrder.rewardEarned} prefix="$" /></>}
                   </div>
               </div>
             )}
