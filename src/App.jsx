@@ -391,6 +391,7 @@ export default function App() {
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
   const [hudSettingsOpen, setHudSettingsOpen] = useState(false);
