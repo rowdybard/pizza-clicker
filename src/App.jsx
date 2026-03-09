@@ -640,6 +640,7 @@ export default function App() {
     if (money >= cost) {
       setMoney(prev => prev - cost);
       setInventory(prev => ({ ...prev, [upgrade.id]: safeNum(prev[upgrade.id], 0) + 1 }));
+      pushLog('spend', `🛒 Buy ${upgrade.name}`, -cost);
     }
   };
 
@@ -652,6 +653,7 @@ export default function App() {
     if (money >= totalCost) {
       setMoney(prev => prev - totalCost);
       setInventory(prev => ({ ...prev, [upgrade.id]: currentCount + n }));
+      pushLog('spend', `🛒 Buy ${n}× ${upgrade.name}`, -totalCost);
     }
   };
 
@@ -724,6 +726,7 @@ export default function App() {
     setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
     setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
+    pushLog('spend', `🏢 Prestige +${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}`, 0);
     setShowPrestigeModal(false);
   };
 
@@ -1611,7 +1614,7 @@ export default function App() {
             <button 
               onClick={handleBakeAndBox}
               className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
-                border-b-[8px] active:border-b-0 active:translate-y-[8px]
+                border-b-[8px] active:border-b-0 active:scale-95
                 ${isRush
                   ? 'bg-red-600 border-red-900 hover:bg-red-700'
                   : 'bg-orange-500 border-orange-800 hover:bg-orange-600'
@@ -2590,7 +2593,7 @@ export default function App() {
                         <div className="text-sm text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
                         <div className="font-display text-3xl text-zinc-200 tabular-nums mb-4">$25,000</div>
                         <button
-                          onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }}
+                          onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); pushLog('spend', '🔓 Unlock Market', -25000); } }}
                           disabled={money < 25000}
                           className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest btn-tactile ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'}`}
                         >
@@ -2691,10 +2694,18 @@ export default function App() {
                         const targetShares = marketShares[manipTarget];
                         const forceSellTarget = () => {
                           if (targetShares > 0) {
-                            setMoney(m => m + targetShares * targetPrice * 0.995);
-                            setLifetimeMoney(lm => lm + targetShares * targetPrice * 0.995);
+                            const proceeds = targetShares * targetPrice * 0.995;
+                            setMoney(m => m + proceeds);
+                            setLifetimeMoney(lm => lm + proceeds);
                             setMarketShares(prev => ({ ...prev, [manipTarget]: 0 }));
                             setMarketCostBasis(prev => ({ ...prev, [manipTarget]: 0 }));
+                            const targetLabel = {
+                              flour: 'Flour',
+                              cheese: 'Cheese', 
+                              pepperoni: 'Pepperoni',
+                              truffles: 'Truffles'
+                            }[manipTarget];
+                            pushLog('market', `📈 Squeeze Sell ${targetShares}× ${targetLabel} @ $${fmt(targetPrice)}`, proceeds);
                           }
                         };
                         return (
