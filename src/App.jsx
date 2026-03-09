@@ -1705,9 +1705,9 @@ export default function App() {
                   <div className="text-sm text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
                   <div className="text-sm font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                   {franchiseLicenses > 0 && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">BASE PROD</span>
-                      <span className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
+                    <div className="mt-1">
+                      <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">BASE PROD</div>
+                      <div className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</div>
                     </div>
                   )}
                 </div>
