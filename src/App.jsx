@@ -1707,7 +1707,7 @@ export default function App() {
                   {franchiseLicenses > 0 && (
                     <div className="mt-1">
                       <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">BASE PROD</div>
-                      <div className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</div>
+                      <div className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor)}/sec</div>
                     </div>
                   )}
                 </div>
