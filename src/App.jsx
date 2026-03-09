@@ -1114,7 +1114,10 @@ export default function App() {
     if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
     const abs = Math.abs(n);
     for (const [thresh, abbr] of BIG_ABBR) {
-      if (abs >= thresh) return (n / thresh).toFixed(2) + abbr;
+      if (abs >= thresh) {
+        const num = (n / thresh).toFixed(2);
+        return <span>{num}<span className="text-xs text-slate-400 ml-0.5">{abbr}</span></span>;
+      }
     }
     return n.toFixed(2);
   };
@@ -1123,7 +1126,10 @@ export default function App() {
     if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
     const abs = Math.abs(n);
     for (const [thresh, abbr] of BIG_ABBR) {
-      if (abs >= thresh) return (n / thresh).toFixed(2) + abbr;
+      if (abs >= thresh) {
+        const num = (n / thresh).toFixed(2);
+        return <span>{num}<span className="text-xs text-slate-400 ml-0.5">{abbr}</span></span>;
+      }
     }
     return Math.floor(n).toLocaleString();
   };
