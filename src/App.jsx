@@ -77,7 +77,7 @@ const safeNum = (val, fallback = 0) => {
 const ACHIEVEMENTS = [
   { id: 'first_blood', name: 'Open for Business', desc: 'Sell your first pizza.', req: (s) => s.totalPizzasSold >= 1 },
   { id: 'pizza_10k', name: 'Local Legend', desc: 'Sell 10,000 pizzas total.', req: (s) => s.totalPizzasSold >= 10000 },
-  { id: 'pizza_1m', name: 'Pizza Tycoon', desc: 'Sell 1,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 1000000 },
+  { id: 'pizza_1m', name: 'Pizza Magnate', desc: 'Sell 1,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 1000000 },
   { id: 'clicker_1k', name: 'Carpal Tunnel', desc: 'Click the pizza 1,000 times.', req: (s) => s.totalClicks >= 1000 },
   { id: 'combo_max', name: 'On Fire!', desc: 'Reach a 100x Click Combo.', req: (s) => s.combo >= 100 },
   { id: 'perfect_pull', name: 'Chef\'s Kiss', desc: 'Pull a Perfect pizza from the oven.', req: (s) => s.perfectBakes >= 1 },
@@ -164,17 +164,17 @@ const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
   { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
   { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 3, icon: <Zap className="text-orange-300" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 400, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
-  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 3000, reqStars: 5, icon: <Zap className="text-yellow-300" /> },
-  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 25000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 5, icon: <Zap className="text-yellow-300" /> },
+  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.3, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 2, reqStars: 1, icon: <Users className="text-blue-500" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 12, reqStars: 2, icon: <Flame className="text-green-500" /> },
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 80, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 500, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 3000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 20000, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
-  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 150000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 350, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 2000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 12000, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
+  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 80000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
@@ -622,6 +622,7 @@ export default function App() {
     
     if (finalReward > 0) {
         setMoney(m => m + finalReward);
+        setLifetimeMoney(m => m + finalReward);
         pushLog('oven', `${status === 'perfect' ? '🔥 Perfect' : 'Oven'} Pull (${sideOrder.type === 'wings' ? 'Wings' : 'Bread'})`, finalReward);
         if (repBonus > 0) setReputation(r => r + repBonus);
     }
@@ -658,7 +659,7 @@ export default function App() {
     const { type } = goldenSliceEvent;
     playSound('chaching');
     if (type === 'frenzy') {
-      setFrenzyMultiplier(77);
+      setFrenzyMultiplier(7);
       setTimeout(() => setFrenzyMultiplier(1), 15000);
     } else if (type === 'marketCrash') {
       setMarketPrices(prev => {
@@ -676,6 +677,7 @@ export default function App() {
       const efficiency = 1 / (1 + ips / WARP_CAP);
       const bonus = Math.min(ips * 600 * efficiency, 1e12);
       setMoney(m => m + bonus);
+      setLifetimeMoney(lm => lm + bonus);
       pushLog('golden', '✨ Golden Slice — Instant Cash', bonus);
       setInstantCashPopup('$' + fmt(bonus));
       setTimeout(() => setInstantCashPopup(null), 3500);
@@ -1241,11 +1243,11 @@ export default function App() {
 
       {/* ── FIXED HUD ── */}
       <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 h-20 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
+            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA EMPIRE</h1>
             <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
@@ -1298,16 +1300,8 @@ export default function App() {
                 <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
               </div>
             </div>
-            {/* Tip + Settings */}
+            {/* Settings only */}
             <div className="flex items-center gap-1.5 ml-1">
-              <a
-                href="https://ko-fi.com/pizzalord"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-amber-600 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-200 hover:bg-amber-800 btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]"
-              >
-                <Moon className="w-3 h-3" /> Tip Me
-              </a>
               <button onClick={() => setShowSettings(true)} className="bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
                 <Settings className="w-4 h-4" />
               </button>
@@ -1337,6 +1331,14 @@ export default function App() {
                 <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
                   <Download className="w-5 h-5" /> EXPORT SAVE CODE
                 </button>
+                <a
+                  href="https://ko-fi.com/pizzalord"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-3 bg-amber-800 hover:bg-amber-700 border-b-[3px] border-amber-950 text-amber-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]"
+                >
+                  <Moon className="w-5 h-5" /> SUPPORT THE DEVELOPER
+                </a>
                 <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex flex-col gap-2">
                   <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Import Save Code</div>
                   <div className="flex gap-2">
@@ -2421,49 +2423,48 @@ export default function App() {
               {activeTab === 'achievements' && (
                 <div className="flex flex-col gap-3">
                   {/* Header bar */}
-                  <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
+                  <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Trophy className="w-6 h-6 text-yellow-500 shrink-0" />
                       <div>
-                        <div className="font-display text-base text-yellow-100 tracking-widest leading-tight">Trophy Case</div>
-                        <div className="text-[10px] text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} unlocked</div>
+                        <div className="font-display text-lg text-yellow-100 tracking-widest leading-tight">Trophy Case</div>
+                        <div className="text-sm text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} unlocked</div>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[9px] text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
-                      <div className="font-display text-xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 2}%</div>
+                      <div className="text-sm text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
+                      <div className="font-display text-2xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 2}%</div>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                  <div className="h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
                     <div className="h-full bg-yellow-400 transition-all duration-500"
                       style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
                   </div>
 
-                  {/* Compact badge grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {/* Achievement cards - improved readability */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {ACHIEVEMENTS.map(ach => {
                       const isUnlocked = unlockedAchievements.includes(ach.id);
                       return (
                         <div
                           key={ach.id}
-                          title={ach.desc}
-                          className={`group relative flex flex-col gap-1 p-3 rounded-xl border cursor-default ${
+                          className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
                             isUnlocked
                               ? 'bg-yellow-950 border-yellow-800'
-                              : 'bg-slate-900 border-slate-800 opacity-50 grayscale'
+                              : 'bg-slate-900 border-slate-800 opacity-60'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-slate-600'}`}>
-                              {isUnlocked ? <CheckCircle className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                              {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                             </div>
-                            <span className={`font-display text-[11px] tracking-wide leading-tight truncate ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
+                            <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
                               {ach.name}
                             </span>
                           </div>
-                          <p className={`text-[9px] font-medium leading-tight line-clamp-2 ${isUnlocked ? 'text-slate-400' : 'text-slate-600'}`}>
+                          <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-slate-300' : 'text-slate-600'}`}>
                             {ach.desc}
                           </p>
                         </div>
@@ -2582,7 +2583,7 @@ export default function App() {
                         <TrendingUp className="w-16 h-16 text-zinc-300" />
                       </div>
                       <div className="text-center">
-                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Tycoon Stock Exchange</h2>
+                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Empire Stock Exchange</h2>
                         <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
                       </div>
                       <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-8 py-5 text-center">
@@ -2610,7 +2611,7 @@ export default function App() {
                               <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
                               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PTSE — Pizza Tycoon Stock Exchange</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Pizza Empire Stock Exchange</span>
                           </div>
                           <span className="text-[10px] text-zinc-600 font-mono tabular-nums">15s interval · live</span>
                         </div>
@@ -2691,6 +2692,7 @@ export default function App() {
                         const forceSellTarget = () => {
                           if (targetShares > 0) {
                             setMoney(m => m + targetShares * targetPrice * 0.995);
+                            setLifetimeMoney(lm => lm + targetShares * targetPrice * 0.995);
                             setMarketShares(prev => ({ ...prev, [manipTarget]: 0 }));
                             setMarketCostBasis(prev => ({ ...prev, [manipTarget]: 0 }));
                           }
@@ -2720,7 +2722,7 @@ export default function App() {
                                 onClick={() => {
                                   if (rumorCd > 0) return;
                                   forceSellTarget();
-                                  const crashMult = 0.55 - Math.min(0.25, franchiseLicenses * 0.025);
+                                  const crashMult = 0.75 - Math.min(0.15, franchiseLicenses * 0.015);
                                   setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * crashMult).toFixed(2)) }));
                                   setMarketCooldowns(c => ({ ...c, rumors: 600 }));
                                 }}
@@ -2737,7 +2739,7 @@ export default function App() {
                                 onClick={() => {
                                   if (squeezeCd > 0) return;
                                   forceSellTarget();
-                                  const squeezeMult = 1.3 + Math.min(1.2, franchiseLicenses * 0.12);
+                                  const squeezeMult = 1.15 + Math.min(0.6, franchiseLicenses * 0.06);
                                   setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * squeezeMult).toFixed(2)) }));
                                   setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
                                 }}
@@ -2791,6 +2793,7 @@ export default function App() {
                                 const pnl = proceeds - basis;
                                 console.log('SELL ALL:', { shares, price, proceeds, basis, pnl, label });
                                 setMoney(m => m + proceeds);
+                                setLifetimeMoney(lm => lm + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
                                 pushLog('market', `📈 Sell ${shares}× ${label} (P&L: ${pnl >= 0 ? '+' : ''}$${fmt(pnl)})`, proceeds);
