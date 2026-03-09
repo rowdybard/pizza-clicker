@@ -1916,7 +1916,7 @@ export default function App() {
             <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
               <div className="bg-slate-800 p-1 rounded-full border border-slate-700 flex gap-1 flex-wrap">
                 {[
-                  { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Upgrades',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
+                  { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
                   { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Trophies',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
