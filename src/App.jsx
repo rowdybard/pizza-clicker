@@ -359,7 +359,6 @@ export default function App() {
   const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
   // --- MODAL STATE ---
-  const [showAscendModal, setShowAscendModal] = useState(false);
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -390,6 +389,7 @@ export default function App() {
   const [sideOrder, setSideOrder] = useState(null); 
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
+  const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
