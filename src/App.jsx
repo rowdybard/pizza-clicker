@@ -67,63 +67,162 @@ const playSound = (type) => {
   } catch (e) { /* AudioContext blocked silently */ }
 };
 
-// --- PROCEDURAL DRUM MACHINE SYNTHS ---
-const playKick = (ctx, time) => {
+// --- ENHANCED PROCEDURAL DRUM MACHINE SYNTHS ---
+const playKick = (ctx, time, velocity = 1) => {
   const osc = ctx.createOscillator(); const gain = ctx.createGain();
   osc.connect(gain); gain.connect(ctx.destination);
-  osc.frequency.setValueAtTime(150, time);
-  osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.1);
-  gain.gain.setValueAtTime(0.5, time);
-  gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-  osc.start(time); osc.stop(time + 0.1);
+  osc.frequency.setValueAtTime(60 * velocity, time);
+  osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+  gain.gain.setValueAtTime(0.8 * velocity, time);
+  gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+  osc.start(time); osc.stop(time + 0.5);
+  // Add click
+  const click = ctx.createOscillator(); const clickGain = ctx.createGain();
+  click.connect(clickGain); clickGain.connect(ctx.destination);
+  click.frequency.setValueAtTime(1500, time);
+  clickGain.gain.setValueAtTime(0.3 * velocity, time);
+  clickGain.gain.exponentialRampToValueAtTime(0.01, time + 0.02);
+  click.start(time); click.stop(time + 0.02);
 };
-const playSnare = (ctx, time) => {
+const playSnare = (ctx, time, velocity = 1) => {
   const osc = ctx.createOscillator(); const gain = ctx.createGain();
   osc.type = 'triangle'; osc.connect(gain); gain.connect(ctx.destination);
-  osc.frequency.setValueAtTime(250, time);
-  gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-  osc.start(time); osc.stop(time + 0.1);
-  // Noise burst
+  osc.frequency.setValueAtTime(200, time);
+  gain.gain.setValueAtTime(0.4 * velocity, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+  osc.start(time); osc.stop(time + 0.2);
+  // Enhanced noise burst
   const noiseSize = ctx.sampleRate * 0.1; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
   const output = noiseBuf.getChannelData(0); for (let i = 0; i < noiseSize; i++) output[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
-  const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type = 'highpass'; noiseFilter.frequency.value = 1000;
-  noise.connect(noiseFilter); noiseFilter.connect(gain);
+  const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type = 'highpass'; noiseFilter.frequency.value = 3000;
+  const noiseGain = ctx.createGain(); noiseGain.gain.setValueAtTime(0.5 * velocity, time);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination);
   noise.start(time);
 };
-const playHiHat = (ctx, time) => {
+const playHiHat = (ctx, time, velocity = 1, isOpen = false) => {
   const gain = ctx.createGain(); gain.connect(ctx.destination);
-  gain.gain.setValueAtTime(0.1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
-  const noiseSize = ctx.sampleRate * 0.05; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+  const duration = isOpen ? 0.15 : 0.05;
+  gain.gain.setValueAtTime(0.15 * velocity, time);
+  gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+  const noiseSize = ctx.sampleRate * duration; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
   const output = noiseBuf.getChannelData(0); for (let i = 0; i < noiseSize; i++) output[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
-  const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 5000;
+  const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = isOpen ? 7000 : 8000;
   noise.connect(filter); filter.connect(gain); noise.start(time);
 };
-const playBass = (ctx, time, noteFreq) => {
+const playBass = (ctx, time, noteFreq, velocity = 1) => {
   const osc = ctx.createOscillator(); const gain = ctx.createGain();
-  osc.type = 'triangle'; osc.connect(gain); gain.connect(ctx.destination);
-  osc.frequency.setValueAtTime(noteFreq, time);
-  gain.gain.setValueAtTime(0.3, time); gain.gain.linearRampToValueAtTime(0.01, time + 0.3);
-  osc.start(time); osc.stop(time + 0.3);
+  osc.type = 'sawtooth'; osc.connect(gain); gain.connect(ctx.destination);
+  osc.frequency.setValueAtTime(noteFreq * 0.5, time); // Sub octave
+  gain.gain.setValueAtTime(0.4 * velocity, time); gain.gain.linearRampToValueAtTime(0.01, time + 0.4);
+  osc.start(time); osc.stop(time + 0.4);
+  // Add harmonic
+  const harm = ctx.createOscillator(); const harmGain = ctx.createGain();
+  harm.type = 'triangle'; harm.connect(harmGain); harmGain.connect(ctx.destination);
+  harm.frequency.setValueAtTime(noteFreq, time);
+  harmGain.gain.setValueAtTime(0.2 * velocity, time); harmGain.gain.linearRampToValueAtTime(0.01, time + 0.3);
+  harm.start(time); harm.stop(time + 0.3);
+};
+const playClap = (ctx, time, velocity = 1) => {
+  // Clap is multiple noise bursts spaced closely
+  for (let i = 0; i < 3; i++) {
+    const clapTime = time + i * 0.015;
+    const gain = ctx.createGain(); gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.3 * velocity, clapTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, clapTime + 0.03);
+    const noiseSize = ctx.sampleRate * 0.03; const noiseBuf = ctx.createBuffer(1, noiseSize, ctx.sampleRate);
+    const output = noiseBuf.getChannelData(0); for (let j = 0; j < noiseSize; j++) output[j] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource(); noise.buffer = noiseBuf;
+    const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = 1000; filter.Q.value = 2;
+    noise.connect(filter); filter.connect(gain); noise.start(clapTime);
+  }
 };
 
 // --- GLOBAL SCHEDULER VARIABLES ---
-const TRACK_BPM = 100; let nextNoteTime = 0; let current16thNote = 0; let schedulerTimer = null; let isMusicRunning = false;
+const TRACK_BPM = 120; let nextNoteTime = 0; let current16thNote = 0; let schedulerTimer = null; let isMusicRunning = false;
+let currentPattern = 0; let patternTimer = 0;
 
-// --- SCHEDULING LOOP ---
+// --- DYNAMIC RHYTHM PATTERNS ---
+const PATTERNS = [
+  // Pattern 0: Basic house beat
+  {
+    name: 'House Beat',
+    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+    clap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    bass: [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0]
+  },
+  // Pattern 1: Funk groove
+  {
+    name: 'Funk Groove',
+    kick: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+    snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat: [1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1],
+    clap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+    openhat: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    bass: [1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0]
+  },
+  // Pattern 2: Techno drive
+  {
+    name: 'Techno Drive',
+    kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+    clap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    openhat: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    bass: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]
+  }
+];
+
+// --- ENHANCED SCHEDULING LOOP ---
 const scheduleNote = (step, time, ctx) => {
-  if (step % 2 === 0) playHiHat(ctx, time); // 8th notes
-  if (step === 0 || step === 8) playKick(ctx, time); // Beats 1, 3
-  if (step === 4 || step === 12) playSnare(ctx, time); // Beats 2, 4
-  const bassNotes = [65.41, 73.42, 98.00, 87.31]; // C2, D2, G2, F2
-  if (step % 4 === 0) playBass(ctx, time, bassNotes[(step / 4) % 4]);
+  const pattern = PATTERNS[currentPattern];
+  const bassNotes = [55.00, 58.27, 65.41, 73.42, 82.41, 87.31]; // A1, Bb1, C2, D2, E2, F2
+  
+  // Drums with velocity variation
+  if (pattern.kick[step]) playKick(ctx, time, 0.8 + Math.random() * 0.2);
+  if (pattern.snare[step]) playSnare(ctx, time, 0.7 + Math.random() * 0.3);
+  if (pattern.clap[step]) playClap(ctx, time, 0.6 + Math.random() * 0.4);
+  
+  // Hi-hats with open/closed variation
+  if (pattern.hihat[step]) playHiHat(ctx, time, 0.4 + Math.random() * 0.3, false);
+  if (pattern.openhat[step]) playHiHat(ctx, time, 0.5 + Math.random() * 0.3, true);
+  
+  // Bassline
+  if (pattern.bass[step]) {
+    const noteIndex = Math.floor((step / 4) % bassNotes.length);
+    playBass(ctx, time, bassNotes[noteIndex], 0.6 + Math.random() * 0.2);
+  }
 };
 const runScheduler = () => {
   if (!isMusicRunning) return;
   const ctx = getAudioCtx();
+  
+  // Switch patterns every 32 beats (8 bars)
+  patternTimer++;
+  if (patternTimer >= 32) {
+    currentPattern = (currentPattern + 1) % PATTERNS.length;
+    patternTimer = 0;
+    // Update pattern display (this will be picked up by React on next render)
+    if (typeof window !== 'undefined' && window.currentPatternSetter) {
+      window.currentPatternSetter(PATTERNS[currentPattern].name);
+    }
+  }
+  
   while (nextNoteTime < ctx.currentTime + 0.1) {
     scheduleNote(current16thNote, nextNoteTime, ctx);
+    
+    // Generate hit circles on beats
+    if (current16thNote % 4 === 0) {
+      const beatTime = nextNoteTime * 1000; // Convert to ms
+      if (typeof window !== 'undefined' && window.spawnHitCircle) {
+        window.spawnHitCircle(beatTime);
+      }
+    }
+    
     nextNoteTime += 0.25 * (60.0 / TRACK_BPM);
     current16thNote = (current16thNote + 1) % 16;
   }
@@ -388,6 +487,10 @@ export default function App() {
   const [combo, setCombo] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [beatPhase, setBeatPhase] = useState(0);
+
+  // Osu-style hit circles
+  const [hitCircles, setHitCircles] = useState([]);
+  const [clickEffects, setClickEffects] = useState([]);
 
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
@@ -1033,6 +1136,106 @@ export default function App() {
     return () => cancelAnimationFrame(rafId);
   }, [isPlaying]);
 
+  // Add pattern state for UI display
+  const [currentPatternName, setCurrentPatternName] = useState('');
+
+  // Update pattern display when music starts
+  useEffect(() => {
+    if (isPlaying) {
+      window.currentPatternSetter = setCurrentPatternName;
+      setCurrentPatternName(PATTERNS[currentPattern].name);
+      window.spawnHitCircle = (beatTime) => {
+        setHitCircles(prev => {
+          // Remove expired circles
+          const now = Date.now();
+          const filtered = prev.filter(circle => circle.targetTime > now);
+          
+          // Add new circle if within reasonable timeframe
+          if (beatTime - now < 2000) { // Only spawn circles within 2 seconds
+            // Constrain to bake button area (leave margin for circle radius)
+            const marginPercent = 15; // 15% margin from edges
+            const newCircle = {
+              id: Date.now() + Math.random(),
+              x: marginPercent + Math.random() * (100 - marginPercent * 2), // Constrained X
+              y: marginPercent + Math.random() * (100 - marginPercent * 2), // Constrained Y
+              targetTime: beatTime,
+              radius: 40,
+              hit: false
+            };
+            return [...filtered, newCircle];
+          }
+          return filtered;
+        });
+      };
+    } else {
+      window.currentPatternSetter = null;
+      window.spawnHitCircle = null;
+      setCurrentPatternName('');
+      setHitCircles([]);
+    }
+    return () => {
+      window.currentPatternSetter = null;
+      window.spawnHitCircle = null;
+    };
+  }, [isPlaying]);
+
+  // Clean up expired hit circles
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      const now = Date.now();
+      setHitCircles(prev => prev.filter(circle => 
+        circle.targetTime > now - 500 && !circle.hit // Keep for 500ms after target time if not hit
+      ));
+      setClickEffects(prev => prev.filter(effect => 
+        effect.expiresAt > now
+      ));
+    }, 100);
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // Handle hit circle clicks
+  const handleHitCircleClick = (circle, e) => {
+    e.stopPropagation();
+    const now = Date.now();
+    const timingDiff = Math.abs(now - circle.targetTime);
+    
+    // Check if it's a good hit (within 150ms)
+    if (timingDiff < 150) {
+      const isPerfect = timingDiff < 50;
+      
+      // Mark as hit
+      setHitCircles(prev => prev.map(c => 
+        c.id === circle.id ? { ...c, hit: true } : c
+      ));
+      
+      // Add click effect
+      setClickEffects(prev => [...prev, {
+        id: Date.now(),
+        x: circle.x,
+        y: circle.y,
+        type: isPerfect ? 'perfect' : 'good',
+        expiresAt: now + 1000
+      }]);
+      
+      // Update combo and money
+      setCombo(prev => prev + 1);
+      const multiplier = isPerfect ? 3 : 2;
+      const earnings = currentClickPower * pizzaPrice * multiplier;
+      setMoney(m => m + earnings);
+      setLifetimeMoney(lm => lm + earnings);
+      setTotalPizzasSold(tp => tp + currentClickPower);
+      setReputation(r => r + currentClickPower);
+      setTotalClicks(tc => tc + 1);
+      
+      // Play sound
+      playSound(isPerfect ? 'chaching' : 'pop');
+    } else {
+      // Missed click
+      setCombo(0);
+      playSound('error');
+    }
+  };
+
   // 5. Modal Cleanup Loop
   useEffect(() => {
     if (sideOrder && sideOrder.status === 'burnt' && sideOrder.rewardEarned === 0) {
@@ -1404,7 +1607,7 @@ export default function App() {
                 }`}
               >
                 {isPlaying ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
-                {isPlaying ? 'Playing' : 'Play Music'}
+                {isPlaying ? `${TRACK_BPM} BPM` : 'Play Music'}
               </button>
               <a
                 href="https://ko-fi.com/pizzalord"
@@ -1715,6 +1918,54 @@ export default function App() {
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
               
+              {/* OSU-STYLE HIT CIRCLES */}
+              {hitCircles.map(circle => {
+                const now = Date.now();
+                const timeUntilHit = circle.targetTime - now;
+                const opacity = timeUntilHit > 500 ? 1 : Math.max(0, timeUntilHit / 500);
+                const scale = timeUntilHit > 200 ? 1 : 1 + (200 - timeUntilHit) / 200 * 0.3;
+                
+                return (
+                  <div
+                    key={circle.id}
+                    className={`absolute rounded-full border-4 cursor-pointer transition-all duration-100 ${circle.hit ? 'bg-green-500 border-green-700' : 'bg-white border-slate-400'}`}
+                    style={{
+                      left: `${circle.x}%`,
+                      top: `${circle.y}%`,
+                      width: `${circle.radius * 2}px`,
+                      height: `${circle.radius * 2}px`,
+                      transform: `translate(-50%, -50%) scale(${scale})`,
+                      opacity: opacity,
+                      pointerEvents: circle.hit ? 'none' : 'auto'
+                    }}
+                    onClick={(e) => !circle.hit && handleHitCircleClick(circle, e)}
+                  >
+                    {!circle.hit && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* CLICK EFFECTS */}
+              {clickEffects.map(effect => (
+                <div
+                  key={effect.id}
+                  className={`absolute pointer-events-none font-display font-black text-2xl animate-ping ${
+                    effect.type === 'perfect' ? 'text-green-400' : 'text-yellow-400'
+                  }`}
+                  style={{
+                    left: `${effect.x}%`,
+                    top: `${effect.y}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  {effect.type === 'perfect' ? 'PERFECT!' : 'GOOD!'}
+                </div>
+              ))}
+
               {/* COMBO METER */}
               {combo > 0 && (
                 <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
