@@ -1437,59 +1437,75 @@ export default function App() {
       {showParchmentModal && (
         <div className="fixed inset-0 z-[100] bg-amber-950/90 flex items-center justify-center p-4">
           <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Parchment SVG Background */}
+            {/* Ancient Scroll SVG Background */}
             <svg 
               className="absolute inset-0 w-full h-full" 
-              viewBox="0 0 800 600" 
+              viewBox="0 0 400 1200" 
               preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.6))' }}
+              style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))' }}
             >
-              {/* Main parchment shape with torn edges */}
+              {/* Scroll rods (top and bottom) */}
+              <rect x="50" y="30" width="300" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
+              <rect x="50" y="1130" width="300" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
+              
+              {/* Main scroll body with rolled edges */}
               <path
-                d="M50,80 Q30,100 40,150 T35,250 Q45,350 30,450 T60,520 Q100,560 200,570 T400,575 Q600,570 700,560 T750,520 Q770,450 760,350 T765,250 Q770,150 750,80 Q730,60 700,55 T600,50 Q400,45 200,50 T100,55 Q70,60 50,80"
+                d="M70,70 Q60,80 65,100 T70,150 Q75,200 70,300 T65,500 Q70,700 65,900 T70,1050 Q75,1100 70,1130
+                 L330,1130 Q325,1100 330,1050 T335,900 Q330,700 335,500 T330,300 Q325,200 330,150 T335,100 Q340,80 330,70
+                 Q300,65 200,65 T100,65 Q80,65 70,70"
                 fill="#D4A574"
                 stroke="#8B6914"
                 strokeWidth="2"
               />
               
-              {/* Inner parchment slightly lighter */}
+              {/* Inner scroll area (lighter) */}
               <path
-                d="M80,100 Q65,115 70,160 T65,260 Q75,340 60,430 T80,490 Q110,520 190,530 T400,535 Q580,530 610,490 T740,430 Q755,340 735,260 T740,160 Q745,115 720,100 Q700,85 680,82 T600,78 Q400,73 200,78 T120,82 Q95,85 80,100"
+                d="M85,85 Q80,90 82,110 T85,160 Q88,200 85,300 T82,500 Q85,700 82,900 T85,1050 Q88,1085 85,1115
+                 L315,1115 Q312,1085 315,1050 T318,900 Q315,700 318,500 T315,300 Q312,200 315,160 T318,110 Q320,90 315,85
+                 Q280,82 200,82 T120,82 Q90,82 85,85"
                 fill="#E5C29F"
                 stroke="none"
               />
               
-              {/* Decorative border */}
-              <path
-                d="M100,120 Q90,130 95,170 T90,270 Q100,350 85,420 T105,470 Q130,490 200,500 T400,505 Q570,500 595,470 T715,420 Q730,350 710,270 T715,170 Q720,130 695,120"
-                fill="none"
-                stroke="#8B6914"
-                strokeWidth="1"
-                strokeDasharray="5,3"
-                opacity="0.6"
-              />
-              
-              {/* Corner flourishes */}
-              <g opacity="0.4">
-                <path d="M80,100 Q60,120 70,140 T65,180 Q75,160 85,140 T95,120 Q90,110 80,100" fill="#8B6914"/>
-                <path d="M720,100 Q740,120 730,140 T735,180 Q725,160 715,140 T705,120 Q710,110 720,100" fill="#8B6914"/>
-                <path d="M80,500 Q60,480 70,460 T65,420 Q75,440 85,460 T95,480 Q90,490 80,500" fill="#8B6914"/>
-                <path d="M720,500 Q740,480 730,460 T735,420 Q725,440 715,460 T705,480 Q710,490 720,500" fill="#8B6914"/>
+              {/* Vertical scroll lines (text guidelines) */}
+              <g opacity="0.3">
+                <line x1="100" y1="100" x2="100" y2="1100" stroke="#8B6914" strokeWidth="1"/>
+                <line x1="300" y1="100" x2="300" y2="1100" stroke="#8B6914" strokeWidth="1"/>
               </g>
               
-              {/* Wax seal */}
-              <circle cx="400" cy="100" r="25" fill="#8B0000" stroke="#5C0000" strokeWidth="2"/>
-              <circle cx="400" cy="100" r="20" fill="#A52A2A"/>
-              <path d="M390,95 L400,85 L410,95 L405,105 L395,105 Z" fill="#FFD700"/>
+              {/* Decorative horizontal lines */}
+              <g opacity="0.4">
+                <line x1="90" y1="200" x2="310" y2="200" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="90" y1="400" x2="310" y2="400" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="90" y1="600" x2="310" y2="600" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="90" y1="800" x2="310" y2="800" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="90" y1="1000" x2="310" y2="1000" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+              </g>
+              
+              {/* Top decorative element */}
+              <circle cx="200" cy="50" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
+              <circle cx="200" cy="50" r="12" fill="#A52A2A"/>
+              <path d="M195,47 L200,42 L205,47 L202,53 L198,53 Z" fill="#FFD700"/>
+              
+              {/* Bottom decorative element */}
+              <circle cx="200" cy="1150" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
+              <circle cx="200" cy="1150" r="12" fill="#A52A2A"/>
+              <path d="M195,1147 L200,1142 L205,1147 L202,1153 L198,1153 Z" fill="#FFD700"/>
+              
+              {/* Side rope ties */}
+              <rect x="45" y="45" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="345" y="45" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="45" y="1125" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="345" y="1125" width="10" height="30" rx="5" fill="#654321"/>
             </svg>
             
             {/* Content */}
-            <div className="relative z-10 p-12 text-center" style={{ fontFamily: "'Dancing Script', cursive", fontSize: '14pt' }}>
-              <h1 className="text-5xl font-bold text-amber-900 mb-8" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)', fontSize: '28pt' }}>
+            <div className="relative z-10 px-16 py-20 text-center" style={{ fontFamily: "'Dancing Script', cursive", fontSize: '14pt' }}>
+              <h1 className="font-bold text-amber-900 mb-12" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)', fontSize: '24pt' }}>
                 The Legend of Pizza Empire
               </h1>
               
-              <div className="space-y-6 text-amber-800 max-w-2xl mx-auto" style={{ fontSize: '16pt' }}>
+              <div className="space-y-8 text-amber-800" style={{ fontSize: '16pt' }}>
                 <p className="leading-relaxed">
                   In a world where dough rises like the morning sun,
                 </p>
@@ -1501,26 +1517,26 @@ export default function App() {
                 </p>
               </div>
               
-              <div className="mt-12 pt-12 border-t-2 border-amber-700/30 max-w-2xl mx-auto">
-                <p className="font-semibold text-amber-900 mb-4" style={{ fontSize: '20pt' }}>
+              <div className="mt-16 pt-8 border-t-2 border-amber-700/30">
+                <p className="font-semibold text-amber-900 mb-6" style={{ fontSize: '18pt' }}>
                   Chapter {franchiseLicenses}: The Empire Grows
                 </p>
-                <p className="mt-3 text-amber-800" style={{ fontSize: '16pt' }}>
+                <p className="mt-4 text-amber-800" style={{ fontSize: '16pt' }}>
                   With <span className="font-bold text-orange-600">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold text-green-600">${fmtInt(lifetimeMoney)}</span> earned,
                 </p>
-                <p className="text-amber-800" style={{ fontSize: '16pt' }}>
+                <p className="text-amber-800 mt-2" style={{ fontSize: '16pt' }}>
                   your legacy spreads across the land.
                 </p>
               </div>
               
-              <div className="mt-12 text-amber-700 italic max-w-lg mx-auto" style={{ fontSize: '14pt' }}>
+              <div className="mt-16 text-amber-700 italic" style={{ fontSize: '14pt' }}>
                 <p>"From humble oven to global dominion,"</p>
-                <p>"the slice that conquered all."</p>
+                <p className="mt-2">"the slice that conquered all."</p>
               </div>
               
               <button
                 onClick={() => setShowParchmentModal(false)}
-                className="mt-12 px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors"
+                className="mt-16 px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors"
                 style={{ fontFamily: "'Dancing Script', cursive", fontSize: '16pt' }}
               >
                 Close This Chapter
