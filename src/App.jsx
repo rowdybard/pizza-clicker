@@ -1602,7 +1602,7 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full rounded-[2rem] p-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
+              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
                 border-b-[8px] active:border-b-0 active:translate-y-[8px]
                 ${isRush
                   ? 'bg-red-600 border-red-900 hover:bg-red-700'
