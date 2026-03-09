@@ -387,6 +387,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [hudSettingsOpen, setHudSettingsOpen] = useState(false);
   const [upgradeFilter, setUpgradeFilter] = useState('all');
   const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
   const [revealedUpgrades, setRevealedUpgrades] = useState(() => {
@@ -3064,10 +3065,6 @@ export default function App() {
         </div>
 
         <div className="fixed top-0 right-0 z-40 p-4 flex gap-2">
-          <button onClick={() => setHudSettingsOpen(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500">
-            <Cog className="w-3 h-3" />
-            HUD Settings
-          </button>
           <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
             <Moon className="w-3 h-3" /> Remove Ads
           </button>
