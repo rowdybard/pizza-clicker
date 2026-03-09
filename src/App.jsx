@@ -1679,19 +1679,19 @@ export default function App() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
                 {/* Franchise Licenses */}
                 <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1 relative group">
-                  <div className="text-[9px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
-                  <div className="text-[9px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
-                  <div className="text-[9px] font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
+                  <div className="text-[11px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
+                  <div className="text-[10px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
+                  <div className="text-[10px] font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                   {franchiseLicenses > 0 && (
                     <div className="flex items-center gap-1 mt-1 cursor-default">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Floor</span>
-                      <span className="text-[9px] text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
-                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-[8px] text-slate-400 font-black cursor-help shrink-0">?</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Floor</span>
+                      <span className="text-[10px] text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
+                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-[9px] text-slate-400 font-black cursor-help shrink-0">?</span>
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-0 mb-2 w-52 bg-slate-950 border border-purple-500/40 rounded-xl p-3 shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col gap-1.5">
-                        <div className="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
                         <div className="flex justify-between text-[10px]"><span className="text-slate-400">Base (2 × 1.4^{franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
                         <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
                         <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
@@ -1706,26 +1706,26 @@ export default function App() {
 
                 {/* Achievement Multiplier */}
                 <div className="bg-slate-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[9px] font-black uppercase tracking-widest text-yellow-400">Achievements</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Achievements</div>
                   <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
-                  <div className="text-[9px] text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
+                  <div className="text-[11px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
+                  <div className="text-[10px] text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
                 </div>
 
                 {/* VIP Token Multiplier */}
                 <div className="bg-slate-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[9px] font-black uppercase tracking-widest text-purple-300">VIP Tokens</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-purple-300">VIP Tokens</div>
                   <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
-                  <div className="text-[10px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
-                  <div className="text-[9px] text-purple-400 font-bold uppercase mt-0.5">All stats</div>
+                  <div className="text-[11px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
+                  <div className="text-[10px] text-purple-400 font-bold uppercase mt-0.5">All stats</div>
                 </div>
 
                 {/* Per-Click Output */}
                 <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[9px] font-black uppercase tracking-widest text-orange-400">Per Click</div>
+                  <div className="text-[11px] font-black uppercase tracking-widest text-orange-400">Per Click</div>
                   <div className="font-display text-lg text-orange-300 tabular-nums leading-none"><Num value={currentClickPower} prefix="+" decimals={1} /></div>
-                  <div className="text-[10px] text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
-                  <div className="text-[10px] text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
+                  <div className="text-[12px] text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
+                  <div className="text-[12px] text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
                 </div>
               </div>
 
