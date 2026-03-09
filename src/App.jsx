@@ -1245,10 +1245,10 @@ export default function App() {
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-sm font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
+            <h1 className="text-lg font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
             <div className="flex gap-0.5 mt-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-2.5 h-2.5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+                <Star key={i} className={`w-4 h-4 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
               ))}
             </div>
           </div>
