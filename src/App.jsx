@@ -1964,7 +1964,7 @@ export default function App() {
 
             {/* ── TAB NAV ── */}
             <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
-              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700 grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 gap-1">
+              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1">
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
