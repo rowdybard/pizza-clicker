@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -1176,6 +1177,7 @@ export default function App() {
     : 'text-orange-400';
 
   return (
+    <>
     <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
@@ -3149,5 +3151,7 @@ export default function App() {
 
     </div>
   </div>
+  <Analytics />
+  </>
   );
 }
