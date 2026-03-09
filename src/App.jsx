@@ -251,7 +251,7 @@ const computeOfflineEarnings = (data) => {
 
   // Reproduce star level from saved reputation
   const rep = safeNum(data.reputation, 0);
-  const starScale = Math.min(3.0, 1 + (licenses * 0.30));
+  const starScale = Math.min(2.0, 1 + (licenses * 0.15));
   const scaledThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * starScale));
   const starLevel = scaledThresholds.filter(t => rep >= t).length - 1;
 
@@ -262,9 +262,9 @@ const computeOfflineEarnings = (data) => {
     if (u.type === 'quality')    pizzaPrice += u.baseValue * count;
   });
 
-  const franchiseMult   = licenses <= 10
+  const franchiseMult   = Math.min(25, licenses <= 10
     ? 1 + (licenses * 1.2)
-    : (1 + 10 * 1.2) * Math.pow(1.20, licenses - 10);
+    : (1 + 10 * 1.2) * Math.pow(1.20, licenses - 10));
   const starPowerMult   = Math.pow(1.6, starLevel);
   const achievementMult = 1 + (achievements * 0.03);
   const vipMult         = 1 + (vipToks * 0.08);
@@ -421,7 +421,7 @@ export default function App() {
   }, [money, inventory]);
 
   // --- DERIVED STATS MATH ---
-  const prestigeStarScale = Math.min(3.0, 1 + (franchiseLicenses * 0.30));
+  const prestigeStarScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
   const scaledStarThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * prestigeStarScale));
   const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
   const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
@@ -433,20 +433,24 @@ export default function App() {
   }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
-  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve toward quintillion at #100
-  const earlyLicenses = Math.min(5, Math.floor(Math.sqrt(lifetimeMoney / 50000)));
-  const mainLicenses = Math.floor(Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST));
-  const totalEarnableLicenses = earlyLicenses + mainLicenses;
+  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 100.
+  const MAX_LICENSES = 100;
+  const _earlyRaw = Math.sqrt(lifetimeMoney / 50000);
+  const earlyLicenses = Math.min(5, Number.isFinite(_earlyRaw) ? Math.floor(_earlyRaw) : 5);
+  const _mainRaw = Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST);
+  const mainLicenses = Number.isFinite(_mainRaw) ? Math.floor(_mainRaw) : MAX_LICENSES;
+  const totalEarnableLicenses = Math.min(MAX_LICENSES, earlyLicenses + mainLicenses);
   const nextLicenseCost = (() => {
+    if (totalEarnableLicenses >= MAX_LICENSES) return Infinity;
     const n = totalEarnableLicenses;
     if (n < 5) return Math.pow(n + 1, 2) * 50000;
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
-  const franchiseMultiplier = franchiseLicenses <= 10
+  const franchiseMultiplier = Math.min(25, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
-    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10);
+    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10));
   // Licenses boost pizza price: +25% per license (compounding)
   const franchisePriceMultiplier = Math.pow(1.25, franchiseLicenses);
   // Star level gives a compounding production+click bonus (1.6^stars)
@@ -1718,7 +1722,7 @@ export default function App() {
                     <span className="text-xs text-amber-300 font-bold">Prestige Star Scaling</span>
                   </div>
                   <div className="flex items-center gap-3 tabular-nums text-xs">
-                    <span className="text-slate-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 30%</span>
+                    <span className="text-slate-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 15%</span>
                     <span className="text-amber-400 font-display font-bold">{fmt(prestigeStarScale)}x harder</span>
                     <span className="text-slate-500">→ ★5 needs {fmtInt(scaledStarThresholds[5])} rep</span>
                   </div>
@@ -1729,7 +1733,10 @@ export default function App() {
                 <div>
                   <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-money font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
                   <div className="text-xs text-slate-500 tabular-nums">
-                    Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
+                    {nextLicenseCost === Infinity
+                      ? <span className="text-purple-400 font-bold">Max licenses reached (100)</span>
+                      : <>Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} /></>
+                    }
                   </div>
                 </div>
                 
