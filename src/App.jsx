@@ -1563,8 +1563,8 @@ export default function App() {
               className={`w-full rounded-[2rem] p-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
                 border-b-[8px] active:border-b-0 active:translate-y-[8px]
                 ${isRush
-                  ? 'bg-red-600 border-red-900 hover:bg-red-500'
-                  : 'bg-orange-500 border-orange-800 hover:bg-orange-400'
+                  ? 'bg-red-600 border-red-900 hover:bg-red-700'
+                  : 'bg-orange-500 border-orange-800 hover:bg-orange-600'
                 }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
