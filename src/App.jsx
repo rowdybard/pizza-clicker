@@ -480,8 +480,8 @@ export default function App() {
   const heatBarPct = comboDecayTimer / 20;
   const comboMultiplier = (combo >= 100 && heatBarPct > 0) ? 3 : 1 + (combo * 0.01);
   
-  const flourSynergyMult = 1 + (marketShares.flour * 0.001);
-  const pepperoniSynergyMult = 1 + (marketShares.pepperoni * 0.001);
+  const flourSynergyMult = 1 + Math.min(marketShares.flour * 0.001, 0.5); // Cap at 50% bonus
+  const pepperoniSynergyMult = 1 + Math.min(marketShares.pepperoni * 0.001, 0.5); // Cap at 50% bonus
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades
   const licenseProductionFloor = franchiseLicenses > 0 ? franchiseLicenses * 0.5 : 0;
