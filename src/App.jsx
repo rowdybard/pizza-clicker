@@ -208,9 +208,9 @@ const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, val
         <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
           {rows.map(({ label: rl, value, sub }) => (
             <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
-              <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">{rl}</div>
+              <div className="text-sm font-black uppercase tracking-widest text-slate-500">{rl}</div>
               <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
-              <div className="text-[9px] text-slate-600 font-bold">{sub}</div>
+              <div className="text-sm text-slate-600 font-bold">{sub}</div>
             </div>
           ))}
         </div>
@@ -1184,7 +1184,7 @@ export default function App() {
             <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
               <Pizza className="w-7 h-7 text-yellow-900" />
             </div>
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
               {goldenSliceEvent.type === 'frenzy' ? '77x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
             </div>
           </div>
@@ -1223,7 +1223,7 @@ export default function App() {
             <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums">
               +{instantCashPopup}
             </span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
+            <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
           </div>
         </div>
       )}
@@ -1260,7 +1260,7 @@ export default function App() {
             <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
             }`}>
-              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
                 <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
                   <Num value={money} prefix="$" decimals={2} />
@@ -1278,7 +1278,7 @@ export default function App() {
             <div className={`hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-b-[3px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-slate-400'
             }`}>
-              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PROFIT</div>
+              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PROFIT</div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 shrink-0" />
                 <span className="font-display text-lg md:text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
@@ -1286,7 +1286,7 @@ export default function App() {
             </div>
             {/* Pizzas/sec */}
             <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PIZZAS</div>
+              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PIZZAS</div>
               <div className="flex items-center gap-1">
                 <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
                 <span className="font-display text-lg md:text-xl text-slate-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
@@ -1294,7 +1294,7 @@ export default function App() {
             </div>
             {/* Ticket avg */}
             <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PRICE</div>
+              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PRICE</div>
               <div className="flex items-center gap-1">
                 <Award className="w-3 h-3 text-yellow-500 shrink-0" />
                 <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
@@ -1413,22 +1413,22 @@ export default function App() {
               <div className="px-8 py-6 space-y-3">
                 <div className="flex items-center justify-between p-4 bg-green-900 border border-green-700 rounded-xl">
                   <div>
-                    <div className="text-green-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
-                    <div className="text-green-600 text-xs tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
+                    <div className="text-green-400 text-sm font-black uppercase tracking-widest mb-0.5">Money Earned</div>
+                    <div className="text-green-600 text-sm tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
                   </div>
                   <div className="text-money font-display text-2xl tabular-nums">+${fmt(r.moneyEarned)}</div>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-orange-900 border border-orange-700 rounded-xl">
                   <div>
-                    <div className="text-orange-300 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
-                    <div className="text-orange-600 text-xs tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
+                    <div className="text-orange-300 text-sm font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
+                    <div className="text-orange-600 text-sm tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
                   </div>
                   <div className="text-orange-200 font-display text-2xl tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-xl">
                   <div>
-                    <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Time Active</div>
-                    <div className="text-slate-500 text-xs">50% of full rate while offline</div>
+                    <div className="text-slate-400 text-sm font-black uppercase tracking-widest mb-0.5">Time Active</div>
+                    <div className="text-slate-500 text-sm">50% of full rate while offline</div>
                   </div>
                   <div className="text-slate-300 font-display text-2xl tabular-nums">{timeStr}</div>
                 </div>
@@ -1618,7 +1618,7 @@ export default function App() {
                     ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
-                  <div className="text-[10px] font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
+                  <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
                   <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
                     <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
@@ -1663,7 +1663,7 @@ export default function App() {
                     : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
                 }`}>
                   {isClean && (
-                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
                   )}
                   <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
                   <span className={isClean ? 'text-cyan-600' : 'text-slate-500'}>|</span>
@@ -1693,26 +1693,26 @@ export default function App() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
                 {/* Franchise Licenses */}
                 <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1 relative group">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-purple-400">Franchise</div>
+                  <div className="text-sm font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
-                  <div className="text-[11px] text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
-                  <div className="text-[10px] text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
-                  <div className="text-[10px] font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
+                  <div className="text-sm text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
+                  <div className="text-sm text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
+                  <div className="text-sm font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                   {franchiseLicenses > 0 && (
                     <div className="flex items-center gap-1 mt-1 cursor-default">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Floor</span>
-                      <span className="text-[10px] text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
-                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-[9px] text-slate-400 font-black cursor-help shrink-0">?</span>
+                      <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Floor</span>
+                      <span className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)}/sec</span>
+                      <span className="w-3 h-3 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-sm text-slate-400 font-black cursor-help shrink-0">?</span>
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-0 mb-2 w-52 bg-slate-950 border border-purple-500/40 rounded-xl p-3 shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col gap-1.5">
-                        <div className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
-                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">Base (2 × 1.4^{franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
-                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
-                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
-                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× VIP tokens</span><span className="text-slate-200 tabular-nums font-bold">{fmt(vipTokenMultiplier)}x</span></div>
-                        <div className="flex justify-between text-[10px]"><span className="text-slate-400">× Flour synergy</span><span className="text-slate-200 tabular-nums font-bold">{fmt(flourSynergyMult)}x</span></div>
-                        <div className="border-t border-slate-700 pt-1 mt-0.5 flex justify-between text-[10px]"><span className="text-money font-black uppercase">Final</span><span className="text-money tabular-nums font-black">{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)} pizzas/sec</span></div>
-                        <div className="text-[9px] text-slate-500 mt-0.5">Earns even with no upgrades.</div>
+                        <div className="text-sm font-black uppercase tracking-widest text-purple-400 mb-1">Passive Floor Breakdown</div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">Base (2 × 1.4^{franchiseLicenses})</span><span className="text-slate-200 tabular-nums font-bold">{fmt(licenseProductionFloor)} /sec</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Franchise mult</span><span className="text-slate-200 tabular-nums font-bold">{fmt(franchiseMultiplier)}x</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Star power</span><span className="text-slate-200 tabular-nums font-bold">{fmt(starPowerMultiplier)}x</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">× VIP tokens</span><span className="text-slate-200 tabular-nums font-bold">{fmt(vipTokenMultiplier)}x</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">× Flour synergy</span><span className="text-slate-200 tabular-nums font-bold">{fmt(flourSynergyMult)}x</span></div>
+                        <div className="border-t border-slate-700 pt-1 mt-0.5 flex justify-between text-sm"><span className="text-money font-black uppercase">Final</span><span className="text-money tabular-nums font-black">{fmt(licenseProductionFloor * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult)} pizzas/sec</span></div>
+                        <div className="text-sm text-slate-500 mt-0.5">Earns even with no upgrades.</div>
                       </div>
                     </div>
                   )}
@@ -1720,26 +1720,26 @@ export default function App() {
 
                 {/* Achievement Multiplier */}
                 <div className="bg-slate-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Achievements</div>
+                  <div className="text-sm font-bold uppercase tracking-widest text-yellow-400">Stars</div>
                   <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
-                  <div className="text-[11px] text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
-                  <div className="text-[10px] text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
+                  <div className="text-sm text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
+                  <div className="text-sm text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
                 </div>
 
                 {/* VIP Token Multiplier */}
                 <div className="bg-slate-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-purple-300">VIP Tokens</div>
+                  <div className="text-sm font-bold uppercase tracking-widest text-purple-300">VIP Tokens</div>
                   <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
-                  <div className="text-[11px] text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
-                  <div className="text-[10px] text-purple-400 font-bold uppercase mt-0.5">All stats</div>
+                  <div className="text-sm text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
+                  <div className="text-sm text-purple-400 font-bold uppercase mt-0.5">All stats</div>
                 </div>
 
                 {/* Per-Click Output */}
                 <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-[11px] font-black uppercase tracking-widest text-orange-400">Per Click</div>
+                  <div className="text-sm font-bold uppercase tracking-widest text-orange-400">Production</div>
                   <div className="font-display text-lg text-orange-300 tabular-nums leading-none"><Num value={currentClickPower} prefix="+" decimals={1} /></div>
-                  <div className="text-[12px] text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
-                  <div className="text-[12px] text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
+                  <div className="text-sm text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
+                  <div className="text-sm text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
                 </div>
               </div>
 
@@ -1865,7 +1865,7 @@ export default function App() {
                               <Moon className="w-8 h-8 text-yellow-300" />
                             </div>
 
-                            <div className="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
+                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
                             <h2 className="font-display text-3xl text-yellow-100 tracking-widest mb-2">Ascend?</h2>
                             <p className="text-slate-400 text-sm mb-6 leading-relaxed">
                               You are about to sacrifice your entire empire to join <span className="text-yellow-400 font-bold">The Culinary Syndicate</span>.
@@ -1875,7 +1875,7 @@ export default function App() {
                             <div className="bg-yellow-900 border border-yellow-700 rounded-xl px-5 py-4 mb-5 flex items-center justify-center gap-3">
                               <Gem className="w-6 h-6 text-yellow-400 shrink-0" />
                               <div className="text-left">
-                                <div className="text-[9px] font-black uppercase tracking-widest text-yellow-600">You will receive</div>
+                                <div className="text-sm font-black uppercase tracking-widest text-yellow-600">You will receive</div>
                                 <div className="font-display text-3xl text-yellow-300 tabular-nums leading-none">
                                   {slicesOnAscend} <span className="text-lg">Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
                                 </div>
@@ -1941,7 +1941,7 @@ export default function App() {
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full font-display text-[10px] tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
                       activeTab === id
                         ? active
                         : 'text-slate-500 hover:text-slate-300'
@@ -1965,14 +1965,14 @@ export default function App() {
                     <button
                       key={f.id}
                       onClick={() => setUpgradeFilter(f.id)}
-                      className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${
+                      className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
                         upgradeFilter === f.id ? f.activeBg : `border-slate-700 ${f.color} hover:border-slate-600 bg-slate-900/30`
                       }`}
                     >
                       {f.label}
                     </button>
                   ))}
-                  <div className="ml-auto text-[10px] text-slate-600 font-bold uppercase tracking-widest self-center">
+                  <div className="ml-auto text-sm text-slate-600 font-bold uppercase tracking-widest self-center">
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
@@ -2027,14 +2027,14 @@ export default function App() {
                             <Moon className="w-7 h-7 text-yellow-400" />
                           </div>
                           <div>
-                            <div className="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-0.5">Hard Prestige Layer</div>
+                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600 mb-0.5">Hard Prestige Layer</div>
                             <h2 className="font-display text-2xl text-yellow-100 tracking-widest">The Syndicate Vault</h2>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 bg-yellow-900/40 border border-yellow-500/40 rounded-xl px-4 py-3">
                           <Gem className="w-5 h-5 text-yellow-400" />
                           <div>
-                            <div className="text-[9px] font-black uppercase tracking-widest text-yellow-600">Golden Slices</div>
+                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600">Golden Slices</div>
                             <div className="font-display text-2xl text-yellow-300 tabular-nums leading-none">{goldenSlices}</div>
                           </div>
                         </div>
