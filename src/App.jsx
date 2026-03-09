@@ -127,7 +127,22 @@ const ACHIEVEMENTS = [
   { id: 'rep_10k', name: 'Household Name', desc: 'Gain 10,000 Reputation.', req: (s) => s.reputation >= 10000 },
 
   // Franchise
-  { id: 'franchise_5', name: 'Corporate Board', desc: 'Gain 5 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 5 },
+  { id: 'franchise_5',  name: 'Corporate Board',    desc: 'Gain 5 Franchise Licenses.',   req: (s) => s.franchiseLicenses >= 5  },
+  { id: 'franchise_10', name: 'Pizza Conglomerate',  desc: 'Gain 10 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 10 },
+  { id: 'franchise_25', name: 'Global Syndicate',    desc: 'Gain 25 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 25 },
+
+  // Lifetime earnings — deep progression
+  { id: 'life_1q',  name: 'Quadrillionaire',   desc: 'Earn $1,000,000,000,000,000 lifetime.',              req: (s) => s.lifetimeMoney >= 1e15  },
+  { id: 'life_1qi', name: 'Beyond Counting',   desc: 'Earn one quintillion dollars lifetime.',             req: (s) => s.lifetimeMoney >= 1e18  },
+
+  // Pizza volume — long-haul
+  { id: 'pizza_10b', name: 'Factory Planet',   desc: 'Sell 10 billion pizzas total.',                      req: (s) => s.totalPizzasSold >= 1e10 },
+  { id: 'pizza_1t',  name: 'Universe Fed',     desc: 'Sell 1 trillion pizzas total.',                      req: (s) => s.totalPizzasSold >= 1e12 },
+
+  // Late upgrades
+  { id: 'upgrade_wagyu',     name: 'Premium Grade', desc: 'Purchase a Wagyu Topping upgrade.',              req: (s) => (s.inventory?.wagyu || 0) >= 1          },
+  { id: 'upgrade_antimatter',name: 'Beyond Physics', desc: 'Purchase an Antimatter Crust upgrade.',         req: (s) => (s.inventory?.antimatterCrust || 0) >= 1 },
+  { id: 'upgrade_neural',    name: 'Mind Over Pizza', desc: 'Purchase a Neural Clicker upgrade.',            req: (s) => (s.inventory?.neuralClicker || 0) >= 1  },
 
   // Specific Upgrades
   { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'Purchase a Michelin Star upgrade.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
@@ -138,8 +153,10 @@ const DESTINATIONS = [
     unlockReq: { pizzas: 50,    stars: 0, lifetime: 0       }, unlockHint: 'Sell 50 pizzas to open local routes.' },
   { id: 'downtown', name: 'Downtown Office',    warpSeconds: 900,  rushSeconds: 60, vipToken: false, cooldown: 300,  icon: <Briefcase className="w-8 h-8 text-blue-400"   />, bg: 'from-blue-900/20 to-slate-800',   border: 'border-blue-500/30',   color: 'text-blue-400',   label: '15 Min Drop + Dinner Rush',   desc: 'Collect 15 minutes of idle production and trigger a 60-second Dinner Rush.',
     unlockReq: { pizzas: 0,     stars: 1, lifetime: 0       }, unlockHint: 'Reach 1-star reputation to unlock city routes.' },
-  { id: 'mansion',  name: 'Billionaire Estate', warpSeconds: 7200, rushSeconds: 0,  vipToken: true,  cooldown: 1800, icon: <Gem      className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800', border: 'border-purple-500/30', color: 'text-purple-400', label: '2 Hr Drop + VIP Token',        desc: 'Collect 2 hours of idle production and earn a permanent VIP Token (+5% to everything).',
-    unlockReq: { pizzas: 0,     stars: 3, lifetime: 10000   }, unlockHint: 'Reach 3-star rep and earn $10,000 lifetime to access elite clients.' },
+  { id: 'mansion',  name: 'Billionaire Estate', warpSeconds: 7200,  rushSeconds: 0,   vipToken: true,  cooldown: 1800,  icon: <Gem      className="w-8 h-8 text-purple-400" />, bg: 'from-purple-900/20 to-slate-800',  border: 'border-purple-500/30',  color: 'text-purple-400',  label: '2 Hr Drop + VIP Token',        desc: 'Collect 2 hours of idle production and earn a permanent VIP Token (+5% to everything).',
+    unlockReq: { pizzas: 0,     stars: 3, lifetime: 10000,   licenses: 0 }, unlockHint: 'Reach 3-star rep and earn $10,000 lifetime to access elite clients.' },
+  { id: 'station', name: 'Orbital Pizza Station', warpSeconds: 43200, rushSeconds: 120, vipToken: true,  cooldown: 7200,  icon: <Rocket   className="w-8 h-8 text-cyan-400"   />, bg: 'from-cyan-900/20 to-slate-800',    border: 'border-cyan-500/30',    color: 'text-cyan-400',    label: '12 Hr Drop + Rush + VIP Token', desc: 'Supply the orbital station: 12 hours of idle production, a 2-minute Dinner Rush, and a VIP Token.',
+    unlockReq: { pizzas: 0,     stars: 4, lifetime: 0,       licenses: 5 }, unlockHint: 'Reach 5 Franchise Licenses and 4-star rep to unlock orbital contracts.' },
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -148,18 +165,24 @@ const UPGRADES = [
   { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
   { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 3, icon: <Zap className="text-orange-300" /> },
   { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 400, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 3000, reqStars: 5, icon: <Zap className="text-yellow-300" /> },
+  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 25000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.3, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 2, reqStars: 1, icon: <Users className="text-blue-500" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 12, reqStars: 2, icon: <Flame className="text-green-500" /> },
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 80, reqStars: 3, icon: <Store className="text-purple-500" /> },
   { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 500, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
   { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 3000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 20000, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
+  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 150000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
   { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 8.00, reqStars: 3, icon: <Zap className="text-red-400" /> },
   { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 30.00, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 100.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> }
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 100.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> },
+  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 500.00, reqStars: 5, icon: <Flame className="text-rose-400" /> },
+  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 5000.00, reqStars: 5, icon: <Sparkles className="text-violet-400" /> },
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
@@ -397,7 +420,7 @@ export default function App() {
   }, [money, inventory]);
 
   // --- DERIVED STATS MATH ---
-  const prestigeStarScale = 1 + (franchiseLicenses * 0.30);
+  const prestigeStarScale = Math.min(3.0, 1 + (franchiseLicenses * 0.30));
   const scaledStarThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * prestigeStarScale));
   const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
   const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
@@ -672,7 +695,8 @@ export default function App() {
       setRushTimeLeft(prev => prev + dest.rushSeconds);
     }
     if (dest.vipToken) {
-      setVipTokens(t => t + 1);
+      const tokens = dest.id === 'station' ? 2 : 1;
+      setVipTokens(t => t + tokens);
     }
 
     playSound('chaching');
@@ -2310,16 +2334,17 @@ export default function App() {
                       const cooldown = deliveryCooldowns[dest.id] || 0;
                       const onCooldown = cooldown > 0;
                       const req = dest.unlockReq;
-                      const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime;
+                      const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
                       const WARP_CAP = 1e6;
                       const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
                       const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
                       const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
                       if (!isUnlocked) {
                         const conditions = [
-                          req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,        current: totalPizzasSold,  target: req.pizzas  },
-                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,        current: starLevel, target: req.stars  },
-                          req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,      current: lifetimeMoney,    target: req.lifetime },
+                          req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,          current: totalPizzasSold,       target: req.pizzas    },
+                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,          current: starLevel,             target: req.stars     },
+                          req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,        current: lifetimeMoney,         target: req.lifetime  },
+                          (req.licenses||0) > 0 && { label: `Own ${req.licenses} Franchise Licenses`, current: franchiseLicenses,   target: req.licenses  },
                         ].filter(Boolean);
                         return (
                           <div key={dest.id} className="w-full p-5 rounded-xl border border-slate-700/50 bg-slate-900/60 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
