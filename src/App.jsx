@@ -1260,23 +1260,23 @@ export default function App() {
           </div>
 
           {/* RIGHT: Secondary stat pills + settings */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Profit/sec */}
-            <div className={`hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg border-b-2 text-xs shrink-0 ${
+            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-b-[3px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-slate-400'
             }`}>
-              <TrendingUp className="w-3 h-3 shrink-0" />
-              <span className="font-display tabular-nums"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+              <span className="font-display text-xl md:text-2xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
             </div>
             {/* Pizzas/sec */}
-            <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border-b-2 border-slate-950 text-xs shrink-0">
-              <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-              <span className="font-display text-slate-300 tabular-nums"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
+              <Pizza className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+              <span className="font-display text-xl md:text-2xl text-slate-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
             </div>
             {/* Ticket avg */}
-            <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border-b-2 border-slate-950 text-xs shrink-0">
-              <Award className="w-3 h-3 text-yellow-500 shrink-0" />
-              <span className="font-display text-yellow-300 tabular-nums"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
+              <Award className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
+              <span className="font-display text-xl md:text-2xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
             </div>
             {/* Settings */}
             <button onClick={() => setShowSettings(true)} className="ml-1 bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
