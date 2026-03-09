@@ -1226,8 +1226,8 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER: Achievements & Settings Button */}
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
+      {/* ACHIEVEMENT TOASTS - Bottom Right Stack */}
+      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col-reverse gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
             <div key={toast.id} className="bg-yellow-500 border-b-[4px] border-yellow-800 px-8 py-4 rounded-2xl flex items-center gap-4 animate-[floatUpFade_6s_ease-out_forwards] shadow-2xl">
                <Trophy className="w-8 h-8 text-yellow-900" />
