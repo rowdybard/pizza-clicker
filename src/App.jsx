@@ -679,7 +679,7 @@ export default function App() {
       setMoney(m => m + bonus);
       setLifetimeMoney(lm => lm + bonus);
       pushLog('golden', '✨ Golden Slice — Instant Cash', bonus);
-      setInstantCashPopup('$' + fmt(bonus));
+      setInstantCashPopup(bonus);
       setTimeout(() => setInstantCashPopup(null), 3500);
     }
     setGoldenSliceEvent(null);
@@ -1116,7 +1116,7 @@ export default function App() {
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
         const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-xs text-slate-400 ml-0.5">{abbr}</span></span>;
+        return <span>{num}<span className="text-sm text-slate-400 ml-0.5">{abbr}</span></span>;
       }
     }
     return n.toFixed(2);
@@ -1128,7 +1128,7 @@ export default function App() {
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
         const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-xs text-slate-400 ml-0.5">{abbr}</span></span>;
+        return <span>{num}<span className="text-sm text-slate-400 ml-0.5">{abbr}</span></span>;
       }
     }
     return Math.floor(n).toLocaleString();
@@ -1227,7 +1227,7 @@ export default function App() {
         <div className="fixed inset-0 z-[9996] pointer-events-none flex items-center justify-center">
           <div className="animate-[floatUpFade_3.5s_ease-out_forwards] flex flex-col items-center gap-1">
             <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums">
-              +{instantCashPopup}
+              +<Num value={instantCashPopup} prefix="$" />
             </span>
             <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
           </div>
@@ -1926,9 +1926,9 @@ export default function App() {
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
-                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Trophies',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
+                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Trophy',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
-                  { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Market', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
+                  { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-slate-600 text-white border-b-2 border-slate-900'    },
                   ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-slate-900 border-b-2 border-yellow-900' }] : []),
                 ].map(({ id, icon, label, active }) => (
