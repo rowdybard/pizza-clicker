@@ -1926,7 +1926,7 @@ export default function App() {
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
-                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Trophy',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
+                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Award',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-slate-600 text-white border-b-2 border-slate-900'    },
