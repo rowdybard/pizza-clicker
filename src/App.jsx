@@ -1241,7 +1241,7 @@ export default function App() {
 
       {/* ── FIXED HUD ── */}
       <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 h-16 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-3 h-20 flex items-center gap-3">
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
