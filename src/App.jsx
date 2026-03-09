@@ -1946,10 +1946,12 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </div>
 
-              {/* Upgrades sub-filter pills — only shown on upgrades tab */}
-              {activeTab === 'upgrades' && (
-                <div className="grid grid-cols-2 gap-1.5 pb-6 md:pb-8">
+            {/* Upgrades sub-filter pills — only shown on upgrades tab */}
+            {activeTab === 'upgrades' && (
+              <div className="px-3 pt-4 pb-6">
+                <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { id: 'all',        label: 'All',        color: 'text-slate-300',  activeBg: 'bg-slate-700 border-slate-500 text-white' },
                     { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
@@ -1970,10 +1972,10 @@ export default function App() {
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="p-4 pt-8 space-y-4 bg-slate-900">
+            <div className="p-4 pt-12 mt-6 space-y-4 bg-slate-900">
               
               {/* --- TAB: VAULT --- */}
               {activeTab === 'vault' && (() => {
