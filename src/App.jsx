@@ -1233,47 +1233,56 @@ export default function App() {
 
       {/* ── FIXED HUD ── */}
       <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center gap-3">
-          {/* Title */}
-          <div className="flex items-center gap-2 shrink-0">
-            <h1 className="text-xl font-display tracking-widest metallic-text whitespace-nowrap">PIZZA TYCOON</h1>
-            <div className="flex gap-0.5 ml-1">
+        <div className="max-w-6xl mx-auto px-3 h-16 flex items-center gap-3">
+
+          {/* LEFT: Title + stars */}
+          <div className="flex flex-col justify-center shrink-0 min-w-0">
+            <h1 className="text-sm font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
+            <div className="flex gap-0.5 mt-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-3 h-3 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+                <Star key={i} className={`w-2.5 h-2.5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
               ))}
             </div>
           </div>
 
-          {/* Stat Pills */}
-          <div className="flex gap-2 flex-1 justify-end overflow-x-auto">
-            {/* Bank */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0`}>
-              <DollarSign className="w-3 h-3 text-money shrink-0" />
-              <span className="font-display text-sm text-money tabular-nums"><Num value={money} prefix="$" decimals={2} /></span>
-            </div>
-            {/* Profit/sec */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-b-2 shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-blue-300'
+          {/* CENTER: Dominant bank display */}
+          <div className="flex-1 flex justify-center">
+            <div className={`flex items-baseline gap-2 px-5 py-1.5 rounded-xl border-b-[3px] shrink-0 ${
+              isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
             }`}>
-              <TrendingUp className="w-3 h-3 shrink-0" />
-              <span className="font-display text-sm tabular-nums"><Num value={displayProfitPerSec} prefix="$" decimals={2} />/s</span>
-            </div>
-            {/* Pizzas/sec */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0">
-              <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-              <span className="font-display text-sm text-slate-200 tabular-nums"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
-            </div>
-            {/* Ticket avg */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0">
-              <Award className="w-3 h-3 text-yellow-400 shrink-0" />
-              <span className="font-display text-sm text-yellow-300 tabular-nums"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+              <span className={`font-display text-2xl md:text-3xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
+                <Num value={money} prefix="$" decimals={2} />
+              </span>
+              {numWords(money) && (
+                <span className="text-xs text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
+              )}
             </div>
           </div>
 
-          {/* Settings */}
-          <button onClick={() => setShowSettings(true)} className="ml-2 shrink-0 bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
-            <Settings className="w-4 h-4" />
-          </button>
+          {/* RIGHT: Secondary stat pills + settings */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Profit/sec */}
+            <div className={`hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-lg border-b-2 text-xs shrink-0 ${
+              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-slate-400'
+            }`}>
+              <TrendingUp className="w-3 h-3 shrink-0" />
+              <span className="font-display tabular-nums"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+            </div>
+            {/* Pizzas/sec */}
+            <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border-b-2 border-slate-950 text-xs shrink-0">
+              <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
+              <span className="font-display text-slate-300 tabular-nums"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+            </div>
+            {/* Ticket avg */}
+            <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border-b-2 border-slate-950 text-xs shrink-0">
+              <Award className="w-3 h-3 text-yellow-500 shrink-0" />
+              <span className="font-display text-yellow-300 tabular-nums"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+            </div>
+            {/* Settings */}
+            <button onClick={() => setShowSettings(true)} className="ml-1 bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Rep bar — thin strip under HUD */}
