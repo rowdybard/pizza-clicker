@@ -331,7 +331,7 @@ export default function App() {
 
   const [deliveriesCompleted, setDeliveriesCompleted] = useState(safeNum(initialData?.deliveriesCompleted, 0));
   const [vipTokens, setVipTokens] = useState(safeNum(initialData?.vipTokens, 0));
-  const [deliveryCooldowns, setDeliveryCooldowns] = useState({});
+  const [deliveryCooldowns, setDeliveryCooldowns] = useState(initialData?.deliveryCooldowns || {});
 
   // --- SYNDICATE STATE ---
   const [goldenSlices, setGoldenSlices] = useState(safeNum(initialData?.goldenSlices, 0));
@@ -722,7 +722,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -744,6 +744,7 @@ export default function App() {
         if (decoded.syndicatePerks) setSyndicatePerks(p => ({ ...p, ...decoded.syndicatePerks }));
         if (decoded.marketCooldowns) setMarketCooldowns(decoded.marketCooldowns);
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
+        if (decoded.deliveryCooldowns) setDeliveryCooldowns(decoded.deliveryCooldowns);
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
@@ -760,7 +761,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -974,7 +975,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
@@ -1159,7 +1160,7 @@ export default function App() {
     : 'text-orange-400';
 
   return (
-    <div className={`min-h-screen font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-500 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
