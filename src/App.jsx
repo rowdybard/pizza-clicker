@@ -1440,19 +1440,19 @@ export default function App() {
             {/* Ancient Scroll SVG Background */}
             <svg 
               className="absolute inset-0 w-full h-full" 
-              viewBox="0 0 400 1200" 
+              viewBox="0 0 800 1200" 
               preserveAspectRatio="xMidYMid meet"
               style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))' }}
             >
               {/* Scroll rods (top and bottom) */}
-              <rect x="50" y="30" width="300" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
-              <rect x="50" y="1130" width="300" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
+              <rect x="100" y="30" width="600" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
+              <rect x="100" y="1130" width="600" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
               
               {/* Main scroll body with rolled edges */}
               <path
-                d="M70,70 Q60,80 65,100 T70,150 Q75,200 70,300 T65,500 Q70,700 65,900 T70,1050 Q75,1100 70,1130
-                 L330,1130 Q325,1100 330,1050 T335,900 Q330,700 335,500 T330,300 Q325,200 330,150 T335,100 Q340,80 330,70
-                 Q300,65 200,65 T100,65 Q80,65 70,70"
+                d="M120,70 Q110,80 115,100 T120,150 Q125,200 120,300 T115,500 Q120,700 115,900 T120,1050 Q125,1100 120,1130
+                 L680,1130 Q675,1100 680,1050 T685,900 Q680,700 685,500 T680,300 Q675,200 680,150 T685,100 Q690,80 680,70
+                 Q600,65 400,65 T200,65 Q140,65 120,70"
                 fill="#D4A574"
                 stroke="#8B6914"
                 strokeWidth="2"
@@ -1460,43 +1460,43 @@ export default function App() {
               
               {/* Inner scroll area (lighter) */}
               <path
-                d="M85,85 Q80,90 82,110 T85,160 Q88,200 85,300 T82,500 Q85,700 82,900 T85,1050 Q88,1085 85,1115
-                 L315,1115 Q312,1085 315,1050 T318,900 Q315,700 318,500 T315,300 Q312,200 315,160 T318,110 Q320,90 315,85
-                 Q280,82 200,82 T120,82 Q90,82 85,85"
+                d="M140,85 Q135,90 137,110 T140,160 Q143,200 140,300 T137,500 Q140,700 137,900 T140,1050 Q143,1085 140,1115
+                 L660,1115 Q657,1085 660,1050 T663,900 Q660,700 663,500 T660,300 Q657,200 660,160 T663,110 Q665,90 660,85
+                 Q560,82 400,82 T240,82 Q180,82 140,85"
                 fill="#E5C29F"
                 stroke="none"
               />
               
               {/* Vertical scroll lines (text guidelines) */}
               <g opacity="0.3">
-                <line x1="100" y1="100" x2="100" y2="1100" stroke="#8B6914" strokeWidth="1"/>
-                <line x1="300" y1="100" x2="300" y2="1100" stroke="#8B6914" strokeWidth="1"/>
+                <line x1="200" y1="100" x2="200" y2="1100" stroke="#8B6914" strokeWidth="1"/>
+                <line x1="600" y1="100" x2="600" y2="1100" stroke="#8B6914" strokeWidth="1"/>
               </g>
               
               {/* Decorative horizontal lines */}
               <g opacity="0.4">
-                <line x1="90" y1="200" x2="310" y2="200" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="90" y1="400" x2="310" y2="400" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="90" y1="600" x2="310" y2="600" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="90" y1="800" x2="310" y2="800" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="90" y1="1000" x2="310" y2="1000" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="180" y1="200" x2="620" y2="200" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="180" y1="400" x2="620" y2="400" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="180" y1="600" x2="620" y2="600" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="180" y1="800" x2="620" y2="800" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
+                <line x1="180" y1="1000" x2="620" y2="1000" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
               </g>
               
               {/* Top decorative element */}
-              <circle cx="200" cy="50" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
-              <circle cx="200" cy="50" r="12" fill="#A52A2A"/>
-              <path d="M195,47 L200,42 L205,47 L202,53 L198,53 Z" fill="#FFD700"/>
+              <circle cx="400" cy="50" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
+              <circle cx="400" cy="50" r="12" fill="#A52A2A"/>
+              <path d="M395,47 L400,42 L405,47 L402,53 L398,53 Z" fill="#FFD700"/>
               
               {/* Bottom decorative element */}
-              <circle cx="200" cy="1150" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
-              <circle cx="200" cy="1150" r="12" fill="#A52A2A"/>
-              <path d="M195,1147 L200,1142 L205,1147 L202,1153 L198,1153 Z" fill="#FFD700"/>
+              <circle cx="400" cy="1150" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
+              <circle cx="400" cy="1150" r="12" fill="#A52A2A"/>
+              <path d="M395,1147 L400,1142 L405,1147 L402,1153 L398,1153 Z" fill="#FFD700"/>
               
               {/* Side rope ties */}
-              <rect x="45" y="45" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="345" y="45" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="45" y="1125" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="345" y="1125" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="90" y="45" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="700" y="45" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="90" y="1125" width="10" height="30" rx="5" fill="#654321"/>
+              <rect x="700" y="1125" width="10" height="30" rx="5" fill="#654321"/>
             </svg>
             
             {/* Content */}
