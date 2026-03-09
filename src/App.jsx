@@ -2251,14 +2251,14 @@ export default function App() {
                       {/* Milestone tracker — middle, fills remaining space */}
                       <div className="flex-1 flex items-center justify-center min-w-0">
                         {nextMilestone !== 'MAX' ? (
-                          <span className="text-[10px] text-slate-500 font-bold tabular-nums truncate">
+                          <span className="text-sm text-slate-500 font-bold tabular-nums truncate">
                             <span className={`${theme.text} font-black`}>{count}</span>
                             <span className="text-slate-700 mx-0.5">/</span>
                             <span className="text-slate-300 font-black">{nextMilestone}</span>
                             <span className="text-slate-600 ml-1">next boost</span>
                           </span>
                         ) : (
-                          <span className={`text-[10px] font-black uppercase tracking-wider ${theme.text}`}>✦ Max Boost</span>
+                          <span className={`text-sm font-black uppercase tracking-wider ${theme.text}`}>✦ Max Boost</span>
                         )}
                       </div>
 
@@ -2268,7 +2268,7 @@ export default function App() {
                           {can10 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
-                              className={`px-2 py-1 rounded-lg font-display text-[10px] tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
                             >
                               ×10
                             </button>
@@ -2276,7 +2276,7 @@ export default function App() {
                           {can100 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
-                              className={`px-2 py-1 rounded-lg font-display text-[10px] tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
                             >
                               ×100
                             </button>
@@ -2303,9 +2303,9 @@ export default function App() {
                     </div>
                     {vipTokens > 0 && (
                       <div className="shrink-0 flex flex-col items-center bg-purple-900 border border-purple-700 border-b-[3px] border-b-purple-950 rounded-xl px-4 py-3">
-                        <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
+                        <div className="text-sm text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
                         <div className="font-display text-2xl text-purple-300 tabular-nums">{vipTokens}</div>
-                        <div className="text-[10px] text-purple-400 font-bold mt-1">+{fmt(vipTokens * 5)}% All</div>
+                        <div className="text-sm text-purple-400 font-bold mt-1">+{fmt(vipTokens * 5)}% All</div>
                       </div>
                     )}
                   </div>
@@ -2335,14 +2335,14 @@ export default function App() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-display text-xl text-slate-400 tracking-wider mb-0.5">{dest.name}</h3>
-                              <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
-                              <p className="text-xs text-slate-500 italic mb-3">{dest.unlockHint}</p>
+                              <p className="text-sm text-slate-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-sm text-slate-500 italic mb-3">{dest.unlockHint}</p>
                               <div className="flex flex-col gap-1.5">
                                 {conditions.map(({ label, current, target }) => {
                                   const pct = Math.min(100, (current / target) * 100);
                                   return (
                                     <div key={label}>
-                                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">
+                                      <div className="flex justify-between text-sm font-bold uppercase tracking-widest text-slate-500 mb-0.5">
                                         <span>{label}</span>
                                         <span className="tabular-nums text-slate-400">{pct >= 100 ? '✓' : `${Math.floor(pct)}%`}</span>
                                       </div>
@@ -2379,7 +2379,7 @@ export default function App() {
                             </div>
                             <div>
                               <h3 className="font-display text-xl text-slate-100 tracking-wider mb-1">{dest.name}</h3>
-                              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
                               <p className="text-sm text-slate-400">{dest.desc}</p>
                             </div>
                           </div>
@@ -2387,27 +2387,27 @@ export default function App() {
                           <div className="w-full sm:w-auto sm:text-right shrink-0 border-t border-slate-700/50 sm:border-0 pt-3 sm:pt-0 sm:pl-4">
                             {onCooldown ? (
                               <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Cooldown</div>
+                                <div className="text-sm text-slate-500 font-bold uppercase tracking-widest">Cooldown</div>
                                 <div className="font-display text-2xl text-slate-500 tabular-nums flex items-center gap-2">
                                   <Clock className="w-5 h-5" />{Math.floor(cooldown / 60)}:{String(cooldown % 60).padStart(2, '0')}
                                 </div>
                               </div>
                             ) : (
                               <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
+                                <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
                                 <div className="font-display text-2xl text-money tabular-nums">
                                   +$<Num value={warpMoney} decimals={0} />
                                 </div>
                                 {warpEfficiencyDisplay < 0.99 && (
-                                  <div className="text-[10px] font-bold text-amber-500 tabular-nums mt-1">
+                                  <div className="text-sm font-bold text-amber-500 tabular-nums mt-1">
                                     {fmt(warpEfficiencyDisplay * 100)}% efficiency (softcap)
                                   </div>
                                 )}
                                 {dest.rushSeconds > 0 && (
-                                  <div className="text-xs font-bold text-red-400 flex items-center gap-1 mt-1"><Zap className="w-3 h-3 fill-red-400" />{dest.rushSeconds}s Dinner Rush</div>
+                                  <div className="text-sm font-bold text-red-400 flex items-center gap-1 mt-1"><Zap className="w-3 h-3 fill-red-400" />{dest.rushSeconds}s Dinner Rush</div>
                                 )}
                                 {dest.vipToken && (
-                                  <div className="text-xs font-bold text-purple-400 flex items-center gap-1 mt-1"><Crown className="w-3 h-3" />+1 VIP Token (+5% All)</div>
+                                  <div className="text-sm font-bold text-purple-400 flex items-center gap-1 mt-1"><Crown className="w-3 h-3" />+1 VIP Token (+5% All)</div>
                                 )}
                               </div>
                             )}
@@ -2443,33 +2443,35 @@ export default function App() {
                       style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
                   </div>
 
-                  {/* Achievement cards - improved readability */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {ACHIEVEMENTS.map(ach => {
-                      const isUnlocked = unlockedAchievements.includes(ach.id);
-                      return (
-                        <div
-                          key={ach.id}
-                          className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
-                            isUnlocked
-                              ? 'bg-yellow-950 border-yellow-800'
-                              : 'bg-slate-900 border-slate-800 opacity-60'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-slate-600'}`}>
-                              {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                  {/* Achievement cards - 6 visible height with custom scrollbar */}
+                  <div className="h-[36rem] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-slate-800/30 hover:scrollbar-thumb-yellow-500/70">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2">
+                      {ACHIEVEMENTS.map(ach => {
+                        const isUnlocked = unlockedAchievements.includes(ach.id);
+                        return (
+                          <div
+                            key={ach.id}
+                            className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
+                              isUnlocked
+                                ? 'bg-yellow-950 border-yellow-800'
+                                : 'bg-slate-900 border-slate-800 opacity-60'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-slate-600'}`}>
+                                {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                              </div>
+                              <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
+                                {ach.name}
+                              </span>
                             </div>
-                            <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
-                              {ach.name}
-                            </span>
+                            <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-slate-300' : 'text-slate-600'}`}>
+                              {ach.desc}
+                            </p>
                           </div>
-                          <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-slate-300' : 'text-slate-600'}`}>
-                            {ach.desc}
-                          </p>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -2532,9 +2534,9 @@ export default function App() {
                       >
                         <div className="flex items-center gap-2">
                           <ShoppingCart className="w-4 h-4 text-slate-400" />
-                          <span className="text-xs font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
+                          <span className="text-sm font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
                         </div>
-                        <span className={`text-xs font-black text-slate-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
+                        <span className={`text-sm font-black text-slate-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
                       </button>
                       {statsOpen.owned && (
                         <div className="divide-y divide-slate-800/60">
@@ -2544,13 +2546,13 @@ export default function App() {
                             const labels = { production: 'Production', quality: 'Quality', click: 'Click' };
                             return (
                               <div key={type} className="px-4 py-3">
-                                <div className={`text-[9px] font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
+                                <div className={`text-sm font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
                                 <div className="flex flex-wrap gap-2">
                                   {typeUpgrades.map(u => {
                                     const count = safeNum(inventory?.[u.id], 0);
                                     const locked = franchiseLicenses === 0 && starLevel < u.reqStars;
                                     return (
-                                      <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold tabular-nums ${
+                                      <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-bold tabular-nums ${
                                         locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
                                         count > 0 ? `bg-slate-900/60 border-slate-600/40 ${colors[type]}` :
                                         'bg-slate-900/40 border-slate-700/30 text-slate-500'
@@ -2587,7 +2589,7 @@ export default function App() {
                         <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
                       </div>
                       <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-8 py-5 text-center">
-                        <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
+                        <div className="text-sm text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
                         <div className="font-display text-3xl text-zinc-200 tabular-nums mb-4">$25,000</div>
                         <button
                           onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }}
@@ -2611,9 +2613,9 @@ export default function App() {
                               <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
                               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Pizza Empire Stock Exchange</span>
+                            <span className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Pizza Empire Stock Exchange</span>
                           </div>
-                          <span className="text-[10px] text-zinc-600 font-mono tabular-nums">15s interval · live</span>
+                          <span className="text-sm text-zinc-600 font-mono tabular-nums">15s interval · live</span>
                         </div>
 
                         {/* Portfolio summary row */}
@@ -2624,7 +2626,7 @@ export default function App() {
                           return (
                             <div className="px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
                               <div>
-                                <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Total Portfolio</div>
+                                <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Total Portfolio</div>
                                 <div className="font-mono text-2xl text-zinc-100 tabular-nums font-bold">${fmt(totalVal)}</div>
                                 {portfolioDelta !== null && portfolioDelta !== 0 && (
                                   <div className={`flex items-center gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-money' : 'text-red-400'}`}>
@@ -2633,21 +2635,21 @@ export default function App() {
                                         ? <><polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>
                                         : <><polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
                                     </svg>
-                                    <span className="text-[10px] font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} session P&L</span>
+                                    <span className="text-sm font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} session P&L</span>
                                   </div>
                                 )}
                               </div>
                               <div className="flex gap-4">
                                 <div className="text-right">
-                                  <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Shares Held</div>
+                                  <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Shares Held</div>
                                   <div className="font-mono text-lg text-zinc-300 tabular-nums font-bold">{fmtInt(totalShares)}</div>
                                 </div>
                                 {hasSynergy && (
                                   <div className="text-right border-l border-zinc-700/50 pl-4">
-                                    <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-0.5">Active Synergies</div>
+                                    <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Active Synergies</div>
                                     <div className="flex flex-col items-end gap-0.5">
-                                      {marketShares.flour > 0 && <span className="text-[10px] text-zinc-300 font-mono">🌾 +{fmt(marketShares.flour * 0.1)}% Prod</span>}
-                                      {marketShares.pepperoni > 0 && <span className="text-[10px] text-zinc-300 font-mono">🍕 +{fmt(marketShares.pepperoni * 0.1)}% Price</span>}
+                                      {marketShares.flour > 0 && <span className="text-sm text-zinc-300 font-mono">🌾 +{fmt(marketShares.flour * 0.1)}% Prod</span>}
+                                      {marketShares.pepperoni > 0 && <span className="text-sm text-zinc-300 font-mono">🍕 +{fmt(marketShares.pepperoni * 0.1)}% Price</span>}
                                     </div>
                                   </div>
                                 )}
@@ -2665,11 +2667,11 @@ export default function App() {
                             { key: 'truffles', ticker: 'TRFL' },
                           ].map(({ key, ticker }) => (
                             <div key={key} className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] font-black text-zinc-500 tracking-widest font-mono">{ticker}</span>
-                              <span className={`text-[10px] font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-money' : 'text-red-400'}`}>
+                              <span className="text-sm font-black text-zinc-500 tracking-widest font-mono">{ticker}</span>
+                              <span className={`text-sm font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-money' : 'text-red-400'}`}>
                                 ${fmt(marketPrices[key])}
                               </span>
-                              <span className={`text-[9px] font-mono ${marketTrends[key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
+                              <span className={`text-sm font-mono ${marketTrends[key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
                                 {marketTrends[key] === 1 ? '▲' : '▼'}
                               </span>
                             </div>
@@ -2699,15 +2701,15 @@ export default function App() {
                         };
                         return (
                           <div className="bg-zinc-900/80 border border-zinc-700/60 rounded-xl p-3 flex flex-col gap-2.5">
-                            <div className="text-[9px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+                            <div className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
                               <Briefcase className="w-3 h-3" /> Market Controls
-                              <span className="ml-auto text-zinc-700 font-mono">one action locks all</span>
+                              <span className="ml-auto text-zinc-700 font-mono text-sm">one action locks all</span>
                             </div>
                             {/* Target selector */}
                             <div className="flex gap-1.5">
                               {TARGETS.map(t => (
                                 <button key={t.key} onClick={() => setManipTarget(t.key)}
-                                  className={`flex-1 py-1.5 rounded text-[9px] font-black uppercase tracking-widest font-mono transition-all flex items-center justify-center gap-1 ${
+                                  className={`flex-1 py-1.5 rounded text-sm font-black uppercase tracking-widest font-mono transition-all flex items-center justify-center gap-1 ${
                                     manipTarget === t.key
                                       ? 'bg-zinc-600 text-zinc-100 border border-zinc-400/60'
                                       : 'bg-zinc-800 text-zinc-500 border border-zinc-700 hover:text-zinc-300'
@@ -2727,7 +2729,7 @@ export default function App() {
                                   setMarketCooldowns(c => ({ ...c, rumors: 600 }));
                                 }}
                                 disabled={rumorCd > 0}
-                                className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${
+                                className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${
                                   rumorCd > 0
                                     ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
                                     : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
@@ -2744,7 +2746,7 @@ export default function App() {
                                   setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
                                 }}
                                 disabled={squeezeCd > 0}
-                                className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${
+                                className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${
                                   squeezeCd > 0
                                     ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
                                     : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
@@ -2933,20 +2935,20 @@ export default function App() {
                                   {/* Action bar */}
                                   <div className="p-3 pt-0 flex gap-2">
                                     <button onClick={() => buyShares(1)} disabled={!canBuy1}
-                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
                                       +1
                                     </button>
                                     <button onClick={() => buyShares(10)} disabled={!canBuy10}
-                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
                                       +10
                                     </button>
                                     <button onClick={() => buyShares(maxBuy)} disabled={maxBuy <= 0}
-                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
                                       MAX
                                     </button>
                                     <div className="w-px bg-zinc-700 mx-1 self-stretch" />
                                     <button onClick={sellAll} disabled={shares <= 0}
-                                      className={`flex-1 py-2 rounded text-[10px] font-black uppercase tracking-widest font-mono transition-all ${shares > 0 ? 'bg-red-950 hover:bg-red-900 text-red-400 border border-red-800/60 shadow-[inset_0_1px_0_rgba(255,100,100,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
+                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${shares > 0 ? 'bg-red-950 hover:bg-red-900 text-red-400 border border-red-800/60 shadow-[inset_0_1px_0_rgba(255,100,100,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
                                       SELL
                                     </button>
                                   </div>
