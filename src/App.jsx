@@ -167,14 +167,14 @@ const UPGRADES = [
   { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
   { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 5, icon: <Zap className="text-yellow-300" /> },
   { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
-  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.3, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
-  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 2, reqStars: 1, icon: <Users className="text-blue-500" /> },
-  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 12, reqStars: 2, icon: <Flame className="text-green-500" /> },
-  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 80, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 350, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 2000, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 12000, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
-  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 80000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
+  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.15, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
+  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-500" /> },
+  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-green-500" /> },
+  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-purple-500" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 100, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
+  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
+  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
@@ -1928,7 +1928,7 @@ export default function App() {
 
             {/* ── TAB NAV ── */}
             <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
-              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-1 mb-3">
+              <div className="bg-slate-800 p-1 rounded-full border border-slate-700 flex gap-1 flex-wrap">
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
@@ -1941,10 +1941,10 @@ export default function App() {
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-2 px-1 sm:px-2 rounded-xl font-display text-xs sm:text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
                       activeTab === id
                         ? active
-                        : 'text-slate-500 hover:text-slate-300 bg-slate-800/60'
+                        : 'text-slate-500 hover:text-slate-300'
                     }`}
                   >
                     {icon}
@@ -1955,7 +1955,7 @@ export default function App() {
 
               {/* Upgrades sub-filter pills — only shown on upgrades tab */}
               {activeTab === 'upgrades' && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pb-2">
+                <div className="flex gap-1.5 pb-3">
                   {[
                     { id: 'all',        label: 'All',        color: 'text-slate-300',  activeBg: 'bg-slate-700 border-slate-500 text-white' },
                     { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
@@ -1965,14 +1965,14 @@ export default function App() {
                     <button
                       key={f.id}
                       onClick={() => setUpgradeFilter(f.id)}
-                      className={`px-2 py-1.5 rounded-lg border text-xs sm:text-sm font-black uppercase tracking-widest transition-all ${
+                      className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
                         upgradeFilter === f.id ? f.activeBg : `border-slate-700 ${f.color} hover:border-slate-600 bg-slate-900/30`
                       }`}
                     >
                       {f.label}
                     </button>
                   ))}
-                  <div className="col-span-2 sm:col-span-4 text-center sm:text-right text-xs sm:text-sm text-slate-600 font-bold uppercase tracking-widest pt-1">
+                  <div className="ml-auto text-sm text-slate-600 font-bold uppercase tracking-widest self-center">
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
