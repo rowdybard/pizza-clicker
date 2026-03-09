@@ -390,8 +390,7 @@ export default function App() {
   const [sideOrder, setSideOrder] = useState(null); 
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
-  
-  const [showSettings, setShowSettings] = useState(false);
+  const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
   const [hudSettingsOpen, setHudSettingsOpen] = useState(false);
@@ -1971,6 +1970,7 @@ export default function App() {
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
                   { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Award',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
+                  { id: 'parchment',    icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Tale',      active: 'bg-amber-700 text-amber-100 border-b-2 border-amber-900'  },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-slate-600 text-white border-b-2 border-slate-900'    },
                   ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-slate-900 border-b-2 border-yellow-900' }] : []),
@@ -2020,6 +2020,103 @@ export default function App() {
 
             <div className="p-4 pt-12 mt-6 space-y-4 bg-slate-900">
               
+              {/* --- TAB: PARCHMENT --- */}
+              {activeTab === 'parchment' && (
+                <div className="flex justify-center p-4">
+                  <div className="relative max-w-2xl w-full">
+                    {/* Parchment SVG Background */}
+                    <svg 
+                      className="absolute inset-0 w-full h-full" 
+                      viewBox="0 0 800 600" 
+                      preserveAspectRatio="xMidYMid meet"
+                      style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
+                    >
+                      {/* Main parchment shape with torn edges */}
+                      <path
+                        d="M50,80 Q30,100 40,150 T35,250 Q45,350 30,450 T60,520 Q100,560 200,570 T400,575 Q600,570 700,560 T750,520 Q770,450 760,350 T765,250 Q770,150 750,80 Q730,60 700,55 T600,50 Q400,45 200,50 T100,55 Q70,60 50,80"
+                        fill="#D4A574"
+                        stroke="#8B6914"
+                        strokeWidth="2"
+                      />
+                      
+                      {/* Inner parchment slightly lighter */}
+                      <path
+                        d="M80,100 Q65,115 70,160 T65,260 Q75,340 60,430 T80,490 Q110,520 190,530 T400,535 Q580,530 610,490 T740,430 Q755,340 735,260 T740,160 Q745,115 720,100 Q700,85 680,82 T600,78 Q400,73 200,78 T120,82 Q95,85 80,100"
+                        fill="#E5C29F"
+                        stroke="none"
+                      />
+                      
+                      {/* Decorative border */}
+                      <path
+                        d="M100,120 Q90,130 95,170 T90,270 Q100,350 85,420 T105,470 Q130,490 200,500 T400,505 Q570,500 595,470 T715,420 Q730,350 710,270 T715,170 Q720,130 695,120"
+                        fill="none"
+                        stroke="#8B6914"
+                        strokeWidth="1"
+                        strokeDasharray="5,3"
+                        opacity="0.6"
+                      />
+                      
+                      {/* Corner flourishes */}
+                      <g opacity="0.4">
+                        <path d="M80,100 Q60,120 70,140 T65,180 Q75,160 85,140 T95,120 Q90,110 80,100" fill="#8B6914"/>
+                        <path d="M720,100 Q740,120 730,140 T735,180 Q725,160 715,140 T705,120 Q710,110 720,100" fill="#8B6914"/>
+                        <path d="M80,500 Q60,480 70,460 T65,420 Q75,440 85,460 T95,480 Q90,490 80,500" fill="#8B6914"/>
+                        <path d="M720,500 Q740,480 730,460 T735,420 Q725,440 715,460 T705,480 Q710,490 720,500" fill="#8B6914"/>
+                      </g>
+                      
+                      {/* Wax seal */}
+                      <circle cx="400" cy="100" r="25" fill="#8B0000" stroke="#5C0000" strokeWidth="2"/>
+                      <circle cx="400" cy="100" r="20" fill="#A52A2A"/>
+                      <path d="M390,95 L400,85 L410,95 L405,105 L395,105 Z" fill="#FFD700"/>
+                    </svg>
+                    
+                    {/* Content */}
+                    <div className="relative z-10 p-12 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                      <h1 className="text-4xl font-bold text-amber-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+                        The Legend of Pizza Tycoon
+                      </h1>
+                      
+                      <div className="space-y-4 text-amber-800">
+                        <p className="text-lg leading-relaxed">
+                          In a world where dough rises like the morning sun,
+                        </p>
+                        <p className="text-lg leading-relaxed">
+                          Where cheese flows like rivers of gold,
+                        </p>
+                        <p className="text-lg leading-relaxed">
+                          One hero dared to dream of pizza perfection.
+                        </p>
+                      </div>
+                      
+                      <div className="mt-8 pt-8 border-t-2 border-amber-700/30">
+                        <p className="text-xl font-semibold text-amber-900">
+                          Chapter {franchiseLicenses}: The Empire Grows
+                        </p>
+                        <p className="text-lg mt-2 text-amber-800">
+                          With {fmtInt(totalPizzasSold)} pizzas sold and {fmtInt(lifetimeMoney)} earned,
+                        </p>
+                        <p className="text-lg text-amber-800">
+                          your legacy spreads across the land.
+                        </p>
+                      </div>
+                      
+                      <div className="mt-8 text-sm text-amber-700 italic">
+                        <p>"From humble oven to global dominion,"</p>
+                        <p>"the slice that conquered all."</p>
+                      </div>
+                      
+                      <button
+                        onClick={() => setShowParchmentModal(false)}
+                        className="mt-8 px-6 py-2 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors"
+                        style={{ fontFamily: "'Dancing Script', cursive" }}
+                      >
+                        Close This Chapter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* --- TAB: VAULT --- */}
               {activeTab === 'vault' && (() => {
                 const SYNDICATE_PERKS_DEF = [
