@@ -1435,77 +1435,26 @@ export default function App() {
 
       {/* --- PARCHMENT TALE MODAL --- */}
       {showParchmentModal && (
-        <div className="fixed inset-0 z-[100] bg-amber-950/90 flex items-center justify-center p-4">
-          <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Ancient Scroll SVG Background */}
-            <svg 
-              className="absolute inset-0 w-full h-full" 
-              viewBox="0 0 800 1200" 
-              preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))' }}
-            >
-              {/* Scroll rods (top and bottom) */}
-              <rect x="100" y="30" width="600" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
-              <rect x="100" y="1130" width="600" height="40" rx="20" fill="#8B4513" stroke="#654321" strokeWidth="2"/>
-              
-              {/* Main scroll body with rolled edges */}
-              <path
-                d="M120,70 Q110,80 115,100 T120,150 Q125,200 120,300 T115,500 Q120,700 115,900 T120,1050 Q125,1100 120,1130
-                 L680,1130 Q675,1100 680,1050 T685,900 Q680,700 685,500 T680,300 Q675,200 680,150 T685,100 Q690,80 680,70
-                 Q600,65 400,65 T200,65 Q140,65 120,70"
-                fill="#D4A574"
-                stroke="#8B6914"
-                strokeWidth="2"
-              />
-              
-              {/* Inner scroll area (lighter) */}
-              <path
-                d="M140,85 Q135,90 137,110 T140,160 Q143,200 140,300 T137,500 Q140,700 137,900 T140,1050 Q143,1085 140,1115
-                 L660,1115 Q657,1085 660,1050 T663,900 Q660,700 663,500 T660,300 Q657,200 660,160 T663,110 Q665,90 660,85
-                 Q560,82 400,82 T240,82 Q180,82 140,85"
-                fill="#E5C29F"
-                stroke="none"
-              />
-              
-              {/* Vertical scroll lines (text guidelines) */}
-              <g opacity="0.3">
-                <line x1="200" y1="100" x2="200" y2="1100" stroke="#8B6914" strokeWidth="1"/>
-                <line x1="600" y1="100" x2="600" y2="1100" stroke="#8B6914" strokeWidth="1"/>
-              </g>
-              
-              {/* Decorative horizontal lines */}
-              <g opacity="0.4">
-                <line x1="180" y1="200" x2="620" y2="200" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="180" y1="400" x2="620" y2="400" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="180" y1="600" x2="620" y2="600" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="180" y1="800" x2="620" y2="800" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-                <line x1="180" y1="1000" x2="620" y2="1000" stroke="#8B6914" strokeWidth="1" strokeDasharray="5,5"/>
-              </g>
-              
-              {/* Top decorative element */}
-              <circle cx="400" cy="50" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
-              <circle cx="400" cy="50" r="12" fill="#A52A2A"/>
-              <path d="M395,47 L400,42 L405,47 L402,53 L398,53 Z" fill="#FFD700"/>
-              
-              {/* Bottom decorative element */}
-              <circle cx="400" cy="1150" r="15" fill="#8B0000" stroke="#5C0000" strokeWidth="1"/>
-              <circle cx="400" cy="1150" r="12" fill="#A52A2A"/>
-              <path d="M395,1147 L400,1142 L405,1147 L402,1153 L398,1153 Z" fill="#FFD700"/>
-              
-              {/* Side rope ties */}
-              <rect x="90" y="45" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="700" y="45" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="90" y="1125" width="10" height="30" rx="5" fill="#654321"/>
-              <rect x="700" y="1125" width="10" height="30" rx="5" fill="#654321"/>
-            </svg>
+        <div className="fixed inset-0 z-[100] bg-gray-900/95 flex items-center justify-center p-4">
+          <div className="relative max-w-2xl w-full bg-gray-800/90 rounded-2xl border-2 border-amber-600 shadow-2xl overflow-hidden">
+            {/* Header with decorative element */}
+            <div className="bg-gradient-to-b from-amber-700/30 to-transparent p-6 border-b border-amber-600/30">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-red-800 rounded-full border-2 border-red-900 flex items-center justify-center">
+                  <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold text-amber-100" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                  The Legend of Pizza Empire
+                </h1>
+                <div className="w-8 h-8 bg-red-800 rounded-full border-2 border-red-900 flex items-center justify-center">
+                  <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
+                </div>
+              </div>
+            </div>
             
             {/* Content */}
-            <div className="relative z-10 px-16 py-20 text-center" style={{ fontFamily: "'Dancing Script', cursive", fontSize: '14pt' }}>
-              <h1 className="font-bold text-amber-900 mb-12" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)', fontSize: '24pt' }}>
-                The Legend of Pizza Empire
-              </h1>
-              
-              <div className="space-y-8 text-amber-800" style={{ fontSize: '16pt' }}>
+            <div className="p-6 md:p-8 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
+              <div className="space-y-4 text-amber-100" style={{ fontSize: '16px' }}>
                 <p className="leading-relaxed">
                   In a world where dough rises like the morning sun,
                 </p>
@@ -1517,27 +1466,27 @@ export default function App() {
                 </p>
               </div>
               
-              <div className="mt-16 pt-8 border-t-2 border-amber-700/30">
-                <p className="font-semibold text-amber-900 mb-6" style={{ fontSize: '18pt' }}>
+              <div className="mt-8 pt-6 border-t border-amber-600/30">
+                <p className="font-semibold text-amber-200 mb-4" style={{ fontSize: '18px' }}>
                   Chapter {franchiseLicenses}: The Empire Grows
                 </p>
-                <p className="mt-4 text-amber-800" style={{ fontSize: '16pt' }}>
-                  With <span className="font-bold text-orange-600">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold text-green-600">${fmtInt(lifetimeMoney)}</span> earned,
+                <p className="text-amber-100" style={{ fontSize: '16px' }}>
+                  With <span className="font-bold text-orange-400">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold text-green-400">${fmtInt(lifetimeMoney)}</span> earned,
                 </p>
-                <p className="text-amber-800 mt-2" style={{ fontSize: '16pt' }}>
+                <p className="text-amber-100 mt-2" style={{ fontSize: '16px' }}>
                   your legacy spreads across the land.
                 </p>
               </div>
               
-              <div className="mt-16 text-amber-700 italic" style={{ fontSize: '14pt' }}>
+              <div className="mt-8 text-amber-200/80 italic" style={{ fontSize: '14px' }}>
                 <p>"From humble oven to global dominion,"</p>
-                <p className="mt-2">"the slice that conquered all."</p>
+                <p className="mt-1">"the slice that conquered all."</p>
               </div>
               
               <button
                 onClick={() => setShowParchmentModal(false)}
-                className="mt-16 px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded-lg font-bold transition-colors"
-                style={{ fontFamily: "'Dancing Script', cursive", fontSize: '16pt' }}
+                className="mt-8 px-6 py-2 bg-amber-600 hover:bg-amber-500 text-gray-900 rounded-lg font-bold transition-colors"
+                style={{ fontFamily: "'Dancing Script', cursive", fontSize: '16px' }}
               >
                 Close This Chapter
               </button>
