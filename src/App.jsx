@@ -1151,15 +1151,15 @@ export default function App() {
   const pizzaColorClass = isRush
     ? 'text-red-400'
     : hasTruffles
-    ? 'text-cyan-300 drop-shadow-[0_0_18px_rgba(103,232,249,0.7)]'
+    ? 'text-cyan-300'
     : hasPremiumMeat
     ? 'text-rose-500'
     : hasGarlicCrust
-    ? 'text-yellow-400 drop-shadow-[0_0_14px_rgba(250,204,21,0.6)]'
+    ? 'text-yellow-400'
     : 'text-orange-400';
 
   return (
-    <div className={`min-h-screen p-4 md:p-8 font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-1000 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+    <div className={`min-h-screen font-body selection:bg-blue-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-500 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
@@ -1170,11 +1170,10 @@ export default function App() {
           title={goldenSliceEvent.type === 'frenzy' ? '77x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
         >
           <div className="relative animate-bounce">
-            <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-xl scale-150 animate-pulse" />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-yellow-200 shadow-[0_0_24px_rgba(234,179,8,0.8)] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
               <Pizza className="w-7 h-7 text-yellow-900" />
             </div>
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-300 bg-slate-900/80 px-1.5 py-0.5 rounded border border-yellow-500/40">
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
               {goldenSliceEvent.type === 'frenzy' ? '77x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
             </div>
           </div>
@@ -1183,25 +1182,25 @@ export default function App() {
 
       {/* ── FRENZY ACTIVE BANNER ── */}
       {frenzyMultiplier > 1 && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none">
-          <div className="px-6 py-2 rounded-full bg-gradient-to-r from-yellow-600 to-amber-500 border border-yellow-300 shadow-[0_0_30px_rgba(234,179,8,0.6)] animate-pulse">
-            <span className="font-display text-lg text-black tracking-widest">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
+        <div className="fixed top-[72px] inset-x-0 z-[9998] pointer-events-none flex justify-center">
+          <div className="px-8 py-2 bg-yellow-500 border-b-[4px] border-yellow-800 rounded-b-2xl animate-pulse">
+            <span className="font-display text-base text-yellow-900 tracking-widest">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
           </div>
         </div>
       )}
       
       {/* ── MARKET CRASH BANNER ── */}
       {marketCrashBanner && (
-        <div className="fixed inset-x-0 top-0 z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
-          <div className="w-full bg-red-700 border-b-4 border-red-400 shadow-[0_0_60px_rgba(239,68,68,0.8)] flex items-center justify-center py-4 gap-4">
-            <TrendingDown className="w-8 h-8 text-red-200 shrink-0" />
-            <span className="font-display text-3xl md:text-4xl font-black tracking-[0.2em] text-white uppercase" style={{ textShadow: '0 0 20px rgba(255,100,100,0.8)' }}>
+        <div className="fixed inset-x-0 top-[68px] z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
+          <div className="w-full bg-red-700 border-b-4 border-red-950 flex items-center justify-center py-3 gap-4">
+            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
+            <span className="font-display text-2xl md:text-3xl font-black tracking-[0.2em] text-white uppercase">
               ⚠ MARKET CRASH ⚠
             </span>
-            <TrendingDown className="w-8 h-8 text-red-200 shrink-0" />
+            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
           </div>
-          <div className="bg-red-950/90 border-b border-red-800 w-full text-center py-1.5">
-            <span className="text-red-400 text-xs font-black uppercase tracking-widest font-mono">All commodity prices collapsed −60%</span>
+          <div className="bg-red-950 border-b-2 border-red-800 w-full text-center py-1">
+            <span className="text-red-300 text-xs font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
           </div>
         </div>
       )}
@@ -1210,10 +1209,10 @@ export default function App() {
       {instantCashPopup && (
         <div className="fixed inset-0 z-[9996] pointer-events-none flex items-center justify-center">
           <div className="animate-[floatUpFade_3.5s_ease-out_forwards] flex flex-col items-center gap-1">
-            <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums" style={{ textShadow: '0 0 30px rgba(132,204,22,0.7), 0 0 60px rgba(132,204,22,0.4)' }}>
+            <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums">
               +{instantCashPopup}
             </span>
-            <span className="text-xs font-black uppercase tracking-widest text-yellow-400">✨ Golden Slice Bonus</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
           </div>
         </div>
       )}
@@ -1221,34 +1220,81 @@ export default function App() {
       {/* HEADER: Achievements & Settings Button */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none">
          {achievementToasts.map(toast => (
-            <div key={toast.id} className="bg-slate-800 border-2 border-yellow-500 px-6 py-3 rounded-full shadow-[0_0_20px_rgba(250,204,21,0.4)] flex items-center gap-3 animate-[floatUpFade_4s_ease-out_forwards]">
-               <Trophy className="w-6 h-6 text-yellow-400" />
+            <div key={toast.id} className="bg-yellow-500 border-b-[3px] border-yellow-800 px-6 py-3 rounded-full flex items-center gap-3 animate-[floatUpFade_4s_ease-out_forwards]">
+               <Trophy className="w-6 h-6 text-yellow-900" />
                <div>
-                  <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
-                  <div className="text-lg font-display text-white tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
+                  <div className="text-[10px] text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
+                  <div className="text-lg font-display text-yellow-900 tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
                </div>
             </div>
          ))}
       </div>
 
-      <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 z-50 bg-slate-800 p-2 rounded-full border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 hover:bg-slate-700 transition-all shadow-lg">
-        <Settings className="w-6 h-6" />
-      </button>
+      {/* ── FIXED HUD ── */}
+      <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center gap-3">
+          {/* Title */}
+          <div className="flex items-center gap-2 shrink-0">
+            <h1 className="text-xl font-display tracking-widest metallic-text whitespace-nowrap">PIZZA TYCOON</h1>
+            <div className="flex gap-0.5 ml-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`w-3 h-3 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+              ))}
+            </div>
+          </div>
+
+          {/* Stat Pills */}
+          <div className="flex gap-2 flex-1 justify-end overflow-x-auto">
+            {/* Bank */}
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0`}>
+              <DollarSign className="w-3 h-3 text-money shrink-0" />
+              <span className="font-display text-sm text-money tabular-nums"><Num value={money} prefix="$" decimals={2} /></span>
+            </div>
+            {/* Profit/sec */}
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-b-2 shrink-0 ${
+              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-blue-300'
+            }`}>
+              <TrendingUp className="w-3 h-3 shrink-0" />
+              <span className="font-display text-sm tabular-nums"><Num value={displayProfitPerSec} prefix="$" decimals={2} />/s</span>
+            </div>
+            {/* Pizzas/sec */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0">
+              <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
+              <span className="font-display text-sm text-slate-200 tabular-nums"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+            </div>
+            {/* Ticket avg */}
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border-b-2 border-slate-950 shrink-0">
+              <Award className="w-3 h-3 text-yellow-400 shrink-0" />
+              <span className="font-display text-sm text-yellow-300 tabular-nums"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+            </div>
+          </div>
+
+          {/* Settings */}
+          <button onClick={() => setShowSettings(true)} className="ml-2 shrink-0 bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
+            <Settings className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Rep bar — thin strip under HUD */}
+        <div className="h-1 bg-slate-950 w-full">
+          <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
+        </div>
+      </div>
 
       {/* --- SETTINGS MODAL --- */}
       {showSettings && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border-2 border-slate-600 rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border-2 border-slate-600 border-b-4 border-b-slate-950 rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
             <h2 className="text-3xl font-display text-white tracking-widest mb-6 border-b border-slate-700 pb-4 flex items-center gap-3">
               <Settings className="w-8 h-8 text-blue-400" /> GAME SETTINGS
             </h2>
 
             {!showWipeConfirm ? (
               <div className="space-y-4">
-                <button onClick={handleManualSave} className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 transition-colors">
+                <button onClick={handleManualSave} className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">
                   <Save className="w-5 h-5" /> FORCE SAVE GAME
                 </button>
-                <button onClick={handleExportSave} className="w-full py-3 bg-blue-900/40 hover:bg-blue-900/60 border border-blue-500/50 text-blue-300 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 transition-colors">
+                <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
                   <Download className="w-5 h-5" /> EXPORT SAVE CODE
                 </button>
                 <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex flex-col gap-2">
@@ -1272,8 +1318,8 @@ export default function App() {
                   <p className="text-sm text-slate-400">This will permanently delete all your money, upgrades, reputation, and Corporate Licenses. This cannot be undone.</p>
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-display tracking-widest">CANCEL</button>
-                  <button onClick={handleHardReset} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-display tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.4)]">DELETE SAVE</button>
+                  <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                  <button onClick={handleHardReset} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px]">DELETE SAVE</button>
                 </div>
               </div>
             )}
@@ -1291,27 +1337,27 @@ export default function App() {
         const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
         const wasCapped = r.goneMs / 1000 > 8 * 3600;
         return (
-          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-slate-900 border-2 border-blue-500/60 rounded-2xl max-w-lg w-full shadow-[0_0_60px_rgba(59,130,246,0.15)] relative overflow-hidden">
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
+            <div className="bg-slate-900 border-2 border-blue-800 border-b-4 border-b-slate-950 rounded-2xl max-w-lg w-full relative overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-blue-900/60 to-slate-900 px-8 pt-8 pb-6 border-b border-slate-700/50">
+              <div className="bg-blue-950 px-8 pt-8 pb-6 border-b-4 border-slate-950">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-500/20 border border-blue-500/40 rounded-xl p-3">
-                    <Moon className="w-8 h-8 text-blue-400" />
+                  <div className="bg-blue-900 border border-blue-700 rounded-xl p-3">
+                    <Moon className="w-8 h-8 text-blue-300" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-display text-white tracking-widest text-glow-blue">OFFLINE REPORT</h2>
+                    <h2 className="text-3xl font-display text-white tracking-widest">OFFLINE REPORT</h2>
                     <p className="text-slate-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-3">
-                  <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">You were gone</span>
+                  <div className="flex-1 bg-blue-900 border border-blue-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">You were gone</span>
                     <span className="text-white font-display text-lg tabular-nums">{timeStr}</span>
                   </div>
-                  <div className="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Efficiency</span>
-                    <span className="text-blue-300 font-display text-lg tabular-nums">{Math.round(r.efficiency * 100)}%</span>
+                  <div className="flex-1 bg-blue-900 border border-blue-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">Efficiency</span>
+                    <span className="text-blue-200 font-display text-lg tabular-nums">{Math.round(r.efficiency * 100)}%</span>
                   </div>
                 </div>
                 {wasCapped && (
@@ -1323,23 +1369,21 @@ export default function App() {
 
               {/* Breakdown rows */}
               <div className="px-8 py-6 space-y-3">
-                <div className="flex items-center justify-between p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-green-900 border border-green-700 rounded-xl">
                   <div>
-                    <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
-                    <div className="text-slate-400 text-xs tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
+                    <div className="text-green-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Money Earned</div>
+                    <div className="text-green-600 text-xs tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
                   </div>
-                  <div className="text-money font-display text-2xl text-glow-green tabular-nums">+${fmt(r.moneyEarned)}</div>
+                  <div className="text-money font-display text-2xl tabular-nums">+${fmt(r.moneyEarned)}</div>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-orange-900/20 border border-orange-500/30 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-orange-900 border border-orange-700 rounded-xl">
                   <div>
-                    <div className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
-                    <div className="text-slate-400 text-xs tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
+                    <div className="text-orange-300 text-[10px] font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
+                    <div className="text-orange-600 text-xs tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
                   </div>
-                  <div className="text-orange-400 font-display text-2xl text-glow-orange tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
+                  <div className="text-orange-200 font-display text-2xl tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700/50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-xl">
                   <div>
                     <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Time Active</div>
                     <div className="text-slate-500 text-xs">50% of full rate while offline</div>
@@ -1350,7 +1394,7 @@ export default function App() {
 
               {/* Footer */}
               <div className="px-8 pb-8">
-                <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[4px] border-blue-900 active:border-b-0 active:translate-y-[4px]">
                   LET'S GET COOKING
                 </button>
               </div>
@@ -1361,14 +1405,14 @@ export default function App() {
 
       {/* --- PRESTIGE MODAL --- */}
       {showPrestigeModal && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border-2 border-purple-500 rounded-2xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(168,85,247,0.2)] text-center relative">
-            <Building className="w-16 h-16 text-purple-400 mx-auto mb-4 drop-shadow-[0_0_10px_rgba(192,132,252,0.8)]" />
-            <h2 className="text-4xl font-display text-white tracking-widest mb-2 text-glow-purple">CORPORATE BUYOUT</h2>
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border-2 border-purple-700 border-b-4 border-b-slate-950 rounded-2xl p-8 max-w-md w-full text-center relative">
+            <Building className="w-16 h-16 text-purple-300 mx-auto mb-4" />
+            <h2 className="text-4xl font-display text-white tracking-widest mb-2">CORPORATE BUYOUT</h2>
             <p className="text-slate-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
                <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money, upgrades &amp; reputation reset.</div>
-               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display text-glow-green leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
+               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
                {(() => {
                  const newLics = franchiseLicenses + pendingLicenses;
                  const startCash = 500 * Math.pow(newLics, 2);
@@ -1382,90 +1426,16 @@ export default function App() {
                })()}
             </div>
             <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-xl tracking-widest rounded-xl transition-all">CANCEL</button>
-                <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-display text-xl tracking-widest rounded-xl shadow-lg active:scale-95 transition-all shadow-[0_0_15px_rgba(147,51,234,0.4)]">SELL STORE</button>
+                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-purple-900 active:border-b-0 active:translate-y-[3px]">SELL STORE</button>
             </div>
           </div>
         </div>
       )}
 
 
-      {/* --- DASHBOARD HEADER --- */}
-      <div className="max-w-6xl w-full mx-auto bg-slate-800 rounded-2xl p-5 md:p-6 shadow-xl border border-slate-700 mb-8 flex flex-col lg:flex-row gap-6 items-center justify-between relative overflow-hidden mt-6">
-        {isRush && <div className="absolute inset-0 bg-red-500/10 animate-pulse pointer-events-none"></div>}
-        
-        {/* Title & Rep */}
-        <div className="w-full lg:w-auto relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left">
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-3xl md:text-4xl font-display tracking-widest metallic-text whitespace-nowrap">
-              PIZZA TYCOON
-            </h1>
-            <div className="flex bg-slate-900 px-2 py-1 rounded-full border border-slate-700 ml-2">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-3 h-3 md:w-4 md:h-4 ${i < starLevel ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]' : 'text-slate-600'}`} />
-              ))}
-            </div>
-          </div>
-          <div className="w-full max-w-[280px]">
-            <div className="flex justify-between text-[10px] text-slate-400 mb-1 font-bold uppercase tracking-widest tabular-nums">
-              <span>Reputation</span>
-              <span>{fmtInt(reputation)} / {fmtInt(nextStarReq)}</span>
-            </div>
-            <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700 shadow-inner">
-              <div className="h-full bg-yellow-400 transition-all duration-500 shadow-[0_0_10px_rgba(250,204,21,0.5)]" style={{ width: `${Math.min(100, (reputation / nextStarReq) * 100)}%` }}></div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Core 4 Stat Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 z-10 w-full lg:w-auto flex-1">
-          {/* 1. Bank */}
-          <div className="bg-slate-900 px-4 py-3 rounded-xl border border-slate-700 flex flex-col justify-center shadow-inner relative overflow-hidden">
-            <span className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
-              <DollarSign className="w-3 h-3 text-money"/> Bank
-            </span>
-            <span className="text-xl sm:text-2xl font-display tracking-wider text-money text-glow-green truncate tabular-nums">
-              <Num value={money} prefix="$" decimals={2} />
-            </span>
-            {numWords(money) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(money)}</div>}
-          </div>
-
-          {/* 2. Profit / Sec */}
-          <div className={`px-4 py-3 rounded-xl border flex flex-col justify-center shadow-inner relative overflow-hidden transition-colors duration-300 ${isRush ? 'bg-red-900/50 border-red-500' : recentCps > 0 ? 'bg-orange-900/20 border-orange-500/50' : 'bg-slate-900 border-slate-700'}`}>
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1 ${isRush ? 'text-red-300' : recentCps > 0 ? 'text-orange-300' : 'text-slate-400'}`}>
-              <TrendingUp className="w-3 h-3"/> Profit / Sec
-            </span>
-            <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : recentCps > 0 ? 'text-orange-400 text-glow-orange scale-105' : 'text-blue-400 text-glow-blue'}`}>
-              <Num value={displayProfitPerSec} prefix="$" decimals={2} />
-            </span>
-            {numWords(displayProfitPerSec) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(displayProfitPerSec)}</div>}
-          </div>
-
-          {/* 3. Pizzas / Sec */}
-          <div className={`px-4 py-3 rounded-xl border flex flex-col justify-center shadow-inner transition-colors duration-300 ${isRush ? 'bg-red-900/50 border-red-500' : 'bg-slate-900 border-slate-700'}`}>
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1 ${isRush ? 'text-red-300' : 'text-slate-400'}`}>
-              <Pizza className="w-3 h-3"/> Pizzas / Sec
-            </span>
-            <span className={`text-xl sm:text-2xl font-display tracking-wider truncate transition-all tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-slate-200'}`}>
-              <Num value={idlePizzasPerSec} decimals={1} />
-            </span>
-            {numWords(idlePizzasPerSec) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">{numWords(idlePizzasPerSec)}</div>}
-          </div>
-
-          {/* 4. Ticket Avg */}
-          <div className={`px-4 py-3 rounded-xl border flex flex-col justify-center shadow-inner transition-colors ${isRush ? 'bg-red-900/50 border-red-500' : 'bg-slate-900 border-slate-700'}`}>
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1 ${isRush ? 'text-red-300' : 'text-slate-400'}`}>
-              <Award className="w-3 h-3"/> Ticket Avg
-            </span>
-            <span className={`text-xl sm:text-2xl font-display tracking-wider truncate tabular-nums ${isRush ? 'text-red-400 text-glow-red' : 'text-yellow-400 text-glow-yellow'}`}>
-              <Num value={pizzaPrice} prefix="$" decimals={2} />
-            </span>
-            {numWords(pizzaPrice) && <div className="text-[10px] text-slate-500 font-bold tabular-nums mt-0.5">${numWords(pizzaPrice)}</div>}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+      {/* ── MAIN CONTENT (offset for HUD) ── */}
+      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-20 pb-6 px-4 md:px-6">
         
         {/* Left Area: Action Center */}
         <div className="lg:col-span-5 flex flex-col gap-6 relative">
@@ -1476,7 +1446,7 @@ export default function App() {
             {vipSpawned && !sideOrder && (
               <button 
                 onClick={triggerVIP}
-                className="w-full h-full bg-gradient-to-r from-yellow-500 to-red-500 rounded-2xl shadow-[0_0_30px_rgba(234,179,8,0.3)] border-2 border-yellow-300 flex items-center justify-center gap-3 animate-bounce hover:scale-105 transition-transform"
+                className="w-full h-full bg-yellow-500 rounded-2xl border-b-[4px] border-yellow-800 flex items-center justify-center gap-3 animate-bounce btn-tactile active:border-b-0 active:translate-y-[4px]"
               >
                 <Zap className="w-8 h-8 text-yellow-100 fill-yellow-100" />
                 <div className="text-left">
@@ -1487,35 +1457,35 @@ export default function App() {
             )}
 
             {isRush && !sideOrder && (
-              <div className="w-full h-full bg-red-500/20 rounded-2xl border-2 border-red-500 flex items-center justify-between px-8 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                <div className="flex items-center gap-3 text-red-400">
-                  <Zap className="w-8 h-8 fill-red-400 animate-pulse drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+              <div className="w-full h-full bg-red-800 rounded-2xl border-b-[4px] border-red-950 flex items-center justify-between px-8">
+                <div className="flex items-center gap-3 text-red-200">
+                  <Zap className="w-8 h-8 fill-red-200 animate-pulse" />
                   <div>
-                    <div className="text-2xl font-display uppercase tracking-widest text-glow-red">Dinner Rush!</div>
+                    <div className="text-2xl font-display uppercase tracking-widest text-white">Dinner Rush!</div>
                     <div className="text-sm font-bold">2x Speed & 2x Prices</div>
                   </div>
                 </div>
-                <div className="text-4xl font-display text-red-400 flex items-center gap-2 text-glow-red tabular-nums">
+                <div className="text-4xl font-display text-red-100 flex items-center gap-2 tabular-nums">
                   <Clock className="w-8 h-8" /> 0:{rushTimeLeft.toString().padStart(2, '0')}
                 </div>
               </div>
             )}
 
             {sideOrder && sideOrder.status === 'cooking' && (
-              <div className="w-full h-full bg-slate-800 rounded-2xl border-2 border-orange-500/50 flex flex-col items-center justify-center p-5 gap-3 shadow-[0_0_20px_rgba(249,115,22,0.15)] relative">
+              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-5 gap-3 relative">
                 <div className="flex justify-between w-full text-sm font-display tracking-widest text-orange-400">
                    <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
                    <span className="animate-pulse">BAKING...</span>
                 </div>
                 
-                <div className="w-full h-8 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-700 shadow-inner">
-                   <div className="absolute top-0 bottom-0 bg-green-500/30 border-x-2 border-green-400/80 shadow-[0_0_10px_rgba(74,222,128,0.5)] z-10" style={{ left: '75%', width: '13%' }}></div>
-                   <div className="h-full bg-gradient-to-r from-orange-600 to-red-500 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
+                <div className="w-full h-8 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
+                   <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
+                   <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
                 </div>
                 
                 <button 
                   onClick={handlePullFromOven} 
-                  className="w-full py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-display tracking-widest rounded shadow-md active:scale-95 transition-all border border-orange-400/50"
+                  className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]"
                 >
                   PULL FROM OVEN!
                 </button>
@@ -1557,19 +1527,19 @@ export default function App() {
             )}
 
             {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'clean' && (
-              <div className="w-full h-full rounded-2xl border-2 bg-green-900/40 border-green-500 text-green-400 flex items-center justify-center flex-col gap-1 shadow-[0_0_20px_rgba(74,222,128,0.2)] p-4">
+              <div className="w-full h-full rounded-2xl border-b-[4px] bg-green-800 border-green-950 text-green-100 flex items-center justify-center flex-col gap-1 p-4">
                   <Sparkles className="w-10 h-10 animate-spin-slow mb-1" />
-                  <div className="text-3xl font-display tracking-widest uppercase text-glow-green">Spotless!</div>
+                  <div className="text-3xl font-display tracking-widest uppercase">Spotless!</div>
                   <div className="text-sm font-bold text-green-300 mt-1">2x Click Power for 60 seconds!</div>
               </div>
             )}
 
             {sideOrder && sideOrder.status !== 'cooking' && sideOrder.type !== 'dishes' && (
-              <div className={`w-full h-full rounded-2xl border-2 flex items-center justify-center flex-col gap-1 shadow-lg p-4
-                  ${sideOrder.status === 'perfect' ? 'bg-green-900/40 border-green-500 text-green-400 shadow-[0_0_20px_rgba(74,222,128,0.2)]' :
-                    sideOrder.status === 'burnt' ? 'bg-red-900/40 border-red-500 text-red-400' :
-                    'bg-yellow-900/40 border-yellow-500 text-yellow-400'}`}>
-                  <div className={`text-3xl font-display tracking-widest uppercase ${sideOrder.status === 'perfect' ? 'text-glow-green animate-bounce' : ''}`}>
+              <div className={`w-full h-full rounded-2xl border-b-[4px] flex items-center justify-center flex-col gap-1 p-4
+                  ${sideOrder.status === 'perfect' ? 'bg-green-800 border-green-950 text-green-100' :
+                    sideOrder.status === 'burnt' ? 'bg-red-900 border-red-950 text-red-200' :
+                    'bg-yellow-800 border-yellow-950 text-yellow-100'}`}>
+                  <div className={`text-3xl font-display tracking-widest uppercase ${sideOrder.status === 'perfect' ? 'animate-bounce' : ''}`}>
                      {sideOrder.status}!
                   </div>
                   <div className="font-bold font-body text-lg text-white tabular-nums">
@@ -1590,23 +1560,25 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full h-full rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center gap-6 group relative overflow-hidden select-none outline-none
-                transform transition-all duration-150 ease-[cubic-bezier(0.2,0.8,0.2,1)] active:scale-[0.98] border-b-8 border-slate-700
-                ${isRush ? 'bg-red-900/40 border-red-600 hover:bg-red-900/60' : 'bg-slate-800 border-orange-600 hover:bg-slate-750'}`}
+              className={`w-full rounded-[2rem] p-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
+                border-b-[8px] active:border-b-0 active:translate-y-[8px]
+                ${isRush
+                  ? 'bg-red-600 border-red-900 hover:bg-red-500'
+                  : 'bg-orange-500 border-orange-800 hover:bg-orange-400'
+                }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
               
               {/* COMBO METER */}
               {combo > 0 && (
-                <div className="absolute top-6 right-6 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white text-glow-blue scale-125 animate-pulse' : combo > 50 ? 'text-red-400 text-glow-red scale-110' : combo > 20 ? 'text-orange-400 text-glow-orange' : 'text-yellow-400 text-glow-yellow'}`}>
+                <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
+                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
+                    ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
-                  <div className="text-[10px] md:text-xs font-black tracking-widest uppercase text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded shadow-inner mt-1">Heat Combo</div>
-                  
-                  {/* Smooth Combo Decay Bar */}
-                  <div className="w-24 h-1.5 bg-slate-900 rounded-full mt-2 overflow-hidden border border-slate-700">
-                    <div className="h-full bg-gradient-to-r from-yellow-400 to-red-500 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }}></div>
+                  <div className="text-[10px] font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
+                  <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
+                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
                 </div>
               )}
@@ -1625,29 +1597,28 @@ export default function App() {
                 </div>
               ))}
 
-              <div className="relative pointer-events-none mt-4">
-                 <div className={`absolute inset-0 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity rounded-full ${isRush ? 'bg-red-500' : 'bg-orange-500'}`}></div>
-                 {hasWoodFire && !isRush && (
-                   <div className="absolute inset-0 bg-gradient-to-t from-red-600 to-orange-400 mix-blend-screen blur-3xl opacity-30 rounded-full animate-pulse pointer-events-none"></div>
-                 )}
+              <div className="relative pointer-events-none flex flex-col items-center">
                  {hasMichelin && (
-                   <Crown className="absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)] animate-bounce z-20" />
+                   <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-7 h-7 text-yellow-300 animate-bounce z-20" />
                  )}
                  {hasTruffles && !isRush && (
                    <>
-                     <Sparkles className="absolute -top-2 -left-3 w-5 h-5 text-cyan-300 opacity-80 animate-bounce z-20" style={{ animationDelay: '0s' }} />
-                     <Sparkles className="absolute -top-2 -right-3 w-5 h-5 text-cyan-300 opacity-80 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
+                     <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
+                     <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
                    </>
                  )}
-                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 drop-shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-110 group-active:scale-90 ${pizzaColorClass}`} />
+                 {/* Pizza icon — slow continuous spin */}
+                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 group-active:scale-90 transition-transform duration-150 ${pizzaColorClass}`} />
+                 {/* Ellipse pedestal shadow */}
+                 <div className="w-28 h-4 bg-orange-900 rounded-full mt-1 opacity-60" style={{ filter: 'blur(6px)' }} />
               </div>
              
               <div className="pointer-events-none flex flex-col items-center z-10">
-                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100 text-glow-red' : 'text-orange-100 text-glow-orange'}`}>Bake & Box</div>
-                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider shadow-inner backdrop-blur-sm tabular-nums transition-all duration-300 ${
+                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
+                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
                   isClean
-                    ? 'text-cyan-200 bg-cyan-950/80 border border-cyan-400/60 shadow-[0_0_16px_rgba(34,211,238,0.35)] animate-pulse'
-                    : 'text-orange-300 bg-slate-900/90 border border-slate-700'
+                    ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
+                    : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
                 }`}>
                   {isClean && (
                     <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
@@ -1665,14 +1636,13 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col gap-6 transition-all duration-300 opacity-100">
           
           {(lifetimeMoney > 5000 || franchiseLicenses > 0) && (
-            <div className="bg-gradient-to-br from-purple-900/40 to-slate-800 rounded-2xl shadow-xl border border-purple-500/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden">
               <button
                 onClick={() => setCorpOfficeOpen(o => !o)}
-                className="w-full flex items-center gap-3 px-6 py-4 relative z-10 hover:brightness-110 transition-all"
+                className="w-full flex items-center gap-3 px-6 py-4 hover:bg-purple-900 transition-colors btn-tactile"
               >
-                <Building className="text-purple-400 w-6 h-6 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)] shrink-0" />
-                <h2 className="text-2xl font-display tracking-wide text-purple-100 text-glow-purple flex-1 text-left">Corporate Office</h2>
+                <Building className="text-purple-300 w-6 h-6 shrink-0" />
+                <h2 className="text-2xl font-display tracking-wide text-purple-100 flex-1 text-left">Corporate Office</h2>
                 <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
               </button>
               {corpOfficeOpen && <div className="px-6 pb-6">
@@ -1756,9 +1726,9 @@ export default function App() {
                 <button 
                   onClick={() => setShowPrestigeModal(true)}
                   disabled={pendingLicenses === 0}
-                  className={`px-6 py-3 rounded-xl font-display tracking-wider transition-all whitespace-nowrap ${
+                  className={`px-6 py-3 rounded-xl font-display tracking-wider whitespace-nowrap btn-tactile ${
                     pendingLicenses > 0 
-                    ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)] hover:shadow-[0_0_25px_rgba(147,51,234,0.5)] cursor-pointer' 
+                    ? 'bg-purple-600 hover:bg-purple-500 text-white border-b-[4px] border-purple-900 active:border-b-0 active:translate-y-[4px] cursor-pointer' 
                     : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                   }`}
                 >
@@ -1796,9 +1766,7 @@ export default function App() {
                 };
                 return (
                   <>
-                    <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-950/40 to-slate-900">
-                      {/* Background shimmer */}
-                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.07),transparent_60%)] pointer-events-none" />
+                    <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-700 bg-yellow-950">
                       <div className="relative z-10 px-5 py-4">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-2.5">
@@ -1827,9 +1795,9 @@ export default function App() {
                           <button
                             onClick={handleAscend}
                             disabled={!canAscend}
-                            className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm transition-all whitespace-nowrap ${
+                            className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm whitespace-nowrap btn-tactile ${
                               canAscend
-                                ? 'bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] cursor-pointer active:scale-95'
+                                ? 'bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black border-b-[4px] border-yellow-800 active:border-b-0 active:translate-y-[4px] cursor-pointer'
                                 : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
                             }`}
                           >
@@ -1841,15 +1809,13 @@ export default function App() {
 
                     {/* ── SYNDICATE ASCEND CONFIRMATION MODAL ── */}
                     {showAscendModal && (
-                      <div className="fixed inset-0 z-[110] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-                        <div className="relative bg-slate-900 border-2 border-yellow-500/60 rounded-2xl p-8 max-w-md w-full shadow-[0_0_60px_rgba(234,179,8,0.15)] overflow-hidden text-center">
-                          {/* Gold radial glow */}
-                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,179,8,0.08),transparent_60%)] pointer-events-none" />
+                      <div className="fixed inset-0 z-[110] bg-slate-950/90 flex items-center justify-center p-4">
+                        <div className="relative bg-slate-900 border-2 border-yellow-700 border-b-4 border-b-slate-950 rounded-2xl p-8 max-w-md w-full overflow-hidden text-center">
 
                           <div className="relative z-10">
                             {/* Icon */}
-                            <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.2)]">
-                              <Moon className="w-8 h-8 text-yellow-400" />
+                            <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-yellow-900 border border-yellow-700 flex items-center justify-center">
+                              <Moon className="w-8 h-8 text-yellow-300" />
                             </div>
 
                             <div className="text-[10px] font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
@@ -1859,7 +1825,7 @@ export default function App() {
                             </p>
 
                             {/* Reward callout */}
-                            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl px-5 py-4 mb-5 flex items-center justify-center gap-3">
+                            <div className="bg-yellow-900 border border-yellow-700 rounded-xl px-5 py-4 mb-5 flex items-center justify-center gap-3">
                               <Gem className="w-6 h-6 text-yellow-400 shrink-0" />
                               <div className="text-left">
                                 <div className="text-[9px] font-black uppercase tracking-widest text-yellow-600">You will receive</div>
@@ -1889,13 +1855,13 @@ export default function App() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => setShowAscendModal(false)}
-                                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-display text-lg tracking-widest rounded-xl transition-all border border-slate-700"
+                                className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]"
                               >
                                 Cancel
                               </button>
                               <button
                                 onClick={confirmAscend}
-                                className="flex-1 py-3 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-display font-black text-lg tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_35px_rgba(234,179,8,0.5)] active:scale-95"
+                                className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-display font-black text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px]"
                               >
                                 Ascend
                               </button>
@@ -1914,29 +1880,28 @@ export default function App() {
           <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col overflow-hidden relative">
 
             {/* ── TAB NAV ── */}
-            <div className="bg-slate-900/70 border-b border-slate-700/80 px-3 pt-3 pb-0">
-              <div className="grid grid-cols-3 gap-1.5 mb-3">
+            <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
+              <div className="bg-slate-800 p-1 rounded-full border border-slate-700 flex gap-1 flex-wrap">
                 {[
-                  { id: 'upgrades',     icon: <ShoppingCart className="w-4 h-4" />, label: 'Upgrades',  glow: 'text-blue-400',   active: 'bg-blue-600/20 border-blue-500/60 text-blue-300'   },
-                  { id: 'map',          icon: <Map          className="w-4 h-4" />, label: 'Map',       glow: 'text-green-400',  active: 'bg-green-600/20 border-green-500/60 text-green-300' },
-                  { id: 'achievements', icon: <Trophy       className="w-4 h-4" />, label: 'Trophies',  glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' },
-                  { id: 'stats',        icon: <TrendingUp   className="w-4 h-4" />, label: 'Stats',     glow: 'text-sky-400',    active: 'bg-sky-600/20 border-sky-500/60 text-sky-300'       },
-                  { id: 'market',       icon: <DollarSign   className="w-4 h-4" />, label: marketUnlocked ? 'PTSE' : 'Market', glow: 'text-emerald-400', active: 'bg-emerald-600/20 border-emerald-500/60 text-emerald-300' },
-                  { id: 'log',          icon: <ScrollText   className="w-4 h-4" />, label: 'Log',       glow: 'text-slate-400',  active: 'bg-slate-600/20 border-slate-500/60 text-slate-300'   },
-                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-4 h-4" />, label: 'Vault', glow: 'text-yellow-400', active: 'bg-yellow-600/20 border-yellow-500/60 text-yellow-300' }] : []),
+                  { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Upgrades',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
+                  { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
+                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Trophies',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
+                  { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
+                  { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Market', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
+                  { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-slate-600 text-white border-b-2 border-slate-900'    },
+                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-slate-900 border-b-2 border-yellow-900' }] : []),
                 ].map(({ id, icon, label, active }) => (
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg border font-display text-xs tracking-widest uppercase transition-all duration-150 ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-full font-display text-[10px] tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
                       activeTab === id
-                        ? `${active} shadow-inner`
-                        : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/60'
+                        ? active
+                        : 'text-slate-500 hover:text-slate-300'
                     }`}
                   >
                     {icon}
-                    <span className="hidden sm:inline">{label}</span>
-                    <span className="sm:hidden text-[10px]">{label}</span>
+                    <span className="truncate">{label}</span>
                   </button>
                 ))}
               </div>
@@ -1967,7 +1932,7 @@ export default function App() {
               )}
             </div>
 
-            <div className="p-4 space-y-4 bg-slate-800/30">
+            <div className="p-4 space-y-4 bg-slate-900">
               
               {/* --- TAB: VAULT --- */}
               {activeTab === 'vault' && (() => {
@@ -2008,9 +1973,8 @@ export default function App() {
                 return (
                   <div className="flex flex-col gap-4">
                     {/* Header */}
-                    <div className="relative overflow-hidden rounded-xl border border-yellow-500/40 bg-gradient-to-br from-yellow-950/60 to-slate-900 p-5">
-                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(234,179,8,0.08),transparent_65%)] pointer-events-none" />
-                      <div className="relative z-10 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="relative overflow-hidden rounded-xl border border-yellow-700 bg-yellow-950 p-5">
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
                         <div className="flex items-center gap-4">
                           <div className="bg-yellow-500/10 border border-yellow-500/40 rounded-xl p-3">
                             <Moon className="w-7 h-7 text-yellow-400" />
@@ -2028,7 +1992,7 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                      <p className="relative z-10 text-xs text-slate-500 mt-3 leading-relaxed">
+                      <p className="text-xs text-slate-400 mt-3 leading-relaxed">
                         Golden Slices are permanent currency earned by ascending through The Culinary Syndicate. Spend them on perks that persist across all future runs.
                       </p>
                     </div>
@@ -2040,13 +2004,10 @@ export default function App() {
                       return (
                         <div
                           key={perk.id}
-                          className={`relative overflow-hidden rounded-xl border transition-all duration-300 ${
-                            owned
-                              ? 'border-yellow-400/60 bg-gradient-to-br from-yellow-950/50 to-slate-900 shadow-[0_0_20px_rgba(234,179,8,0.12)]'
-                              : 'border-slate-700/50 bg-slate-900/60'
+                          className={`rounded-xl border ${
+                            owned ? 'border-yellow-700 bg-yellow-950' : 'border-slate-700 bg-slate-900'
                           }`}
                         >
-                          {owned && <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(234,179,8,0.06),transparent_60%)] pointer-events-none" />}
                           <div className="relative z-10 p-4">
                             <div className="flex items-start gap-4">
                               <div className={`p-3 rounded-xl border shrink-0 ${
@@ -2085,9 +2046,9 @@ export default function App() {
                                         setSyndicatePerks(p => ({ ...p, [perk.id]: true }));
                                       }}
                                       disabled={!canBuy}
-                                      className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider transition-all ${
+                                      className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider btn-tactile ${
                                         canBuy
-                                          ? 'bg-gradient-to-r from-yellow-600 to-amber-500 text-black font-black hover:from-yellow-500 hover:to-amber-400 cursor-pointer active:scale-95 shadow-[0_0_12px_rgba(234,179,8,0.25)]'
+                                          ? 'bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black border-b-[2px] border-yellow-800 active:border-b-0 active:translate-y-[2px] cursor-pointer'
                                           : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
                                       }`}
                                     >
@@ -2128,14 +2089,14 @@ export default function App() {
                 projectedPizzaPrice *= achievementMultiplier * vipTokenMultiplier;
 
                 const theme = {
-                  production: { bg: 'from-blue-900/20 to-slate-800', border: 'border-blue-500/30', hover: 'hover:border-blue-400 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]', iconBg: 'bg-blue-950/60 border-blue-800/50', bar: 'bg-blue-500', text: 'text-blue-400' },
-                  quality: { bg: 'from-amber-900/20 to-slate-800', border: 'border-amber-500/30', hover: 'hover:border-amber-400 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]', iconBg: 'bg-amber-950/60 border-amber-800/50', bar: 'bg-amber-500', text: 'text-amber-400' },
-                  click: { bg: 'from-orange-900/20 to-slate-800', border: 'border-orange-500/30', hover: 'hover:border-orange-400 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)]', iconBg: 'bg-orange-950/60 border-orange-800/50', bar: 'bg-orange-500', text: 'text-orange-400' }
+                  production: { bg: 'bg-blue-950',   border: 'border-blue-800',   depthBorder: 'border-b-[4px] border-blue-950',   iconBg: 'bg-blue-900 border-blue-700',   bar: 'bg-blue-400',   text: 'text-blue-300',   badge: 'bg-blue-800 text-blue-200' },
+                  quality:    { bg: 'bg-amber-950',  border: 'border-amber-800',  depthBorder: 'border-b-[4px] border-amber-950',  iconBg: 'bg-amber-900 border-amber-700', bar: 'bg-amber-400',  text: 'text-amber-300',  badge: 'bg-amber-800 text-amber-200' },
+                  click:      { bg: 'bg-orange-950', border: 'border-orange-800', depthBorder: 'border-b-[4px] border-orange-950', iconBg: 'bg-orange-900 border-orange-700',bar: 'bg-orange-400', text: 'text-orange-300', badge: 'bg-orange-800 text-orange-200' },
                 }[upgrade.type];
 
                 if (isLocked) {
                   return (
-                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-4 flex items-center justify-between gap-4 opacity-50 bg-gradient-to-br ${theme.bg} ${theme.border}`}>
+                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-4 flex items-center justify-between gap-4 opacity-40 ${theme.bg} ${theme.border}`}>
                       <div className="flex items-center gap-3 relative z-10 min-w-0">
                         <div className={`p-3 rounded-xl shadow-inner border shrink-0 ${theme.iconBg} grayscale`}>
                           {upgrade.icon}
@@ -2170,10 +2131,10 @@ export default function App() {
                     key={upgrade.id}
                     onClick={() => buyUpgrade(upgrade)}
                     disabled={!canAfford}
-                    className={`w-full group flex flex-col p-4 rounded-xl transition-all duration-300 text-left relative overflow-hidden border bg-gradient-to-br ${theme.bg} ${
+                    className={`w-full group flex flex-col p-4 rounded-xl text-left relative overflow-hidden border btn-tactile ${
                       canAfford
-                        ? `${theme.border} hover:-translate-y-0.5 hover:shadow-lg cursor-pointer active:scale-[0.99]`
-                        : 'opacity-60 border-slate-700/50 grayscale-[30%] cursor-not-allowed'
+                        ? `${theme.bg} ${theme.border} ${theme.depthBorder} active:border-b-0 active:translate-y-[4px] cursor-pointer`
+                        : `${theme.bg} opacity-50 border-slate-800 cursor-not-allowed`
                     }`}
                   >
                     {/* milestone progress bar */}
@@ -2185,17 +2146,17 @@ export default function App() {
 
                     {/* ── ROW 1: icon + name + level badge ── */}
                     <div className="flex items-center gap-3 relative z-10">
-                      <div className={`p-3 rounded-xl shadow-inner border shrink-0 ${theme.iconBg} transform transition-transform duration-300 group-hover:scale-110 group-active:scale-95`}>
+                      <div className={`p-3 rounded-xl border shrink-0 ${theme.iconBg}`}>
                         {upgrade.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <h3 className="font-display text-base text-slate-100 tracking-wider leading-tight">{upgrade.name}</h3>
-                          <span className={`text-[10px] font-black ${theme.text} bg-slate-950/70 border border-current/30 px-2 py-0.5 rounded-full tabular-nums shrink-0`}>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
                             LVL {count}
                           </span>
                           {multi > 1 && count > 0 && (
-                            <span className={`text-[10px] font-black ${theme.text} bg-slate-950/70 border border-current/30 px-2 py-0.5 rounded-full tabular-nums shrink-0`}>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
                               {multi}x
                             </span>
                           )}
@@ -2294,7 +2255,7 @@ export default function App() {
                       </div>
                     </div>
                     {vipTokens > 0 && (
-                      <div className="shrink-0 flex flex-col items-center bg-purple-900/40 border border-purple-500/50 rounded-xl px-4 py-3 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                      <div className="shrink-0 flex flex-col items-center bg-purple-900 border border-purple-700 border-b-[3px] border-b-purple-950 rounded-xl px-4 py-3">
                         <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
                         <div className="font-display text-2xl text-purple-300 tabular-nums">{vipTokens}</div>
                         <div className="text-[10px] text-purple-400 font-bold mt-1">+{fmt(vipTokens * 5)}% All</div>
@@ -2387,7 +2348,7 @@ export default function App() {
                             ) : (
                               <div className="flex flex-col sm:items-end gap-1">
                                 <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
-                                <div className="font-display text-2xl text-glow-green text-money tabular-nums">
+                                <div className="font-display text-2xl text-money tabular-nums">
                                   +$<Num value={warpMoney} decimals={0} />
                                 </div>
                                 {warpEfficiencyDisplay < 0.99 && (
@@ -2430,8 +2391,8 @@ export default function App() {
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700/50">
-                    <div className="h-full bg-gradient-to-r from-yellow-500 to-amber-400 transition-all duration-500 shadow-[0_0_8px_rgba(250,204,21,0.4)]"
+                  <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                    <div className="h-full bg-yellow-400 transition-all duration-500"
                       style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
                   </div>
 
@@ -2443,10 +2404,10 @@ export default function App() {
                         <div
                           key={ach.id}
                           title={ach.desc}
-                          className={`group relative flex flex-col gap-1 p-3 rounded-xl border transition-all cursor-default ${
+                          className={`group relative flex flex-col gap-1 p-3 rounded-xl border cursor-default ${
                             isUnlocked
-                              ? 'bg-gradient-to-br from-yellow-900/25 to-slate-900 border-yellow-500/40 shadow-[0_0_8px_rgba(250,204,21,0.06)]'
-                              : 'bg-slate-900/40 border-slate-800/60 opacity-50 grayscale'
+                              ? 'bg-yellow-950 border-yellow-800'
+                              : 'bg-slate-900 border-slate-800 opacity-50 grayscale'
                           }`}
                         >
                           <div className="flex items-center gap-1.5">
@@ -2572,20 +2533,20 @@ export default function App() {
                   {!marketUnlocked ? (
                     /* Locked State */
                     <div className="flex flex-col items-center justify-center py-16 gap-6">
-                      <div className="p-6 rounded-full bg-zinc-800/60 border border-zinc-500/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                        <TrendingUp className="w-16 h-16 text-zinc-300 drop-shadow-[0_0_16px_rgba(200,200,200,0.3)]" />
+                      <div className="p-6 rounded-full bg-zinc-800 border border-zinc-600">
+                        <TrendingUp className="w-16 h-16 text-zinc-300" />
                       </div>
                       <div className="text-center">
                         <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Tycoon Stock Exchange</h2>
                         <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
                       </div>
-                      <div className="bg-zinc-900/80 border border-zinc-600/40 rounded-xl px-8 py-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                      <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-8 py-5 text-center">
                         <div className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
                         <div className="font-display text-3xl text-zinc-200 tabular-nums mb-4">$25,000</div>
                         <button
                           onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }}
                           disabled={money < 25000}
-                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest transition-all ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[0_2px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] hover:-translate-y-0.5' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'}`}
+                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest btn-tactile ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'}`}
                         >
                           {money >= 25000 ? 'Open the Exchange' : `Need $${fmt(25000 - money)} more`}
                         </button>
@@ -2891,7 +2852,7 @@ export default function App() {
                                     <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">L ${fmt(sessionLow)}</span>
                                     <div className="flex-1 h-1 bg-zinc-800 rounded-full relative">
                                       <div className="absolute h-1 bg-gradient-to-r from-red-500 to-green-500 rounded-full" style={{ width: '100%', opacity: 0.25 }} />
-                                      <div className="absolute w-2 h-2 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.6)] -top-0.5 -translate-x-1/2" style={{ left: `${pricePosPct}%` }} />
+                                      <div className="absolute w-2 h-2 rounded-full bg-white -top-0.5 -translate-x-1/2" style={{ left: `${pricePosPct}%` }} />
                                     </div>
                                     <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">H ${fmt(sessionHigh)}</span>
                                   </div>
@@ -3065,7 +3026,7 @@ export default function App() {
                 <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-600/50 bg-slate-800/60 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-all">
                   <Moon className="w-3 h-3" /> Remove Ads
                 </button>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-600/40 bg-amber-900/20 text-[10px] font-black uppercase tracking-widest text-amber-400 hover:bg-amber-900/40 hover:border-amber-500/60 transition-all shadow-[0_0_8px_rgba(217,119,6,0.1)]">
+                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-700 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-300 hover:bg-amber-800 transition-colors btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]">
                   <Crown className="w-3 h-3" /> Premium Pass
                 </button>
               </div>
@@ -3078,42 +3039,43 @@ export default function App() {
       
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
-        
-        .tabular-nums {
+
+        *, *::-webkit-scrollbar { scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
+
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+
+        .font-display {
+          font-family: 'Oswald', sans-serif;
+          text-transform: uppercase;
           font-variant-numeric: tabular-nums;
         }
 
-        .font-display { 
-          font-family: 'Oswald', sans-serif; 
-          text-transform: uppercase; 
+        .font-body {
+          font-family: 'Inter', sans-serif;
           font-variant-numeric: tabular-nums;
         }
-        
-        .font-body { 
-          font-family: 'Inter', sans-serif; 
-          font-variant-numeric: tabular-nums;
-        }
-        
+
         .metallic-text {
           background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0px 3px 2px rgba(0,0,0,0.8));
+          filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.9));
         }
 
         .text-money { color: #84cc16; }
-        .text-glow-green { text-shadow: 0 0 10px rgba(132, 204, 22, 0.4), 0 0 20px rgba(132, 204, 22, 0.2); }
-        .text-glow-blue { text-shadow: 0 0 10px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2); }
-        .text-glow-red { text-shadow: 0 0 10px rgba(248, 113, 113, 0.6), 0 0 20px rgba(248, 113, 113, 0.3); }
-        .text-glow-yellow { text-shadow: 0 0 10px rgba(250, 204, 21, 0.4), 0 0 20px rgba(250, 204, 21, 0.2); }
-        .text-glow-orange { text-shadow: 0 0 10px rgba(251, 146, 60, 0.4), 0 0 20px rgba(251, 146, 60, 0.2); }
-        .text-glow-purple { text-shadow: 0 0 10px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.3); }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 1); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 1); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
-        
+        .text-glow-green  {}
+        .text-glow-blue   {}
+        .text-glow-red    {}
+        .text-glow-yellow {}
+        .text-glow-orange {}
+        .text-glow-purple {}
+
+        /* Tactile depth button base — add border-b-[N] border-[darker-color] and active:border-b-0 active:translate-y-[N] */
+        .btn-tactile {
+          transition: border-bottom-width 80ms ease, transform 80ms ease, background-color 120ms ease;
+        }
+
         @keyframes logSlideIn {
           from { opacity: 0; transform: translateY(-8px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -3128,17 +3090,21 @@ export default function App() {
           90%  { transform: translate(2px, -1px) rotate(-0.3deg); }
           100% { transform: translate(0, 0) rotate(0deg); }
         }
-
         @keyframes floatUpFade {
-          0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+          0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
           100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); }
         }
         .floating-popup {
           animation: floatUpFade 0.8s ease-out forwards;
           will-change: transform, opacity;
           font-family: 'Oswald', sans-serif;
-          text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 0px 0px 15px currentColor, 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9), 1px -1px 1px rgba(0,0,0,0.9), -1px 1px 1px rgba(0,0,0,0.9);
+          text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9);
         }
+        @keyframes pizzaSpin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        .pizza-spin { animation: pizzaSpin 20s linear infinite; }
       `}} />
 
     </div>
