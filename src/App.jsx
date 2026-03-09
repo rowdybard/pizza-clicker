@@ -1167,7 +1167,7 @@ export default function App() {
     : 'text-orange-400';
 
   return (
-    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-28 md:pb-32 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
