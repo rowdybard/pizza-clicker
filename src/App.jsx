@@ -131,6 +131,11 @@ const ACHIEVEMENTS = [
   { id: 'franchise_5',  name: 'Corporate Board',    desc: 'Gain 5 Franchise Licenses.',   req: (s) => s.franchiseLicenses >= 5  },
   { id: 'franchise_10', name: 'Pizza Conglomerate',  desc: 'Gain 10 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 10 },
   { id: 'franchise_25', name: 'Global Syndicate',    desc: 'Gain 25 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 25 },
+  { id: 'franchise_50', name: 'Pizza Empire',       desc: 'Gain 50 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 50 },
+  { id: 'franchise_100', name: 'Galactic Dominance', desc: 'Gain 100 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 100 },
+  { id: 'franchise_150', name: 'Universal Control', desc: 'Gain 150 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 150 },
+  { id: 'franchise_200', name: 'Dimensional Overlord', desc: 'Gain 200 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 200 },
+  { id: 'franchise_250', name: 'Pizza God',          desc: 'Gain 250 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 250 },
 
   // Lifetime earnings — deep progression
   { id: 'life_1q',  name: 'Quadrillionaire',   desc: 'Earn $1,000,000,000,000,000 lifetime.',              req: (s) => s.lifetimeMoney >= 1e15  },
@@ -437,8 +442,8 @@ export default function App() {
   }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
-  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 100.
-  const MAX_LICENSES = 100;
+  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 250.
+  const MAX_LICENSES = 250;
   const _earlyRaw = Math.sqrt(lifetimeMoney / 50000);
   const earlyLicenses = Math.min(5, Number.isFinite(_earlyRaw) ? Math.floor(_earlyRaw) : 5);
   const _mainRaw = Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST);
@@ -452,7 +457,7 @@ export default function App() {
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
-  const franchiseMultiplier = Math.min(25, franchiseLicenses <= 10
+  const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
     : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10));
   // Licenses boost pizza price: +25% per license (compounding)
@@ -483,12 +488,19 @@ export default function App() {
   const flourSynergyMult = 1 + Math.min(marketShares.flour * 0.001, 0.5); // Cap at 50% bonus
   const pepperoniSynergyMult = 1 + Math.min(marketShares.pepperoni * 0.001, 0.5); // Cap at 50% bonus
 
+  // Vault perk multipliers
+  const realityBendMult = syndicatePerks.realityBend ? 2 : 1;
+  const goldenTouchMult = syndicatePerks.goldenTouch ? 3 : 1;
+
   // License passive floor: guaranteed pizzas/sec even with no upgrades
   const licenseProductionFloor = franchiseLicenses > 0 ? franchiseLicenses * 0.5 : 0;
   // Production and click both benefit from licenses + star power
-  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult;
-  const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult;
-  const franchisedClick = baseClickPower * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
+  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult;
+  const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
+  
+  // Ascension perk: clicks gain +10% of /sec production
+  const synergisticClickBonus = syndicatePerks.ascension ? (displayProfitPerSec * 0.10) / pizzaPrice : 0;
+  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
@@ -498,8 +510,8 @@ export default function App() {
   const activePizzasPerSec = smoothCps * currentClickPower;
   const totalDisplayPizzasPerSec = idlePizzasPerSec + activePizzasPerSec;
   
-  const idleProfitPerSec = idlePizzasPerSec * pizzaPrice;
-  const activeProfitPerSec = activePizzasPerSec * pizzaPrice;
+  const idleProfitPerSec = idlePizzasPerSec * pizzaPrice * goldenTouchMult;
+  const activeProfitPerSec = activePizzasPerSec * pizzaPrice * goldenTouchMult;
   const displayProfitPerSec = idleProfitPerSec + activeProfitPerSec;
 
   const getCost = (upgrade) => Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
@@ -601,7 +613,16 @@ export default function App() {
     let multi = 1;
     let repBonus = 0;
 
-    if (p >= 75 && p <= 88) {
+    // Infinite Oven perk: instant perfect with 10× rewards
+    if (syndicatePerks.infiniteOven) {
+        status = 'perfect';
+        multi = 50; // 5× normal perfect × 10× infinite oven bonus
+        repBonus = 25;
+        setPerfectBakes(prev => prev + 1);
+        playSound('chaching');
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 400);
+    } else if (p >= 75 && p <= 88) {
         status = 'perfect';
         multi = 5; 
         repBonus = 25; 
@@ -626,6 +647,19 @@ export default function App() {
         setLifetimeMoney(m => m + finalReward);
         pushLog('oven', `${status === 'perfect' ? '🔥 Perfect' : 'Oven'} Pull (${sideOrder.type === 'wings' ? 'Wings' : 'Bread'})`, finalReward);
         if (repBonus > 0) setReputation(r => r + repBonus);
+        
+        // Pizza Cascade perk: 20% chance to spawn new side order from perfect pulls
+        if (syndicatePerks.pizzaSingularity && status === 'perfect' && Math.random() < 0.2) {
+          const types = ['wings', 'bread'];
+          const newType = types[Math.floor(Math.random() * types.length)];
+          setSideOrder({
+            type: newType,
+            progress: 0,
+            required: 100,
+            status: 'dirty'
+          });
+          playSound('pop');
+        }
     }
   };
 
@@ -855,11 +889,12 @@ export default function App() {
           setRecentCps(state.clicksThisSecond);
           state.clicksThisSecond = 0; 
 
-          setRushTimeLeft(prev => Math.max(0, prev - 1));
-          setCleanBoostTimer(prev => Math.max(0, prev - 1));
+          const timerSlowdown = syndicatePerks.timeLoop ? 0.2 : 1; // 5× slower = decrement by 0.2 instead of 1
+          setRushTimeLeft(prev => Math.max(0, prev - timerSlowdown));
+          setCleanBoostTimer(prev => Math.max(0, prev - timerSlowdown));
 
           setVipTimeLeft(prev => {
-              if (prev > 0) return prev - 1;
+              if (prev > 0) return Math.max(0, prev - timerSlowdown);
               if (prev === 0 && state.rushTimeLeft === 0 && state.hasStarted && !state.vipSpawned && Math.random() < 0.002) {
                   setVipSpawned(true); return 10;
               }
@@ -901,9 +936,10 @@ export default function App() {
           });
 
           // Market manipulation cooldowns (global)
+          const marketCooldownReduction = syndicatePerks.marketGod ? 0.25 : 1; // 75% faster = decrement by 0.25 instead of 1
           setMarketCooldowns(prev => ({
-            rumors:  Math.max(0, prev.rumors  - 1),
-            squeeze: Math.max(0, prev.squeeze - 1),
+            rumors:  Math.max(0, prev.rumors  - marketCooldownReduction),
+            squeeze: Math.max(0, prev.squeeze - marketCooldownReduction),
           }));
 
           // Idle income log — batch every 30s
@@ -1782,7 +1818,7 @@ export default function App() {
 
               {/* ── THE CULINARY SYNDICATE ── */}
               {(franchiseLicenses >= 25 || goldenSlices > 0) && (() => {
-                const slicesOnAscend = Math.floor(franchiseLicenses / 25);
+                const slicesOnAscend = Math.max(1, Math.floor(franchiseLicenses / 10)); // 1 slice per 10 licenses, minimum 1
                 const canAscend = slicesOnAscend > 0;
                 const handleAscend = () => {
                   if (!canAscend) return;
@@ -2016,6 +2052,62 @@ export default function App() {
                     icon: <Rocket className="w-6 h-6 text-yellow-300" />,
                     desc: 'A robotic arm bakes and boxes one pizza every second automatically. Scales with all click multipliers.',
                     effect: '+1 free click per second (with all multipliers)',
+                  },
+                  {
+                    id: 'timeLoop',
+                    name: 'Time Loop',
+                    cost: 10,
+                    icon: <Clock className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Break the causal fabric of time itself. All timers (rush, clean, VIP) run 5× slower, effectively giving you 5× duration.',
+                    effect: 'All buff timers last 5× longer',
+                  },
+                  {
+                    id: 'realityBend',
+                    name: 'Reality Bender',
+                    cost: 15,
+                    icon: <Sparkles className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Your pizza transcends physical laws. All production multipliers (franchise, stars, VIP, synergies) are doubled.',
+                    effect: 'All production multipliers ×2',
+                  },
+                  {
+                    id: 'infiniteOven',
+                    name: 'Infinite Oven',
+                    cost: 20,
+                    icon: <Zap className="w-6 h-6 text-yellow-300" />,
+                    desc: 'The oven contains a pocket dimension. Side orders are instantly Perfect and give 10× rewards.',
+                    effect: 'Instant Perfect side orders with 10× rewards',
+                  },
+                  {
+                    id: 'marketGod',
+                    name: 'Market Master',
+                    cost: 25,
+                    icon: <TrendingUp className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Your market connections are unparalleled. Market manipulation cooldowns are reduced by 75% and effects are increased by 50%.',
+                    effect: '75% faster cooldowns, 1.5× manipulation power',
+                  },
+                  {
+                    id: 'pizzaSingularity',
+                    name: 'Pizza Cascade',
+                    cost: 50,
+                    icon: <Gem className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Unlock a special oven mode where side orders cascade - each perfect pull has a 20% chance to spawn another side order.',
+                    effect: 'Cascade side orders from perfect pulls',
+                  },
+                  {
+                    id: 'goldenTouch',
+                    name: 'Golden Touch',
+                    cost: 75,
+                    icon: <Crown className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Your expertise turns everything to gold. All money gains are multiplied by 3×.',
+                    effect: 'All money gains ×3',
+                  },
+                  {
+                    id: 'ascension',
+                    name: 'Synergistic Click',
+                    cost: 100,
+                    icon: <Moon className="w-6 h-6 text-yellow-300" />,
+                    desc: 'Your clicks become synergistic with your production. Each click gains +10% of your current /sec production as bonus power.',
+                    effect: 'Clicks gain +10% of /sec production',
                   },
                 ];
                 return (
