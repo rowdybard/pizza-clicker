@@ -1245,46 +1245,58 @@ export default function App() {
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-lg font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
-            <div className="flex gap-0.5 mt-0.5">
+            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA TYCOON</h1>
+            <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-4 h-4 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
               ))}
             </div>
           </div>
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex items-baseline gap-2 px-5 py-1.5 rounded-xl border-b-[3px] shrink-0 ${
+            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
             }`}>
-              <span className={`font-display text-2xl md:text-3xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
-                <Num value={money} prefix="$" decimals={2} />
-              </span>
-              {numWords(money) && (
-                <span className="text-xs text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
-              )}
+              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="flex items-baseline gap-2">
+                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
+                  <Num value={money} prefix="$" decimals={2} />
+                </span>
+                {numWords(money) && (
+                  <span className="text-sm text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
+                )}
+              </div>
             </div>
           </div>
 
           {/* RIGHT: Secondary stat pills + settings */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Profit/sec */}
-            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-b-[3px] shrink-0 ${
+            <div className={`hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-b-[3px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-slate-400'
             }`}>
-              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-display text-xl md:text-2xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PROFIT</div>
+              <div className="flex items-center gap-1">
+                <TrendingUp className="w-3 h-3 shrink-0" />
+                <span className="font-display text-lg md:text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+              </div>
             </div>
             {/* Pizzas/sec */}
-            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <Pizza className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-              <span className="font-display text-xl md:text-2xl text-slate-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
+              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PIZZAS</div>
+              <div className="flex items-center gap-1">
+                <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
+                <span className="font-display text-lg md:text-xl text-slate-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+              </div>
             </div>
             {/* Ticket avg */}
-            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <Award className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
-              <span className="font-display text-xl md:text-2xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
+              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">PRICE</div>
+              <div className="flex items-center gap-1">
+                <Award className="w-3 h-3 text-yellow-500 shrink-0" />
+                <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+              </div>
             </div>
             {/* Tip + Settings */}
             <div className="flex items-center gap-1.5 ml-1">
