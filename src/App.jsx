@@ -1663,7 +1663,7 @@ export default function App() {
         {/* Right Area: Management & Upgrades */}
         <div className="lg:col-span-7 flex flex-col gap-6 transition-all duration-300 opacity-100">
           
-          {(lifetimeMoney > 5000 || franchiseLicenses > 0) && (
+          {(lifetimeMoney > 30000 || franchiseLicenses > 0) && (
             <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden">
               <button
                 onClick={() => setCorpOfficeOpen(o => !o)}
