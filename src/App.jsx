@@ -1274,10 +1274,10 @@ export default function App() {
           title={goldenSliceEvent.type === 'frenzy' ? '77x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
         >
           <div className="relative animate-bounce">
-            <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Pizza className="w-7 h-7 text-yellow-900" />
+            <div className="w-24 h-24 rounded-full bg-yellow-500 border-6 border-yellow-800 border-b-[8px] flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
+              <Pizza className="w-12 h-12 text-yellow-900" />
             </div>
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-4 py-2 rounded-lg shadow-lg">
               {goldenSliceEvent.type === 'frenzy' ? '77x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
             </div>
           </div>
@@ -1287,8 +1287,8 @@ export default function App() {
       {/* ── FRENZY ACTIVE BANNER ── */}
       {frenzyMultiplier > 1 && (
         <div className="fixed top-[72px] inset-x-0 z-[9998] pointer-events-none flex justify-center">
-          <div className="px-8 py-2 bg-yellow-500 border-b-[4px] border-yellow-800 rounded-b-2xl animate-pulse">
-            <span className="font-display text-base text-yellow-900 tracking-widest">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
+          <div className="px-12 py-6 bg-yellow-500 border-b-[6px] border-yellow-800 rounded-b-2xl animate-pulse shadow-2xl">
+            <span className="font-display text-3xl md:text-4xl text-yellow-900 tracking-widest font-black">⚡ 77x CLICK FRENZY ACTIVE ⚡</span>
           </div>
         </div>
       )}
@@ -1296,15 +1296,15 @@ export default function App() {
       {/* ── MARKET CRASH BANNER ── */}
       {marketCrashBanner && (
         <div className="fixed inset-x-0 top-[68px] z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
-          <div className="w-full bg-red-700 border-b-4 border-red-950 flex items-center justify-center py-3 gap-4">
-            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
-            <span className="font-display text-2xl md:text-3xl font-black tracking-[0.2em] text-white uppercase">
+          <div className="w-full bg-red-600 border-b-6 border-red-950 flex items-center justify-center py-6 gap-6 shadow-2xl">
+            <TrendingDown className="w-16 h-16 text-red-100 shrink-0 animate-pulse" />
+            <span className="font-display text-4xl md:text-5xl font-black tracking-[0.2em] text-white uppercase animate-pulse">
               ⚠ MARKET CRASH ⚠
             </span>
-            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
+            <TrendingDown className="w-16 h-16 text-red-100 shrink-0 animate-pulse" />
           </div>
-          <div className="bg-red-950 border-b-2 border-red-800 w-full text-center py-1">
-            <span className="text-red-300 text-xs font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
+          <div className="bg-red-950 border-b-4 border-red-800 w-full text-center py-3">
+            <span className="text-red-200 text-lg font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
           </div>
         </div>
       )}
