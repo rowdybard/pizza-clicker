@@ -938,7 +938,8 @@ export default function App() {
               return prev;
             }
             if (!state.hasStarted || Math.random() >= 0.005) return prev;
-            const types = ['frenzy', 'marketCrash', 'instantCash'];
+            // Only include marketCrash if market is unlocked
+            const types = marketUnlocked ? ['frenzy', 'marketCrash', 'instantCash'] : ['frenzy', 'instantCash'];
             return {
               id: Date.now(),
               type: types[Math.floor(Math.random() * types.length)],
@@ -2972,11 +2973,10 @@ export default function App() {
                               const trend = marketTrends[key];
                               const shares = marketShares[key];
                               const holdingValue = shares * price;
-                              const canBuy1  = money >= price * 1.005;
-                              const canBuy10 = money >= price * 10 * 1.005;
-                              const maxBuy   = Math.floor(money / (price * 1.005));
-
                               const FEE = 0.005;
+                              const canBuy1  = money >= price * 1 * (1 + FEE);
+                              const canBuy10 = money >= price * 10 * (1 + FEE);
+                              const maxBuy   = Math.floor(money / (price * (1 + FEE)));
                               const buyShares = (n) => {
                                 const cost = price * n * (1 + FEE);
                                 if (money < cost) return;
