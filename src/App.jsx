@@ -1360,11 +1360,8 @@ export default function App() {
                 <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
               </div>
             </div>
-            {/* Settings & Tale */}
+            {/* Settings only */}
             <div className="flex items-center gap-1.5 ml-1">
-              <button onClick={() => setShowParchmentModal(true)} className="bg-amber-800 border border-amber-700 border-b-2 border-b-amber-900 p-2 rounded-xl text-amber-100 hover:text-white hover:bg-amber-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
-                <ScrollText className="w-4 h-4" />
-              </button>
               <button onClick={() => setShowSettings(true)} className="bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
                 <Settings className="w-4 h-4" />
               </button>
@@ -1904,7 +1901,10 @@ export default function App() {
                 };
                 const confirmAscend = () => {
                   setShowAscendModal(false);
-                  setGoldenSlices(g => g + slicesOnAscend);
+                  // Capture current licenses BEFORE reset for proper slice calculation
+                  const currentLicenses = franchiseLicenses;
+                  const slicesEarned = Math.max(1, Math.floor(currentLicenses / 10));
+                  setGoldenSlices(g => g + slicesEarned);
                   const newLics = 0; // ascend resets licenses
                   const licenseStartMoney2 = 500 * Math.pow(newLics, 2);
                   setMoney(Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney2));
