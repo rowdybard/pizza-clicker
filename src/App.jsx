@@ -2786,7 +2786,7 @@ export default function App() {
                           disabled={money < 25000}
                           className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest btn-tactile ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'}`}
                         >
-                          {money >= 25000 ? 'Open the Exchange' : `Need $${fmtInt(25000 - money)} more`}
+                          {money >= 25000 ? 'Open the Exchange' : `Need $${Math.floor(25000 - money).toLocaleString()} more`}
                         </button>
                       </div>
                     </div>
