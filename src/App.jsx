@@ -181,14 +181,14 @@ const UPGRADES = [
   { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
   { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
   { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.15, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.50, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 2.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 8.00, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 30.00, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 100.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> },
-  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 500.00, reqStars: 5, icon: <Flame className="text-rose-400" /> },
-  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 5000.00, reqStars: 5, icon: <Sparkles className="text-violet-400" /> },
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 0.05, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 0.15, reqStars: 1, icon: <Award className="text-yellow-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 0.40, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 1.00, reqStars: 3, icon: <Zap className="text-red-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 2.50, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 8.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> },
+  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 25.00, reqStars: 5, icon: <Flame className="text-rose-400" /> },
+  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 150.00, reqStars: 5, icon: <Sparkles className="text-violet-400" /> },
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
