@@ -2249,14 +2249,14 @@ export default function App() {
                                 <div className="flex items-center gap-2 mb-1">
                                   <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-slate-300'}`}>{perk.name}</h3>
                                   {owned && !perk.repeatable && (
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
+                                    <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
                                   )}
                                   {perk.repeatable && currentCount > 0 && (
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">×{currentCount}</span>
+                                    <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">×{currentCount}</span>
                                   )}
                                 </div>
-                                <p className="text-xs text-slate-500 mb-2 leading-relaxed">{perk.desc}</p>
-                                <div className={`text-[10px] font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-slate-600'}`}>
+                                <p className="text-sm text-slate-500 mb-2 leading-relaxed">{perk.desc}</p>
+                                <div className={`text-sm font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-slate-600'}`}>
                                   ✦ {perk.effect}
                                 </div>
                               </div>
@@ -2674,45 +2674,45 @@ export default function App() {
                       accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
                       rows={[
                         { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
-                        { label: 'Idle Profit / Sec', value: `$${fmt(idleProfitPerSec)}`, sub: 'without clicking' },
-                        { label: 'Pizza Price', value: `$${fmt(pizzaPrice)}`, sub: 'current ticket value' },
-                        { label: 'Base Price', value: `$${fmt(basePizzaPrice)}`, sub: 'before multipliers' },
-                        { label: 'VIP Boost', value: `${fmt(vipTokenMultiplier)}x`, sub: 'all stats' },
-                        { label: 'Ach. Boost', value: `${fmt(achievementMultiplier)}x`, sub: 'price only' },
+                        { label: 'Idle Profit / Sec', value: `$${Math.floor(idleProfitPerSec).toLocaleString()}`, sub: 'without clicking' },
+                        { label: 'Pizza Price', value: `$${Math.floor(pizzaPrice).toLocaleString()}`, sub: 'current ticket value' },
+                        { label: 'Base Price', value: `$${Math.floor(basePizzaPrice).toLocaleString()}`, sub: 'before multipliers' },
+                        { label: 'VIP Boost', value: `${Math.floor(vipTokenMultiplier * 100).toLocaleString()}%`, sub: 'all stats' },
+                        { label: 'Ach. Boost', value: `${Math.floor(achievementMultiplier * 100).toLocaleString()}%`, sub: 'price only' },
                       ]}
                     />
                     <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
                       accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
                       rows={[
                         { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
-                        { label: 'Per Click $', value: `$${fmt(currentClickPower * pizzaPrice)}`, sub: 'money per click' },
+                        { label: 'Per Click $', value: `$${Math.floor(currentClickPower * pizzaPrice).toLocaleString()}`, sub: 'money per click' },
                         { label: 'Per Click Rep', value: fmt(currentClickPower), sub: 'rep per click' },
-                        { label: 'Total Clicks', value: fmtInt(totalClicks), sub: 'lifetime' },
-                        { label: 'Click Mult.', value: `${fmt(franchiseMultiplier)}x`, sub: `${franchiseLicenses} licenses` },
+                        { label: 'Total Clicks', value: Math.floor(totalClicks).toLocaleString(), sub: 'lifetime' },
+                        { label: 'Click Mult.', value: `${Math.floor(franchiseMultiplier * 100).toLocaleString()}%`, sub: `${franchiseLicenses} licenses` },
                         { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
                       ]}
                     />
                     <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
                       accentBorder="border-green-500/20" accentBg="bg-green-900/20" accentText="text-green-400" valueColor="text-green-300"
                       rows={[
-                        { label: 'Money Earned', value: `$${fmt(lifetimeMoney)}`, sub: fmtInt(lifetimeMoney) },
-                        { label: 'Pizzas Sold', value: fmtInt(totalPizzasSold), sub: 'all time' },
-                        { label: 'Perfect Bakes', value: fmtInt(perfectBakes), sub: 'oven mini-game' },
-                        { label: 'Deliveries', value: fmtInt(deliveriesCompleted), sub: 'time warp runs' },
-                        { label: 'VIP Tokens', value: fmtInt(vipTokens), sub: '+8% all per token' },
+                        { label: 'Money Earned', value: `$${Math.floor(lifetimeMoney).toLocaleString()}`, sub: Math.floor(lifetimeMoney).toLocaleString() },
+                        { label: 'Pizzas Sold', value: Math.floor(totalPizzasSold).toLocaleString(), sub: 'all time' },
+                        { label: 'Perfect Bakes', value: Math.floor(perfectBakes).toLocaleString(), sub: 'oven mini-game' },
+                        { label: 'Deliveries', value: Math.floor(deliveriesCompleted).toLocaleString(), sub: 'time warp runs' },
+                        { label: 'VIP Tokens', value: Math.floor(vipTokens).toLocaleString(), sub: '+8% all per token' },
                         { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 3}% price` },
                       ]}
                     />
                     <AccSection sKey="prestige" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
                       accentBorder="border-purple-500/20" accentBg="bg-purple-900/20" accentText="text-purple-400" valueColor="text-purple-300"
                       rows={[
-                        { label: 'Licenses', value: fmtInt(franchiseLicenses), sub: '+prod & click' },
-                        { label: 'Franchise Mult', value: `${fmt(franchiseMultiplier)}x`, sub: 'prod + click boost' },
-                        { label: 'Franchise Price', value: `${fmt(franchisePriceMultiplier)}x`, sub: '+15% $/pizza per license' },
-                        { label: 'Star Power', value: `${fmt(starPowerMultiplier)}x`, sub: `1.6^${starLevel} stars` },
-                        { label: 'Pending', value: fmtInt(pendingLicenses), sub: 'available to claim' },
-                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${fmtInt(nextStarReq)} rep for next` },
-                        { label: 'Next License', value: `$${fmt(nextLicenseCost)}`, sub: 'lifetime earnings req.' },
+                        { label: 'Licenses', value: Math.floor(franchiseLicenses).toLocaleString(), sub: '+prod & click' },
+                        { label: 'Franchise Mult', value: `${Math.floor(franchiseMultiplier * 100).toLocaleString()}%`, sub: 'prod + click boost' },
+                        { label: 'Franchise Price', value: `${Math.floor(franchisePriceMultiplier * 100).toLocaleString()}%`, sub: '+15% $/pizza per license' },
+                        { label: 'Star Power', value: `${Math.floor(starPowerMultiplier * 100).toLocaleString()}%`, sub: `1.6^${starLevel} stars` },
+                        { label: 'Pending', value: Math.floor(pendingLicenses).toLocaleString(), sub: 'available to claim' },
+                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${Math.floor(nextStarReq).toLocaleString()} rep for next` },
+                        { label: 'Next License', value: `$${Math.floor(nextLicenseCost).toLocaleString()}`, sub: 'lifetime earnings req.' },
                       ]}
                     />
 
