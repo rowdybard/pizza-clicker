@@ -359,7 +359,7 @@ export default function App() {
   const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
 
   // --- MODAL STATE ---
-  const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
+  const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
   // --- JUICE STATE ---
@@ -445,7 +445,7 @@ export default function App() {
 
   // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 250.
   const MAX_LICENSES = 250;
-  const _earlyRaw = Math.sqrt(lifetimeMoney / 50000);
+  const _earlyRaw = Math.sqrt(lifetimeMoney / 150000);
   const earlyLicenses = Math.min(5, Number.isFinite(_earlyRaw) ? Math.floor(_earlyRaw) : 5);
   const _mainRaw = Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST);
   const mainLicenses = Number.isFinite(_mainRaw) ? Math.floor(_mainRaw) : MAX_LICENSES;
@@ -453,7 +453,7 @@ export default function App() {
   const nextLicenseCost = (() => {
     if (totalEarnableLicenses >= MAX_LICENSES) return Infinity;
     const n = totalEarnableLicenses;
-    if (n < 5) return Math.pow(n + 1, 2) * 50000;
+    if (n < 5) return Math.pow(n + 1, 2) * 150000;
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
@@ -1810,14 +1810,21 @@ export default function App() {
         {/* Right Area: Management & Upgrades */}
         <div className="lg:col-span-7 flex flex-col gap-8 transition-all duration-300 opacity-100 mt-2">
           
-          {(lifetimeMoney > 30000 || franchiseLicenses > 0) && (
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
             <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden">
               <button
                 onClick={() => setCorpOfficeOpen(o => !o)}
                 className="w-full flex items-center gap-3 px-6 py-4 hover:bg-purple-900 transition-colors btn-tactile"
               >
                 <Building className="text-purple-300 w-6 h-6 shrink-0" />
-                <h2 className="text-2xl font-display tracking-wide text-purple-100 flex-1 text-left">Corporate Office</h2>
+                <div className="flex-1 text-left">
+                  <h2 className="text-2xl font-display tracking-wide text-purple-100">Corporate Office</h2>
+                  {pendingLicenses > 0 && (
+                    <div className="text-sm text-purple-400 font-medium">
+                      {pendingLicenses} License{pendingLicenses > 1 ? 's' : ''} Available to Sell
+                    </div>
+                  )}
+                </div>
                 <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
               </button>
               {corpOfficeOpen && <div className="px-6 pb-6">
@@ -2418,9 +2425,10 @@ export default function App() {
                               : <span><span className="text-blue-300 font-bold">{cur}/sec</span><span className="text-slate-600 mx-1">→</span><span className="text-blue-200 font-bold">{nxt}/sec</span></span>;
                           })()}
                           {upgrade.type === 'quality' && (() => {
+                            const gainPerPizza = upgrade.baseValue;
                             return count === 0
-                              ? <span>Next: <span className="text-amber-300 font-bold">+<span className="text-money">${fmt(upgrade.baseValue)}</span>/pizza</span></span>
-                              : <span><span className="text-amber-300 font-bold">+<span className="text-money">${fmt(upgrade.baseValue * count)}</span>/pizza</span><span className="text-slate-600 mx-1">→</span><span className="text-money font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
+                              ? <span>Next: <span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
+                              : <span><span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-slate-600 mx-1">→</span><span className="text-money font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
                           })()}
                           {upgrade.type === 'click' && (() => {
                             const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
