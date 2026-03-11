@@ -193,7 +193,7 @@ const UPGRADES = [
 
 const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
-const STAR_THRESHOLDS = [0, 500, 2500, 10000, 50000, 250000];
+const STAR_THRESHOLDS = [0, 500, 3000, 15000, 75000, 400000];
 const FRANCHISE_BASE_COST = 5e12; // scaled down so licenses 5-15 are reachable
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
