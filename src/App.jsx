@@ -1343,26 +1343,26 @@ export default function App() {
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-display text-white tracking-wider whitespace-nowrap leading-none text-stroke-sm">PIZZA EMPIRE</h1>
+            <h1 className="text-xl md:text-2xl font-display text-white tracking-wider whitespace-nowrap leading-none text-stroke-sm">PIZZA EMPIRE</h1>
             <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'}`} />
+                <Star key={i} className={`w-6 h-6 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'}`} />
               ))}
             </div>
           </div>
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
+            <div className={`flex flex-col items-center gap-2 px-8 py-4 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
               isRush ? 'bg-red-500' : 'bg-orange-500'
             }`}>
-              <div className="text-sm font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
+              <div className="text-base font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
-                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none text-white text-stroke-sm`}>
+                <span className={`font-display text-2xl md:text-3xl tabular-nums leading-none text-white text-stroke-sm`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
-                  <span className="text-sm font-bold text-white hidden sm:block">{numWords(money)}</span>
+                  <span className="text-base font-bold text-white hidden sm:block">{numWords(money)}</span>
                 )}
               </div>
             </div>
@@ -1370,12 +1370,12 @@ export default function App() {
 
           {/* RIGHT: Buy Multiplier Toggle */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex bg-white border-[4px] border-[#020617] rounded-xl shadow-[0_4px_0_#020617] p-1">
+            <div className="flex bg-white border-[4px] border-[#020617] rounded-xl shadow-[0_4px_0_#020617] p-2">
               {[1, 10, 'MAX'].map((mult) => (
                 <button
                   key={mult}
                   onClick={() => setBuyMultiplier(mult)}
-                  className={`px-3 py-2 rounded-lg font-display font-black text-sm transition-all ${
+                  className={`px-4 py-3 rounded-lg font-display font-black text-base transition-all ${
                     buyMultiplier === mult
                       ? 'bg-amber-400 text-slate-900 border-[2px] border-slate-900 shadow-[0_2px_0_#020617]'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -1701,20 +1701,20 @@ export default function App() {
             )}
 
             {sideOrder && sideOrder.status === 'cooking' && (
-              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-5 gap-3 relative">
-                <div className="flex justify-between w-full text-sm font-display tracking-widest text-orange-400">
-                   <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
+              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-6 gap-4 relative">
+                <div className="flex justify-between w-full text-base font-display tracking-widest text-orange-400">
+                   <span className="flex items-center gap-2"><Flame className="w-5 h-5 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
                    <span className="animate-pulse">BAKING...</span>
                 </div>
                 
-                <div className="w-full h-8 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
+                <div className="w-full h-10 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
                    <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
                    <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
                 </div>
                 
                 <button 
                   onClick={handlePullFromOven} 
-                  className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]"
+                  className="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px] text-base font-bold"
                 >
                   PULL FROM OVEN!
                 </button>
@@ -1723,14 +1723,13 @@ export default function App() {
 
             {/* REDESIGNED SCRUB BOARD */}
             {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'dirty' && (
-              <div className="w-full h-full bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-lg flex flex-col items-center justify-center gap-2">
-                 <div className="flex justify-between w-full text-xs font-display tracking-widest text-blue-300">
-                    <span className="flex items-center gap-2"><Droplets className="w-3 h-3 text-blue-400" /> SINK FULL</span>
-                    <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-2 py-0.5 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
+              <div className="w-full h-full bg-slate-800 rounded-2xl border border-slate-700 p-5 shadow-lg flex flex-col items-center justify-center gap-3">
+                 <div className="flex justify-between w-full text-sm font-display tracking-widest text-blue-300">
+                    <span className="flex items-center gap-2"><Droplets className="w-4 h-4 text-blue-400" /> SINK FULL</span>
+                    <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-3 py-1 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
                  </div>
-                 
                  <div 
-                    className="relative w-full h-16 sm:h-20 rounded-xl bg-slate-950 border-2 border-dashed border-blue-500/40 flex items-center justify-center cursor-crosshair touch-none overflow-hidden group shadow-inner"
+                    className="relative w-full h-20 sm:h-24 rounded-xl bg-slate-900 border-2 border-slate-600 flex items-center justify-center p-3 cursor-crosshair touch-none overflow-hidden group shadow-inner"
                     onMouseDown={handleScrubStart}
                     onTouchStart={handleScrubStart}
                     onMouseMove={handleScrub}
@@ -1738,19 +1737,16 @@ export default function App() {
                  >
                     {/* Water Level that fills up as you scrub */}
                     <div 
-                       className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 transition-all duration-100 ease-out opacity-80"
-                       style={{ height: `${(sideOrder.progress / sideOrder.required) * 100}%` }}
-                    >
-                       <div className="w-full h-full animate-pulse bg-[radial-gradient(circle_at_top,_#ffffff_0%,_transparent_60%)] opacity-30"></div>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center justify-center text-blue-300/80 pointer-events-none group-hover:text-blue-100 transition-colors">
-                       <span className="text-sm sm:text-base font-black tracking-widest flex items-center gap-3 drop-shadow-md">
-                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                          SWIPE HERE TO SCRUB
-                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                       </span>
-                    </div>
+                      className="absolute bottom-0 left-0 right-0 bg-blue-600 rounded-lg transition-all duration-100"
+                      style={{ height: `${(sideOrder.progress / sideOrder.required) * 100}%` }}
+                    ></div>
+                    {/* Target zone for perfect */}
+                    <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-green-500/30 border-y-2 border-green-400 rounded"></div>
+                    {/* Scrub instruction */}
+                    <span className="relative z-10 text-blue-200 font-display text-base md:text-lg font-black tracking-widest select-none">
+                      SWIPE HERE TO SCRUB
+                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </span>
                  </div>
               </div>
             )}
@@ -1804,12 +1800,12 @@ export default function App() {
               {/* COMBO METER */}
               {combo > 0 && (
                 <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
+                  <div className={`font-display text-2xl md:text-3xl transition-all duration-100 tabular-nums font-black
                     ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
-                  <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
-                  <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
+                  <div className="text-base font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-3 py-1 rounded mt-1">Combo</div>
+                  <div className="w-20 h-3 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
                     <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
                 </div>
@@ -1846,14 +1842,14 @@ export default function App() {
               </div>
              
               <div className="pointer-events-none flex flex-col items-center z-10">
-                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
-                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
+                <div className={`text-3xl md:text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
+                <div className={`text-base md:text-lg font-display px-6 py-3 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
                   isClean
                     ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
                     : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
                 }`}>
                   {isClean && (
-                    <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
+                    <span className="text-base font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-2 py-1 rounded shrink-0">2× CLEAN</span>
                   )}
                   <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
                   <span className={isClean ? 'text-cyan-600' : 'text-slate-500'}>|</span>
@@ -2469,22 +2465,22 @@ export default function App() {
                     }`}
                   >
                     {/* Icon Block */}
-                    <div className={`w-20 h-20 rounded-[18px] border-[4px] border-[#0f172a] ${iconColor} shadow-[0_6px_0_${iconDarkColor}] flex items-center justify-center relative`}>
+                    <div className={`w-24 h-24 rounded-[20px] border-[4px] border-[#0f172a] ${iconColor} shadow-[0_6px_0_${iconDarkColor}] flex items-center justify-center relative`}>
                       {/* Shine effect */}
-                      <div className="absolute top-0 inset-x-0 h-4 bg-white/20 rounded-t-[16px] pointer-events-none"></div>
-                      <div className="text-white text-3xl">
+                      <div className="absolute top-0 inset-x-0 h-5 bg-white/20 rounded-t-[18px] pointer-events-none"></div>
+                      <div className="text-white text-4xl">
                         {upgrade.icon}
                       </div>
                       {/* Level Badge */}
-                      <div className="absolute -top-3 -right-3 bg-red-500 border-[3px] border-[#0f172a] text-white px-2 py-0.5 rounded-lg font-black rotate-12 shadow-[0_3px_0_#0f172a] text-stroke-sm">
+                      <div className="absolute -top-3 -right-3 bg-red-500 border-[3px] border-[#0f172a] text-white px-3 py-1 rounded-lg font-black rotate-12 shadow-[0_3px_0_#0f172a] text-stroke-sm text-base">
                         LVL {count}
                       </div>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1">
-                      <h3 className="font-display text-lg text-slate-900 font-bold tracking-wider mb-1">{upgrade.name}</h3>
-                      <p className="text-sm text-slate-600 mb-2">
+                    <div className="flex-1 px-2">
+                      <h3 className="font-display text-xl text-slate-900 font-bold tracking-wider mb-2">{upgrade.name}</h3>
+                      <p className="text-base text-slate-600 mb-3">
                         {upgrade.type === 'production' && `+${fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)}/sec`}
                         {upgrade.type === 'quality' && `+$${Math.floor(upgrade.baseValue * 100) / 100}/pizza`}
                         {upgrade.type === 'click' && `+${fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier)} pizzas/click`}
@@ -2502,12 +2498,12 @@ export default function App() {
                         }
                       }}
                       disabled={!canBuy}
-                      className="bg-green-500 border-[4px] border-[#0f172a] shadow-[0_6px_0_#16a34a] active:shadow-[0_0px_0_#16a34a] active:translate-y-[6px] rounded-[18px] h-[72px] px-4 flex flex-col items-center justify-center min-w-[100px]"
+                      className="bg-green-500 border-[4px] border-[#0f172a] shadow-[0_6px_0_#16a34a] active:shadow-[0_0px_0_#16a34a] active:translate-y-[6px] rounded-[20px] h-[80px] px-5 flex flex-col items-center justify-center min-w-[120px]"
                     >
-                      <div className="text-stroke-sm font-display text-lg font-black text-white tabular-nums">
+                      <div className="text-stroke-sm font-display text-xl font-black text-white tabular-nums">
                         ${fmt(buyCost)}
                       </div>
-                      <div className="text-white font-bold text-sm">
+                      <div className="text-white font-bold text-base mt-1">
                         Buy {buyMultiplier === 'MAX' ? buyAmount : buyMultiplier}
                       </div>
                     </button>
@@ -3378,8 +3374,7 @@ export default function App() {
       `}} />
 
     </div>
-  </div>
-  <Analytics />
-  </>
+    </div>
+    </>
   );
 }
