@@ -169,26 +169,26 @@ const DESTINATIONS = [
 const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
   { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 1, icon: <Sparkles className="text-orange-400" /> },
-  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 2, icon: <Zap className="text-orange-300" /> },
+  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 2, icon: <Zap className="text-orange-400" /> },
   { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
-  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-yellow-300" /> },
-  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-orange-400" /> },
+  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-orange-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.33, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
-  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-500" /> },
-  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-green-500" /> },
-  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-purple-500" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 100, reqStars: 4, icon: <Zap className="text-indigo-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-pink-500" /> },
-  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-indigo-300" /> },
-  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-cyan-400" /> },
-  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 2.00, reqStars: 0, icon: <Coffee className="text-amber-500" /> },
-  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 4.00, reqStars: 1, icon: <Award className="text-yellow-400" /> },
-  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 8.00, reqStars: 2, icon: <Pizza className="text-orange-500" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 1.50, reqStars: 3, icon: <Zap className="text-red-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 3.75, reqStars: 4, icon: <Gem className="text-cyan-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 12.00, reqStars: 5, icon: <Crown className="text-yellow-500" /> },
-  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 37.50, reqStars: 5, icon: <Flame className="text-rose-400" /> },
-  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 225.00, reqStars: 5, icon: <Sparkles className="text-violet-400" /> },
+  { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-400" /> },
+  { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-blue-400" /> },
+  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-blue-400" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 100, reqStars: 4, icon: <Zap className="text-blue-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-blue-400" /> },
+  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-blue-400" /> },
+  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-blue-400" /> },
+  { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 2.00, reqStars: 0, icon: <Coffee className="text-amber-400" /> },
+  { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 4.00, reqStars: 1, icon: <Award className="text-amber-400" /> },
+  { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 8.00, reqStars: 2, icon: <Pizza className="text-amber-400" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 1.50, reqStars: 3, icon: <Zap className="text-amber-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 3.75, reqStars: 4, icon: <Gem className="text-amber-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 12.00, reqStars: 5, icon: <Crown className="text-amber-400" /> },
+  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 37.50, reqStars: 5, icon: <Flame className="text-amber-400" /> },
+  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 225.00, reqStars: 5, icon: <Sparkles className="text-amber-400" /> },
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
@@ -375,6 +375,10 @@ export default function App() {
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
+
+  // --- SPECIAL DELIVERY STATE ---
+  const [specialDelivery, setSpecialDelivery] = useState(null);
+  const [deliveryGame, setDeliveryGame] = useState(null);
 
   const calculateCost = (upgrade, currentCount, amount) => {
     let totalCost = 0;
@@ -1083,6 +1087,146 @@ export default function App() {
     return () => clearInterval(saveLoop);
   }, []);
 
+  // 6. Special Delivery Timer Loop
+  useEffect(() => {
+    // Check if player has at least one delivery unlocked
+    const hasAnyDelivery = DESTINATIONS.some(dest => {
+      const req = dest.unlockReq;
+      return totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
+    });
+
+    if (!hasAnyDelivery) return;
+
+    const specialDeliveryTick = setInterval(() => {
+      setSpecialDelivery(prev => {
+        // If there's already a special delivery, don't create a new one
+        if (prev) return prev;
+        
+        // 20% chance every 30 seconds (roughly every 6-8 minutes on average)
+        if (Math.random() < 0.2) {
+          const expiresAt = Date.now() + 45000; // 45 seconds to accept
+          return {
+            id: `special-${Date.now()}`,
+            expiresAt,
+            rewardMultiplier: 2.0, // 2x rewards
+            created: Date.now()
+          };
+        }
+        return prev;
+      });
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(specialDeliveryTick);
+  }, [totalPizzasSold, starLevel, lifetimeMoney, franchiseLicenses]);
+
+  // Clean up expired special deliveries
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      setSpecialDelivery(prev => {
+        if (prev && Date.now() > prev.expiresAt) {
+          return null; // Remove expired delivery
+        }
+        return prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // 7. Delivery Game Loop
+  useEffect(() => {
+    if (!deliveryGame || !deliveryGame.gameActive) return;
+
+    const gameTick = setInterval(() => {
+      setDeliveryGame(prev => {
+        if (!prev || !prev.gameActive) return prev;
+
+        // Update distance
+        const newDistance = prev.distance + prev.speed;
+
+        // Generate new obstacles
+        const newObstacles = [...prev.obstacles];
+        
+        // Move existing obstacles down
+        const movedObstacles = newObstacles
+          .map(obs => ({ ...obs, position: obs.position - prev.speed }))
+          .filter(obs => obs.position > -20); // Remove obstacles that went off screen
+
+        // Add new obstacles randomly
+        if (Math.random() < 0.02 + (newDistance / 10000)) { // Increase difficulty over distance
+          const lane = Math.floor(Math.random() * 3);
+          const types = ['cone', 'pothole', 'car'];
+          const type = types[Math.floor(Math.random() * types.length)];
+          
+          movedObstacles.push({
+            id: `obs-${Date.now()}-${Math.random()}`,
+            lane,
+            type,
+            position: 120 // Start from top
+          });
+        }
+
+        // Check collisions
+        const collision = movedObstacles.some(obs => 
+          obs.lane === prev.lane && 
+          obs.position >= 15 && 
+          obs.position <= 35 // Collision zone around player car
+        );
+
+        if (collision) {
+          // Game over - calculate reward
+          const baseReward = 1000 + (prev.score * 10);
+          const finalReward = Math.floor(baseReward * 2); // 2x multiplier for special delivery
+          
+          setMoney(m => m + finalReward);
+          pushLog('click', `🚗 Special Delivery: +$${fmt(finalReward)}`, finalReward);
+          
+          return {
+            ...prev,
+            gameActive: false,
+            gameOver: true,
+            finalReward
+          };
+        }
+
+        // Update score based on survival
+        const newScore = prev.score + 1;
+
+        return {
+          ...prev,
+          distance: newDistance,
+          obstacles: movedObstacles,
+          score: newScore,
+          speed: Math.min(15, 5 + newDistance / 500) // Gradually increase speed
+        };
+      });
+    }, 50); // 20 FPS for smooth gameplay
+
+    return () => clearInterval(gameTick);
+  }, [deliveryGame?.gameActive]);
+
+  // 8. Delivery Game Keyboard Controls
+  useEffect(() => {
+    if (!deliveryGame || !deliveryGame.gameActive) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        if (deliveryGame.lane > 0) {
+          setDeliveryGame(prev => ({ ...prev, lane: prev.lane - 1 }));
+        }
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        if (deliveryGame.lane < 2) {
+          setDeliveryGame(prev => ({ ...prev, lane: prev.lane + 1 }));
+        }
+      } else if (e.key === 'Escape') {
+        setDeliveryGame(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deliveryGame?.gameActive, deliveryGame?.lane]);
+
   // --- MARKET PRICE ENGINE ---
   useEffect(() => {
     // Baseline "fair value" — prices drift back toward these over time
@@ -1266,7 +1410,7 @@ export default function App() {
 
   return (
     <>
-    <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+      <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
@@ -1644,6 +1788,142 @@ export default function App() {
       )}
 
 
+      {/* --- DELIVERY DRIVING GAME MODAL --- */}
+      {deliveryGame && deliveryGame.gameActive && (
+        <div className="fixed inset-0 z-[120] bg-[#050505] flex items-center justify-center p-0">
+          <div className="relative w-full h-full overflow-hidden">
+            {/* Game Header */}
+            <div className="absolute top-0 left-0 right-0 z-10 bg-zinc-900/90 border-b-2 border-amber-600 px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Car className="w-6 h-6 text-amber-400" />
+                <span className="text-amber-300 font-display text-lg tracking-wider">SPECIAL DELIVERY</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-zinc-300 text-sm font-bold tabular-nums">Score: {deliveryGame.score}</div>
+                <div className="text-zinc-300 text-sm font-bold tabular-nums">Distance: {deliveryGame.distance}m</div>
+                <button 
+                  onClick={() => setDeliveryGame(null)}
+                  className="text-zinc-400 hover:text-red-400 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Game Road */}
+            <div className="relative w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900 flex items-center justify-center">
+              {/* Game Over Overlay */}
+              {deliveryGame.gameOver && (
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
+                  <div className="bg-zinc-900 border-2 border-amber-600 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center">
+                    <div className="text-4xl mb-4">💥</div>
+                    <h2 className="text-2xl font-display text-amber-400 tracking-wider mb-4">DELIVERY COMPLETE!</h2>
+                    <div className="space-y-3 mb-6">
+                      <div className="text-zinc-300">
+                        <div className="text-sm uppercase tracking-wider mb-1">Distance Traveled</div>
+                        <div className="font-display text-2xl tabular-nums">{deliveryGame.distance}m</div>
+                      </div>
+                      <div className="text-zinc-300">
+                        <div className="text-sm uppercase tracking-wider mb-1">Final Score</div>
+                        <div className="font-display text-2xl tabular-nums">{deliveryGame.score}</div>
+                      </div>
+                      <div className="text-amber-400">
+                        <div className="text-sm uppercase tracking-wider mb-1">Reward Earned</div>
+                        <div className="font-display text-3xl tabular-nums text-money">+${fmt(deliveryGame.finalReward)}</div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setDeliveryGame(null)}
+                      className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-display text-lg font-black tracking-wider rounded-xl border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px] transition-all btn-tactile"
+                    >
+                      COLLECT REWARD
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Road lanes */}
+              <div className="relative w-full max-w-md h-full">
+                {/* Lane dividers */}
+                <div className="absolute inset-0 flex">
+                  <div className="flex-1 border-r-2 border-dashed border-zinc-600"></div>
+                  <div className="flex-1 border-r-2 border-dashed border-zinc-600"></div>
+                  <div className="flex-1"></div>
+                </div>
+
+                {/* Player car */}
+                <div 
+                  className={`absolute bottom-20 w-16 h-20 bg-gradient-to-b from-amber-500 to-amber-700 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 flex items-center justify-center text-2xl`}
+                  style={{ 
+                    left: `${25 + deliveryGame.lane * 25}%`,
+                    transform: 'translateX(-50%)'
+                  }}
+                >
+                  🚗
+                </div>
+
+                {/* Obstacles */}
+                {deliveryGame.obstacles.map((obstacle, index) => (
+                  <div
+                    key={obstacle.id}
+                    className={`absolute w-16 h-16 bg-gradient-to-b from-red-600 to-red-800 rounded-lg border-2 border-red-900 shadow-lg flex items-center justify-center text-2xl`}
+                    style={{
+                      left: `${25 + obstacle.lane * 25}%`,
+                      bottom: `${obstacle.position}%`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    {obstacle.type === 'cone' ? '🚧' : obstacle.type === 'pothole' ? '🕳️' : obstacle.type === 'car' ? '🚙' : '⚠️'}
+                  </div>
+                ))}
+
+                {/* Road edges */}
+                <div className="absolute left-0 top-0 bottom-0 w-8 bg-zinc-700 border-r-4 border-zinc-800"></div>
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-zinc-700 border-l-4 border-zinc-800"></div>
+              </div>
+            </div>
+
+            {/* Game Controls */}
+            <div className="absolute bottom-0 left-0 right-0 bg-zinc-900/90 border-t-2 border-amber-600 p-4">
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    if (deliveryGame.lane > 0) {
+                      setDeliveryGame(prev => ({ ...prev, lane: prev.lane - 1 }));
+                    }
+                  }}
+                  disabled={deliveryGame.lane === 0}
+                  className={`px-8 py-4 rounded-xl font-display text-lg font-black tracking-wider transition-all ${
+                    deliveryGame.lane === 0 
+                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
+                      : 'bg-amber-600 hover:bg-amber-500 text-white border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px]'
+                  }`}
+                >
+                  ← LEFT
+                </button>
+                <button
+                  onClick={() => {
+                    if (deliveryGame.lane < 2) {
+                      setDeliveryGame(prev => ({ ...prev, lane: prev.lane + 1 }));
+                    }
+                  }}
+                  disabled={deliveryGame.lane === 2}
+                  className={`px-8 py-4 rounded-xl font-display text-lg font-black tracking-wider transition-all ${
+                    deliveryGame.lane === 2 
+                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
+                      : 'bg-amber-600 hover:bg-amber-500 text-white border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px]'
+                  }`}
+                >
+                  RIGHT →
+                </button>
+              </div>
+              <div className="text-center mt-2 text-zinc-400 text-sm">
+                Avoid obstacles and survive as long as possible!
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── MAIN CONTENT (offset for HUD) ── */}
       <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-28 pb-6 px-4 md:px-6">
         
@@ -1761,8 +2041,41 @@ export default function App() {
             )}
             
             {!vipSpawned && !isRush && !sideOrder && (
-              <div className="w-full h-full border-2 border-dashed border-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500 text-sm font-bold uppercase tracking-widest bg-zinc-800/30">
-                {isClean ? <><Sparkles className="w-6 h-6 text-blue-400 mr-2" /><span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {cleanBoostTimer}s</span></> : 'Awaiting Orders...'}
+              <div className="w-full h-full border-2 border-dashed border-zinc-700 rounded-2xl flex flex-col items-center justify-center text-zinc-500 text-sm font-bold uppercase tracking-widest bg-zinc-800/30">
+                {specialDelivery ? (
+                  <>
+                    <div className="text-center mb-4">
+                      <div className="text-amber-400 text-lg font-display tracking-wider mb-2">🚗 Special Delivery Ready!</div>
+                      <div className="text-zinc-400 text-xs mb-3">Complete the lane challenge for 2x rewards</div>
+                      <div className="text-amber-300 text-xs tabular-nums mb-4">
+                        Expires in: {Math.max(0, Math.ceil((specialDelivery.expiresAt - Date.now()) / 1000))}s
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setDeliveryGame({
+                          lane: 1, // Start in middle lane (0, 1, 2)
+                          score: 0,
+                          speed: 5,
+                          obstacles: [],
+                          gameActive: true,
+                          distance: 0
+                        });
+                        setSpecialDelivery(null);
+                      }}
+                      className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display text-sm font-black tracking-wider rounded-xl border-b-[3px] border-amber-800 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
+                    >
+                      START NOW
+                    </button>
+                  </>
+                ) : isClean ? (
+                  <>
+                    <Sparkles className="w-6 h-6 text-blue-400 mr-2" />
+                    <span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {cleanBoostTimer}s</span>
+                  </>
+                ) : (
+                  'Awaiting Orders...'
+                )}
               </div>
             )}
           </div>
@@ -1862,7 +2175,8 @@ export default function App() {
                 </div>
                 <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
               </button>
-              {corpOfficeOpen && <div className="px-6 pb-6">
+              {corpOfficeOpen && (
+                <div className="px-6 pb-6">
 
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
@@ -2086,11 +2400,10 @@ export default function App() {
                   </>
                 );
               })()}
-            </div>}
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="bg-zinc-800 rounded-2xl p-0 shadow-2xl border border-zinc-700 flex flex-col overflow-hidden relative">
+            )}
 
             {/* ── TAB NAV ── */}
             <div className="bg-zinc-900 border-b-4 border-zinc-950 px-3 pt-3 pb-3">
@@ -2103,20 +2416,37 @@ export default function App() {
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
                   ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }] : []),
-                ].map(({ id, icon, label, active }) => (
-                  <button
-                    key={id}
-                    onClick={() => setActiveTab(id)}
-                    className={`flex items-center justify-center gap-1 py-2 px-2 rounded-lg font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
-                      activeTab === id
-                        ? active
-                        : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
-                  >
-                    {icon}
-                    <span className="truncate">{label}</span>
-                  </button>
-                ))}
+                ].map(({ id, icon, label, active }) => {
+                  // Calculate available deliveries for map tab
+                  const availableDeliveries = id === 'map' ? DESTINATIONS.filter(dest => {
+                    const cooldown = deliveryCooldowns[dest.id] || 0;
+                    const onCooldown = cooldown > 0;
+                    const req = dest.unlockReq;
+                    const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
+                    return isUnlocked && !onCooldown;
+                  }) : [];
+
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setActiveTab(id)}
+                      className={`flex items-center justify-center gap-1 py-2 px-2 rounded-lg font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 relative ${
+                        activeTab === id
+                          ? active
+                          : 'text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {icon}
+                      <span className="truncate">{label}</span>
+                      {/* Delivery notification indicator */}
+                      {id === 'map' && availableDeliveries.length > 0 && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-red-700 rounded-full flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.5)] animate-pulse">
+                          <span className="text-red-100 text-xs font-black leading-none">!</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -3344,9 +3674,8 @@ export default function App() {
               </div>
             </div>
 
-          </div>
         </div>
-      
+
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
 
@@ -3419,7 +3748,7 @@ export default function App() {
 
     </div>
   </div>
-  <Analytics />
-  </>
+    <Analytics />
+    </>
   );
 }
