@@ -2951,7 +2951,7 @@ export default function App() {
                                     : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
                                 }`}
                               >
-                                {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Spread Rumor'}
+                                {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Rumor'}
                               </button>
                               <button
                                 onClick={() => {
@@ -2968,7 +2968,7 @@ export default function App() {
                                     : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
                                 }`}
                               >
-                                {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Short Squeeze'}
+                                {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Squeeze'}
                               </button>
                             </div>
                           </div>
