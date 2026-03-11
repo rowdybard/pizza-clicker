@@ -1771,10 +1771,10 @@ export default function App() {
             <button 
               onClick={handleBakeAndBox}
               className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
-                border-b-[8px]
+                border-b-[8px] active:shadow-none active:translate-y-[12px]
                 ${isRush
-                  ? 'bg-red-600 border-red-900 hover:bg-red-700'
-                  : 'bg-orange-500 border-orange-800 hover:bg-orange-600'
+                  ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 shadow-[0_12px_0_#000000] hover:from-red-500 hover:to-red-600'
+                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 shadow-[0_12px_0_#000000] hover:from-zinc-700 hover:to-zinc-800'
                 }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
@@ -2436,106 +2436,89 @@ export default function App() {
                 const can10 = money >= cost10;
                 const can100 = money >= cost100;
 
+                // Calculate display cost and buy amount using helper functions
+                const displayCost = getUpgradeCost(upgrade, count, buyMultiplier);
+                const buyAmount = buyMultiplier === 'MAX' ? getMaxBuys(upgrade, count) : buyMultiplier;
+                
                 return (
-                  <button
-                    key={upgrade.id}
-                    onClick={() => buyUpgrade(upgrade)}
-                    disabled={!canAfford}
-                    className={`w-full group flex flex-col p-6 rounded-2xl text-left relative overflow-hidden border btn-tactile ${
-                      canAfford
-                        ? 'border-amber-800 border-b-[6px] border-b-amber-900 active:border-b-0 active:translate-y-[6px] cursor-pointer hover:border-amber-700 hover:shadow-lg hover:shadow-amber-900/30'
-                        : 'bg-white/30 opacity-50 border-amber-600 cursor-not-allowed'
-                    }`}
-                    style={{
-                      background: 'linear-gradient(to bottom, #f4e4c1 0%, #f4e4c1 15%, #e8d4a1 85%, #d4b896 100%)'
-                    }}
-                  >
-                    {/* milestone progress bar */}
-                    {nextMilestone !== 'MAX' && (
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-zinc-900/50">
-                        <div className={`h-full ${theme.bar} transition-all duration-500 ease-out`} style={{ width: `${(count / nextMilestone) * 100}%` }} />
-                      </div>
-                    )}
-
-                    {/* ── ROW 1: icon + name + level badge ── */}
-                    <div className="flex items-center gap-3 relative z-10">
-                      <div className={`p-4 rounded-2xl border shrink-0 bg-amber-50/80 border-amber-600/50`}>
-                        <div className={`text-4xl ${
-                          upgrade.type === 'production' ? 'text-blue-700' :
-                          upgrade.type === 'quality' ? 'text-amber-700' :
-                          'text-orange-700'
-                        }`}>
-                          {upgrade.icon}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h3 className="font-display text-2xl font-black text-black tracking-wider leading-tight">{upgrade.name}</h3>
-                          <span className="text-sm font-black px-3 py-1 rounded tabular-nums shrink-0 bg-amber-200/80 text-amber-900 border border-amber-600/50">
-                            LVL {count}
-                          </span>
-                          {multi > 1 && count > 0 && (
-                            <span className="text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 bg-amber-200/80 text-amber-900 border border-amber-600/50">
-                              {multi}x
-                            </span>
-                          )}
-                        </div>
-                        {/* stat line */}
-                        <p className="text-base text-black font-medium mt-2 tabular-nums">
-                          {upgrade.type === 'production' && (() => {
-                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
-                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
-                            return count === 0
-                              ? <span>Next: <span className="text-blue-600 font-bold">+{nxt}/sec</span></span>
-                              : <span><span className="text-blue-600 font-bold">{cur}/sec</span><span className="text-black mx-1">→</span><span className="text-blue-500 font-bold">{nxt}/sec</span></span>;
-                          })()}
-                          {upgrade.type === 'quality' && (() => {
-                            const gainPerPizza = upgrade.baseValue;
-                            return count === 0
-                              ? <span>Next: <span className="text-amber-600 font-bold">+<span className="text-amber-700">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
-                              : <span><span className="text-amber-600 font-bold">+<span className="text-amber-700">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-black mx-1">→</span><span className="text-amber-700 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
-                          })()}
-                          {upgrade.type === 'click' && (() => {
-                            const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                            return count === 0
-                              ? <span>Next: <span className="text-orange-600 font-bold">+{nxt} pizzas/click</span></span>
-                              : <span><span className="text-orange-600 font-bold">{cur}/click</span><span className="text-black mx-1">→</span><span className="text-orange-500 font-bold">{nxt}/click</span></span>;
-                          })()}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* ── SPACER ── */}
-                    <div className="relative z-10 mt-6 mb-4 border-t border-amber-700/40" />
-
-                    {/* ── ROW 2: price · milestone · bulk buttons ── */}
-                    <div className="relative z-10 flex items-center gap-3">
-
-                      {/* Price pill — clear focal anchor */}
-                      <div className={`flex items-baseline gap-2 px-4 py-2 rounded-xl shrink-0 ${
-                        canAfford ? 'bg-green-100 border-green-300 border-b-[3px] border-b-green-400' : 'bg-zinc-100 border-zinc-300'
+                  <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] flex items-center p-4 gap-5 relative group">
+                    
+                    {/* Icon Block */}
+                    <div className="w-20 h-20 shrink-0 rounded-lg bg-zinc-950 border border-zinc-900 shadow-inner flex items-center justify-center relative overflow-hidden group-hover:border-zinc-800 transition-colors">
+                      <div className={`text-4xl ${
+                        upgrade.type === 'production' ? 'text-blue-400' :
+                        upgrade.type === 'quality' ? 'text-amber-400' :
+                        'text-orange-400'
                       }`}>
-                        <span className={`font-display text-xl font-black tabular-nums leading-none ${canAfford ? 'text-green-700' : 'text-zinc-500'}`}>
-                          ${fmt(cost)}
-                        </span>
+                        {upgrade.icon}
                       </div>
-
-                      {/* Milestone tracker — middle, fills remaining space */}
-                      <div className="flex-1 flex items-center justify-center min-w-0">
-                        {nextMilestone !== 'MAX' ? (
-                          <span className="text-base text-black font-bold tabular-nums truncate">
-                            <span className="text-black font-black">{count}</span>
-                            <span className="text-black mx-0.5">/</span>
-                            <span className="text-black font-black">{nextMilestone}</span>
-                            <span className="text-black ml-1">next boost</span>
-                          </span>
-                        ) : (
-                          <span className="text-base font-black uppercase tracking-wider text-black">✦ Max Boost</span>
-                        )}
+                      
+                      {/* Level Badge */}
+                      <div className="absolute -bottom-2 -right-2 bg-zinc-900 border border-zinc-700 px-2 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
+                        <span className="text-xs font-black text-amber-400 font-display tabular-nums">{count}</span>
                       </div>
                     </div>
-                  </button>
+
+                    {/* Content Area */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <h3 className="font-display text-xl font-black text-amber-100 tracking-wider leading-tight mb-1">{upgrade.name}</h3>
+                          <p className="text-sm text-zinc-300 font-medium tabular-nums">
+                            {upgrade.type === 'production' && (() => {
+                              const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                              const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                              return count === 0
+                                ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
+                                : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
+                            })()}
+                            {upgrade.type === 'quality' && (() => {
+                              const gainPerPizza = upgrade.baseValue;
+                              return count === 0
+                                ? <span>Next: <span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
+                                : <span><span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
+                            })()}
+                            {upgrade.type === 'click' && (() => {
+                              const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                              const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                              return count === 0
+                                ? <span>Next: <span className="text-orange-400 font-bold">+{nxt} pizzas/click</span></span>
+                                : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Laser Cut Progress Bar */}
+                      {nextMilestone !== 'MAX' && (
+                        <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50 mt-2">
+                          <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Single Action Button */}
+                    <button 
+                      onClick={() => buyUpgrade(upgrade)}
+                      disabled={!canAfford}
+                      className={`w-[110px] h-[70px] shrink-0 rounded-lg border flex flex-col items-center justify-center transition-all duration-150 relative overflow-hidden group ${
+                        canAfford 
+                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_6px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[6px] cursor-pointer' 
+                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_6px_0_#000000] cursor-not-allowed opacity-80'
+                      }`}
+                    >
+                      <span className={`font-display text-lg font-black tabular-nums leading-none ${
+                        canAfford ? 'text-amber-100' : 'text-zinc-600'
+                      }`}>
+                        ${fmt(displayCost)}
+                      </span>
+                      <span className={`text-xs font-bold uppercase tracking-wider ${
+                        canAfford ? 'text-amber-200' : 'text-zinc-700'
+                      }`}>
+                        {buyAmount === 'MAX' ? 'MAX' : `×${buyAmount}`}
+                      </span>
+                    </button>
+                  </div>
                 );
               })}
                 </>
