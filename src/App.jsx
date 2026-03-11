@@ -1353,17 +1353,14 @@ export default function App() {
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-2 px-6 py-3 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
+            <div className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
               isRush ? 'bg-red-500' : 'bg-orange-500'
             }`}>
-              <div className="text-sm font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
-              <div className="flex items-baseline gap-2">
-                <span className={`font-display text-xl md:text-2xl tabular-nums leading-none text-white text-stroke-sm`}>
+              <div className="text-xs font-bold text-white tracking-wider">BANK BALANCE</div>
+              <div className="flex items-baseline gap-1">
+                <span className={`font-display text-lg tabular-nums leading-none text-white font-bold`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
-                {numWords(money) && (
-                  <span className="text-sm font-bold text-white hidden sm:block">{numWords(money)}</span>
-                )}
               </div>
             </div>
           </div>
@@ -2484,9 +2481,20 @@ export default function App() {
                     <div className="flex-1 px-2">
                       <h3 className="font-display text-xl text-slate-900 font-bold tracking-wider mb-2">{upgrade.name}</h3>
                       <p className="text-base text-slate-600 mb-3">
-                        {upgrade.type === 'production' && `+${fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)}/sec`}
-                        {upgrade.type === 'quality' && `+$${Math.floor(upgrade.baseValue * 100) / 100}/pizza`}
-                        {upgrade.type === 'click' && `+${fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier)} pizzas/click`}
+                        {upgrade.type === 'production' && (() => {
+                          const current = upgrade.baseValue * count * multi * vipTokenMultiplier;
+                          const next = upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier;
+                          return count === 0 ? `+${fmt(next)}/sec` : `${fmt(current)}/sec → ${fmt(next)}/sec`;
+                        })()}
+                        {upgrade.type === 'quality' && (() => {
+                          const gainPerPizza = upgrade.baseValue;
+                          return count === 0 ? `+$${Math.floor(gainPerPizza * 100) / 100}/pizza` : `+$${Math.floor(gainPerPizza * 100) / 100}/pizza`;
+                        })()}
+                        {upgrade.type === 'click' && (() => {
+                          const current = upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
+                          const next = upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
+                          return count === 0 ? `+${fmt(next)} pizzas/click` : `${fmt(current)} → ${fmt(next)} pizzas/click`;
+                        })()}
                       </p>
                     </div>
 
