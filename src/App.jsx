@@ -374,28 +374,6 @@ export default function App() {
   // --- MODAL STATE ---
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
-
-  const calculateCost = (upgrade, currentCount, amount) => {
-    let totalCost = 0;
-    for (let i = 0; i < amount; i++) totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
-    return totalCost;
-  };
-
-  const calculateMax = (upgrade, currentCount) => {
-    let cost = 0;
-    let amount = 0;
-    let simulatedMoney = money;
-    while (true) {
-      const nextCost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + amount));
-      if (simulatedMoney >= nextCost) {
-        simulatedMoney -= nextCost;
-        cost += nextCost;
-        amount++;
-      } else break;
-    }
-    return { amount: Math.max(1, amount), cost: amount > 0 ? cost : Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount)) };
-  };
 
   // --- JUICE STATE ---
   const [isShaking, setIsShaking] = useState(false);
@@ -1338,34 +1316,36 @@ export default function App() {
       </div>
 
       {/* ── FIXED HUD ── */}
-      <div className={`fixed top-0 inset-x-0 z-50 bg-[#0f172a] border-b-[6px] border-[#020617] px-4 py-3 shadow-2xl transition-colors duration-300 ${isRush ? 'bg-red-600' : ''}`}>
-        <div className="max-w-6xl mx-auto flex items-center gap-4">
+      <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
+        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-xl md:text-2xl font-display text-white tracking-wider whitespace-nowrap leading-none text-stroke-sm">PIZZA EMPIRE</h1>
+            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA EMPIRE</h1>
             <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-6 h-6 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'}`} />
+                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
               ))}
             </div>
           </div>
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
-              isRush ? 'bg-red-500' : 'bg-orange-500'
+            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
+              isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
             }`}>
-              <div className="text-xs font-bold text-white tracking-wider">BANK BALANCE</div>
-              <div className="flex items-baseline gap-1">
-                <span className={`font-display text-lg tabular-nums leading-none text-white font-bold`}>
+              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="flex items-baseline gap-2">
+                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
+                {numWords(money) && (
+                  <span className="text-sm text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
+                )}
               </div>
             </div>
           </div>
 
-          
           {/* RIGHT: Secondary stat pills + settings */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Golden Slices - only show if player has any */}
@@ -1643,7 +1623,7 @@ export default function App() {
 
 
       {/* ── MAIN CONTENT (offset for HUD) ── */}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-24 pb-6 px-4 md:px-6">
+      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-28 pb-6 px-4 md:px-6">
         
         {/* Left Area: Action Center */}
         <div className="lg:col-span-5 flex flex-col gap-6 relative mt-2">
@@ -1680,20 +1660,20 @@ export default function App() {
             )}
 
             {sideOrder && sideOrder.status === 'cooking' && (
-              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-6 gap-4 relative">
-                <div className="flex justify-between w-full text-base font-display tracking-widest text-orange-400">
-                   <span className="flex items-center gap-2"><Flame className="w-5 h-5 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
+              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-5 gap-3 relative">
+                <div className="flex justify-between w-full text-sm font-display tracking-widest text-orange-400">
+                   <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
                    <span className="animate-pulse">BAKING...</span>
                 </div>
                 
-                <div className="w-full h-10 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
+                <div className="w-full h-8 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
                    <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
                    <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
                 </div>
                 
                 <button 
                   onClick={handlePullFromOven} 
-                  className="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px] text-base font-bold"
+                  className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]"
                 >
                   PULL FROM OVEN!
                 </button>
@@ -1702,13 +1682,14 @@ export default function App() {
 
             {/* REDESIGNED SCRUB BOARD */}
             {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'dirty' && (
-              <div className="w-full h-full bg-slate-800 rounded-2xl border border-slate-700 p-5 shadow-lg flex flex-col items-center justify-center gap-3">
-                 <div className="flex justify-between w-full text-sm font-display tracking-widest text-blue-300">
-                    <span className="flex items-center gap-2"><Droplets className="w-4 h-4 text-blue-400" /> SINK FULL</span>
-                    <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-3 py-1 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
+              <div className="w-full h-full bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-lg flex flex-col items-center justify-center gap-2">
+                 <div className="flex justify-between w-full text-xs font-display tracking-widest text-blue-300">
+                    <span className="flex items-center gap-2"><Droplets className="w-3 h-3 text-blue-400" /> SINK FULL</span>
+                    <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-2 py-0.5 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
                  </div>
+                 
                  <div 
-                    className="relative w-full h-20 sm:h-24 rounded-xl bg-slate-900 border-2 border-slate-600 flex items-center justify-center p-3 cursor-crosshair touch-none overflow-hidden group shadow-inner"
+                    className="relative w-full h-16 sm:h-20 rounded-xl bg-slate-950 border-2 border-dashed border-blue-500/40 flex items-center justify-center cursor-crosshair touch-none overflow-hidden group shadow-inner"
                     onMouseDown={handleScrubStart}
                     onTouchStart={handleScrubStart}
                     onMouseMove={handleScrub}
@@ -1716,16 +1697,19 @@ export default function App() {
                  >
                     {/* Water Level that fills up as you scrub */}
                     <div 
-                      className="absolute bottom-0 left-0 right-0 bg-blue-600 rounded-lg transition-all duration-100"
-                      style={{ height: `${(sideOrder.progress / sideOrder.required) * 100}%` }}
-                    ></div>
-                    {/* Target zone for perfect */}
-                    <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-green-500/30 border-y-2 border-green-400 rounded"></div>
-                    {/* Scrub instruction */}
-                    <span className="relative z-10 text-blue-200 font-display text-base md:text-lg font-black tracking-widest select-none">
-                      SWIPE HERE TO SCRUB
-                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </span>
+                       className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 transition-all duration-100 ease-out opacity-80"
+                       style={{ height: `${(sideOrder.progress / sideOrder.required) * 100}%` }}
+                    >
+                       <div className="w-full h-full animate-pulse bg-[radial-gradient(circle_at_top,_#ffffff_0%,_transparent_60%)] opacity-30"></div>
+                    </div>
+
+                    <div className="relative z-10 flex flex-col items-center justify-center text-blue-300/80 pointer-events-none group-hover:text-blue-100 transition-colors">
+                       <span className="text-sm sm:text-base font-black tracking-widest flex items-center gap-3 drop-shadow-md">
+                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                          SWIPE HERE TO SCRUB
+                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                       </span>
+                    </div>
                  </div>
               </div>
             )}
@@ -1764,27 +1748,24 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full rounded-[32px] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
-                border-[4px] border-[#0f172a]
-                shadow-[0_12px_0_#9a3412] active:shadow-none active:translate-y-[12px]
+              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
+                border-b-[8px]
                 ${isRush
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-orange-500 hover:bg-orange-600'
+                  ? 'bg-red-600 border-red-900 hover:bg-red-700'
+                  : 'bg-orange-500 border-orange-800 hover:bg-orange-600'
                 }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
-              {/* Shine effect */}
-              <div className="absolute top-0 inset-x-0 h-6 bg-white/20 rounded-t-[28px] pointer-events-none"></div>
               
               {/* COMBO METER */}
               {combo > 0 && (
                 <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-2xl md:text-3xl transition-all duration-100 tabular-nums font-black
+                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
                     ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
-                  <div className="text-base font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-3 py-1 rounded mt-1">Combo</div>
-                  <div className="w-20 h-3 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
+                  <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
+                  <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
                     <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
                 </div>
@@ -1821,14 +1802,14 @@ export default function App() {
               </div>
              
               <div className="pointer-events-none flex flex-col items-center z-10">
-                <div className={`text-3xl md:text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
-                <div className={`text-base md:text-lg font-display px-6 py-3 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
+                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
+                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
                   isClean
                     ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
                     : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
                 }`}>
                   {isClean && (
-                    <span className="text-base font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-2 py-1 rounded shrink-0">2× CLEAN</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
                   )}
                   <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
                   <span className={isClean ? 'text-cyan-600' : 'text-slate-500'}>|</span>
@@ -2353,28 +2334,7 @@ export default function App() {
               })()}
 
               {/* --- TAB: UPGRADES --- */}
-              {activeTab === 'upgrades' && (
-                <>
-                  {/* Buy Multiplier Toggle */}
-                  <div className="px-3 pb-4">
-                    <div className="flex bg-white border-[4px] border-[#0f172a] rounded-xl shadow-[0_4px_0_#0f172a] p-2 mx-auto max-w-xs">
-                      {[1, 10, 'MAX'].map((mult) => (
-                        <button
-                          key={mult}
-                          onClick={() => setBuyMultiplier(mult)}
-                          className={`flex-1 px-4 py-3 rounded-lg font-display font-black text-base transition-all ${
-                            buyMultiplier === mult
-                              ? 'bg-amber-400 text-slate-900 border-[2px] border-slate-900 shadow-[0_2px_0_#0f172a]'
-                              : 'text-slate-600 hover:bg-slate-100'
-                          }`}
-                        >
-                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
+              {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
@@ -2433,96 +2393,121 @@ export default function App() {
                 const can10 = money >= cost10;
                 const can100 = money >= cost100;
 
-                // Calculate buy amount and cost based on multiplier
-                let buyAmount = buyMultiplier;
-                let buyCost = cost;
-                
-                if (buyMultiplier === 10) {
-                  buyCost = calculateCost(upgrade, count, 10);
-                } else if (buyMultiplier === 'MAX') {
-                  const maxResult = calculateMax(upgrade, count);
-                  buyAmount = maxResult.amount;
-                  buyCost = maxResult.cost;
-                }
-
-                const canBuy = money >= buyCost;
-                const iconColor = {
-                  production: 'bg-blue-500',
-                  quality: 'bg-amber-500',
-                  click: 'bg-orange-500'
-                }[upgrade.type];
-                const iconDarkColor = {
-                  production: '#1e40af',
-                  quality: '#b45309',
-                  click: '#c2410c'
-                }[upgrade.type];
-
                 return (
-                  <div
+                  <button
                     key={upgrade.id}
-                    className={`bg-white border-[4px] border-[#0f172a] rounded-[24px] shadow-[0_8px_0_#0f172a] flex items-center p-3 gap-3 relative ${
-                      !canBuy ? 'opacity-50' : ''
+                    onClick={() => buyUpgrade(upgrade)}
+                    disabled={!canAfford}
+                    className={`w-full group flex flex-col p-4 rounded-xl text-left relative overflow-hidden border btn-tactile ${
+                      canAfford
+                        ? `${theme.bg} ${theme.border} ${theme.depthBorder} active:border-b-0 active:translate-y-[4px] cursor-pointer hover:border-white hover:shadow-lg hover:shadow-white/20`
+                        : `${theme.bg} opacity-50 border-slate-800 cursor-not-allowed`
                     }`}
                   >
-                    {/* Icon Block */}
-                    <div className={`w-24 h-24 rounded-[20px] border-[4px] border-[#0f172a] ${iconColor} shadow-[0_6px_0_${iconDarkColor}] flex items-center justify-center relative`}>
-                      {/* Shine effect */}
-                      <div className="absolute top-0 inset-x-0 h-5 bg-white/20 rounded-t-[18px] pointer-events-none"></div>
-                      <div className="text-white text-4xl">
+                    {/* milestone progress bar */}
+                    {nextMilestone !== 'MAX' && (
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-900/50">
+                        <div className={`h-full ${theme.bar} transition-all duration-500 ease-out`} style={{ width: `${(count / nextMilestone) * 100}%` }} />
+                      </div>
+                    )}
+
+                    {/* ── ROW 1: icon + name + level badge ── */}
+                    <div className="flex items-center gap-3 relative z-10">
+                      <div className={`p-3 rounded-xl border shrink-0 ${theme.iconBg}`}>
                         {upgrade.icon}
                       </div>
-                      {/* Level Badge */}
-                      <div className="absolute -top-3 -right-3 bg-red-500 border-[3px] border-[#0f172a] text-white px-3 py-1 rounded-lg font-black rotate-12 shadow-[0_3px_0_#0f172a] text-stroke-sm text-base">
-                        LVL {count}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-base text-slate-100 tracking-wider leading-tight">{upgrade.name}</h3>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
+                            LVL {count}
+                          </span>
+                          {multi > 1 && count > 0 && (
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
+                              {multi}x
+                            </span>
+                          )}
+                        </div>
+                        {/* stat line */}
+                        <p className="text-xs text-slate-400 font-medium mt-0.5 tabular-nums">
+                          {upgrade.type === 'production' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-blue-300 font-bold">+{nxt}/sec</span></span>
+                              : <span><span className="text-blue-300 font-bold">{cur}/sec</span><span className="text-slate-600 mx-1">→</span><span className="text-blue-200 font-bold">{nxt}/sec</span></span>;
+                          })()}
+                          {upgrade.type === 'quality' && (() => {
+                            const gainPerPizza = upgrade.baseValue;
+                            return count === 0
+                              ? <span>Next: <span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
+                              : <span><span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-slate-600 mx-1">→</span><span className="text-money font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
+                          })()}
+                          {upgrade.type === 'click' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-orange-300 font-bold">+{nxt} pizzas/click</span></span>
+                              : <span><span className="text-orange-300 font-bold">{cur}/click</span><span className="text-slate-600 mx-1">→</span><span className="text-orange-200 font-bold">{nxt}/click</span></span>;
+                          })()}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="flex-1 px-2">
-                      <h3 className="font-display text-xl text-slate-900 font-bold tracking-wider mb-2">{upgrade.name}</h3>
-                      <p className="text-base text-slate-600 mb-3">
-                        {upgrade.type === 'production' && (() => {
-                          const current = upgrade.baseValue * count * multi * vipTokenMultiplier;
-                          const next = upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier;
-                          return count === 0 ? `+${fmt(next)}/sec` : `${fmt(current)}/sec → ${fmt(next)}/sec`;
-                        })()}
-                        {upgrade.type === 'quality' && (() => {
-                          const gainPerPizza = upgrade.baseValue;
-                          return count === 0 ? `+$${Math.floor(gainPerPizza * 100) / 100}/pizza` : `+$${Math.floor(gainPerPizza * 100) / 100}/pizza`;
-                        })()}
-                        {upgrade.type === 'click' && (() => {
-                          const current = upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
-                          const next = upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier;
-                          return count === 0 ? `+${fmt(next)} pizzas/click` : `${fmt(current)} → ${fmt(next)} pizzas/click`;
-                        })()}
-                      </p>
-                    </div>
+                    {/* ── SPACER ── */}
+                    <div className="relative z-10 mt-3 mb-2.5 border-t border-slate-700/40" />
 
-                    {/* Buy Button */}
-                    <button
-                      onClick={() => {
-                        if (buyMultiplier === 1) buyUpgrade(upgrade);
-                        else if (buyMultiplier === 10) buyUpgradeN(upgrade, 10);
-                        else if (buyMultiplier === 'MAX') {
-                          const maxResult = calculateMax(upgrade, count);
-                          buyUpgradeN(upgrade, maxResult.amount);
-                        }
-                      }}
-                      disabled={!canBuy}
-                      className="bg-green-500 border-[4px] border-[#0f172a] shadow-[0_6px_0_#16a34a] active:shadow-[0_0px_0_#16a34a] active:translate-y-[6px] rounded-[20px] h-[80px] px-5 flex flex-col items-center justify-center min-w-[120px]"
-                    >
-                      <div className="text-stroke-sm font-display text-xl font-black text-white tabular-nums">
-                        ${fmt(buyCost)}
+                    {/* ── ROW 2: price · milestone · bulk buttons ── */}
+                    <div className="relative z-10 flex items-center gap-2">
+
+                      {/* Price pill — clear focal anchor */}
+                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-lg shrink-0 ${
+                        canAfford ? 'bg-slate-950/70 border border-slate-700/60' : 'bg-slate-900/40 border border-slate-800/40'
+                      }`}>
+                        <span className={`font-display text-lg font-black tabular-nums leading-none ${canAfford ? 'text-money' : 'text-slate-600'}`}>
+                          ${fmt(cost)}
+                        </span>
                       </div>
-                      <div className="text-white font-bold text-base mt-1">
-                        Buy {buyMultiplier === 'MAX' ? buyAmount : buyMultiplier}
+
+                      {/* Milestone tracker — middle, fills remaining space */}
+                      <div className="flex-1 flex items-center justify-center min-w-0">
+                        {nextMilestone !== 'MAX' ? (
+                          <span className="text-sm text-slate-500 font-bold tabular-nums truncate">
+                            <span className={`${theme.text} font-black`}>{count}</span>
+                            <span className="text-slate-700 mx-0.5">/</span>
+                            <span className="text-slate-300 font-black">{nextMilestone}</span>
+                            <span className="text-slate-600 ml-1">next boost</span>
+                          </span>
+                        ) : (
+                          <span className={`text-sm font-black uppercase tracking-wider ${theme.text}`}>✦ Max Boost</span>
+                        )}
                       </div>
-                    </button>
-                  </div>
+
+                      {/* Bulk buy buttons — right-aligned, shown only when affordable */}
+                      {(can10 || can100) && (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {can10 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
+                            >
+                              ×10
+                            </button>
+                          )}
+                          {can100 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
+                            >
+                              ×100
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </button>
                 );
               })}
-                </>
-              )}
 
               {/* --- TAB: TIME WARP DELIVERIES --- */}
               {activeTab === 'map' && (
@@ -3325,30 +3310,38 @@ export default function App() {
         </div>
       
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
 
         *, *::-webkit-scrollbar { scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
         .tabular-nums { font-variant-numeric: tabular-nums; }
 
-        .font-display, .font-game {
-          font-family: 'Lilita One', cursive;
-          letter-spacing: 0.05em;
+        .font-display {
+          font-family: 'Oswald', sans-serif;
+          text-transform: uppercase;
+          font-variant-numeric: tabular-nums;
         }
-        .font-body { font-family: 'Inter', sans-serif; }
 
-        .text-stroke-sm {
-          -webkit-text-stroke: 1px #0f172a;
-          text-shadow: 0px 2px 0px #0f172a;
+        .font-body {
+          font-family: 'Inter', sans-serif;
+          font-variant-numeric: tabular-nums;
         }
-        .text-stroke-white {
-          -webkit-text-stroke: 2px white;
+
+        .metallic-text {
+          background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.9));
         }
-        .custom-scrollbar::-webkit-scrollbar { display: none; } /* Hide scrollbars for mobile feel */
 
         .text-money { color: #84cc16; }
+        .text-glow-green  {}
+        .text-glow-blue   {}
+        .text-glow-red    {}
+        .text-glow-yellow {}
+        .text-glow-orange {}
+        .text-glow-purple {}
 
         /* Tactile depth button base — add border-b-[N] border-[darker-color] and active:border-b-0 active:translate-y-[N] */
         .btn-tactile {
@@ -3387,7 +3380,8 @@ export default function App() {
       `}} />
 
     </div>
-    </div>
-    </>
+  </div>
+  <Analytics />
+  </>
   );
 }
