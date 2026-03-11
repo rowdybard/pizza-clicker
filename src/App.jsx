@@ -5,7 +5,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, ChevronDown
+  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
@@ -397,7 +397,6 @@ export default function App() {
   const [hudSettingsOpen, setHudSettingsOpen] = useState(false);
   const [upgradeFilter, setUpgradeFilter] = useState('all');
   const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
-  const [syndicateOpen, setSyndicateOpen] = useState(true);
   const [revealedUpgrades, setRevealedUpgrades] = useState(() => {
     // Load from save, or default to first upgrade of each type
     const saved = initialData?.revealedUpgrades;
@@ -1811,8 +1810,7 @@ export default function App() {
                 <h2 className="text-2xl font-display tracking-wide text-purple-100 flex-1 text-left">Corporate Office</h2>
                 <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
               </button>
-              {corpOfficeOpen && (
-                <div className="px-6 pb-6">
+              {corpOfficeOpen && <div className="px-6 pb-6">
 
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
@@ -1893,35 +1891,9 @@ export default function App() {
                   {pendingLicenses > 0 ? `Sell Store for ${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}` : 'Not enough for Franchise'}
                 </button>
               </div>
-              </div>
-            </div>
-          )}
 
-
-          {/* ── THE CULINARY SYNDICATE ── */}
-          {(franchiseLicenses >= 25 || goldenSlices > 0) && (
-            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
-              {/* Collapsible Header */}
-              <button
-                onClick={() => setSyndicateOpen(!syndicateOpen)}
-                className="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-yellow-900/20 to-orange-900/20 hover:from-yellow-900/30 hover:to-orange-900/30 transition-colors border-b border-slate-700"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <Gem className="w-6 h-6 text-yellow-100" />
-                  </div>
-                  <div className="text-left">
-                    <h2 className="text-xl font-display font-bold text-yellow-300 tracking-wider">The Culinary Syndicate</h2>
-                    <p className="text-sm text-slate-400">Ascend for Golden Slices & unlock powerful perks</p>
-                  </div>
-                </div>
-                <div className={`transform transition-transform duration-200 ${syndicateOpen ? 'rotate-180' : ''}`}>
-                  <ChevronDown className="w-5 h-5 text-slate-400" />
-                </div>
-              </button>
-
-              {/* Collapsible Content */}
-              {syndicateOpen && (() => {
+              {/* ── THE CULINARY SYNDICATE ── */}
+              {(franchiseLicenses >= 25 || goldenSlices > 0) && (() => {
                 const slicesOnAscend = Math.max(1, Math.floor(franchiseLicenses / 10)); // 1 slice per 10 licenses, minimum 1
                 const canAscend = slicesOnAscend > 0;
                 const handleAscend = () => {
@@ -1946,6 +1918,12 @@ export default function App() {
                   setDeliveriesCompleted(0);
                   setRushTimeLeft(0);
                   setVipTimeLeft(0);
+                  setVipSpawned(false);
+                  setSideOrder(null);
+                  setCombo(0);
+                  setDeliveryCooldowns({});
+                  // Reset upgrade reveals to first of each type (fresh run behavior)
+                  setRevealedUpgrades(new Set(['click', 'production', 'quality']));
                 };
                 return (
                   <>
@@ -2056,6 +2034,7 @@ export default function App() {
                   </>
                 );
               })()}
+            </div>}
             </div>
           )}
 
@@ -3171,7 +3150,6 @@ export default function App() {
                                     </button>
                                   </div>
                                 </div>
-                              </div>
                               );
                             })}
                           </div>
