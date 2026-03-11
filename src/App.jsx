@@ -168,10 +168,10 @@ const DESTINATIONS = [
 // --- UPGRADE DEFINITIONS ---
 const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
-  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 2, icon: <Sparkles className="text-orange-400" /> },
-  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 3, icon: <Zap className="text-orange-300" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 4, icon: <Rocket className="text-orange-400" /> },
-  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 5, icon: <Zap className="text-yellow-300" /> },
+  { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 1, icon: <Sparkles className="text-orange-400" /> },
+  { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 2, icon: <Zap className="text-orange-300" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-yellow-300" /> },
   { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.15, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-500" /> },
@@ -420,7 +420,7 @@ export default function App() {
           const prev_upgrade = path[idx - 1];
           const prevCount = safeNum(inventory?.[prev_upgrade.id], 0);
           const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
-          if (prevCount >= 1 && money >= cost * 0.8) {
+          if (prevCount >= 1 && money >= cost * 0.8 && starLevel >= upgrade.reqStars) {
             next.add(upgrade.id);
           }
         });
