@@ -173,7 +173,7 @@ const UPGRADES = [
   { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
   { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-yellow-300" /> },
   { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-fuchsia-400" /> },
-  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.15, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
+  { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.33, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-500" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-green-500" /> },
   { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-purple-500" /> },
@@ -304,7 +304,7 @@ export default function App() {
   // --- EMERGENCY UNLOCK EFFECT ---
   useEffect(() => {
     document.body.style.overflow = '';
-    document.body.style.touchAction = '';
+    document.body.style.touchAction = 'manipulation';
   }, []);
 
   const [initialData] = useState(() => loadSaveData());
@@ -743,7 +743,7 @@ export default function App() {
     const warpEfficiency = 1 / (1 + idleProfitPerSec / WARP_CAP);
     const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
     const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
-    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec)) * dest.warpSeconds * warpEfficiency;
+    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec) * 0.25) * dest.warpSeconds * warpEfficiency;
 
     setMoney(m => m + warpMoney);
     setLifetimeMoney(m => m + warpMoney);
