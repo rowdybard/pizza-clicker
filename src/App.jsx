@@ -2460,73 +2460,77 @@ export default function App() {
                 }
                 
                 return (
-                  <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] flex items-center p-4 gap-5 relative group">
+                  <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] p-4 gap-4 relative group">
                     
-                    {/* Icon Block */}
-                    <div className="w-20 h-20 shrink-0 rounded-lg bg-zinc-950 border border-zinc-900 shadow-inner flex items-center justify-center relative overflow-hidden group-hover:border-zinc-800 transition-colors">
-                      <div className={`text-4xl ${
-                        upgrade.type === 'production' ? 'text-blue-400' :
-                        upgrade.type === 'quality' ? 'text-amber-400' :
-                        'text-orange-400'
-                      }`}>
-                        {upgrade.icon}
-                      </div>
+                    {/* Desktop: Horizontal Layout | Mobile: Vertical Layout */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       
-                      {/* Level Badge */}
-                      <div className="absolute -bottom-2 -right-2 bg-zinc-900 border border-zinc-700 px-2 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
-                        <span className="text-xs font-black text-amber-400 font-display tabular-nums">{count}</span>
-                      </div>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div>
-                          <h3 className="font-display text-xl font-black text-amber-100 tracking-wider leading-tight mb-1">{upgrade.name}</h3>
-                          <p className="text-sm text-zinc-300 font-medium tabular-nums">
-                            {upgrade.type === 'production' && (() => {
-                              const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
-                              const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
-                              return count === 0
-                                ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
-                                : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
-                            })()}
-                            {upgrade.type === 'quality' && (() => {
-                              const gainPerPizza = upgrade.baseValue;
-                              return count === 0
-                                ? <span>Next: <span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
-                                : <span><span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
-                            })()}
-                            {upgrade.type === 'click' && (() => {
-                              const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                              const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                              return count === 0
-                                ? <span>Next: <span className="text-orange-400 font-bold">+{nxt} pizzas/click</span></span>
-                                : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
-                            })()}
-                          </p>
+                      {/* Icon Block */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-zinc-950 border border-zinc-900 shadow-inner flex items-center justify-center relative overflow-hidden group-hover:border-zinc-800 transition-colors">
+                        <div className={`text-3xl sm:text-4xl ${
+                          upgrade.type === 'production' ? 'text-blue-400' :
+                          upgrade.type === 'quality' ? 'text-amber-400' :
+                          'text-orange-400'
+                        }`}>
+                          {upgrade.icon}
+                        </div>
+                        
+                        {/* Level Badge */}
+                        <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-1.5 sm:px-2 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
+                          <span className="text-[10px] sm:text-xs font-black text-amber-400 font-display tabular-nums">{count}</span>
                         </div>
                       </div>
 
-                      {/* Laser Cut Progress Bar */}
-                      {nextMilestone !== 'MAX' && (
-                        <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50 mt-2">
-                          <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
+                      {/* Content Area */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                          <div className="flex-1">
+                            <h3 className="font-display text-lg sm:text-xl font-black text-amber-100 tracking-wider leading-tight mb-1">{upgrade.name}</h3>
+                            <p className="text-xs sm:text-sm text-zinc-300 font-medium tabular-nums">
+                              {upgrade.type === 'production' && (() => {
+                                const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                                return count === 0
+                                  ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
+                                  : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
+                              })()}
+                              {upgrade.type === 'quality' && (() => {
+                                const gainPerPizza = upgrade.baseValue;
+                                return count === 0
+                                  ? <span>Next: <span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
+                                  : <span><span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
+                              })()}
+                              {upgrade.type === 'click' && (() => {
+                                const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
+                                return count === 0
+                                  ? <span>Next: <span className="text-orange-400 font-bold">+{nxt} pizzas/click</span></span>
+                                  : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
+                              })()}
+                            </p>
+                          </div>
                         </div>
-                      )}
+
+                        {/* Laser Cut Progress Bar */}
+                        {nextMilestone !== 'MAX' && (
+                          <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50 mt-2">
+                            <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Single Action Button */}
+                    {/* Mobile-Optimized Action Button */}
                     <button 
                       onClick={() => buyUpgrade(upgrade)}
                       disabled={!canAfford}
-                      className={`w-[110px] h-[70px] shrink-0 rounded-lg border flex flex-col items-center justify-center transition-all duration-150 relative overflow-hidden group ${
+                      className={`w-full h-12 sm:h-14 sm:w-[110px] sm:h-[70px] rounded-lg border flex items-center justify-center gap-2 sm:flex-col transition-all duration-150 relative overflow-hidden group ${
                         canAfford 
-                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_6px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[6px] cursor-pointer' 
-                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_6px_0_#000000] cursor-not-allowed opacity-80'
+                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] sm:active:translate-y-[6px] cursor-pointer' 
+                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] sm:shadow-[0_6px_0_#000000] cursor-not-allowed opacity-80'
                       }`}
                     >
-                      <span className={`font-display text-lg font-black tabular-nums leading-none ${
+                      <span className={`font-display text-base sm:text-lg font-black tabular-nums leading-none ${
                         canAfford ? 'text-amber-100' : 'text-zinc-600'
                       }`}>
                         ${fmt(displayCost)}
