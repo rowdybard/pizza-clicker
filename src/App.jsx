@@ -2436,9 +2436,28 @@ export default function App() {
                 const can10 = money >= cost10;
                 const can100 = money >= cost100;
 
-                // Calculate display cost and buy amount using helper functions
-                const displayCost = getUpgradeCost(upgrade, count, buyMultiplier);
-                const buyAmount = buyMultiplier === 'MAX' ? getMaxBuys(upgrade, count) : buyMultiplier;
+                // Calculate display cost and buy amount
+                let displayCost = cost;
+                let buyAmount = buyMultiplier;
+                
+                if (buyMultiplier === 'MAX') {
+                  // Calculate max buys
+                  let maxBuys = 0;
+                  let testCost = 0;
+                  while (money >= testCost + Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys))) {
+                    testCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys));
+                    maxBuys++;
+                    if (maxBuys > 10000) break; // Safety limit
+                  }
+                  buyAmount = maxBuys;
+                  displayCost = testCost;
+                } else {
+                  // Calculate cost for buyMultiplier
+                  displayCost = 0;
+                  for (let i = 0; i < buyAmount; i++) {
+                    displayCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
+                  }
+                }
                 
                 return (
                   <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] flex items-center p-4 gap-5 relative group">
