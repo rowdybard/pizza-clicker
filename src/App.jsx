@@ -240,6 +240,7 @@ const computeOfflineEarnings = (data) => {
   const goneMs = Date.now() - data.lastSaveTime;
   const goneSec = Math.min(goneMs / 1000, 8 * 3600); // cap at 8 hours
   if (goneSec < 30) return null; // ignore tiny gaps
+  if (goneSec < 0) return null; // prevent negative time calculations
 
   // Reproduce the same upgrade math from the component
   const inv = data.inventory || {};
@@ -287,8 +288,8 @@ const computeOfflineEarnings = (data) => {
 
   // Apply 50% offline efficiency
   const efficiency = 0.5;
-  const moneyEarned  = profitPerSec * goneSec * efficiency;
-  const pizzasEarned = pizzasPerSec * goneSec * efficiency;
+  const moneyEarned  = Math.max(0, profitPerSec * goneSec * efficiency);
+  const pizzasEarned = Math.max(0, pizzasPerSec * goneSec * efficiency);
 
   return {
     goneMs,
