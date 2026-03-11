@@ -317,10 +317,22 @@ export default function App() {
   const [offlineReport, setOfflineReport] = useState(() => _offlineCalc.report);
 
   // --- CORE STATE ---
-  const [money, setMoney] = useState(() => safeNum(_offlineCalc.data?.money, 0) + (_offlineCalc.report?.moneyEarned ?? 0));
-  const [totalPizzasSold, setTotalPizzasSold] = useState(() => safeNum(_offlineCalc.data?.totalPizzasSold, 0) + (_offlineCalc.report?.pizzasEarned ?? 0));
+  const [money, setMoney] = useState(() => {
+    const savedMoney = safeNum(_offlineCalc.data?.money, 0);
+    const offlineEarnings = _offlineCalc.report?.moneyEarned ?? 0;
+    return Math.max(savedMoney, savedMoney + offlineEarnings);
+  });
+  const [totalPizzasSold, setTotalPizzasSold] = useState(() => {
+    const savedPizzas = safeNum(_offlineCalc.data?.totalPizzasSold, 0);
+    const offlinePizzas = _offlineCalc.report?.pizzasEarned ?? 0;
+    return Math.max(savedPizzas, savedPizzas + offlinePizzas);
+  });
   const [reputation, setReputation] = useState(safeNum(initialData?.reputation, 0));
-  const [lifetimeMoney, setLifetimeMoney] = useState(() => safeNum(_offlineCalc.data?.lifetimeMoney, 0) + (_offlineCalc.report?.moneyEarned ?? 0));
+  const [lifetimeMoney, setLifetimeMoney] = useState(() => {
+    const savedLifetimeMoney = safeNum(_offlineCalc.data?.lifetimeMoney, 0);
+    const offlineEarnings = _offlineCalc.report?.moneyEarned ?? 0;
+    return Math.max(savedLifetimeMoney, savedLifetimeMoney + offlineEarnings);
+  });
   const [franchiseLicenses, setFranchiseLicenses] = useState(safeNum(initialData?.franchiseLicenses, 0));
   const [inventory, setInventory] = useState(initialData?.inventory || {});
 
@@ -580,7 +592,7 @@ export default function App() {
     setMoney(prev => prev + moneyEarned);
     setLifetimeMoney(prev => prev + moneyEarned);
     setTotalPizzasSold(prev => prev + currentClickPower);
-    setReputation(prev => prev + currentClickPower);
+    setReputation(prev => prev + Math.ceil(currentClickPower * 0.1));
     setTotalClicks(prev => prev + 1);
 
     // Accumulate clicks for log — flush every 5s regardless of click rate
@@ -971,7 +983,7 @@ export default function App() {
               setMoney(m => m + autoMoney);
               setLifetimeMoney(lm => lm + autoMoney);
               setTotalPizzasSold(tp => tp + state.currentClickPower);
-              setReputation(r => r + state.currentClickPower);
+              setReputation(r => r + Math.ceil(state.currentClickPower * 0.1));
               setTotalClicks(tc => tc + 1);
           }
 
@@ -2388,7 +2400,7 @@ export default function App() {
                     disabled={!canAfford}
                     className={`w-full group flex flex-col p-4 rounded-xl text-left relative overflow-hidden border btn-tactile ${
                       canAfford
-                        ? `${theme.bg} ${theme.border} ${theme.depthBorder} active:border-b-0 active:translate-y-[4px] cursor-pointer`
+                        ? `${theme.bg} ${theme.border} ${theme.depthBorder} active:border-b-0 active:translate-y-[4px] cursor-pointer hover:border-white hover:shadow-lg hover:shadow-white/20`
                         : `${theme.bg} opacity-50 border-slate-800 cursor-not-allowed`
                     }`}
                   >
@@ -2477,7 +2489,7 @@ export default function App() {
                           {can10 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
-                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
                             >
                               ×10
                             </button>
@@ -2485,7 +2497,7 @@ export default function App() {
                           {can100 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
-                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 active:scale-95`}
+                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
                             >
                               ×100
                             </button>
