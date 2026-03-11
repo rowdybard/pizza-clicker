@@ -374,6 +374,28 @@ export default function App() {
   // --- MODAL STATE ---
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
+
+  const calculateCost = (upgrade, currentCount, amount) => {
+    let totalCost = 0;
+    for (let i = 0; i < amount; i++) totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
+    return totalCost;
+  };
+
+  const calculateMax = (upgrade, currentCount) => {
+    let cost = 0;
+    let amount = 0;
+    let simulatedMoney = money;
+    while (true) {
+      const nextCost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + amount));
+      if (simulatedMoney >= nextCost) {
+        simulatedMoney -= nextCost;
+        cost += nextCost;
+        amount++;
+      } else break;
+    }
+    return { amount: Math.max(1, amount), cost: amount > 0 ? cost : Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount)) };
+  };
 
   // --- JUICE STATE ---
   const [isShaking, setIsShaking] = useState(false);
@@ -2334,7 +2356,28 @@ export default function App() {
               })()}
 
               {/* --- TAB: UPGRADES --- */}
-              {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
+              {activeTab === 'upgrades' && (
+                <>
+                  {/* Buy Multiplier Toggle */}
+                  <div className="px-3 pb-4">
+                    <div className="flex bg-slate-800 border border-slate-600 rounded-xl p-1 mx-auto max-w-xs">
+                      {[1, 10, 'MAX'].map((mult) => (
+                        <button
+                          key={mult}
+                          onClick={() => setBuyMultiplier(mult)}
+                          className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
+                            buyMultiplier === mult
+                              ? 'bg-slate-700 text-white border border-slate-500'
+                              : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                          }`}
+                        >
+                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
@@ -2508,6 +2551,8 @@ export default function App() {
                   </button>
                 );
               })}
+                </>
+              )}
 
               {/* --- TAB: TIME WARP DELIVERIES --- */}
               {activeTab === 'map' && (
