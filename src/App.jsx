@@ -2686,7 +2686,7 @@ export default function App() {
                       rows={[
                         { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
                         { label: 'Per Click $', value: `$${Math.floor(currentClickPower * pizzaPrice).toLocaleString()}`, sub: 'money per click' },
-                        { label: 'Per Click Rep', value: fmt(currentClickPower), sub: 'rep per click' },
+                        { label: 'Per Click Rep', value: Math.floor(currentClickPower).toLocaleString(), sub: 'rep per click' },
                         { label: 'Total Clicks', value: Math.floor(totalClicks).toLocaleString(), sub: 'lifetime' },
                         { label: 'Click Mult.', value: `${Math.floor(franchiseMultiplier * 100).toLocaleString()}%`, sub: `${franchiseLicenses} licenses` },
                         { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
