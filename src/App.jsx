@@ -2443,9 +2443,12 @@ export default function App() {
                     disabled={!canAfford}
                     className={`w-full group flex flex-col p-6 rounded-2xl text-left relative overflow-hidden border btn-tactile ${
                       canAfford
-                        ? 'bg-white/90 border-orange-300 border-b-[6px] border-b-orange-400 active:border-b-0 active:translate-y-[6px] cursor-pointer hover:border-orange-400 hover:shadow-lg hover:shadow-orange-200/50'
-                        : 'bg-white/50 opacity-50 border-orange-200 cursor-not-allowed'
+                        ? 'border-amber-800 border-b-[6px] border-b-amber-900 active:border-b-0 active:translate-y-[6px] cursor-pointer hover:border-amber-700 hover:shadow-lg hover:shadow-amber-900/30'
+                        : 'bg-white/30 opacity-50 border-amber-600 cursor-not-allowed'
                     }`}
+                    style={{
+                      background: 'linear-gradient(to bottom, #f4e4c1 0%, #f4e4c1 15%, #e8d4a1 85%, #d4b896 100%)'
+                    }}
                   >
                     {/* milestone progress bar */}
                     {nextMilestone !== 'MAX' && (
@@ -2456,15 +2459,11 @@ export default function App() {
 
                     {/* ── ROW 1: icon + name + level badge ── */}
                     <div className="flex items-center gap-3 relative z-10">
-                      <div className={`p-4 rounded-2xl border shrink-0 ${
-                        upgrade.type === 'production' ? 'bg-blue-100 border-blue-300' :
-                        upgrade.type === 'quality' ? 'bg-amber-100 border-amber-300' :
-                        'bg-orange-100 border-orange-300'
-                      }`}>
+                      <div className={`p-4 rounded-2xl border shrink-0 bg-amber-50/80 border-amber-600/50`}>
                         <div className={`text-4xl ${
-                          upgrade.type === 'production' ? 'text-blue-600' :
-                          upgrade.type === 'quality' ? 'text-amber-600' :
-                          'text-orange-600'
+                          upgrade.type === 'production' ? 'text-blue-700' :
+                          upgrade.type === 'quality' ? 'text-amber-700' :
+                          'text-orange-700'
                         }`}>
                           {upgrade.icon}
                         </div>
@@ -2472,19 +2471,11 @@ export default function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-3">
                           <h3 className="font-display text-2xl font-black text-black tracking-wider leading-tight">{upgrade.name}</h3>
-                          <span className={`text-sm font-black px-3 py-1 rounded tabular-nums shrink-0 ${
-                            upgrade.type === 'production' ? 'bg-blue-200 text-blue-800' :
-                            upgrade.type === 'quality' ? 'bg-amber-200 text-amber-800' :
-                            'bg-orange-200 text-orange-800'
-                          }`}>
+                          <span className="text-sm font-black px-3 py-1 rounded tabular-nums shrink-0 bg-amber-200/80 text-amber-900 border border-amber-600/50">
                             LVL {count}
                           </span>
                           {multi > 1 && count > 0 && (
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${
-                              upgrade.type === 'production' ? 'bg-blue-200 text-blue-800' :
-                              upgrade.type === 'quality' ? 'bg-amber-200 text-amber-800' :
-                              'bg-orange-200 text-orange-800'
-                            }`}>
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 bg-amber-200/80 text-amber-900 border border-amber-600/50">
                               {multi}x
                             </span>
                           )}
@@ -2516,7 +2507,7 @@ export default function App() {
                     </div>
 
                     {/* ── SPACER ── */}
-                    <div className="relative z-10 mt-6 mb-4 border-t border-slate-300/60" />
+                    <div className="relative z-10 mt-6 mb-4 border-t border-amber-700/40" />
 
                     {/* ── ROW 2: price · milestone · bulk buttons ── */}
                     <div className="relative z-10 flex items-center gap-3">
