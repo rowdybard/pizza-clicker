@@ -199,7 +199,7 @@ const FRANCHISE_BASE_COST = 5e12; // scaled down so licenses 5-15 are reachable
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
   return (
-    <div className={`bg-slate-900/60 border ${accentBorder} rounded-xl overflow-hidden`}>
+    <div className={`bg-zinc-900/60 border ${accentBorder} rounded-xl overflow-hidden`}>
       <button
         onClick={() => setStatsOpen(prev => ({ ...prev, [sKey]: !prev[sKey] }))}
         className={`w-full px-4 py-2.5 ${accentBg} flex items-center justify-between gap-2 hover:brightness-110 transition-all`}
@@ -211,12 +211,12 @@ const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, val
         <span className={`text-xs font-black ${accentText} transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {open && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-800/60">
+        <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-zinc-800/60">
           {rows.map(({ label: rl, value, sub }) => (
             <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
-              <div className="text-sm font-black uppercase tracking-widest text-slate-500">{rl}</div>
+              <div className="text-sm font-black uppercase tracking-widest text-zinc-500">{rl}</div>
               <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
-              <div className="text-sm text-slate-600 font-bold">{sub}</div>
+              <div className="text-sm text-zinc-600 font-bold">{sub}</div>
             </div>
           ))}
         </div>
@@ -1205,7 +1205,7 @@ export default function App() {
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
         const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-sm text-slate-400 ml-0.5">{abbr}</span></span>;
+        return <span>{num}<span className="text-sm text-zinc-400 ml-0.5">{abbr}</span></span>;
       }
     }
     return n.toFixed(2);
@@ -1217,7 +1217,7 @@ export default function App() {
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
         const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-sm text-slate-400 ml-0.5">{abbr}</span></span>;
+        return <span>{num}<span className="text-sm text-zinc-400 ml-0.5">{abbr}</span></span>;
       }
     }
     return Math.floor(n).toLocaleString();
@@ -1246,7 +1246,7 @@ export default function App() {
     ? 'bg-stone-950 text-stone-100'
     : franchiseLicenses >= 1
     ? 'bg-zinc-900 text-zinc-100'
-    : 'bg-slate-900 text-slate-100';
+    : 'bg-zinc-900 text-zinc-100';
 
   const hasTruffles = (inventory?.truffles || 0) > 0;
   const hasWoodFire = (inventory?.woodFire || 0) > 0;
@@ -1338,7 +1338,7 @@ export default function App() {
       </div>
 
       {/* ── FIXED HUD ── */}
-      <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
+      <div className={`fixed top-0 inset-x-0 z-40 bg-[#050505] border-b-4 border-zinc-900 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
         <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
 
           {/* LEFT: Title + stars */}
@@ -1346,7 +1346,7 @@ export default function App() {
             <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA EMPIRE</h1>
             <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 fill-zinc-700'}`} />
               ))}
             </div>
           </div>
@@ -1354,15 +1354,15 @@ export default function App() {
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
             <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
+              isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
             }`}>
-              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
                 <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
-                  <span className="text-sm text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
+                  <span className="text-sm text-zinc-500 font-bold hidden sm:block">{numWords(money)}</span>
                 )}
               </div>
             </div>
@@ -1382,25 +1382,25 @@ export default function App() {
             )}
             {/* Profit/sec */}
             <div className={`hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-b-[3px] shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-slate-800 border-slate-950 text-slate-400'
+              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-zinc-800 border-zinc-950 text-zinc-400'
             }`}>
-              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PROFIT</div>
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 shrink-0" />
                 <span className="font-display text-lg md:text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
               </div>
             </div>
             {/* Pizzas/sec */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PIZZAS</div>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
               <div className="flex items-center gap-1">
                 <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-                <span className="font-display text-lg md:text-xl text-slate-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+                <span className="font-display text-lg md:text-xl text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
               </div>
             </div>
             {/* Ticket avg */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 border-b-[3px] border-slate-950 shrink-0">
-              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">PRICE</div>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
               <div className="flex items-center gap-1">
                 <Award className="w-3 h-3 text-yellow-500 shrink-0" />
                 <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
@@ -1408,7 +1408,7 @@ export default function App() {
             </div>
             {/* Settings only */}
             <div className="flex items-center gap-1.5 ml-1">
-              <button onClick={() => setShowSettings(true)} className="bg-slate-800 border border-slate-700 border-b-2 border-b-slate-950 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
+              <button onClick={() => setShowSettings(true)} className="bg-zinc-800 border border-zinc-700 border-b-2 border-b-zinc-950 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
                 <Settings className="w-4 h-4" />
               </button>
             </div>
@@ -1416,22 +1416,22 @@ export default function App() {
         </div>
 
         {/* Rep bar — thin strip under HUD */}
-        <div className="h-1 bg-slate-950 w-full">
+        <div className="h-1 bg-zinc-950 w-full">
           <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
         </div>
       </div>
 
       {/* --- SETTINGS MODAL --- */}
       {showSettings && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border-2 border-slate-600 border-b-4 border-b-slate-950 rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
-            <h2 className="text-3xl font-display text-white tracking-widest mb-6 border-b border-slate-700 pb-4 flex items-center gap-3">
+        <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+          <div className="bg-zinc-800 border-2 border-zinc-600 border-b-4 border-b-zinc-950 rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
+            <h2 className="text-3xl font-display text-white tracking-widest mb-6 border-b border-zinc-700 pb-4 flex items-center gap-3">
               <Settings className="w-8 h-8 text-blue-400" /> GAME SETTINGS
             </h2>
 
             {!showWipeConfirm ? (
               <div className="space-y-4">
-                <button onClick={handleManualSave} className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">
+                <button onClick={handleManualSave} className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">
                   <Save className="w-5 h-5" /> FORCE SAVE GAME
                 </button>
                 <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
@@ -1445,14 +1445,14 @@ export default function App() {
                 >
                   <Moon className="w-5 h-5" /> SUPPORT THE DEVELOPER
                 </a>
-                <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex flex-col gap-2">
-                  <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Import Save Code</div>
+                <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 flex flex-col gap-2">
+                  <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Import Save Code</div>
                   <div className="flex gap-2">
-                    <input type="text" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="Paste code here..." className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 outline-none focus:border-blue-500 tabular-nums" />
-                    <button onClick={handleImportSave} className="bg-slate-700 hover:bg-slate-600 px-4 rounded-lg font-display tracking-widest transition-colors"><Upload className="w-4 h-4"/></button>
+                    <input type="text" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="Paste code here..." className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 outline-none focus:border-blue-500 tabular-nums" />
+                    <button onClick={handleImportSave} className="bg-zinc-700 hover:bg-zinc-600 px-4 rounded-lg font-display tracking-widest transition-colors"><Upload className="w-4 h-4"/></button>
                   </div>
                 </div>
-                <div className="pt-4 border-t border-slate-700">
+                <div className="pt-4 border-t border-zinc-700">
                   <button onClick={() => setShowWipeConfirm(true)} className="w-full py-3 bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-500 hover:text-red-400 font-display tracking-widest rounded-xl transition-colors">
                     WIPE SAVE DATA (HARD RESET)
                   </button>
@@ -1463,15 +1463,15 @@ export default function App() {
                 <AlertTriangle className="w-16 h-16 text-red-500 mx-auto animate-pulse" />
                 <div>
                   <h3 className="text-xl font-display text-red-400 mb-2">ARE YOU ABSOLUTELY SURE?</h3>
-                  <p className="text-sm text-slate-400">This will permanently delete all your money, upgrades, reputation, and Corporate Licenses. This cannot be undone.</p>
+                  <p className="text-sm text-zinc-400">This will permanently delete all your money, upgrades, reputation, and Corporate Licenses. This cannot be undone.</p>
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                  <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
                   <button onClick={handleHardReset} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px]">DELETE SAVE</button>
                 </div>
               </div>
             )}
-            <button onClick={() => {setShowSettings(false); setShowWipeConfirm(false);}} className="absolute top-4 right-4 text-slate-500 hover:text-white">✕</button>
+            <button onClick={() => {setShowSettings(false); setShowWipeConfirm(false);}} className="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
           </div>
         </div>
       )}
@@ -1547,17 +1547,17 @@ export default function App() {
         const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
         const wasCapped = r.goneMs / 1000 > 8 * 3600;
         return (
-          <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border-2 border-blue-800 border-b-4 border-b-slate-950 rounded-2xl max-w-lg w-full relative overflow-hidden">
+          <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border-2 border-blue-800 border-b-4 border-b-zinc-950 rounded-2xl max-w-lg w-full relative overflow-hidden">
               {/* Header */}
-              <div className="bg-blue-950 px-8 pt-8 pb-6 border-b-4 border-slate-950">
+              <div className="bg-blue-950 px-8 pt-8 pb-6 border-b-4 border-zinc-950">
                 <div className="flex items-center gap-4">
                   <div className="bg-blue-900 border border-blue-700 rounded-xl p-3">
                     <Moon className="w-8 h-8 text-blue-300" />
                   </div>
                   <div>
                     <h2 className="text-3xl font-display text-white tracking-widest">OFFLINE REPORT</h2>
-                    <p className="text-slate-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
+                    <p className="text-zinc-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-3">
@@ -1593,12 +1593,12 @@ export default function App() {
                   </div>
                   <div className="text-orange-200 font-display text-2xl tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-zinc-800 border border-zinc-700 rounded-xl">
                   <div>
-                    <div className="text-slate-400 text-sm font-black uppercase tracking-widest mb-0.5">Time Active</div>
-                    <div className="text-slate-500 text-sm">50% of full rate while offline</div>
+                    <div className="text-zinc-400 text-sm font-black uppercase tracking-widest mb-0.5">Time Active</div>
+                    <div className="text-zinc-500 text-sm">50% of full rate while offline</div>
                   </div>
-                  <div className="text-slate-300 font-display text-2xl tabular-nums">{timeStr}</div>
+                  <div className="text-zinc-300 font-display text-2xl tabular-nums">{timeStr}</div>
                 </div>
               </div>
 
@@ -1615,12 +1615,12 @@ export default function App() {
 
       {/* --- PRESTIGE MODAL --- */}
       {showPrestigeModal && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-4">
-          <div className="bg-slate-800 border-2 border-purple-700 border-b-4 border-b-slate-950 rounded-2xl p-8 max-w-md w-full text-center relative">
+        <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+          <div className="bg-zinc-800 border-2 border-purple-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center relative">
             <Building className="w-16 h-16 text-purple-300 mx-auto mb-4" />
             <h2 className="text-4xl font-display text-white tracking-widest mb-2">CORPORATE BUYOUT</h2>
-            <p className="text-slate-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
-            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6 text-left space-y-3">
+            <p className="text-zinc-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 mb-6 text-left space-y-3">
                <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money, upgrades &amp; reputation reset.</div>
                <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
                {(() => {
@@ -1636,7 +1636,7 @@ export default function App() {
                })()}
             </div>
             <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
                 <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-purple-900 active:border-b-0 active:translate-y-[3px]">SELL STORE</button>
             </div>
           </div>
@@ -1688,7 +1688,7 @@ export default function App() {
                    <span className="animate-pulse">BAKING...</span>
                 </div>
                 
-                <div className="w-full h-8 bg-slate-950 rounded-lg relative overflow-hidden border-2 border-slate-800">
+                <div className="w-full h-8 bg-zinc-950 rounded-lg relative overflow-hidden border-2 border-zinc-800">
                    <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
                    <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
                 </div>
@@ -1704,14 +1704,14 @@ export default function App() {
 
             {/* REDESIGNED SCRUB BOARD */}
             {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'dirty' && (
-              <div className="w-full h-full bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-lg flex flex-col items-center justify-center gap-2">
+              <div className="w-full h-full bg-zinc-800 rounded-2xl border border-zinc-700 p-4 shadow-lg flex flex-col items-center justify-center gap-2">
                  <div className="flex justify-between w-full text-xs font-display tracking-widest text-blue-300">
                     <span className="flex items-center gap-2"><Droplets className="w-3 h-3 text-blue-400" /> SINK FULL</span>
                     <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-2 py-0.5 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
                  </div>
                  
                  <div 
-                    className="relative w-full h-16 sm:h-20 rounded-xl bg-slate-950 border-2 border-dashed border-blue-500/40 flex items-center justify-center cursor-crosshair touch-none overflow-hidden group shadow-inner"
+                    className="relative w-full h-16 sm:h-20 rounded-xl bg-zinc-950 border-2 border-dashed border-blue-500/40 flex items-center justify-center cursor-crosshair touch-none overflow-hidden group shadow-inner"
                     onMouseDown={handleScrubStart}
                     onTouchStart={handleScrubStart}
                     onMouseMove={handleScrub}
@@ -1761,7 +1761,7 @@ export default function App() {
             )}
             
             {!vipSpawned && !isRush && !sideOrder && (
-              <div className="w-full h-full border-2 border-dashed border-slate-700 rounded-2xl flex items-center justify-center text-slate-500 text-sm font-bold uppercase tracking-widest bg-slate-800/30">
+              <div className="w-full h-full border-2 border-dashed border-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500 text-sm font-bold uppercase tracking-widest bg-zinc-800/30">
                 {isClean ? <><Sparkles className="w-6 h-6 text-blue-400 mr-2" /><span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {cleanBoostTimer}s</span></> : 'Awaiting Orders...'}
               </div>
             )}
@@ -1834,7 +1834,7 @@ export default function App() {
                     <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
                   )}
                   <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
-                  <span className={isClean ? 'text-cyan-600' : 'text-slate-500'}>|</span>
+                  <span className={isClean ? 'text-cyan-600' : 'text-zinc-500'}>|</span>
                   <span>+<Num value={currentClickPower} decimals={1} /> Pizzas per Click</span>
                 </div>
               </div>
@@ -1867,42 +1867,42 @@ export default function App() {
               {/* Multiplier Breakdown Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
                 {/* Franchise Licenses */}
-                <div className="bg-slate-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
+                <div className="bg-zinc-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-sm font-black uppercase tracking-widest text-purple-400">Franchise</div>
                   <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
-                  <div className="text-sm text-slate-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
+                  <div className="text-sm text-zinc-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
                   <div className="text-sm text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
                   <div className="text-sm font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
                   {franchiseLicenses > 0 && (
                     <div className="mt-1">
-                      <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">BASE PROD</div>
+                      <div className="text-sm font-bold text-zinc-400 uppercase tracking-widest">BASE PROD</div>
                       <div className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor)}/sec</div>
                     </div>
                   )}
                 </div>
 
                 {/* Achievement Multiplier */}
-                <div className="bg-slate-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
+                <div className="bg-zinc-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-sm font-bold uppercase tracking-widest text-yellow-400">Stars</div>
                   <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
-                  <div className="text-sm text-slate-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
+                  <div className="text-sm text-zinc-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
                   <div className="text-sm text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
                 </div>
 
                 {/* VIP Token Multiplier */}
-                <div className="bg-slate-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
+                <div className="bg-zinc-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-sm font-bold uppercase tracking-widest text-purple-300">VIP Tokens</div>
                   <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
-                  <div className="text-sm text-slate-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
+                  <div className="text-sm text-zinc-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
                   <div className="text-sm text-purple-400 font-bold uppercase mt-0.5">All stats</div>
                 </div>
 
                 {/* Per-Click Output */}
-                <div className="bg-slate-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
+                <div className="bg-zinc-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
                   <div className="text-sm font-bold uppercase tracking-widest text-orange-400">Production</div>
                   <div className="font-display text-lg text-orange-300 tabular-nums leading-none"><Num value={currentClickPower} prefix="+" decimals={1} /></div>
-                  <div className="text-sm text-slate-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
-                  <div className="text-sm text-slate-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
+                  <div className="text-sm text-zinc-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
+                  <div className="text-sm text-zinc-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
                 </div>
               </div>
 
@@ -1913,17 +1913,17 @@ export default function App() {
                     <span className="text-xs text-amber-300 font-bold">Prestige Star Scaling</span>
                   </div>
                   <div className="flex items-center gap-3 tabular-nums text-xs">
-                    <span className="text-slate-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 15%</span>
+                    <span className="text-zinc-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 15%</span>
                     <span className="text-amber-400 font-display font-bold">{fmt(prestigeStarScale)}x harder</span>
-                    <span className="text-slate-500">→ ★5 needs {fmtInt(scaledStarThresholds[5])} rep</span>
+                    <span className="text-zinc-500">→ ★5 needs {fmtInt(scaledStarThresholds[5])} rep</span>
                   </div>
                 </div>
               )}
 
-              <div className="bg-slate-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
+              <div className="bg-zinc-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-zinc-700/50">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Lifetime Earnings: <strong className="text-money font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
-                  <div className="text-xs text-slate-500 tabular-nums">
+                  <div className="text-sm text-zinc-400 mb-1">Lifetime Earnings: <strong className="text-money font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
+                  <div className="text-xs text-zinc-500 tabular-nums">
                     {nextLicenseCost === Infinity
                       ? <span className="text-purple-400 font-bold">Max licenses reached (100)</span>
                       : <>Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} /></>
@@ -1937,7 +1937,7 @@ export default function App() {
                   className={`px-6 py-3 rounded-xl font-display tracking-wider whitespace-nowrap btn-tactile ${
                     pendingLicenses > 0 
                     ? 'bg-purple-600 hover:bg-purple-500 text-white border-b-[4px] border-purple-900 active:border-b-0 active:translate-y-[4px] cursor-pointer' 
-                    : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700'
                   }`}
                 >
                   {pendingLicenses > 0 ? `Sell Store for ${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}` : 'Not enough for Franchise'}
@@ -1996,22 +1996,22 @@ export default function App() {
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                        <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
                           Sacrifice everything. <span className="text-yellow-400 font-bold">Gain Golden Slices</span> — permanent currency that unlocks game-breaking perks across all future runs. Every 25 licenses converts to 1 Golden Slice.
                         </p>
                         <div className="flex items-center justify-between gap-4 flex-wrap">
                           <div className="text-sm tabular-nums">
-                            <span className="text-slate-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
-                            <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-slate-600'}`}>{slicesOnAscend}</span>
-                            <span className="text-slate-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
+                            <span className="text-zinc-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
+                            <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-zinc-600'}`}>{slicesOnAscend}</span>
+                            <span className="text-zinc-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
                           </div>
                           <button
                             onClick={handleAscend}
                             disabled={!canAscend}
                             className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm whitespace-nowrap btn-tactile ${
                               canAscend
-                                ? 'bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black border-b-[4px] border-yellow-800 active:border-b-0 active:translate-y-[4px] cursor-pointer'
-                                : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
+                                ? 'bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-black border-b-[4px] border-yellow-800 active:border-b-0 active:translate-y-[4px] cursor-pointer'
+                                : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
                             }`}
                           >
                             {canAscend ? 'Ascend to the Syndicate' : `Need 25 licenses (${franchiseLicenses}/25)`}
@@ -2022,8 +2022,8 @@ export default function App() {
 
                     {/* ── SYNDICATE ASCEND CONFIRMATION MODAL ── */}
                     {showAscendModal && (
-                      <div className="fixed inset-0 z-[110] bg-slate-950/90 flex items-center justify-center p-4">
-                        <div className="relative bg-slate-900 border-2 border-yellow-700 border-b-4 border-b-slate-950 rounded-2xl p-8 max-w-md w-full overflow-hidden text-center">
+                      <div className="fixed inset-0 z-[110] bg-zinc-950/90 flex items-center justify-center p-4">
+                        <div className="relative bg-zinc-900 border-2 border-yellow-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full overflow-hidden text-center">
 
                           <div className="relative z-10">
                             {/* Icon */}
@@ -2033,7 +2033,7 @@ export default function App() {
 
                             <div className="text-sm font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
                             <h2 className="font-display text-3xl text-yellow-100 tracking-widest mb-2">Ascend?</h2>
-                            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
                               You are about to sacrifice your entire empire to join <span className="text-yellow-400 font-bold">The Culinary Syndicate</span>.
                             </p>
 
@@ -2049,7 +2049,7 @@ export default function App() {
                             </div>
 
                             {/* What you lose / keep */}
-                            <div className="bg-slate-950/50 border border-slate-700/60 rounded-xl p-4 mb-6 text-left space-y-2">
+                            <div className="bg-zinc-950/50 border border-zinc-700/60 rounded-xl p-4 mb-6 text-left space-y-2">
                               {[
                                 { lose: true,  text: 'All money, reputation & upgrades' },
                                 { lose: true,  text: 'All franchise licenses & VIP tokens' },
@@ -2068,13 +2068,13 @@ export default function App() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => setShowAscendModal(false)}
-                                className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-display text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px]"
+                                className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-display text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]"
                               >
                                 Cancel
                               </button>
                               <button
                                 onClick={confirmAscend}
-                                className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-display font-black text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px]"
+                                className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-display font-black text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px]"
                               >
                                 Ascend
                               </button>
@@ -2090,19 +2090,19 @@ export default function App() {
             </div>
           )}
 
-          <div className="bg-slate-800 rounded-2xl p-0 shadow-2xl border border-slate-700 flex flex-col overflow-hidden relative">
+          <div className="bg-zinc-800 rounded-2xl p-0 shadow-2xl border border-zinc-700 flex flex-col overflow-hidden relative">
 
             {/* ── TAB NAV ── */}
-            <div className="bg-slate-900 border-b-4 border-slate-950 px-3 pt-3 pb-3">
-              <div className="bg-slate-800 p-2 rounded-xl border border-slate-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1">
+            <div className="bg-zinc-900 border-b-4 border-zinc-950 px-3 pt-3 pb-3">
+              <div className="bg-zinc-800 p-2 rounded-xl border border-zinc-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1">
                 {[
                   { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
                   { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
-                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Award',  active: 'bg-yellow-500 text-slate-900 border-b-2 border-yellow-800'},
+                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Award',  active: 'bg-yellow-500 text-zinc-900 border-b-2 border-yellow-800'},
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
-                  { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-slate-600 text-white border-b-2 border-slate-900'    },
-                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-slate-900 border-b-2 border-yellow-900' }] : []),
+                  { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
+                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }] : []),
                 ].map(({ id, icon, label, active }) => (
                   <button
                     key={id}
@@ -2110,7 +2110,7 @@ export default function App() {
                     className={`flex items-center justify-center gap-1 py-2 px-2 rounded-lg font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 ${
                       activeTab === id
                         ? active
-                        : 'text-slate-500 hover:text-slate-300'
+                        : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
                     {icon}
@@ -2125,7 +2125,7 @@ export default function App() {
               <div className="px-3 pt-4 pb-6">
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
-                    { id: 'all',        label: 'All',        color: 'text-slate-300',  activeBg: 'bg-slate-700 border-slate-500 text-white' },
+                    { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
                     { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
                     { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
                     { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
@@ -2134,20 +2134,20 @@ export default function App() {
                       key={f.id}
                       onClick={() => setUpgradeFilter(f.id)}
                       className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
-                        upgradeFilter === f.id ? f.activeBg : `border-slate-700 ${f.color} hover:border-slate-600 bg-slate-900/30`
+                        upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
                       }`}
                     >
                       {f.label}
                     </button>
                   ))}
-                  <div className="col-span-2 text-center text-sm text-slate-600 font-bold uppercase tracking-widest pt-1">
+                  <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="p-4 pt-12 mt-6 space-y-4 bg-slate-900">
+            <div className="p-4 pt-12 mt-6 space-y-4 bg-zinc-900">
               
               
               {/* --- TAB: VAULT --- */}
@@ -2273,7 +2273,7 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-400 mt-3 leading-relaxed">
+                      <p className="text-xs text-zinc-400 mt-3 leading-relaxed">
                         Golden Slices are permanent currency earned by ascending through The Culinary Syndicate. Spend them on perks that persist across all future runs.
                       </p>
                     </div>
@@ -2287,19 +2287,19 @@ export default function App() {
                         <div
                           key={perk.id}
                           className={`rounded-xl border ${
-                            owned ? 'border-yellow-700 bg-yellow-950' : 'border-slate-700 bg-slate-900'
+                            owned ? 'border-yellow-700 bg-yellow-950' : 'border-zinc-700 bg-zinc-900'
                           }`}
                         >
                           <div className="relative z-10 p-4">
                             <div className="flex items-start gap-4">
                               <div className={`p-3 rounded-xl border shrink-0 ${
-                                owned ? 'bg-yellow-900/40 border-yellow-500/50' : 'bg-slate-800/60 border-slate-700'
+                                owned ? 'bg-yellow-900/40 border-yellow-500/50' : 'bg-zinc-800/60 border-zinc-700'
                               }`}>
                                 {perk.icon}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-slate-300'}`}>{perk.name}</h3>
+                                  <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-zinc-300'}`}>{perk.name}</h3>
                                   {owned && !perk.repeatable && (
                                     <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
                                   )}
@@ -2307,8 +2307,8 @@ export default function App() {
                                     <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">×{currentCount}</span>
                                   )}
                                 </div>
-                                <p className="text-sm text-slate-500 mb-2 leading-relaxed">{perk.desc}</p>
-                                <div className={`text-sm font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-slate-600'}`}>
+                                <p className="text-sm text-zinc-500 mb-2 leading-relaxed">{perk.desc}</p>
+                                <div className={`text-sm font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-zinc-600'}`}>
                                   ✦ {perk.effect}
                                 </div>
                               </div>
@@ -2322,7 +2322,7 @@ export default function App() {
                                   <>
                                     <div className="flex items-center gap-1 text-right">
                                       <Gem className="w-3.5 h-3.5 text-yellow-500" />
-                                      <span className={`font-display text-lg tabular-nums ${canBuy ? 'text-yellow-300' : 'text-slate-600'}`}>{perk.cost}</span>
+                                      <span className={`font-display text-lg tabular-nums ${canBuy ? 'text-yellow-300' : 'text-zinc-600'}`}>{perk.cost}</span>
                                     </div>
                                     <button
                                       onClick={() => {
@@ -2337,8 +2337,8 @@ export default function App() {
                                       disabled={!canBuy}
                                       className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider btn-tactile ${
                                         canBuy
-                                          ? 'bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black border-b-[2px] border-yellow-800 active:border-b-0 active:translate-y-[2px] cursor-pointer'
-                                          : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
+                                          ? 'bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-black border-b-[2px] border-yellow-800 active:border-b-0 active:translate-y-[2px] cursor-pointer'
+                                          : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
                                       }`}
                                     >
                                       {canBuy ? (perk.repeatable ? 'Buy' : 'Unlock') : goldenSlices < perk.cost ? `Need ${perk.cost - goldenSlices} more` : (perk.repeatable ? 'Buy' : 'Unlock')}
@@ -2360,15 +2360,15 @@ export default function App() {
                 <>
                   {/* Buy Multiplier Toggle */}
                   <div className="px-3 pb-4">
-                    <div className="flex bg-slate-800 border border-slate-600 rounded-xl p-1 mx-auto max-w-xs">
+                    <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
                       {[1, 10, 'MAX'].map((mult) => (
                         <button
                           key={mult}
                           onClick={() => setBuyMultiplier(mult)}
                           className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
                             buyMultiplier === mult
-                              ? 'bg-slate-700 text-white border border-slate-500'
-                              : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                              ? 'bg-zinc-700 text-white border border-zinc-500'
+                              : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
                           }`}
                         >
                           {mult === 'MAX' ? 'MAX' : `${mult}x`}
@@ -2413,16 +2413,16 @@ export default function App() {
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-display text-base text-slate-400 tracking-wider truncate">{upgrade.name}</h3>
-                            <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                            <h3 className="font-display text-base text-zinc-400 tracking-wider truncate">{upgrade.name}</h3>
+                            <Lock className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
                           </div>
-                          <p className="text-xs text-slate-500 font-bold flex items-center gap-1.5">
+                          <p className="text-xs text-zinc-500 font-bold flex items-center gap-1.5">
                             <Star className="w-3 h-3 shrink-0" /> Requires {upgrade.reqStars} ★ · {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
                           </p>
                         </div>
                       </div>
                       <div className="text-right relative z-10 shrink-0">
-                        <div className="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
+                        <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
                         <div className="font-display text-base font-black text-money opacity-50 tabular-nums">${fmt(cost)}</div>
                       </div>
                     </div>
@@ -2452,7 +2452,7 @@ export default function App() {
                   >
                     {/* milestone progress bar */}
                     {nextMilestone !== 'MAX' && (
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-900/50">
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-zinc-900/50">
                         <div className={`h-full ${theme.bar} transition-all duration-500 ease-out`} style={{ width: `${(count / nextMilestone) * 100}%` }} />
                       </div>
                     )}
@@ -2514,9 +2514,9 @@ export default function App() {
 
                       {/* Price pill — clear focal anchor */}
                       <div className={`flex items-baseline gap-2 px-4 py-2 rounded-xl shrink-0 ${
-                        canAfford ? 'bg-green-100 border-green-300 border-b-[3px] border-b-green-400' : 'bg-slate-100 border-slate-300'
+                        canAfford ? 'bg-green-100 border-green-300 border-b-[3px] border-b-green-400' : 'bg-zinc-100 border-zinc-300'
                       }`}>
-                        <span className={`font-display text-xl font-black tabular-nums leading-none ${canAfford ? 'text-green-700' : 'text-slate-500'}`}>
+                        <span className={`font-display text-xl font-black tabular-nums leading-none ${canAfford ? 'text-green-700' : 'text-zinc-500'}`}>
                           ${fmt(cost)}
                         </span>
                       </div>
@@ -2546,12 +2546,12 @@ export default function App() {
                 <div className="flex flex-col gap-4">
 
                   {/* Header Banner */}
-                  <div className="bg-slate-900/80 rounded-xl p-5 border border-slate-700 shadow-inner flex items-center justify-between gap-4">
+                  <div className="bg-zinc-900/80 rounded-xl p-5 border border-zinc-700 shadow-inner flex items-center justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <Zap className="w-8 h-8 text-yellow-400 shrink-0 mt-0.5" />
                       <div>
                         <h3 className="font-display text-xl text-yellow-100 tracking-wider">Time Warp Deliveries</h3>
-                        <p className="text-sm text-slate-400 mt-1">Instantly collect hours of idle production. Each run is on cooldown after use.</p>
+                        <p className="text-sm text-zinc-400 mt-1">Instantly collect hours of idle production. Each run is on cooldown after use.</p>
                       </div>
                     </div>
                     {vipTokens > 0 && (
@@ -2582,25 +2582,25 @@ export default function App() {
                           (req.licenses||0) > 0 && { label: `Own ${req.licenses} Franchise Licenses`, current: franchiseLicenses,   target: req.licenses  },
                         ].filter(Boolean);
                         return (
-                          <div key={dest.id} className="w-full p-5 rounded-xl border border-slate-700/50 bg-slate-900/60 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
-                            <div className="p-4 rounded-xl border border-slate-700 bg-slate-950/60 shrink-0">
-                              <Lock className="w-8 h-8 text-slate-500" />
+                          <div key={dest.id} className="w-full p-5 rounded-xl border border-zinc-700/50 bg-zinc-900/60 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
+                            <div className="p-4 rounded-xl border border-zinc-700 bg-zinc-950/60 shrink-0">
+                              <Lock className="w-8 h-8 text-zinc-500" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-display text-xl text-slate-400 tracking-wider mb-0.5">{dest.name}</h3>
-                              <p className="text-sm text-slate-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
-                              <p className="text-sm text-slate-500 italic mb-3">{dest.unlockHint}</p>
+                              <h3 className="font-display text-xl text-zinc-400 tracking-wider mb-0.5">{dest.name}</h3>
+                              <p className="text-sm text-zinc-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-sm text-zinc-500 italic mb-3">{dest.unlockHint}</p>
                               <div className="flex flex-col gap-1.5">
                                 {conditions.map(({ label, current, target }) => {
                                   const pct = Math.min(100, (current / target) * 100);
                                   return (
                                     <div key={label}>
-                                      <div className="flex justify-between text-sm font-bold uppercase tracking-widest text-slate-500 mb-0.5">
+                                      <div className="flex justify-between text-sm font-bold uppercase tracking-widest text-zinc-500 mb-0.5">
                                         <span>{label}</span>
-                                        <span className="tabular-nums text-slate-400">{pct >= 100 ? '✓' : `${Math.floor(pct)}%`}</span>
+                                        <span className="tabular-nums text-zinc-400">{pct >= 100 ? '✓' : `${Math.floor(pct)}%`}</span>
                                       </div>
-                                      <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-green-500' : 'bg-slate-600'}`} style={{ width: `${pct}%` }} />
+                                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-green-500' : 'bg-zinc-600'}`} style={{ width: `${pct}%` }} />
                                       </div>
                                     </div>
                                   );
@@ -2621,33 +2621,33 @@ export default function App() {
                         >
                           {/* Cooldown drain bar */}
                           {onCooldown && (
-                            <div className="absolute bottom-0 left-0 h-1 bg-slate-700 w-full">
-                              <div className="h-full bg-slate-400/60 transition-all duration-1000" style={{ width: `${cooldownPct}%` }} />
+                            <div className="absolute bottom-0 left-0 h-1 bg-zinc-700 w-full">
+                              <div className="h-full bg-zinc-400/60 transition-all duration-1000" style={{ width: `${cooldownPct}%` }} />
                             </div>
                           )}
 
                           <div className="flex items-center gap-4 w-full sm:w-auto mb-3 sm:mb-0">
-                            <div className={`p-4 rounded-xl shadow-inner border bg-slate-950/50 ${dest.border} ${!onCooldown ? 'group-hover:scale-110' : ''} transition-transform shrink-0`}>
+                            <div className={`p-4 rounded-xl shadow-inner border bg-zinc-950/50 ${dest.border} ${!onCooldown ? 'group-hover:scale-110' : ''} transition-transform shrink-0`}>
                               {dest.icon}
                             </div>
                             <div>
-                              <h3 className="font-display text-xl text-slate-100 tracking-wider mb-1">{dest.name}</h3>
-                              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
-                              <p className="text-sm text-slate-400">{dest.desc}</p>
+                              <h3 className="font-display text-xl text-zinc-100 tracking-wider mb-1">{dest.name}</h3>
+                              <p className="text-sm text-zinc-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
+                              <p className="text-sm text-zinc-400">{dest.desc}</p>
                             </div>
                           </div>
 
-                          <div className="w-full sm:w-auto sm:text-right shrink-0 border-t border-slate-700/50 sm:border-0 pt-3 sm:pt-0 sm:pl-4">
+                          <div className="w-full sm:w-auto sm:text-right shrink-0 border-t border-zinc-700/50 sm:border-0 pt-3 sm:pt-0 sm:pl-4">
                             {onCooldown ? (
                               <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-sm text-slate-500 font-bold uppercase tracking-widest">Cooldown</div>
-                                <div className="font-display text-2xl text-slate-500 tabular-nums flex items-center gap-2">
+                                <div className="text-sm text-zinc-500 font-bold uppercase tracking-widest">Cooldown</div>
+                                <div className="font-display text-2xl text-zinc-500 tabular-nums flex items-center gap-2">
                                   <Clock className="w-5 h-5" />{Math.floor(cooldown / 60)}:{String(cooldown % 60).padStart(2, '0')}
                                 </div>
                               </div>
                             ) : (
                               <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">Instant Payout</div>
+                                <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">Instant Payout</div>
                                 <div className="font-display text-2xl text-money tabular-nums">
                                   +$<Num value={warpMoney} decimals={0} />
                                 </div>
@@ -2691,13 +2691,13 @@ export default function App() {
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                  <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-700">
                     <div className="h-full bg-yellow-400 transition-all duration-500"
                       style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
                   </div>
 
                   {/* Achievement cards - 6 visible height with custom scrollbar */}
-                  <div className="h-[36rem] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-slate-800/30 hover:scrollbar-thumb-yellow-500/70">
+                  <div className="h-[36rem] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-zinc-800/30 hover:scrollbar-thumb-yellow-500/70">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2">
                       {ACHIEVEMENTS.map(ach => {
                         const isUnlocked = unlockedAchievements.includes(ach.id);
@@ -2707,18 +2707,18 @@ export default function App() {
                             className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
                               isUnlocked
                                 ? 'bg-yellow-950 border-yellow-800'
-                                : 'bg-slate-900 border-slate-800 opacity-60'
+                                : 'bg-zinc-900 border-zinc-800 opacity-60'
                             }`}
                           >
                             <div className="flex items-center gap-2">
-                              <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-slate-600'}`}>
+                              <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-zinc-600'}`}>
                                 {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                               </div>
-                              <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-slate-500'}`}>
+                              <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-zinc-500'}`}>
                                 {ach.name}
                               </span>
                             </div>
-                            <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-slate-300' : 'text-slate-600'}`}>
+                            <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-zinc-300' : 'text-zinc-600'}`}>
                               {ach.desc}
                             </p>
                           </div>
@@ -2780,19 +2780,19 @@ export default function App() {
                     />
 
                     {/* Upgrades Owned — inline accordion */}
-                    <div className="bg-slate-900/60 border border-slate-600/30 rounded-xl overflow-hidden">
+                    <div className="bg-zinc-900/60 border border-zinc-600/30 rounded-xl overflow-hidden">
                       <button
                         onClick={() => setStatsOpen(prev => ({ ...prev, owned: !prev.owned }))}
-                        className="w-full px-4 py-2.5 bg-slate-800/40 flex items-center justify-between gap-2 hover:brightness-110 transition-all"
+                        className="w-full px-4 py-2.5 bg-zinc-800/40 flex items-center justify-between gap-2 hover:brightness-110 transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <ShoppingCart className="w-4 h-4 text-slate-400" />
-                          <span className="text-sm font-black uppercase tracking-widest text-slate-400">Upgrades Owned</span>
+                          <ShoppingCart className="w-4 h-4 text-zinc-400" />
+                          <span className="text-sm font-black uppercase tracking-widest text-zinc-400">Upgrades Owned</span>
                         </div>
-                        <span className={`text-sm font-black text-slate-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
+                        <span className={`text-sm font-black text-zinc-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
                       </button>
                       {statsOpen.owned && (
-                        <div className="divide-y divide-slate-800/60">
+                        <div className="divide-y divide-zinc-800/60">
                           {['production', 'quality', 'click'].map(type => {
                             const typeUpgrades = UPGRADES.filter(u => u.type === type);
                             const colors = { production: 'text-blue-400', quality: 'text-amber-400', click: 'text-orange-400' };
@@ -2806,12 +2806,12 @@ export default function App() {
                                     const locked = franchiseLicenses === 0 && starLevel < u.reqStars;
                                     return (
                                       <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-bold tabular-nums ${
-                                        locked ? 'bg-slate-900/40 border-slate-700/30 text-slate-600' :
-                                        count > 0 ? `bg-slate-900/60 border-slate-600/40 ${colors[type]}` :
-                                        'bg-slate-900/40 border-slate-700/30 text-slate-500'
+                                        locked ? 'bg-zinc-900/40 border-zinc-700/30 text-zinc-600' :
+                                        count > 0 ? `bg-zinc-900/60 border-zinc-600/40 ${colors[type]}` :
+                                        'bg-zinc-900/40 border-zinc-700/30 text-zinc-500'
                                       }`}>
                                         {u.name}
-                                        <span className="bg-slate-950/60 px-1.5 py-0.5 rounded font-display">
+                                        <span className="bg-zinc-950/60 px-1.5 py-0.5 rounded font-display">
                                           {locked ? '🔒' : count}
                                         </span>
                                       </div>
@@ -3250,13 +3250,13 @@ export default function App() {
                     {/* Header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ScrollText className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-400">Transaction Log</span>
-                        <span className="text-[9px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
+                        <ScrollText className="w-4 h-4 text-zinc-400" />
+                        <span className="text-xs font-black uppercase tracking-widest text-zinc-400">Transaction Log</span>
+                        <span className="text-[9px] bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
                       </div>
                       <button
                         onClick={() => setMoneyLog([])}
-                        className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-red-400 transition-colors border border-slate-700 hover:border-red-800 px-2 py-1 rounded"
+                        className="text-[9px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-400 transition-colors border border-zinc-700 hover:border-red-800 px-2 py-1 rounded"
                       >Clear</button>
                     </div>
 
@@ -3268,7 +3268,7 @@ export default function App() {
                           return (
                             <div key={cat} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[9px] font-bold ${m.bg}`}>
                               <span>{m.icon}</span>
-                              <span className="text-slate-400 uppercase tracking-widest">{m.label}</span>
+                              <span className="text-zinc-400 uppercase tracking-widest">{m.label}</span>
                               <span className={`font-display tabular-nums ${m.color}`}>${fmt(total)}</span>
                             </div>
                           );
@@ -3278,10 +3278,10 @@ export default function App() {
 
                     {/* Empty state */}
                     {moneyLog.length === 0 && (
-                      <div className="flex flex-col items-center justify-center py-12 gap-3 text-slate-600">
+                      <div className="flex flex-col items-center justify-center py-12 gap-3 text-zinc-600">
                         <ScrollText className="w-10 h-10 opacity-30" />
                         <p className="text-xs font-bold uppercase tracking-widest">No transactions yet</p>
-                        <p className="text-[10px] text-slate-700">Start clicking or wait for idle income.</p>
+                        <p className="text-[10px] text-zinc-700">Start clicking or wait for idle income.</p>
                       </div>
                     )}
 
@@ -3293,12 +3293,12 @@ export default function App() {
                           const isPositive = entry.amount >= 0;
                           return (
                             <div key={entry.id}
-                              className="flex items-center gap-3 py-2.5 px-1 border-b border-slate-800/60 animate-[logSlideIn_0.2s_ease-out]"
+                              className="flex items-center gap-3 py-2.5 px-1 border-b border-zinc-800/60 animate-[logSlideIn_0.2s_ease-out]"
                             >
                               <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-slate-300 truncate">{entry.label}</div>
-                                <div className="text-[9px] text-slate-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
+                                <div className="text-xs font-bold text-zinc-300 truncate">{entry.label}</div>
+                                <div className="text-[9px] text-zinc-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
                               </div>
                               <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
                                 {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
@@ -3308,7 +3308,7 @@ export default function App() {
                         })}
                       </div>
                       {/* Fade overlay at bottom */}
-                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-800 to-transparent" />
+                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-zinc-800 to-transparent" />
                     </div>
                   </div>
                 );
@@ -3317,16 +3317,16 @@ export default function App() {
             </div>
 
             {/* ── MONETIZATION STRIP ── */}
-            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-slate-700 bg-slate-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                <Zap className="w-3 h-3 text-slate-600" />
+            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-zinc-700 bg-zinc-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                <Zap className="w-3 h-3 text-zinc-600" />
                 Monetization
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
                   isMuted
-                    ? 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
-                  : 'border-slate-600/50 bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                    ? 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
+                  : 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
                 }`}
                 >
                   {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
