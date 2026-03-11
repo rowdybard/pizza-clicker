@@ -1353,40 +1353,22 @@ export default function App() {
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-2 px-8 py-4 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
+            <div className={`flex flex-col items-center gap-2 px-6 py-3 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
               isRush ? 'bg-red-500' : 'bg-orange-500'
             }`}>
-              <div className="text-base font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
+              <div className="text-sm font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
-                <span className={`font-display text-2xl md:text-3xl tabular-nums leading-none text-white text-stroke-sm`}>
+                <span className={`font-display text-xl md:text-2xl tabular-nums leading-none text-white text-stroke-sm`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
-                  <span className="text-base font-bold text-white hidden sm:block">{numWords(money)}</span>
+                  <span className="text-sm font-bold text-white hidden sm:block">{numWords(money)}</span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* RIGHT: Buy Multiplier Toggle */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex bg-white border-[4px] border-[#020617] rounded-xl shadow-[0_4px_0_#020617] p-2">
-              {[1, 10, 'MAX'].map((mult) => (
-                <button
-                  key={mult}
-                  onClick={() => setBuyMultiplier(mult)}
-                  className={`px-4 py-3 rounded-lg font-display font-black text-base transition-all ${
-                    buyMultiplier === mult
-                      ? 'bg-amber-400 text-slate-900 border-[2px] border-slate-900 shadow-[0_2px_0_#020617]'
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                </button>
-              ))}
-            </div>
-          </div>
-
+          
           {/* RIGHT: Secondary stat pills + settings */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Golden Slices - only show if player has any */}
@@ -2374,7 +2356,28 @@ export default function App() {
               })()}
 
               {/* --- TAB: UPGRADES --- */}
-              {activeTab === 'upgrades' && UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
+              {activeTab === 'upgrades' && (
+                <>
+                  {/* Buy Multiplier Toggle */}
+                  <div className="px-3 pb-4">
+                    <div className="flex bg-white border-[4px] border-[#0f172a] rounded-xl shadow-[0_4px_0_#0f172a] p-2 mx-auto max-w-xs">
+                      {[1, 10, 'MAX'].map((mult) => (
+                        <button
+                          key={mult}
+                          onClick={() => setBuyMultiplier(mult)}
+                          className={`flex-1 px-4 py-3 rounded-lg font-display font-black text-base transition-all ${
+                            buyMultiplier === mult
+                              ? 'bg-amber-400 text-slate-900 border-[2px] border-slate-900 shadow-[0_2px_0_#0f172a]'
+                              : 'text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
@@ -2510,6 +2513,8 @@ export default function App() {
                   </div>
                 );
               })}
+                </>
+              )}
 
               {/* --- TAB: TIME WARP DELIVERIES --- */}
               {activeTab === 'map' && (
