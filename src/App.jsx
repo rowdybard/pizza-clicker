@@ -374,6 +374,28 @@ export default function App() {
   // --- MODAL STATE ---
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
+
+  const calculateCost = (upgrade, currentCount, amount) => {
+    let totalCost = 0;
+    for (let i = 0; i < amount; i++) totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
+    return totalCost;
+  };
+
+  const calculateMax = (upgrade, currentCount) => {
+    let cost = 0;
+    let amount = 0;
+    let simulatedMoney = money;
+    while (true) {
+      const nextCost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + amount));
+      if (simulatedMoney >= nextCost) {
+        simulatedMoney -= nextCost;
+        cost += nextCost;
+        amount++;
+      } else break;
+    }
+    return { amount: Math.max(1, amount), cost: amount > 0 ? cost : Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount)) };
+  };
 
   // --- JUICE STATE ---
   const [isShaking, setIsShaking] = useState(false);
@@ -1316,33 +1338,52 @@ export default function App() {
       </div>
 
       {/* ── FIXED HUD ── */}
-      <div className={`fixed top-0 inset-x-0 z-40 bg-slate-900 border-b-4 border-slate-950 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
+      <div className={`fixed top-0 inset-x-0 z-50 bg-[#0f172a] border-b-[6px] border-[#020617] px-4 py-3 shadow-2xl transition-colors duration-300 ${isRush ? 'bg-red-600' : ''}`}>
+        <div className="max-w-6xl mx-auto flex items-center gap-4">
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA EMPIRE</h1>
+            <h1 className="text-2xl md:text-3xl font-display text-white tracking-wider whitespace-nowrap leading-none text-stroke-sm">PIZZA EMPIRE</h1>
             <div className="flex gap-1 mt-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700 fill-slate-700'}`} />
+                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600 fill-slate-600'}`} />
               ))}
             </div>
           </div>
 
           {/* CENTER: Dominant bank display */}
           <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950' : 'bg-slate-800 border-slate-950'
+            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-[4px] border-[#020617] shadow-[0_6px_0_#020617] shrink-0 ${
+              isRush ? 'bg-red-500' : 'bg-orange-500'
             }`}>
-              <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="text-sm font-bold text-white tracking-wider text-stroke-sm">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
-                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
+                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none text-white text-stroke-sm`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
-                  <span className="text-sm text-slate-500 font-bold hidden sm:block">{numWords(money)}</span>
+                  <span className="text-sm font-bold text-white hidden sm:block">{numWords(money)}</span>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* RIGHT: Buy Multiplier Toggle */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex bg-white border-[4px] border-[#020617] rounded-xl shadow-[0_4px_0_#020617] p-1">
+              {[1, 10, 'MAX'].map((mult) => (
+                <button
+                  key={mult}
+                  onClick={() => setBuyMultiplier(mult)}
+                  className={`px-3 py-2 rounded-lg font-display font-black text-sm transition-all ${
+                    buyMultiplier === mult
+                      ? 'bg-amber-400 text-slate-900 border-[2px] border-slate-900 shadow-[0_2px_0_#020617]'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -1623,7 +1664,7 @@ export default function App() {
 
 
       {/* ── MAIN CONTENT (offset for HUD) ── */}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-28 pb-6 px-4 md:px-6">
+      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-24 pb-6 px-4 md:px-6">
         
         {/* Left Area: Action Center */}
         <div className="lg:col-span-5 flex flex-col gap-6 relative mt-2">
@@ -1748,14 +1789,17 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
-                border-b-[8px]
+              className={`w-full rounded-[32px] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
+                border-[4px] border-[#0f172a]
+                shadow-[0_12px_0_#9a3412] active:shadow-none active:translate-y-[12px]
                 ${isRush
-                  ? 'bg-red-600 border-red-900 hover:bg-red-700'
-                  : 'bg-orange-500 border-orange-800 hover:bg-orange-600'
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-orange-500 hover:bg-orange-600'
                 }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
+              {/* Shine effect */}
+              <div className="absolute top-0 inset-x-0 h-6 bg-white/20 rounded-t-[28px] pointer-events-none"></div>
               
               {/* COMBO METER */}
               {combo > 0 && (
@@ -2393,119 +2437,81 @@ export default function App() {
                 const can10 = money >= cost10;
                 const can100 = money >= cost100;
 
+                // Calculate buy amount and cost based on multiplier
+                let buyAmount = buyMultiplier;
+                let buyCost = cost;
+                
+                if (buyMultiplier === 10) {
+                  buyCost = calculateCost(upgrade, count, 10);
+                } else if (buyMultiplier === 'MAX') {
+                  const maxResult = calculateMax(upgrade, count);
+                  buyAmount = maxResult.amount;
+                  buyCost = maxResult.cost;
+                }
+
+                const canBuy = money >= buyCost;
+                const iconColor = {
+                  production: 'bg-blue-500',
+                  quality: 'bg-amber-500',
+                  click: 'bg-orange-500'
+                }[upgrade.type];
+                const iconDarkColor = {
+                  production: '#1e40af',
+                  quality: '#b45309',
+                  click: '#c2410c'
+                }[upgrade.type];
+
                 return (
-                  <button
+                  <div
                     key={upgrade.id}
-                    onClick={() => buyUpgrade(upgrade)}
-                    disabled={!canAfford}
-                    className={`w-full group flex flex-col p-4 rounded-xl text-left relative overflow-hidden border btn-tactile ${
-                      canAfford
-                        ? `${theme.bg} ${theme.border} ${theme.depthBorder} active:border-b-0 active:translate-y-[4px] cursor-pointer hover:border-white hover:shadow-lg hover:shadow-white/20`
-                        : `${theme.bg} opacity-50 border-slate-800 cursor-not-allowed`
+                    className={`bg-white border-[4px] border-[#0f172a] rounded-[24px] shadow-[0_8px_0_#0f172a] flex items-center p-3 gap-3 relative ${
+                      !canBuy ? 'opacity-50' : ''
                     }`}
                   >
-                    {/* milestone progress bar */}
-                    {nextMilestone !== 'MAX' && (
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-900/50">
-                        <div className={`h-full ${theme.bar} transition-all duration-500 ease-out`} style={{ width: `${(count / nextMilestone) * 100}%` }} />
-                      </div>
-                    )}
-
-                    {/* ── ROW 1: icon + name + level badge ── */}
-                    <div className="flex items-center gap-3 relative z-10">
-                      <div className={`p-3 rounded-xl border shrink-0 ${theme.iconBg}`}>
+                    {/* Icon Block */}
+                    <div className={`w-20 h-20 rounded-[18px] border-[4px] border-[#0f172a] ${iconColor} shadow-[0_6px_0_${iconDarkColor}] flex items-center justify-center relative`}>
+                      {/* Shine effect */}
+                      <div className="absolute top-0 inset-x-0 h-4 bg-white/20 rounded-t-[16px] pointer-events-none"></div>
+                      <div className="text-white text-3xl">
                         {upgrade.icon}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-display text-base text-slate-100 tracking-wider leading-tight">{upgrade.name}</h3>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
-                            LVL {count}
-                          </span>
-                          {multi > 1 && count > 0 && (
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded tabular-nums shrink-0 ${theme.badge}`}>
-                              {multi}x
-                            </span>
-                          )}
-                        </div>
-                        {/* stat line */}
-                        <p className="text-xs text-slate-400 font-medium mt-0.5 tabular-nums">
-                          {upgrade.type === 'production' && (() => {
-                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
-                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
-                            return count === 0
-                              ? <span>Next: <span className="text-blue-300 font-bold">+{nxt}/sec</span></span>
-                              : <span><span className="text-blue-300 font-bold">{cur}/sec</span><span className="text-slate-600 mx-1">→</span><span className="text-blue-200 font-bold">{nxt}/sec</span></span>;
-                          })()}
-                          {upgrade.type === 'quality' && (() => {
-                            const gainPerPizza = upgrade.baseValue;
-                            return count === 0
-                              ? <span>Next: <span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
-                              : <span><span className="text-amber-300 font-bold">+<span className="text-money">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-slate-600 mx-1">→</span><span className="text-money font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
-                          })()}
-                          {upgrade.type === 'click' && (() => {
-                            const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                            return count === 0
-                              ? <span>Next: <span className="text-orange-300 font-bold">+{nxt} pizzas/click</span></span>
-                              : <span><span className="text-orange-300 font-bold">{cur}/click</span><span className="text-slate-600 mx-1">→</span><span className="text-orange-200 font-bold">{nxt}/click</span></span>;
-                          })()}
-                        </p>
+                      {/* Level Badge */}
+                      <div className="absolute -top-3 -right-3 bg-red-500 border-[3px] border-[#0f172a] text-white px-2 py-0.5 rounded-lg font-black rotate-12 shadow-[0_3px_0_#0f172a] text-stroke-sm">
+                        LVL {count}
                       </div>
                     </div>
 
-                    {/* ── SPACER ── */}
-                    <div className="relative z-10 mt-3 mb-2.5 border-t border-slate-700/40" />
-
-                    {/* ── ROW 2: price · milestone · bulk buttons ── */}
-                    <div className="relative z-10 flex items-center gap-2">
-
-                      {/* Price pill — clear focal anchor */}
-                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-lg shrink-0 ${
-                        canAfford ? 'bg-slate-950/70 border border-slate-700/60' : 'bg-slate-900/40 border border-slate-800/40'
-                      }`}>
-                        <span className={`font-display text-lg font-black tabular-nums leading-none ${canAfford ? 'text-money' : 'text-slate-600'}`}>
-                          ${fmt(cost)}
-                        </span>
-                      </div>
-
-                      {/* Milestone tracker — middle, fills remaining space */}
-                      <div className="flex-1 flex items-center justify-center min-w-0">
-                        {nextMilestone !== 'MAX' ? (
-                          <span className="text-sm text-slate-500 font-bold tabular-nums truncate">
-                            <span className={`${theme.text} font-black`}>{count}</span>
-                            <span className="text-slate-700 mx-0.5">/</span>
-                            <span className="text-slate-300 font-black">{nextMilestone}</span>
-                            <span className="text-slate-600 ml-1">next boost</span>
-                          </span>
-                        ) : (
-                          <span className={`text-sm font-black uppercase tracking-wider ${theme.text}`}>✦ Max Boost</span>
-                        )}
-                      </div>
-
-                      {/* Bulk buy buttons — right-aligned, shown only when affordable */}
-                      {(can10 || can100) && (
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          {can10 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 10); }}
-                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
-                            >
-                              ×10
-                            </button>
-                          )}
-                          {can100 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); buyUpgradeN(upgrade, 100); }}
-                              className={`px-2 py-1 rounded-lg font-display text-sm tracking-wider transition-all tabular-nums border ${theme.border} bg-slate-950/60 ${theme.text} hover:bg-slate-800 hover:border-white hover:shadow-lg hover:shadow-white/20 active:scale-95`}
-                            >
-                              ×100
-                            </button>
-                          )}
-                        </div>
-                      )}
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h3 className="font-display text-lg text-slate-900 font-bold tracking-wider mb-1">{upgrade.name}</h3>
+                      <p className="text-sm text-slate-600 mb-2">
+                        {upgrade.type === 'production' && `+${fmt(upgrade.baseValue * count * multi * vipTokenMultiplier)}/sec`}
+                        {upgrade.type === 'quality' && `+$${Math.floor(upgrade.baseValue * 100) / 100}/pizza`}
+                        {upgrade.type === 'click' && `+${fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier)} pizzas/click`}
+                      </p>
                     </div>
-                  </button>
+
+                    {/* Buy Button */}
+                    <button
+                      onClick={() => {
+                        if (buyMultiplier === 1) buyUpgrade(upgrade);
+                        else if (buyMultiplier === 10) buyUpgradeN(upgrade, 10);
+                        else if (buyMultiplier === 'MAX') {
+                          const maxResult = calculateMax(upgrade, count);
+                          buyUpgradeN(upgrade, maxResult.amount);
+                        }
+                      }}
+                      disabled={!canBuy}
+                      className="bg-green-500 border-[4px] border-[#0f172a] shadow-[0_6px_0_#16a34a] active:shadow-[0_0px_0_#16a34a] active:translate-y-[6px] rounded-[18px] h-[72px] px-4 flex flex-col items-center justify-center min-w-[100px]"
+                    >
+                      <div className="text-stroke-sm font-display text-lg font-black text-white tabular-nums">
+                        ${fmt(buyCost)}
+                      </div>
+                      <div className="text-white font-bold text-sm">
+                        Buy {buyMultiplier === 'MAX' ? buyAmount : buyMultiplier}
+                      </div>
+                    </button>
+                  </div>
                 );
               })}
 
@@ -3310,38 +3316,30 @@ export default function App() {
         </div>
       
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
 
         *, *::-webkit-scrollbar { scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
         .tabular-nums { font-variant-numeric: tabular-nums; }
 
-        .font-display {
-          font-family: 'Oswald', sans-serif;
-          text-transform: uppercase;
-          font-variant-numeric: tabular-nums;
+        .font-display, .font-game {
+          font-family: 'Lilita One', cursive;
+          letter-spacing: 0.05em;
         }
+        .font-body { font-family: 'Inter', sans-serif; }
 
-        .font-body {
-          font-family: 'Inter', sans-serif;
-          font-variant-numeric: tabular-nums;
+        .text-stroke-sm {
+          -webkit-text-stroke: 1px #0f172a;
+          text-shadow: 0px 2px 0px #0f172a;
         }
-
-        .metallic-text {
-          background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.9));
+        .text-stroke-white {
+          -webkit-text-stroke: 2px white;
         }
+        .custom-scrollbar::-webkit-scrollbar { display: none; } /* Hide scrollbars for mobile feel */
 
         .text-money { color: #84cc16; }
-        .text-glow-green  {}
-        .text-glow-blue   {}
-        .text-glow-red    {}
-        .text-glow-yellow {}
-        .text-glow-orange {}
-        .text-glow-purple {}
 
         /* Tactile depth button base — add border-b-[N] border-[darker-color] and active:border-b-0 active:translate-y-[N] */
         .btn-tactile {
