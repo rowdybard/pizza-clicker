@@ -2012,32 +2012,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Upgrades sub-filter pills — only shown on upgrades tab */}
-            {activeTab === 'upgrades' && (
-              <div className="px-3 pt-2 pb-2">
-                <div className="grid grid-cols-2 gap-1.5">
-                  {[
-                    { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
-                    { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
-                    { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
-                    { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
-                  ].map(f => (
-                    <button
-                      key={f.id}
-                      onClick={() => setUpgradeFilter(f.id)}
-                      className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
-                        upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                  <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
-                    {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="p-4 pt-6 space-y-4 bg-zinc-900">
               
@@ -2250,6 +2224,31 @@ export default function App() {
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
+                  {/* Upgrade Filter Pills */}
+                  <div className="mb-4">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
+                        { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
+                        { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
+                        { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
+                      ].map(f => (
+                        <button
+                          key={f.id}
+                          onClick={() => setUpgradeFilter(f.id)}
+                          className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
+                            upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                      <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
+                        {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Buy Multiplier Toggle - Inside upgrades container */}
                   <div className="mb-5">
                     <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
