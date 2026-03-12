@@ -2369,8 +2369,8 @@ export default function App() {
                         </div>
                         
                         {/* Level Badge */}
-                        <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-1.5 sm:px-2 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
-                          <span className="text-[10px] sm:text-xs font-black text-amber-400 font-display tabular-nums">{count}</span>
+                        <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-2 sm:px-2.5 py-1 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
+                          <span className="text-sm sm:text-base font-black text-amber-400 font-display tabular-nums">{count}</span>
                         </div>
                       </div>
 
@@ -2378,7 +2378,25 @@ export default function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
                           <div className="flex-1">
-                            <h3 className="font-display text-lg sm:text-xl font-black text-amber-100 tracking-wider leading-tight mb-1">{upgrade.name}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-display text-lg sm:text-xl font-black text-amber-100 tracking-wider leading-tight">{upgrade.name}</h3>
+                              {/* Milestone Multiplier Badges */}
+                              {MILESTONES.map((milestone, idx) => {
+                                if (count >= milestone) {
+                                  const multiplier = MILESTONE_MULTS_OVERRIDE[idx];
+                                  return (
+                                    <span key={milestone} className={`px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider shrink-0 ${
+                                      upgrade.type === 'production' ? 'bg-blue-900/60 text-blue-300 border border-blue-700' :
+                                      upgrade.type === 'quality' ? 'bg-amber-900/60 text-amber-300 border border-amber-700' :
+                                      'bg-orange-900/60 text-orange-300 border border-orange-700'
+                                    }`}>
+                                      {multiplier}×
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
                             <p className="text-xs sm:text-sm text-zinc-300 font-medium tabular-nums">
                               {upgrade.type === 'production' && (() => {
                                 const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
