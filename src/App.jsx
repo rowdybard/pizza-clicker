@@ -2023,7 +2023,7 @@ export default function App() {
 
             {/* Upgrades sub-filter pills — only shown on upgrades tab */}
             {activeTab === 'upgrades' && (
-              <div className="px-3 pt-4 pb-6">
+              <div className="px-3 pt-4 pb-3">
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
@@ -2044,6 +2044,35 @@ export default function App() {
                   <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
+                </div>
+
+                {/* Buy Multiplier Toggle - Moved up here */}
+                <div className="mt-3">
+                  <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
+                    {[1, 10, 'MAX'].map((mult) => (
+                      <button
+                        key={mult}
+                        onClick={() => setBuyMultiplier(mult)}
+                        className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
+                          buyMultiplier === mult
+                            ? 'bg-zinc-700 text-white border border-zinc-500'
+                            : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                        }`}
+                      >
+                        {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* TEST BUTTON - Start Delivery Game */}
+                <div className="mt-3">
+                  <button
+                    onClick={() => setDeliveryGame(true)}
+                    className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-black tracking-wider rounded-lg border-b-2 border-amber-800 active:border-b-0 active:translate-y-[2px] transition-all"
+                  >
+                    🚗 TEST: START DELIVERY GAME
+                  </button>
                 </div>
               </div>
             )}
@@ -2259,25 +2288,6 @@ export default function App() {
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
-                  {/* Buy Multiplier Toggle */}
-                  <div className="px-3 pb-4">
-                    <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
-                      {[1, 10, 'MAX'].map((mult) => (
-                        <button
-                          key={mult}
-                          onClick={() => setBuyMultiplier(mult)}
-                          className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
-                            buyMultiplier === mult
-                              ? 'bg-zinc-700 text-white border border-zinc-500'
-                              : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                          }`}
-                        >
-                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
