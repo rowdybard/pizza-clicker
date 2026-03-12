@@ -1664,8 +1664,8 @@ export default function App() {
 
       {/* --- PRESTIGE MODAL --- */}
       {showPrestigeModal && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]">
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4" style={{pointerEvents: 'auto'}}>
+          <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]" style={{transform: 'none'}}>
             <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
             <h2 className="text-5xl text-amber-400 mb-4" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
             <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
@@ -1954,7 +1954,7 @@ export default function App() {
                     {pendingLicenses > 0 && (
                       <button
                         onClick={() => setShowPrestigeModal(true)}
-                        className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg transition-colors"
+                        className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
                       >
                         SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
                       </button>
