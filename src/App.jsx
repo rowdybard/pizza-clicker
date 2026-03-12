@@ -2224,50 +2224,53 @@ export default function App() {
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
-                  {/* Upgrade Filter Pills */}
-                  <div className="mb-4">
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {[
-                        { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
-                        { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
-                        { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
-                        { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
-                      ].map(f => (
-                        <button
-                          key={f.id}
-                          onClick={() => setUpgradeFilter(f.id)}
-                          className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
-                            upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
-                          }`}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
-                      <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
-                        {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
+                  {/* Upgrades Container - wraps filters, multiplier, and cards */}
+                  <div className="space-y-4">
+                    {/* Upgrade Filter Pills */}
+                    <div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
+                          { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
+                          { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
+                          { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
+                        ].map(f => (
+                          <button
+                            key={f.id}
+                            onClick={() => setUpgradeFilter(f.id)}
+                            className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
+                              upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                        <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
+                          {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Buy Multiplier Toggle - Inside upgrades container */}
-                  <div className="mb-5">
-                    <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
-                      {[1, 10, 'MAX'].map((mult) => (
-                        <button
-                          key={mult}
-                          onClick={() => setBuyMultiplier(mult)}
-                          className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
-                            buyMultiplier === mult
-                              ? 'bg-zinc-700 text-white border border-zinc-500'
-                              : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                          }`}
-                        >
-                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                        </button>
-                      ))}
+                    {/* Buy Multiplier Toggle */}
+                    <div>
+                      <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
+                        {[1, 10, 'MAX'].map((mult) => (
+                          <button
+                            key={mult}
+                            onClick={() => setBuyMultiplier(mult)}
+                            className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
+                              buyMultiplier === mult
+                                ? 'bg-zinc-700 text-white border border-zinc-500'
+                                : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                            }`}
+                          >
+                            {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
+                    {/* Upgrade Cards */}
                   {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
@@ -2474,6 +2477,7 @@ export default function App() {
                   </div>
                 );
               })}
+                  </div>
                 </>
               )}
 
