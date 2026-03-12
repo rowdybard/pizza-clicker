@@ -1954,7 +1954,7 @@ export default function App() {
                     {pendingLicenses > 0 && (
                       <button
                         onClick={() => setShowPrestigeModal(true)}
-                        className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
+                        className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg transition-colors"
                       >
                         SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
                       </button>
