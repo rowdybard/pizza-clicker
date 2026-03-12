@@ -2368,10 +2368,12 @@ export default function App() {
                           {upgrade.icon}
                         </div>
                         
-                        {/* Level Badge */}
-                        <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-2 sm:px-2.5 py-1 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
-                          <span className="text-sm sm:text-base font-black text-amber-400 font-display tabular-nums">{count}</span>
-                        </div>
+                        {/* Owned Badge */}
+                        {count > 0 && (
+                          <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-1.5 py-1 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                          </div>
+                        )}
                       </div>
 
                       {/* Content Area */}
@@ -2424,8 +2426,13 @@ export default function App() {
 
                         {/* Laser Cut Progress Bar */}
                         {nextMilestone !== 'MAX' && (
-                          <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50 mt-2">
-                            <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
+                          <div className="relative mt-2">
+                            <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50">
+                              <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
+                            </div>
+                            <div className="absolute -top-0.5 right-0 text-xs font-bold text-zinc-400 tabular-nums">
+                              {count}/{nextMilestone}
+                            </div>
                           </div>
                         )}
                       </div>
