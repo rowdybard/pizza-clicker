@@ -7,6 +7,7 @@ import {
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
   Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, MapPin, Package
 } from 'lucide-react';
+import ManagerDesk from './ManagerDesk';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
 
@@ -1314,9 +1315,22 @@ export default function App() {
     ? 'text-yellow-400'
     : 'text-orange-400';
 
+  const deliveryGameElement = deliveryGame ? (
+    <DeliveryMicrogame 
+      onComplete={(success) => {
+        const baseReward = 2000;
+        const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
+        setMoney(m => m + finalReward);
+        pushLogRef.current('delivery', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
+        setDeliveryGame(null);
+      }}
+    />
+  ) : null;
+
   return (
     <>
-      <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+      <ManagerDesk deliveryGame={deliveryGameElement}>
+        <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
       {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
       {goldenSliceEvent && (
@@ -3344,7 +3358,8 @@ export default function App() {
 
     </div>
   </div>
-    <Analytics />
+      </ManagerDesk>
+      <Analytics />
     </>
   );
 }
