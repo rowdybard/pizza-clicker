@@ -3394,20 +3394,20 @@ function DeliveryMicrogame({ onComplete }) {
   }, [playerLane, onComplete]);
 
   return (
-    <div className="w-full max-w-sm bg-[#1a1a1a] rounded-3xl border-4 border-[#333] overflow-hidden flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in zoom-in duration-200">
+    <div className="w-full max-w-md bg-zinc-900 rounded-2xl border-4 border-amber-600 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.9)] animate-in zoom-in duration-200">
       
       {/* Header */}
-      <div className="bg-[#222] p-3 flex justify-between items-center border-b-2 border-[#111]">
-        <div className="text-[#d97706] font-black uppercase tracking-widest flex items-center gap-2">
-          <MapPin size={18} /> Delivery
+      <div className="bg-zinc-800 p-4 flex justify-between items-center border-b-4 border-amber-600">
+        <div className="text-amber-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg">
+          <MapPin size={20} /> Delivery Challenge
         </div>
-        <div className="text-white font-mono font-bold text-lg">
+        <div className="text-white font-mono font-bold text-xl tabular-nums">
           0{Math.ceil(timeLeft/1000)}:{(timeLeft%1000).toString().padStart(3, '0').slice(0,2)}
         </div>
       </div>
 
       {/* Highway View */}
-      <div className="h-64 relative bg-[#111] overflow-hidden flex">
+      <div className="h-80 relative bg-zinc-800 overflow-hidden flex border-b-4 border-amber-600">
         {/* Lanes */}
         <div className="absolute inset-0 flex justify-evenly pointer-events-none opacity-20">
           <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
@@ -3433,14 +3433,14 @@ function DeliveryMicrogame({ onComplete }) {
       </div>
 
       {/* Massive Controls for Mobile */}
-      <div className="p-4 flex gap-4 bg-[#222]">
+      <div className="p-6 flex gap-4 bg-zinc-900">
         <button 
-          className="flex-1 h-20 bg-[#333] border-b-4 border-[#111] active:border-b-0 active:translate-y-1 rounded-xl font-black text-3xl text-gray-400 select-none touch-manipulation focus:outline-none"
+          className="flex-1 h-20 bg-amber-600 hover:bg-amber-500 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-white select-none touch-manipulation focus:outline-none transition-all shadow-lg"
           onClick={moveLeft}
           onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
         >◀</button>
         <button 
-          className="flex-1 h-20 bg-[#333] border-b-4 border-[#111] active:border-b-0 active:translate-y-1 rounded-xl font-black text-3xl text-gray-400 select-none touch-manipulation focus:outline-none"
+          className="flex-1 h-20 bg-amber-600 hover:bg-amber-500 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-white select-none touch-manipulation focus:outline-none transition-all shadow-lg"
           onClick={moveRight}
           onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
         >▶</button>
