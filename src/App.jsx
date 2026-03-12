@@ -152,6 +152,13 @@ const ACHIEVEMENTS = [
 
   // Specific Upgrades
   { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'Purchase a Michelin Star upgrade.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
+
+  // Market Achievements
+  { id: 'market_first_trade', name: 'Wall Street Rookie', desc: 'Execute your first market trade.', req: (s) => (s.totalMarketTrades || 0) >= 1 },
+  { id: 'market_100_trades', name: 'Day Trader', desc: 'Execute 100 market trades.', req: (s) => (s.totalMarketTrades || 0) >= 100 },
+  { id: 'market_1k_trades', name: 'Market Veteran', desc: 'Execute 1,000 market trades.', req: (s) => (s.totalMarketTrades || 0) >= 1000 },
+  { id: 'market_profit_1m', name: 'Portfolio Manager', desc: 'Earn $1,000,000 total profit from market trades.', req: (s) => (s.marketProfitLifetime || 0) >= 1000000 },
+  { id: 'market_big_win', name: 'Diamond Hands', desc: 'Make a single market trade with $100,000+ profit.', req: (s) => (s.biggestMarketGain || 0) >= 100000 },
 ];
 
 const DESTINATIONS = [
@@ -370,6 +377,9 @@ export default function App() {
   const [portfolioDelta, setPortfolioDelta] = useState(initialData?.portfolioDelta ?? null);
   const [marketCostBasis, setMarketCostBasis] = useState(initialData?.marketCostBasis || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
   const [marketHistory, setMarketHistory] = useState(initialData?.marketHistory || { flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
+  const [totalMarketTrades, setTotalMarketTrades] = useState(initialData?.totalMarketTrades || 0);
+  const [marketProfitLifetime, setMarketProfitLifetime] = useState(initialData?.marketProfitLifetime || 0);
+  const [biggestMarketGain, setBiggestMarketGain] = useState(initialData?.biggestMarketGain || 0);
 
   // --- MODAL STATE ---
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
@@ -819,7 +829,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -859,7 +869,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -1057,7 +1067,7 @@ export default function App() {
 
   // 5. Achievement Loop
   useEffect(() => {
-     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted, reputation, inventory };
+     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted, reputation, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain };
      let newlyUnlocked = [];
      ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements.includes(ach.id) && ach.req(stateSnapshot)) {
@@ -1071,12 +1081,12 @@ export default function App() {
   // money/reputation/combo update every 100ms — excluded from deps to prevent render storms.
   // Achievements that depend on them (combo_max etc.) will still fire because totalPizzasSold
   // and totalClicks are updated on every click/tick and will re-trigger this effect.
-  }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory]);
+  }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain]);
 
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
@@ -2988,6 +2998,7 @@ export default function App() {
                                 setMoney(m => m - cost);
                                 setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: prev[key] + cost }));
+                                setTotalMarketTrades(t => t + 1);
                                 pushLog('market', `📉 Buy ${n}× ${label} @ $${fmt(price)}`, -cost);
                               };
                               const sellAll = () => {
@@ -3000,6 +3011,11 @@ export default function App() {
                                 setLifetimeMoney(lm => lm + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
+                                setTotalMarketTrades(t => t + 1);
+                                if (pnl > 0) {
+                                  setMarketProfitLifetime(p => p + pnl);
+                                  setBiggestMarketGain(prev => Math.max(prev, pnl));
+                                }
                                 pushLog('market', `📈 Sell ${shares}× ${label} (P&L: ${pnl >= 0 ? '+' : ''}$${fmt(pnl)})`, proceeds);
                               };
 
