@@ -1454,45 +1454,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* CORPORATE OFFICE - Collapsible top-right */}
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
-            <div className="absolute top-full right-3 mt-2 w-80 z-50">
-              <div className="bg-purple-950/95 backdrop-blur-sm rounded-xl border border-purple-800 border-b-[3px] border-b-purple-950 shadow-2xl overflow-hidden">
-                <button
-                  onClick={() => setCorpOfficeOpen(prev => !prev)}
-                  className="w-full px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 flex items-center justify-between gap-2 transition-all"
-                >
-                  <div className="flex items-center gap-2">
-                    <Building className="w-4 h-4 text-purple-300" />
-                    <span className="text-sm font-black uppercase tracking-widest text-purple-200">Corporate Office</span>
-                  </div>
-                  <span className={`text-sm font-black text-purple-300 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
-                </button>
-                {corpOfficeOpen && (
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-purple-400 font-bold uppercase tracking-wider">Licenses Owned</span>
-                      <span className="font-display text-xl text-purple-100 tabular-nums">{franchiseLicenses}</span>
-                    </div>
-                    {pendingLicenses > 0 && (
-                      <button
-                        onClick={() => setShowPrestigeModal(true)}
-                        className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-display text-sm font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
-                      >
-                        SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
-                      </button>
-                    )}
-                    {pendingLicenses === 0 && (
-                      <div className="text-center py-2">
-                        <div className="text-xs text-purple-400 mb-1">Next License</div>
-                        <div className="font-display text-sm text-purple-300 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Rep bar — thin strip under HUD */}
@@ -1961,6 +1922,46 @@ export default function App() {
               </div>
             </button>
           </div>
+
+          {/* CORPORATE OFFICE - Below Bake & Box */}
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
+            <div className="w-full max-w-md mx-auto mt-4">
+              <div className="bg-purple-950/95 backdrop-blur-sm rounded-xl border border-purple-800 border-b-[3px] border-b-purple-950 shadow-xl overflow-hidden">
+                <button
+                  onClick={() => setCorpOfficeOpen(prev => !prev)}
+                  className="w-full px-5 py-3 bg-purple-900/60 hover:bg-purple-900/80 flex items-center justify-between gap-2 transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Building className="w-5 h-5 text-purple-300" />
+                    <span className="text-base font-black uppercase tracking-widest text-purple-200">Corporate Office</span>
+                  </div>
+                  <span className={`text-base font-black text-purple-300 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
+                </button>
+                {corpOfficeOpen && (
+                  <div className="p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-purple-400 font-bold uppercase tracking-wider">Licenses Owned</span>
+                      <span className="font-display text-2xl text-purple-100 tabular-nums">{franchiseLicenses}</span>
+                    </div>
+                    {pendingLicenses > 0 && (
+                      <button
+                        onClick={() => setShowPrestigeModal(true)}
+                        className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
+                      >
+                        SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
+                      </button>
+                    )}
+                    {pendingLicenses === 0 && (
+                      <div className="text-center py-2">
+                        <div className="text-sm text-purple-400 mb-1">Next License</div>
+                        <div className="font-display text-base text-purple-300 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Area: Management & Upgrades */}
@@ -2035,30 +2036,10 @@ export default function App() {
                     {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
                   </div>
                 </div>
-
-                {/* Buy Multiplier Toggle - Moved up here */}
-                <div className="mt-3">
-                  <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
-                    {[1, 10, 'MAX'].map((mult) => (
-                      <button
-                        key={mult}
-                        onClick={() => setBuyMultiplier(mult)}
-                        className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
-                          buyMultiplier === mult
-                            ? 'bg-zinc-700 text-white border border-zinc-500'
-                            : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                        }`}
-                      >
-                        {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
               </div>
             )}
 
-            <div className="p-4 pt-12 mt-6 space-y-4 bg-zinc-900">
+            <div className="p-4 pt-6 space-y-4 bg-zinc-900">
               
               
               {/* --- TAB: VAULT --- */}
@@ -2269,6 +2250,25 @@ export default function App() {
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
+                  {/* Buy Multiplier Toggle - Inside upgrades container */}
+                  <div className="mb-5">
+                    <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
+                      {[1, 10, 'MAX'].map((mult) => (
+                        <button
+                          key={mult}
+                          onClick={() => setBuyMultiplier(mult)}
+                          className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
+                            buyMultiplier === mult
+                              ? 'bg-zinc-700 text-white border border-zinc-500'
+                              : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                          }`}
+                        >
+                          {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
