@@ -2483,6 +2483,7 @@ export default function App() {
 
               {/* --- TAB: TIME WARP DELIVERIES --- */}
               {activeTab === 'map' && (
+                <div className="bg-zinc-800/50 rounded-xl p-4">
                 <div className="flex flex-col gap-4">
 
                   {/* Header Banner */}
@@ -2610,10 +2611,12 @@ export default function App() {
                     })}
                   </div>
                 </div>
+                </div>
               )}
 
               {/* --- TAB: ACHIEVEMENTS --- */}
               {activeTab === 'achievements' && (
+                <div className="bg-zinc-800/50 rounded-xl p-4">
                 <div className="flex flex-col gap-3">
                   {/* Header bar */}
                   <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-6 py-4">
@@ -2666,6 +2669,7 @@ export default function App() {
                       })}
                     </div>
                   </div>
+                </div>
                 </div>
               )}
 
