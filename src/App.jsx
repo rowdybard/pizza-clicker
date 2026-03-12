@@ -1419,37 +1419,37 @@ export default function App() {
           </div>
 
           {/* RIGHT: Secondary stat pills + settings */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 flex-1 justify-end">
             {/* Profit/sec */}
-            <div className={`hidden sm:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg border-b-[3px] shrink-0 ${
+            <div className={`hidden sm:flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl border-b-[4px] ${
               isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-zinc-800 border-zinc-950 text-zinc-400'
             }`}>
-              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3 shrink-0" />
-                <span className="font-display text-base tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 shrink-0" />
+                <span className="font-display text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
               </div>
             </div>
             {/* Pizzas/sec */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
-              <div className="flex items-center gap-1">
-                <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-                <span className="font-display text-base text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+            <div className="hidden lg:flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl bg-zinc-800 border-b-[4px] border-zinc-950">
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
+              <div className="flex items-center gap-2">
+                <Pizza className="w-5 h-5 text-orange-400 shrink-0" />
+                <span className="font-display text-xl text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
               </div>
             </div>
             {/* Ticket avg */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
-              <div className="flex items-center gap-1">
-                <Award className="w-3 h-3 text-yellow-500 shrink-0" />
-                <span className="font-display text-base text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+            <div className="hidden lg:flex flex-col items-center gap-1.5 px-6 py-3 rounded-xl bg-zinc-800 border-b-[4px] border-zinc-950">
+              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-yellow-500 shrink-0" />
+                <span className="font-display text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
               </div>
             </div>
             {/* Settings only */}
-            <div className="flex items-center gap-1.5 ml-1">
-              <button onClick={() => setShowSettings(true)} className="bg-zinc-800 border border-zinc-700 border-b-2 border-b-zinc-950 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
-                <Settings className="w-4 h-4" />
+            <div className="flex items-center gap-1.5 ml-2">
+              <button onClick={() => setShowSettings(true)} className="bg-zinc-800 border border-zinc-700 border-b-2 border-b-zinc-950 p-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
+                <Settings className="w-5 h-5" />
               </button>
             </div>
           </div>
