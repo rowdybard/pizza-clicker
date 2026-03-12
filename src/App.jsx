@@ -2352,13 +2352,15 @@ export default function App() {
                 let buyAmount = buyMultiplier;
                 
                 if (buyMultiplier === 'MAX') {
-                  // Calculate max buys
+                  // Calculate max buys respecting milestone cap
+                  const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250
+                  const allowedPurchases = Math.max(0, maxBoost - count);
+                  
                   let maxBuys = 0;
                   let testCost = 0;
-                  while (money >= testCost + Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys))) {
+                  while (maxBuys < allowedPurchases && money >= testCost + Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys))) {
                     testCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys));
                     maxBuys++;
-                    if (maxBuys > 10000) break; // Safety limit
                   }
                   buyAmount = maxBuys;
                   displayCost = testCost;
@@ -3358,14 +3360,14 @@ function DeliveryMicrogame({ onComplete }) {
     { id: 2, lane: 2, y: -60 }, 
     { id: 3, lane: 1, y: -100 }
   ]);
-  const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds
+  const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds in milliseconds
 
   const moveLeft = () => setPlayerLane(p => Math.max(0, p - 1));
   const moveRight = () => setPlayerLane(p => Math.min(2, p + 1));
 
   useEffect(() => {
     const tick = 50;
-    const speed = 4; // Fast falling speed
+    const speed = 2; // Obstacle falling speed (pixels per tick)
 
     const loop = setInterval(() => {
       setTimeLeft(t => {
@@ -3402,7 +3404,7 @@ function DeliveryMicrogame({ onComplete }) {
           <MapPin size={20} /> Delivery Challenge
         </div>
         <div className="text-yellow-100 font-mono font-bold text-xl tabular-nums">
-          0{Math.ceil(timeLeft/1000)}:{(timeLeft%1000).toString().padStart(3, '0').slice(0,2)}
+          {Math.ceil(timeLeft/1000)}s
         </div>
       </div>
 
@@ -3424,10 +3426,9 @@ function DeliveryMicrogame({ onComplete }) {
         ))}
 
         {/* Player */}
-        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-75" style={{ left: `${playerLane * 33.33}%` }}>
-          <div className="w-12 h-16 bg-yellow-500 rounded-xl border-2 border-yellow-600 shadow-lg flex flex-col items-center justify-center relative">
-            <div className="w-6 h-4 bg-yellow-600 rounded-sm mb-1"></div>
-            <Package size={16} className="text-zinc-900" />
+        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-150" style={{ left: `${playerLane * 33.33}%` }}>
+          <div className="text-5xl">
+            🚗
           </div>
         </div>
       </div>
@@ -3449,7 +3450,7 @@ function DeliveryMicrogame({ onComplete }) {
       <style dangerouslySetInnerHTML={{__html: `
         .bg-dashed-line { background-image: linear-gradient(to bottom, #444 50%, transparent 50%); background-size: 100% 40px; }
         @keyframes slide-down { 0% { background-position: 0 0; } 100% { background-position: 0 40px; } }
-        .animate-slide-down { animation: slide-down 0.2s linear infinite; }
+        .animate-slide-down { animation: slide-down 1s linear infinite; }
       `}} />
     </div>
   );
