@@ -2159,249 +2159,42 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col gap-8 transition-all duration-300 opacity-100 mt-2">
           
           {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
-            <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden">
-              <button
-                onClick={() => setCorpOfficeOpen(o => !o)}
-                className="w-full flex items-center gap-3 px-6 py-4 hover:bg-purple-900 transition-colors btn-tactile"
-              >
-                <Building className="text-purple-300 w-6 h-6 shrink-0" />
-                <div className="flex-1 text-left">
-                  <h2 className="text-2xl font-display tracking-wide text-purple-100">Corporate Office</h2>
-                  {pendingLicenses > 0 && (
-                    <div className="text-sm text-purple-400 font-medium">
-                      {pendingLicenses} License{pendingLicenses > 1 ? 's' : ''} Available to Sell
-                    </div>
-                  )}
-                </div>
-                <span className={`text-purple-400 transition-transform duration-200 text-lg ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
-              </button>
-              {corpOfficeOpen && (
-                <div className="px-6 pb-6">
-
-              {/* Multiplier Breakdown Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 relative z-10">
-                {/* Franchise Licenses */}
-                <div className="bg-zinc-900/60 border border-purple-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-sm font-black uppercase tracking-widest text-purple-400">Franchise</div>
-                  <div className="font-display text-lg text-purple-300 tabular-nums leading-none">{fmt(franchiseMultiplier)}x</div>
-                  <div className="text-sm text-zinc-500 tabular-nums">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''}</div>
-                  <div className="text-sm text-purple-500 font-bold uppercase mt-0.5">Prod + Click</div>
-                  <div className="text-sm font-bold uppercase mt-0.5 text-money">{fmt(franchisePriceMultiplier)}x Price</div>
-                  {franchiseLicenses > 0 && (
-                    <div className="mt-1">
-                      <div className="text-sm font-bold text-zinc-400 uppercase tracking-widest">BASE PROD</div>
-                      <div className="text-sm text-money font-bold tabular-nums">+{fmt(licenseProductionFloor)}/sec</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Achievement Multiplier */}
-                <div className="bg-zinc-900/60 border border-yellow-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-sm font-bold uppercase tracking-widest text-yellow-400">Stars</div>
-                  <div className="font-display text-lg text-yellow-300 tabular-nums leading-none">{fmt(achievementMultiplier)}x</div>
-                  <div className="text-sm text-zinc-500 tabular-nums">{unlockedAchievements.length} unlocked × 3%</div>
-                  <div className="text-sm text-yellow-500 font-bold uppercase mt-0.5">Price only</div>
-                </div>
-
-                {/* VIP Token Multiplier */}
-                <div className="bg-zinc-900/60 border border-purple-400/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-sm font-bold uppercase tracking-widest text-purple-300">VIP Tokens</div>
-                  <div className="font-display text-lg text-purple-200 tabular-nums leading-none">{fmt(vipTokenMultiplier)}x</div>
-                  <div className="text-sm text-zinc-500 tabular-nums">{vipTokens} token{vipTokens !== 1 ? 's' : ''} × 8%</div>
-                  <div className="text-sm text-purple-400 font-bold uppercase mt-0.5">All stats</div>
-                </div>
-
-                {/* Per-Click Output */}
-                <div className="bg-zinc-900/60 border border-orange-500/20 rounded-xl p-3 flex flex-col gap-1">
-                  <div className="text-sm font-bold uppercase tracking-widest text-orange-400">Production</div>
-                  <div className="font-display text-lg text-orange-300 tabular-nums leading-none"><Num value={currentClickPower} prefix="+" decimals={1} /></div>
-                  <div className="text-sm text-zinc-500 tabular-nums"><Num value={currentClickPower * pizzaPrice} prefix="+$" decimals={2} /></div>
-                  <div className="text-sm text-zinc-500 tabular-nums"><Num value={currentClickPower} prefix="+" decimals={1} /> rep</div>
-                </div>
-              </div>
-
-              {franchiseLicenses > 0 && (
-                <div className="mb-3 relative z-10 bg-amber-900/20 border border-amber-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="text-xs text-amber-300 font-bold">Prestige Star Scaling</span>
-                  </div>
-                  <div className="flex items-center gap-3 tabular-nums text-xs">
-                    <span className="text-zinc-500">{franchiseLicenses} license{franchiseLicenses !== 1 ? 's' : ''} × 15%</span>
-                    <span className="text-amber-400 font-display font-bold">{fmt(prestigeStarScale)}x harder</span>
-                    <span className="text-zinc-500">→ ★5 needs {fmtInt(scaledStarThresholds[5])} rep</span>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-zinc-900/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-zinc-700/50">
-                <div>
-                  <div className="text-sm text-zinc-400 mb-1">Lifetime Earnings: <strong className="text-money font-display tracking-wider text-lg tabular-nums"><Num value={lifetimeMoney} prefix="$" decimals={0} /></strong></div>
-                  <div className="text-xs text-zinc-500 tabular-nums">
-                    {nextLicenseCost === Infinity
-                      ? <span className="text-purple-400 font-bold">Max licenses reached (100)</span>
-                      : <>Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} /></>
-                    }
-                  </div>
+            <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden p-8">
+              <div className="text-center space-y-6">
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  <Building className="text-purple-300 w-12 h-12" />
+                  <h2 className="text-4xl font-display tracking-wide text-purple-100">SELL FRANCHISE</h2>
+                  <Building className="text-purple-300 w-12 h-12" />
                 </div>
                 
-                <button 
-                  onClick={() => setShowPrestigeModal(true)}
-                  disabled={pendingLicenses === 0}
-                  className={`px-6 py-3 rounded-xl font-display tracking-wider whitespace-nowrap btn-tactile ${
-                    pendingLicenses > 0 
-                    ? 'bg-purple-600 hover:bg-purple-500 text-white border-b-[4px] border-purple-900 active:border-b-0 active:translate-y-[4px] cursor-pointer' 
-                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700'
-                  }`}
-                >
-                  {pendingLicenses > 0 ? `Sell Store for ${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}` : 'Not enough for Franchise'}
-                </button>
-              </div>
-
-              {/* ── THE CULINARY SYNDICATE ── */}
-              {(franchiseLicenses >= 25 || goldenSlices > 0) && (() => {
-                const slicesOnAscend = Math.max(1, Math.floor(franchiseLicenses / 10)); // 1 slice per 10 licenses, minimum 1
-                const canAscend = slicesOnAscend > 0;
-                const handleAscend = () => {
-                  if (!canAscend) return;
-                  setShowAscendModal(true);
-                };
-                const confirmAscend = () => {
-                  setShowAscendModal(false);
-                  // Capture current licenses BEFORE reset for proper slice calculation
-                  const currentLicenses = franchiseLicenses;
-                  const slicesEarned = Math.max(1, Math.floor(currentLicenses / 10));
-                  setGoldenSlices(g => g + slicesEarned);
-                  const newLics = 0; // ascend resets licenses
-                  const licenseStartMoney2 = 500 * Math.pow(newLics, 2);
-                  setMoney(Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney2));
-                  setLifetimeMoney(0);
-                  setReputation(0);
-                  setTotalPizzasSold(0);
-                  setFranchiseLicenses(0);
-                  setVipTokens(0);
-                  setInventory({});
-                  setDeliveriesCompleted(0);
-                  setRushTimeLeft(0);
-                  setVipTimeLeft(0);
-                  setVipSpawned(false);
-                  setSideOrder(null);
-                  setCombo(0);
-                  setDeliveryCooldowns({});
-                  // Reset upgrade reveals to first of each type (fresh run behavior)
-                  setRevealedUpgrades(new Set(['click', 'production', 'quality']));
-                };
-                return (
+                {pendingLicenses > 0 ? (
                   <>
-                    <div className="mt-3 relative overflow-hidden rounded-xl border border-yellow-700 bg-yellow-950">
-                      <div className="relative z-10 px-5 py-4">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-2.5">
-                            <Moon className="w-5 h-5 text-yellow-400" />
-                          </div>
-                          <div>
-                            <div className="text-xs font-black uppercase tracking-widest text-yellow-500/70">Hard Prestige</div>
-                            <h3 className="font-display text-lg text-yellow-100 tracking-wider leading-tight">The Culinary Syndicate</h3>
-                          </div>
-                          {goldenSlices > 0 && (
-                            <div className="ml-auto flex items-center gap-1.5 bg-yellow-900/40 border border-yellow-500/40 rounded-full px-3 py-1">
-                              <Gem className="w-3.5 h-3.5 text-yellow-400" />
-                              <span className="font-display text-sm text-yellow-300 tabular-nums">{goldenSlices}</span>
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
-                          Sacrifice everything. <span className="text-yellow-400 font-bold">Gain Golden Slices</span> — permanent currency that unlocks game-breaking perks across all future runs. Every 25 licenses converts to 1 Golden Slice.
-                        </p>
-                        <div className="flex items-center justify-between gap-4 flex-wrap">
-                          <div className="text-sm tabular-nums">
-                            <span className="text-zinc-500 text-xs uppercase tracking-widest font-bold">You will receive </span>
-                            <span className={`font-display text-xl ${canAscend ? 'text-yellow-300' : 'text-zinc-600'}`}>{slicesOnAscend}</span>
-                            <span className="text-zinc-500 text-xs uppercase tracking-widest font-bold"> Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
-                          </div>
-                          <button
-                            onClick={handleAscend}
-                            disabled={!canAscend}
-                            className={`px-6 py-2.5 rounded-xl font-display tracking-wider text-sm whitespace-nowrap btn-tactile ${
-                              canAscend
-                                ? 'bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-black border-b-[4px] border-yellow-800 active:border-b-0 active:translate-y-[4px] cursor-pointer'
-                                : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
-                            }`}
-                          >
-                            {canAscend ? 'Ascend to the Syndicate' : `Need 25 licenses (${franchiseLicenses}/25)`}
-                          </button>
-                        </div>
-                      </div>
+                    <div className="text-purple-200 text-lg mb-4">
+                      You have <span className="font-bold text-purple-100 text-2xl tabular-nums">{pendingLicenses}</span> License{pendingLicenses > 1 ? 's' : ''} available to sell
                     </div>
-
-                    {/* ── SYNDICATE ASCEND CONFIRMATION MODAL ── */}
-                    {showAscendModal && (
-                      <div className="fixed inset-0 z-[110] bg-zinc-950/90 flex items-center justify-center p-4">
-                        <div className="relative bg-zinc-900 border-2 border-yellow-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full overflow-hidden text-center">
-
-                          <div className="relative z-10">
-                            {/* Icon */}
-                            <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-yellow-900 border border-yellow-700 flex items-center justify-center">
-                              <Moon className="w-8 h-8 text-yellow-300" />
-                            </div>
-
-                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600 mb-1">Hard Prestige</div>
-                            <h2 className="font-display text-3xl text-yellow-100 tracking-widest mb-2">Ascend?</h2>
-                            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                              You are about to sacrifice your entire empire to join <span className="text-yellow-400 font-bold">The Culinary Syndicate</span>.
-                            </p>
-
-                            {/* Reward callout */}
-                            <div className="bg-yellow-900 border border-yellow-700 rounded-xl px-5 py-4 mb-5 flex items-center justify-center gap-3">
-                              <Gem className="w-6 h-6 text-yellow-400 shrink-0" />
-                              <div className="text-left">
-                                <div className="text-sm font-black uppercase tracking-widest text-yellow-600">You will receive</div>
-                                <div className="font-display text-3xl text-yellow-300 tabular-nums leading-none">
-                                  {slicesOnAscend} <span className="text-lg">Golden Slice{slicesOnAscend !== 1 ? 's' : ''}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* What you lose / keep */}
-                            <div className="bg-zinc-950/50 border border-zinc-700/60 rounded-xl p-4 mb-6 text-left space-y-2">
-                              {[
-                                { lose: true,  text: 'All money, reputation & upgrades' },
-                                { lose: true,  text: 'All franchise licenses & VIP tokens' },
-                                { lose: true,  text: 'All deliveries, combos & timers' },
-                                { lose: false, text: 'Achievements — kept forever' },
-                                { lose: false, text: 'Golden Slices & Syndicate perks' },
-                                ...(syndicatePerks.shadowCapital ? [{ lose: false, text: 'Shadow Capital: start with $100K' }] : []),
-                              ].map((row, i) => (
-                                <div key={i} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${row.lose ? 'text-red-400' : 'text-green-400'}`}>
-                                  <span className="text-base leading-none">{row.lose ? '−' : '+'}</span>
-                                  {row.text}
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex gap-3">
-                              <button
-                                onClick={() => setShowAscendModal(false)}
-                                className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-display text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={confirmAscend}
-                                className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-display font-black text-lg tracking-widest rounded-xl btn-tactile border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px]"
-                              >
-                                Ascend
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    
+                    <button 
+                      onClick={() => setShowPrestigeModal(true)}
+                      className="w-full py-8 bg-red-600 hover:bg-red-500 text-white font-display text-2xl font-black tracking-widest rounded-xl border-b-[6px] border-red-900 active:border-b-0 active:translate-y-[6px] transition-all btn-tactile shadow-[0_8px_0_#000000] hover:shadow-[0_6px_0_#000000] transform hover:scale-105"
+                    >
+                      SELL STORE FOR {pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
+                    </button>
+                    
+                    <div className="text-purple-300 text-sm">
+                      This will reset your progress but grant you powerful franchise licenses
+                    </div>
                   </>
-                );
-              })()}
-                </div>
-              )}
+                ) : (
+                  <>
+                    <div className="text-purple-300 text-lg mb-6">
+                      Keep building your empire to unlock franchise licenses
+                    </div>
+                    <div className="text-purple-400 text-sm">
+                      Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             )}
 
@@ -2852,7 +2645,20 @@ export default function App() {
 
                     {/* Mobile-Optimized Action Button */}
                     <button 
-                      onClick={() => buyUpgrade(upgrade)}
+                      onClick={() => {
+                      if (buyMultiplier === 1) {
+                        buyUpgrade(upgrade);
+                      } else if (buyMultiplier === 10) {
+                        buyUpgradeN(upgrade, 10);
+                      } else if (buyMultiplier === 'MAX') {
+                        const currentCount = safeNum(inventory?.[upgrade.id], 0);
+                        const maxBoost = MILESTONES[MILESTONES.length - 1];
+                        const allowedPurchases = Math.max(0, maxBoost - currentCount);
+                        if (allowedPurchases > 0) {
+                          buyUpgradeN(upgrade, allowedPurchases);
+                        }
+                      }
+                    }}
                       disabled={!canAfford}
                       className={`w-full h-12 sm:h-14 sm:w-[110px] sm:h-[70px] rounded-lg border flex items-center justify-center gap-2 sm:flex-col transition-all duration-150 relative overflow-hidden group ${
                         canAfford 
