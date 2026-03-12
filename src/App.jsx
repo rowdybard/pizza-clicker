@@ -438,6 +438,7 @@ export default function App() {
   const [sideOrder, setSideOrder] = useState(null); 
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
+  const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -1663,7 +1664,11 @@ export default function App() {
       })()}
 
       {/* --- PRESTIGE MODAL --- */}
-      {showPrestigeModal && (
+      {showPrestigeModal && prestigeSnapshot && (() => {
+        const snapPending = prestigeSnapshot.pendingLicenses;
+        const snapCurrent = prestigeSnapshot.franchiseLicenses;
+        const newLics = snapCurrent + snapPending;
+        return (
         <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
           <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]" style={{minHeight: '500px'}}>
             <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
@@ -1671,9 +1676,8 @@ export default function App() {
             <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
             <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
                <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
-               <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</span></div>
+               <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{snapPending}</span> Franchise License{snapPending !== 1 ? 's' : ''} ({newLics} total).</span></div>
                {(() => {
-                 const newLics = franchiseLicenses + pendingLicenses;
                  const startCash = 500 * Math.pow(newLics, 2);
                  const floorPizzas = 2 * Math.pow(1.4, newLics);
                  const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
@@ -1690,7 +1694,8 @@ export default function App() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
 
       {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
@@ -1953,7 +1958,10 @@ export default function App() {
                     </div>
                     {pendingLicenses > 0 && (
                       <button
-                        onClick={() => setShowPrestigeModal(true)}
+                        onClick={() => {
+                          setPrestigeSnapshot({ pendingLicenses, franchiseLicenses });
+                          setShowPrestigeModal(true);
+                        }}
                         className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
                       >
                         SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
