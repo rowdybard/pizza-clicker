@@ -1656,29 +1656,29 @@ export default function App() {
 
       {/* --- PRESTIGE MODAL --- */}
       {showPrestigeModal && (
-        <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
-          <div className="bg-zinc-800 border-2 border-purple-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center relative">
-            <Building className="w-16 h-16 text-purple-300 mx-auto mb-4" />
-            <h2 className="text-4xl font-display text-white tracking-widest mb-2">CORPORATE BUYOUT</h2>
-            <p className="text-zinc-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
-            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 mb-6 text-left space-y-3">
-               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money, upgrades &amp; reputation reset.</div>
-               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]">
+            <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
+            <h2 className="text-5xl text-amber-400 mb-4" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
+            <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
+            <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
+               <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
+               <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</span></div>
                {(() => {
                  const newLics = franchiseLicenses + pendingLicenses;
                  const startCash = 500 * Math.pow(newLics, 2);
                  const floorPizzas = 2 * Math.pow(1.4, newLics);
                  const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
                  return (<>
-                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Start next run with <span className="font-display tabular-nums">${fmt(startCash)}</span> cash.</div>
-                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Passive floor: ~<span className="font-display tabular-nums">${fmt(floorMoney)}</span>/sec before upgrades.</div>
-                   <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> {fmt(1 + newLics * 1.2)}× prod/click · {fmt(Math.pow(1.25, newLics))}× pizza price.</div>
+                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmt(startCash)}</span> capital.</span></div>
+                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmt(floorMoney)}</span>/sec prior to enhancements.</span></div>
+                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmt(1 + newLics * 1.2)}× production/click · {fmt(Math.pow(1.25, newLics))}× price multiplier.</span></div>
                  </>);
                })()}
             </div>
             <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
-                <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-purple-900 active:border-b-0 active:translate-y-[3px]">SELL STORE</button>
+                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg btn-tactile border-2 border-zinc-700 hover:border-zinc-600 transition-all" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
+                <button onClick={confirmPrestige} className="flex-1 py-4 bg-amber-700 hover:bg-amber-600 text-zinc-950 text-xl rounded-lg btn-tactile border-2 border-amber-500 hover:border-amber-400 transition-all shadow-[0_0_20px_rgba(217,119,6,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Accept Offer</button>
             </div>
           </div>
         </div>
@@ -3285,7 +3285,7 @@ export default function App() {
         </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
 
         *, *::-webkit-scrollbar { scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
