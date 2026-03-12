@@ -3191,12 +3191,12 @@ export default function App() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <ScrollText className="w-4 h-4 text-zinc-400" />
-                        <span className="text-xs font-black uppercase tracking-widest text-zinc-400">Transaction Log</span>
-                        <span className="text-[9px] bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
+                        <span className="text-sm font-black uppercase tracking-widest text-zinc-400">Transaction Log</span>
+                        <span className="text-xs bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
                       </div>
                       <button
                         onClick={() => setMoneyLog([])}
-                        className="text-[9px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-400 transition-colors border border-zinc-700 hover:border-red-800 px-2 py-1 rounded"
+                        className="text-xs font-black uppercase tracking-widest text-zinc-600 hover:text-red-400 transition-colors border border-zinc-700 hover:border-red-800 px-2 py-1 rounded"
                       >Clear</button>
                     </div>
 
@@ -3206,7 +3206,7 @@ export default function App() {
                         {Object.entries(totals).map(([cat, total]) => {
                           const m = CAT_META[cat] || CAT_META.idle;
                           return (
-                            <div key={cat} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[9px] font-bold ${m.bg}`}>
+                            <div key={cat} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-sm font-bold ${m.bg}`}>
                               <span>{m.icon}</span>
                               <span className="text-zinc-400 uppercase tracking-widest">{m.label}</span>
                               <span className={`font-display tabular-nums ${m.color}`}>${fmt(total)}</span>
@@ -3220,8 +3220,8 @@ export default function App() {
                     {moneyLog.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-12 gap-3 text-zinc-600">
                         <ScrollText className="w-10 h-10 opacity-30" />
-                        <p className="text-xs font-bold uppercase tracking-widest">No transactions yet</p>
-                        <p className="text-[10px] text-zinc-700">Start clicking or wait for idle income.</p>
+                        <p className="text-sm font-bold uppercase tracking-widest">No transactions yet</p>
+                        <p className="text-xs text-zinc-700">Start clicking or wait for idle income.</p>
                       </div>
                     )}
 
@@ -3235,12 +3235,12 @@ export default function App() {
                             <div key={entry.id}
                               className="flex items-center gap-3 py-2.5 px-1 border-b border-zinc-800/60 animate-[logSlideIn_0.2s_ease-out]"
                             >
-                              <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
+                              <span className="text-lg w-7 text-center shrink-0">{m.icon}</span>
                               <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-zinc-300 truncate">{entry.label}</div>
-                                <div className="text-[9px] text-zinc-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
+                                <div className="text-sm font-bold text-zinc-300 truncate">{entry.label}</div>
+                                <div className="text-xs text-zinc-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
                               </div>
-                              <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
+                              <div className={`font-display text-lg font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
                                 {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
                               </div>
                             </div>
