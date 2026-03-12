@@ -7,7 +7,6 @@ import {
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
   Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, MapPin, Package
 } from 'lucide-react';
-import ManagerDesk from './ManagerDesk';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
 
@@ -149,14 +148,14 @@ const ACHIEVEMENTS = [
   // Late upgrades
   { id: 'upgrade_wagyu',     name: 'Premium Grade', desc: 'Purchase a Wagyu Topping upgrade.',              req: (s) => (s.inventory?.wagyu || 0) >= 1          },
   { id: 'upgrade_antimatter',name: 'Beyond Physics', desc: 'Purchase an Antimatter Crust upgrade.',         req: (s) => (s.inventory?.antimatterCrust || 0) >= 1 },
-  { id: 'upgrade_neural',    name: 'Mind Over Pizza', desc: 'Purchase a Neural Clicker upgrade.',            req: (s) => (s.inventory?.neuralClicker || 0) >= 1  },
+  { id: 'upgrade_neural',    name: 'Mind Over Pizza', desc: 'Purchase a Neural Clicker upgrade.',           req: (s) => (s.inventory?.neuralClicker || 0) >= 1  },
 
   // Specific Upgrades
   { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'Purchase a Michelin Star upgrade.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
 ];
 
 const DESTINATIONS = [
-  { id: 'suburb',   name: 'Local Suburbs',     warpSeconds: 180,  rushSeconds: 0,  vipToken: false, cooldown: 60,   icon: <Home     className="w-8 h-8 text-green-400"  />, bg: 'from-green-900/20 to-slate-800',  border: 'border-green-500/30',  color: 'text-green-400',  label: '3 Min Idle Drop',             desc: 'Instantly collect 3 minutes of your current idle production.',
+  { id: 'suburb',   name: 'Local Suburbs',     warpSeconds: 180,  rushSeconds: 0,  vipToken: false, cooldown: 60,   icon: <Home     className="w-8 h-8 text-green-400"  />, bg: 'from-green-900/20 to-slate-800',  border: 'border-green-500/30',  color: 'text-green-400',  label: '3 Min Idle Drop',              desc: 'Instantly collect 3 minutes of your current idle production.',
     unlockReq: { pizzas: 50,    stars: 0, lifetime: 0       }, unlockHint: 'Sell 50 pizzas to open local routes.' },
   { id: 'downtown', name: 'Downtown Office',    warpSeconds: 900,  rushSeconds: 60, vipToken: false, cooldown: 300,  icon: <Briefcase className="w-8 h-8 text-blue-400"   />, bg: 'from-blue-900/20 to-slate-800',   border: 'border-blue-500/30',   color: 'text-blue-400',   label: '15 Min Drop + Dinner Rush',   desc: 'Collect 15 minutes of idle production and trigger a 60-second Dinner Rush.',
     unlockReq: { pizzas: 0,     stars: 1, lifetime: 0       }, unlockHint: 'Reach 1-star reputation to unlock city routes.' },
@@ -303,10 +302,15 @@ const computeOfflineEarnings = (data) => {
 };
 
 export default function App() {
-  // --- EMERGENCY UNLOCK EFFECT ---
+  // --- DESKTOP DETECTION & EMERGENCY UNLOCK ---
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' && window.innerWidth >= 1024);
   useEffect(() => {
     document.body.style.overflow = '';
     document.body.style.touchAction = 'manipulation';
+    
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const [initialData] = useState(() => loadSaveData());
@@ -360,6 +364,13 @@ export default function App() {
     quantumOven:    initialData?.syndicatePerks?.quantumOven    ?? false,
     insiderTrading: initialData?.syndicatePerks?.insiderTrading ?? false,
     autoArm:        initialData?.syndicatePerks?.autoArm        ?? false,
+    timeLoop:       initialData?.syndicatePerks?.timeLoop       ?? false,
+    realityBend:    initialData?.syndicatePerks?.realityBend    ?? false,
+    infiniteOven:   initialData?.syndicatePerks?.infiniteOven   ?? false,
+    marketGod:      initialData?.syndicatePerks?.marketGod      ?? false,
+    pizzaSingularity: initialData?.syndicatePerks?.pizzaSingularity ?? false,
+    goldenTouch:    initialData?.syndicatePerks?.goldenTouch    ?? false,
+    ascension:      initialData?.syndicatePerks?.ascension      ?? false,
     goldenPowerCount: initialData?.syndicatePerks?.goldenPowerCount ?? 0,
   }));
 
@@ -1071,9 +1082,6 @@ export default function App() {
         }
      });
      if (newlyUnlocked.length > 0) setUnlockedAchievements(prev => [...prev, ...newlyUnlocked]);
-  // money/reputation/combo update every 100ms — excluded from deps to prevent render storms.
-  // Achievements that depend on them (combo_max etc.) will still fire because totalPizzasSold
-  // and totalClicks are updated on every click/tick and will re-trigger this effect.
   }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory]);
 
   // --- SAVE SYSTEM ---
@@ -1137,19 +1145,9 @@ export default function App() {
   // --- MARKET PRICE ENGINE ---
   useEffect(() => {
     // Baseline "fair value" — prices drift back toward these over time
-    const MARKET_BASE = {
-      flour:     15,
-      cheese:    60,
-      pepperoni: 250,
-      truffles:  1500,
-    };
+    const MARKET_BASE = { flour: 15, cheese: 60, pepperoni: 250, truffles: 1500 };
     // Absolute floor — can't crash below 20% of baseline
-    const MARKET_FLOOR = {
-      flour:     3,
-      cheese:    12,
-      pepperoni: 50,
-      truffles:  300,
-    };
+    const MARKET_FLOOR = { flour: 3, cheese: 12, pepperoni: 50, truffles: 300 };
     const marketTick = setInterval(() => {
       setMarketPrices(prev => {
         const next = { ...prev };
@@ -1161,21 +1159,19 @@ export default function App() {
 
           // Mean reversion pull: nudges price 4% back toward baseline each tick
           const reversion = (base - cur) / base * 0.04;
-
           // Volatility damping: full ±12% near baseline, shrinks to ±3% far from it
           const deviation = Math.abs(cur - base) / base; // 0 at base, grows with distance
           const dampedVol = 0.12 * Math.max(0.25, 1 - deviation * 0.8);
-
           const randomChange = (Math.random() * dampedVol * 2) - dampedVol;
+          
           let newPrice = cur * (1 + randomChange + reversion);
-
-          // Hard floor — never below minimum
           if (newPrice < floor) newPrice = floor * (1 + Math.random() * 0.05);
 
           nextTrends[key] = newPrice > cur ? 1 : -1;
           next[key] = parseFloat(newPrice.toFixed(2));
         });
         setMarketTrends(nextTrends);
+        
         // Session P&L: current holding value minus total cost basis
         setPortfolioDelta(() => {
           const sharesSnap = saveStateRef.current?.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 };
@@ -1184,11 +1180,10 @@ export default function App() {
           const totCost = Object.values(basisSnap).reduce((s, v) => s + v, 0);
           return totCost > 0 ? curVal - totCost : null;
         });
+        
         setMarketHistory(prevH => {
           const nextH = {};
-          Object.keys(prevH).forEach(key => {
-            nextH[key] = [...prevH[key].slice(-19), next[key]];
-          });
+          Object.keys(prevH).forEach(key => { nextH[key] = [...prevH[key].slice(-19), next[key]]; });
           return nextH;
         });
         return next;
@@ -1199,56 +1194,8 @@ export default function App() {
 
 
   // Cookie Clicker-style large number naming
-  const BIG_NAMES = [
-    [1e303, 'Centillion'],
-    [1e100, 'Googol'],
-    [1e63,  'Vigintillion'],
-    [1e60,  'Novemdecillion'],
-    [1e57,  'Octodecillion'],
-    [1e54,  'Septendecillion'],
-    [1e51,  'Sexdecillion'],
-    [1e48,  'Quindecillion'],
-    [1e45,  'Quattuordecillion'],
-    [1e42,  'Tredecillion'],
-    [1e39,  'Duodecillion'],
-    [1e36,  'Undecillion'],
-    [1e33,  'Decillion'],
-    [1e30,  'Nonillion'],
-    [1e27,  'Octillion'],
-    [1e24,  'Septillion'],
-    [1e21,  'Sextillion'],
-    [1e18,  'Quintillion'],
-    [1e15,  'Quadrillion'],
-    [1e12,  'Trillion'],
-    [1e9,   'Billion'],
-    [1e6,   'Million'],
-    [1e3,   'Thousand'],
-  ];
-  const BIG_ABBR = [
-    [1e303, 'Ce'],
-    [1e100, 'Gg'],
-    [1e63,  'Vg'],
-    [1e60,  'Nvd'],
-    [1e57,  'Otd'],
-    [1e54,  'Spd'],
-    [1e51,  'Sxd'],
-    [1e48,  'Qnd'],
-    [1e45,  'Qtd'],
-    [1e42,  'Trd'],
-    [1e39,  'Dud'],
-    [1e36,  'Und'],
-    [1e33,  'Dc'],
-    [1e30,  'No'],
-    [1e27,  'Oc'],
-    [1e24,  'Sp'],
-    [1e21,  'Sx'],
-    [1e18,  'Qi'],
-    [1e15,  'Qu'],
-    [1e12,  'T'],
-    [1e9,   'B'],
-    [1e6,   'M'],
-    [1e3,   'K'],
-  ];
+  const BIG_NAMES = [ [1e303, 'Centillion'], [1e100, 'Googol'], [1e63,  'Vigintillion'], [1e60,  'Novemdecillion'], [1e57,  'Octodecillion'], [1e54,  'Septendecillion'], [1e51,  'Sexdecillion'], [1e48,  'Quindecillion'], [1e45,  'Quattuordecillion'], [1e42,  'Tredecillion'], [1e39,  'Duodecillion'], [1e36,  'Undecillion'], [1e33,  'Decillion'], [1e30,  'Nonillion'], [1e27,  'Octillion'], [1e24,  'Septillion'], [1e21,  'Sextillion'], [1e18,  'Quintillion'], [1e15,  'Quadrillion'], [1e12,  'Trillion'], [1e9,   'Billion'], [1e6,   'Million'], [1e3,   'Thousand'] ];
+  const BIG_ABBR = [ [1e303, 'Ce'], [1e100, 'Gg'], [1e63,  'Vg'], [1e60,  'Nvd'], [1e57,  'Otd'], [1e54,  'Spd'], [1e51,  'Sxd'], [1e48,  'Qnd'], [1e45,  'Qtd'], [1e42,  'Trd'], [1e39,  'Dud'], [1e36,  'Und'], [1e33,  'Dc'], [1e30,  'No'], [1e27,  'Oc'], [1e24,  'Sp'], [1e21,  'Sx'], [1e18,  'Qi'], [1e15,  'Qu'], [1e12,  'T'], [1e9,   'B'], [1e6,   'M'], [1e3,   'K'] ];
 
   const fmt = (n) => {
     if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
@@ -1315,571 +1262,327 @@ export default function App() {
     ? 'text-yellow-400'
     : 'text-orange-400';
 
-  const deliveryGameElement = deliveryGame ? (
-    <DeliveryMicrogame 
-      onComplete={(success) => {
-        const baseReward = 2000;
-        const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
-        setMoney(m => m + finalReward);
-        pushLogRef.current('delivery', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
-        setDeliveryGame(null);
-      }}
-    />
-  ) : null;
-
   return (
-    <>
-      <ManagerDesk deliveryGame={deliveryGameElement}>
-        <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
+    <div className="min-h-[100dvh] bg-[#050505] lg:bg-zinc-950 lg:bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] lg:from-zinc-900 lg:to-black flex flex-col lg:flex-row items-center justify-center lg:gap-12 lg:p-8 font-sans text-white overflow-hidden selection:bg-amber-500/30">
 
-      {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
-      {goldenSliceEvent && (
-        <button
-          onClick={handleGoldenSliceClick}
-          style={{ position: 'fixed', left: `${goldenSliceEvent.x}%`, top: `${goldenSliceEvent.y}%`, zIndex: 9999 }}
-          className="group cursor-pointer border-0 bg-transparent p-0 focus:outline-none"
-          title={goldenSliceEvent.type === 'frenzy' ? '7x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
-        >
-          <div className="relative animate-bounce">
-            <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Pizza className="w-7 h-7 text-yellow-900" />
+      {/* --- LEFT SIDE: CRT DISPATCH MONITOR (Desktop Only) --- */}
+      {isDesktop && (
+        <div className="hidden lg:flex flex-col w-[450px] shrink-0 transform -rotate-1">
+          <div className="bg-zinc-900 p-4 rounded-t-2xl border-x-4 border-t-4 border-zinc-700 shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)] flex justify-between items-center">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
             </div>
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
-              {goldenSliceEvent.type === 'frenzy' ? '7x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
-            </div>
+            <div className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase font-bold">PizzaOS // Dispatch Terminal v1.0</div>
           </div>
-        </button>
-      )}
-
-      {/* ── FRENZY ACTIVE BANNER ── */}
-      {frenzyMultiplier > 1 && (
-        <div className="fixed top-[72px] inset-x-0 z-[9998] pointer-events-none flex justify-center">
-          <div className="px-8 py-2 bg-yellow-500 border-b-[4px] border-yellow-800 rounded-b-2xl animate-pulse">
-            <span className="font-display text-base text-yellow-900 tracking-widest">⚡ 7x CLICK FRENZY ACTIVE ⚡</span>
-          </div>
-        </div>
-      )}
-      
-      {/* ── MARKET CRASH BANNER ── */}
-      {marketCrashBanner && (
-        <div className="fixed inset-x-0 top-[68px] z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
-          <div className="w-full bg-red-700 border-b-4 border-red-950 flex items-center justify-center py-3 gap-4">
-            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
-            <span className="font-display text-2xl md:text-3xl font-black tracking-[0.2em] text-white uppercase">
-              ⚠ MARKET CRASH ⚠
-            </span>
-            <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
-          </div>
-          <div className="bg-red-950 border-b-2 border-red-800 w-full text-center py-1">
-            <span className="text-red-300 text-xs font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
-          </div>
-        </div>
-      )}
-
-      {/* ── INSTANT CASH POPUP ── */}
-      {instantCashPopup && (
-        <div className="fixed inset-0 z-[9996] pointer-events-none flex items-center justify-center">
-          <div className="animate-[floatUpFade_3.5s_ease-out_forwards] flex flex-col items-center gap-1">
-            <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums">
-              +<Num value={instantCashPopup} prefix="$" />
-            </span>
-            <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
-          </div>
-        </div>
-      )}
-
-      {/* ACHIEVEMENT TOASTS - Center Stack */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] flex flex-col-reverse gap-2 pointer-events-none">
-         {achievementToasts.map(toast => (
-            <div key={toast.id} className="bg-yellow-500 border-b-[4px] border-yellow-800 px-8 py-4 rounded-2xl flex items-center gap-4 animate-[floatUpFade_6s_ease-out_forwards] shadow-2xl">
-               <Trophy className="w-8 h-8 text-yellow-900" />
-               <div>
-                  <div className="text-xs text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
-                  <div className="text-xl font-display text-yellow-900 tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
-               </div>
-            </div>
-         ))}
-      </div>
-
-      {/* ── FIXED HUD ── */}
-      <div className={`fixed top-0 inset-x-0 z-40 bg-[#050505] border-b-4 border-zinc-900 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
-
-          {/* LEFT: Title + stars */}
-          <div className="flex flex-col justify-center shrink-0 min-w-0">
-            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">PIZZA EMPIRE</h1>
-            <div className="flex gap-1 mt-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 fill-zinc-700'}`} />
-              ))}
-            </div>
-          </div>
-
-          {/* CENTER: Dominant bank display */}
-          <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
-            }`}>
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
-              <div className="flex items-baseline gap-2">
-                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
-                  <Num value={money} prefix="$" decimals={2} />
-                </span>
-                {numWords(money) && (
-                  <span className="text-sm text-zinc-500 font-bold hidden sm:block">{numWords(money)}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT: Secondary stat pills + settings */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Golden Slices - only show if player has any */}
-            {goldenSlices > 0 && (
-              <div className="hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-b-[3px] border-yellow-700/50 shrink-0">
-                <div className="text-sm text-yellow-600 font-bold uppercase tracking-widest">GOLDEN SLICES</div>
-                <div className="flex items-center gap-1">
-                  <Gem className="w-3 h-3 text-yellow-400 shrink-0" />
-                  <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none">{goldenSlices}</span>
-                </div>
-              </div>
-            )}
-            {/* Profit/sec */}
-            <div className={`hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-b-[3px] shrink-0 ${
-              isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-zinc-800 border-zinc-950 text-zinc-400'
-            }`}>
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3 shrink-0" />
-                <span className="font-display text-lg md:text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
-              </div>
-            </div>
-            {/* Pizzas/sec */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
-              <div className="flex items-center gap-1">
-                <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-                <span className="font-display text-lg md:text-xl text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
-              </div>
-            </div>
-            {/* Ticket avg */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
-              <div className="flex items-center gap-1">
-                <Award className="w-3 h-3 text-yellow-500 shrink-0" />
-                <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
-              </div>
-            </div>
-            {/* Settings only */}
-            <div className="flex items-center gap-1.5 ml-1">
-              <button onClick={() => setShowSettings(true)} className="bg-zinc-800 border border-zinc-700 border-b-2 border-b-zinc-950 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-700 btn-tactile active:border-b-0 active:translate-y-[2px]">
-                <Settings className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Rep bar — thin strip under HUD */}
-        <div className="h-1 bg-zinc-950 w-full">
-          <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
-        </div>
-      </div>
-
-      {/* --- SETTINGS MODAL --- */}
-      {showSettings && (
-        <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
-          <div className="bg-zinc-800 border-2 border-zinc-600 border-b-4 border-b-zinc-950 rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
-            <h2 className="text-3xl font-display text-white tracking-widest mb-6 border-b border-zinc-700 pb-4 flex items-center gap-3">
-              <Settings className="w-8 h-8 text-blue-400" /> GAME SETTINGS
-            </h2>
-
-            {!showWipeConfirm ? (
-              <div className="space-y-4">
-                <button onClick={handleManualSave} className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">
-                  <Save className="w-5 h-5" /> FORCE SAVE GAME
-                </button>
-                <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
-                  <Download className="w-5 h-5" /> EXPORT SAVE CODE
-                </button>
-                <a
-                  href="https://ko-fi.com/pizzalord"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-3 bg-amber-800 hover:bg-amber-700 border-b-[3px] border-amber-950 text-amber-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]"
-                >
-                  <Moon className="w-5 h-5" /> SUPPORT THE DEVELOPER
-                </a>
-                <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 flex flex-col gap-2">
-                  <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Import Save Code</div>
-                  <div className="flex gap-2">
-                    <input type="text" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="Paste code here..." className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 outline-none focus:border-blue-500 tabular-nums" />
-                    <button onClick={handleImportSave} className="bg-zinc-700 hover:bg-zinc-600 px-4 rounded-lg font-display tracking-widest transition-colors"><Upload className="w-4 h-4"/></button>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-zinc-700">
-                  <button onClick={() => setShowWipeConfirm(true)} className="w-full py-3 bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-500 hover:text-red-400 font-display tracking-widest rounded-xl transition-colors">
-                    WIPE SAVE DATA (HARD RESET)
-                  </button>
-                </div>
+          
+          <div className="h-[400px] bg-black border-x-8 border-b-[20px] border-t-8 border-zinc-800 rounded-b-3xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative p-2 flex flex-col justify-center items-center overflow-hidden box-border">
+            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] z-20 opacity-50"></div>
+            
+            {deliveryGame ? (
+              <div className="w-full h-full relative z-10 scale-[1.05]">
+                 <DeliveryMicrogame onComplete={(success) => {
+                    const baseReward = 2000;
+                    const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
+                    setMoney(m => m + finalReward);
+                    pushLogRef.current('delivery', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
+                    setDeliveryGame(null);
+                 }} />
               </div>
             ) : (
-              <div className="space-y-6 text-center">
-                <AlertTriangle className="w-16 h-16 text-red-500 mx-auto animate-pulse" />
-                <div>
-                  <h3 className="text-xl font-display text-red-400 mb-2">ARE YOU ABSOLUTELY SURE?</h3>
-                  <p className="text-sm text-zinc-400">This will permanently delete all your money, upgrades, reputation, and Corporate Licenses. This cannot be undone.</p>
-                </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
-                  <button onClick={handleHardReset} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px]">DELETE SAVE</button>
-                </div>
+              <div className="text-green-500/70 font-mono text-center z-10">
+                <p className="text-xl mb-2 animate-pulse">&gt; SYSTEM IDLE _</p>
+                <p className="text-xs opacity-50">Awaiting Time Warp Deliveries...</p>
               </div>
             )}
-            <button onClick={() => {setShowSettings(false); setShowWipeConfirm(false);}} className="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
           </div>
         </div>
       )}
 
-      {/* --- PARCHMENT TALE MODAL --- */}
-      {showParchmentModal && (
-        <div className="fixed inset-0 z-[100] bg-gray-900/95 flex items-center justify-center p-4">
-          <div className="relative max-w-2xl w-full bg-gray-800/90 rounded-2xl border-2 border-amber-600 shadow-2xl overflow-hidden">
-            {/* Header with decorative element */}
-            <div className="bg-gradient-to-b from-amber-700/30 to-transparent p-6 border-b border-amber-600/30">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-red-800 rounded-full border-2 border-red-900 flex items-center justify-center">
-                  <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
-                </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-amber-100" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                  The Legend of Pizza Empire
-                </h1>
-                <div className="w-8 h-8 bg-red-800 rounded-full border-2 border-red-900 flex items-center justify-center">
-                  <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
-                </div>
+      {/* --- RIGHT SIDE: THE TABLET / MAIN GAME --- */}
+      <div 
+        className={`flex flex-col relative overflow-x-hidden transition-colors duration-500 bg-zinc-900
+          ${isDesktop 
+            ? 'w-[400px] h-[850px] max-h-[95vh] rounded-[40px] border-[14px] border-zinc-900 shadow-[0_0_50px_rgba(0,0,0,0.5)] ring-4 ring-black/50 shrink-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' 
+            : 'w-full min-h-[100dvh] pb-24'
+          }
+          ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}
+          ${appBgClass}
+        `}
+        style={isDesktop ? { transform: 'translateZ(0)' } : {}}
+      >
+
+        {/* ── GOLDEN SLICE EVENT OVERLAY ── */}
+        {goldenSliceEvent && (
+          <button
+            onClick={handleGoldenSliceClick}
+            style={{ position: 'absolute', left: `${goldenSliceEvent.x}%`, top: `${goldenSliceEvent.y}%`, zIndex: 9999 }}
+            className="group cursor-pointer border-0 bg-transparent p-0 focus:outline-none"
+            title={goldenSliceEvent.type === 'frenzy' ? '7x Click Frenzy! (15s)' : goldenSliceEvent.type === 'marketCrash' ? 'Market Crash! (-60%)' : '10 Minutes of Profit!'}
+          >
+            <div className="relative animate-bounce">
+              <div className="w-14 h-14 rounded-full bg-yellow-500 border-4 border-yellow-800 border-b-[6px] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Pizza className="w-7 h-7 text-yellow-900" />
+              </div>
+              <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded">
+                {goldenSliceEvent.type === 'frenzy' ? '7x FRENZY' : goldenSliceEvent.type === 'marketCrash' ? 'MARKET CRASH' : 'INSTANT CASH'}
               </div>
             </div>
-            
-            {/* Content */}
-            <div className="p-6 md:p-8 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
-              <div className="space-y-4 text-amber-100" style={{ fontSize: '16px' }}>
-                <p className="leading-relaxed">
-                  In a world where dough rises like the morning sun,
-                </p>
-                <p className="leading-relaxed">
-                  Where cheese flows like rivers of gold,
-                </p>
-                <p className="leading-relaxed">
-                  One hero dared to dream of pizza perfection.
-                </p>
-              </div>
-              
-              <div className="mt-8 pt-6 border-t border-amber-600/30">
-                <p className="font-semibold text-amber-200 mb-4" style={{ fontSize: '18px' }}>
-                  Chapter {franchiseLicenses}: The Empire Grows
-                </p>
-                <p className="text-amber-100" style={{ fontSize: '16px' }}>
-                  With <span className="font-bold text-orange-400">{fmtInt(totalPizzasSold)}</span> pizzas sold and <span className="font-bold text-green-400">${fmtInt(lifetimeMoney)}</span> earned,
-                </p>
-                <p className="text-amber-100 mt-2" style={{ fontSize: '16px' }}>
-                  your legacy spreads across the land.
-                </p>
-              </div>
-              
-              <div className="mt-8 text-amber-200/80 italic" style={{ fontSize: '14px' }}>
-                <p>"From humble oven to global dominion,"</p>
-                <p className="mt-1">"the slice that conquered all."</p>
-              </div>
-              
-              <button
-                onClick={() => setShowParchmentModal(false)}
-                className="mt-8 px-6 py-2 bg-amber-600 hover:bg-amber-500 text-gray-900 rounded-lg font-bold transition-colors"
-                style={{ fontFamily: "'Dancing Script', cursive", fontSize: '16px' }}
-              >
-                Close This Chapter
-              </button>
+          </button>
+        )}
+
+        {/* ── FRENZY ACTIVE BANNER ── */}
+        {frenzyMultiplier > 1 && (
+          <div className="absolute top-[72px] inset-x-0 z-[9998] pointer-events-none flex justify-center">
+            <div className="px-8 py-2 bg-yellow-500 border-b-[4px] border-yellow-800 rounded-b-2xl animate-pulse">
+              <span className="font-display text-base text-yellow-900 tracking-widest">⚡ 7x CLICK FRENZY ACTIVE ⚡</span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+        
+        {/* ── MARKET CRASH BANNER ── */}
+        {marketCrashBanner && (
+          <div className="absolute inset-x-0 top-[68px] z-[9997] pointer-events-none flex flex-col items-center animate-[logSlideIn_0.15s_ease-out]">
+            <div className="w-full bg-red-700 border-b-4 border-red-950 flex items-center justify-center py-3 gap-4">
+              <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
+              <span className="font-display text-2xl md:text-3xl font-black tracking-[0.2em] text-white uppercase">
+                ⚠ MARKET CRASH ⚠
+              </span>
+              <TrendingDown className="w-7 h-7 text-red-200 shrink-0" />
+            </div>
+            <div className="bg-red-950 border-b-2 border-red-800 w-full text-center py-1">
+              <span className="text-red-300 text-xs font-black uppercase tracking-widest">All commodity prices collapsed −60%</span>
+            </div>
+          </div>
+        )}
 
-      {/* --- OFFLINE PROGRESS MODAL --- */}
-      {offlineReport && (() => {
-        const r = offlineReport;
-        const hrs  = Math.floor(r.goneSec / 3600);
-        const mins = Math.floor((r.goneSec % 3600) / 60);
-        const secs = Math.floor(r.goneSec % 60);
-        const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-        const wasCapped = r.goneMs / 1000 > 8 * 3600;
-        return (
-          <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+        {/* ── INSTANT CASH POPUP ── */}
+        {instantCashPopup && (
+          <div className="absolute inset-0 z-[9996] pointer-events-none flex items-center justify-center">
+            <div className="animate-[floatUpFade_3.5s_ease-out_forwards] flex flex-col items-center gap-1">
+              <span className="font-display text-5xl md:text-6xl font-black text-money tabular-nums">
+                +<Num value={instantCashPopup} prefix="$" />
+              </span>
+              <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-3 py-0.5 rounded">Golden Slice Bonus</span>
+            </div>
+          </div>
+        )}
+
+        {/* ACHIEVEMENT TOASTS */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] flex flex-col-reverse gap-2 pointer-events-none">
+           {achievementToasts.map(toast => (
+              <div key={toast.id} className="bg-yellow-500 border-b-[4px] border-yellow-800 px-8 py-4 rounded-2xl flex items-center gap-4 animate-[floatUpFade_6s_ease-out_forwards] shadow-2xl">
+                 <Trophy className="w-8 h-8 text-yellow-900" />
+                 <div>
+                    <div className="text-xs text-yellow-800 font-bold uppercase tracking-widest leading-none">Achievement Unlocked!</div>
+                    <div className="text-xl font-display text-yellow-900 tracking-wider leading-none mt-1 tabular-nums">{toast.name}</div>
+                 </div>
+              </div>
+           ))}
+        </div>
+
+        {/* --- STICKY MOBILE HUD --- */}
+        <div className="sticky top-0 inset-x-0 z-40 bg-[#050505] border-b-4 border-zinc-900 px-4 py-3 flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col">
+              <h1 className="text-xl font-display tracking-widest metallic-text leading-none">PIZZA EMPIRE</h1>
+              <div className="flex gap-1 mt-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className={`w-3 h-3 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 fill-zinc-700'}`} />
+                ))}
+              </div>
+            </div>
+            <button onClick={() => setShowSettings(!showSettings)} className="p-2 bg-zinc-800 rounded-xl border-b-2 border-zinc-950 text-zinc-400 active:border-b-0 active:translate-y-[2px]">
+               <Settings className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-zinc-800 rounded-lg p-2 flex flex-col items-center border-b-2 border-zinc-950 shadow-inner">
+               <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Bank Balance</span>
+               <span className="text-lg font-display text-money leading-none tabular-nums"><Num value={money} prefix="$" decimals={2} /></span>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-2 flex flex-col items-center border-b-2 border-zinc-950 shadow-inner">
+               <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Profit / Sec</span>
+               <span className="text-lg font-display text-blue-400 leading-none tabular-nums"><Num value={displayProfitPerSec} prefix="$" decimals={1} /></span>
+            </div>
+          </div>
+          {/* Rep Bar */}
+          <div className="h-1 bg-zinc-950 w-full mt-1 rounded-full overflow-hidden">
+            <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
+          </div>
+        </div>
+
+        {/* --- SETTINGS MODAL --- */}
+        {showSettings && (
+          <div className="absolute inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+            <div className="bg-zinc-800 border-2 border-zinc-600 border-b-4 border-b-zinc-950 rounded-2xl p-6 max-w-md w-full relative shadow-2xl">
+              <h2 className="text-2xl font-display text-white tracking-widest mb-6 border-b border-zinc-700 pb-4 flex items-center gap-3">
+                <Settings className="w-6 h-6 text-blue-400" /> GAME SETTINGS
+              </h2>
+
+              {!showWipeConfirm ? (
+                <div className="space-y-4">
+                  <button onClick={handleManualSave} className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">
+                    <Save className="w-5 h-5" /> FORCE SAVE GAME
+                  </button>
+                  <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
+                    <Download className="w-5 h-5" /> EXPORT SAVE CODE
+                  </button>
+                  <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 flex flex-col gap-2">
+                    <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Import Save Code</div>
+                    <div className="flex gap-2">
+                      <input type="text" value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="Paste code here..." className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-300 outline-none focus:border-blue-500 tabular-nums" />
+                      <button onClick={handleImportSave} className="bg-zinc-700 hover:bg-zinc-600 px-4 rounded-lg font-display tracking-widest transition-colors"><Upload className="w-4 h-4"/></button>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-zinc-700">
+                    <button onClick={() => setShowWipeConfirm(true)} className="w-full py-3 bg-red-900/20 hover:bg-red-900/40 border border-red-900/50 text-red-500 hover:text-red-400 font-display tracking-widest rounded-xl transition-colors">
+                      WIPE SAVE DATA
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6 text-center">
+                  <AlertTriangle className="w-16 h-16 text-red-500 mx-auto animate-pulse" />
+                  <div>
+                    <h3 className="text-xl font-display text-red-400 mb-2">ARE YOU SURE?</h3>
+                    <p className="text-sm text-zinc-400">Permanently delete all progress?</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <button onClick={() => setShowWipeConfirm(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                    <button onClick={handleHardReset} className="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-display tracking-widest btn-tactile border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px]">DELETE</button>
+                  </div>
+                </div>
+              )}
+              <button onClick={() => {setShowSettings(false); setShowWipeConfirm(false);}} className="absolute top-4 right-4 text-zinc-500 hover:text-white">✕</button>
+            </div>
+          </div>
+        )}
+
+        {/* --- MOBILE MICROGAME OVERLAY --- */}
+        {!isDesktop && deliveryGame && (
+          <div className="absolute inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+            <DeliveryMicrogame onComplete={(success) => {
+              const baseReward = 2000;
+              const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
+              setMoney(m => m + finalReward);
+              pushLogRef.current('delivery', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
+              setDeliveryGame(null);
+            }} />
+          </div>
+        )}
+
+        {/* --- OFFLINE PROGRESS MODAL --- */}
+        {offlineReport && (
+          <div className="absolute inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
             <div className="bg-zinc-900 border-2 border-blue-800 border-b-4 border-b-zinc-950 rounded-2xl max-w-lg w-full relative overflow-hidden">
-              {/* Header */}
               <div className="bg-blue-950 px-8 pt-8 pb-6 border-b-4 border-zinc-950">
                 <div className="flex items-center gap-4">
                   <div className="bg-blue-900 border border-blue-700 rounded-xl p-3">
                     <Moon className="w-8 h-8 text-blue-300" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-display text-white tracking-widest">OFFLINE REPORT</h2>
-                    <p className="text-zinc-400 text-sm font-bold mt-0.5">Your kitchen never stopped while you were away</p>
+                    <h2 className="text-2xl font-display text-white tracking-widest">OFFLINE REPORT</h2>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="flex-1 bg-blue-900 border border-blue-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">You were gone</span>
-                    <span className="text-white font-display text-lg tabular-nums">{timeStr}</span>
-                  </div>
-                  <div className="flex-1 bg-blue-900 border border-blue-700 rounded-xl px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">Efficiency</span>
-                    <span className="text-blue-200 font-display text-lg tabular-nums">{Math.round(r.efficiency * 100)}%</span>
-                  </div>
-                </div>
-                {wasCapped && (
-                  <div className="mt-3 text-xs text-amber-400/80 font-bold bg-amber-900/20 border border-amber-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
-                    <span>⚠</span> Offline earnings are capped at 8 hours. Come back sooner to maximise gains!
-                  </div>
-                )}
               </div>
-
-              {/* Breakdown rows */}
-              <div className="px-8 py-6 space-y-3">
+              <div className="px-6 py-6 space-y-3">
                 <div className="flex items-center justify-between p-4 bg-green-900 border border-green-700 rounded-xl">
                   <div>
                     <div className="text-green-400 text-sm font-black uppercase tracking-widest mb-0.5">Money Earned</div>
-                    <div className="text-green-600 text-sm tabular-nums">${fmt(r.profitPerSec)} / sec idle rate</div>
                   </div>
-                  <div className="text-money font-display text-2xl tabular-nums">+${fmt(r.moneyEarned)}</div>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-orange-900 border border-orange-700 rounded-xl">
-                  <div>
-                    <div className="text-orange-300 text-sm font-black uppercase tracking-widest mb-0.5">Pizzas Baked</div>
-                    <div className="text-orange-600 text-sm tabular-nums">{fmt(r.pizzasEarned / r.goneSec)} / sec</div>
-                  </div>
-                  <div className="text-orange-200 font-display text-2xl tabular-nums">+{fmtInt(r.pizzasEarned)}</div>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-zinc-800 border border-zinc-700 rounded-xl">
-                  <div>
-                    <div className="text-zinc-400 text-sm font-black uppercase tracking-widest mb-0.5">Time Active</div>
-                    <div className="text-zinc-500 text-sm">50% of full rate while offline</div>
-                  </div>
-                  <div className="text-zinc-300 font-display text-2xl tabular-nums">{timeStr}</div>
+                  <div className="text-money font-display text-xl tabular-nums">+${fmt(offlineReport.moneyEarned)}</div>
                 </div>
               </div>
-
-              {/* Footer */}
-              <div className="px-8 pb-8">
-                <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[4px] border-blue-900 active:border-b-0 active:translate-y-[4px]">
+              <div className="px-6 pb-6">
+                <button onClick={() => setOfflineReport(null)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[4px] border-blue-900 active:border-b-0 active:translate-y-[4px]">
                   LET'S GET COOKING
                 </button>
               </div>
             </div>
           </div>
-        );
-      })()}
+        )}
 
-      {/* --- PRESTIGE MODAL --- */}
-      {showPrestigeModal && (
-        <div className="fixed inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
-          <div className="bg-zinc-800 border-2 border-purple-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center relative">
-            <Building className="w-16 h-16 text-purple-300 mx-auto mb-4" />
-            <h2 className="text-4xl font-display text-white tracking-widest mb-2">CORPORATE BUYOUT</h2>
-            <p className="text-zinc-400 font-bold mb-6">Are you sure you want to sell your store to Corporate?</p>
-            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 mb-6 text-left space-y-3">
-               <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money, upgrades &amp; reputation reset.</div>
-               <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display leading-none tabular-nums">{pendingLicenses}</span> Franchise License{pendingLicenses !== 1 ? 's' : ''} ({franchiseLicenses + pendingLicenses} total).</div>
-               {(() => {
-                 const newLics = franchiseLicenses + pendingLicenses;
-                 const startCash = 500 * Math.pow(newLics, 2);
-                 const floorPizzas = 2 * Math.pow(1.4, newLics);
-                 const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
-                 return (<>
-                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Start next run with <span className="font-display tabular-nums">${fmt(startCash)}</span> cash.</div>
-                   <div className="text-money font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Passive floor: ~<span className="font-display tabular-nums">${fmt(floorMoney)}</span>/sec before upgrades.</div>
-                   <div className="text-purple-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> {fmt(1 + newLics * 1.2)}× prod/click · {fmt(Math.pow(1.25, newLics))}× pizza price.</div>
-                 </>);
-               })()}
-            </div>
-            <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
-                <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-display text-xl tracking-widest rounded-xl btn-tactile border-b-[3px] border-purple-900 active:border-b-0 active:translate-y-[3px]">SELL STORE</button>
+        {/* --- PRESTIGE MODAL --- */}
+        {showPrestigeModal && (
+          <div className="absolute inset-0 z-[100] bg-[#050505]/90 flex items-center justify-center p-4">
+            <div className="bg-zinc-800 border-2 border-purple-700 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center relative">
+              <Building className="w-16 h-16 text-purple-300 mx-auto mb-4" />
+              <h2 className="text-3xl font-display text-white tracking-widest mb-2">CORPORATE BUYOUT</h2>
+              <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 mb-6 text-left space-y-3">
+                 <div className="text-red-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">−</span> All money & upgrades reset.</div>
+                 <div className="text-green-400 font-bold text-xs uppercase tracking-wider flex items-start gap-2"><span className="text-lg leading-none">+</span> Gain <span className="text-xl font-display leading-none tabular-nums">{pendingLicenses}</span> Licenses.</div>
+              </div>
+              <div className="flex gap-4">
+                  <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-3 bg-zinc-700 text-zinc-300 font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">CANCEL</button>
+                  <button onClick={confirmPrestige} className="flex-1 py-3 bg-purple-600 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-purple-900 active:border-b-0 active:translate-y-[3px]">SELL STORE</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-
-      {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
-      {deliveryGame && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <DeliveryMicrogame 
-            onComplete={(success) => {
-              const baseReward = 2000;
-              const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
-              setMoney(m => m + finalReward);
-              pushLog('click', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
-              setDeliveryGame(null);
-            }}
-          />
-        </div>
-      )}
-
-      {/* ── MAIN CONTENT (offset for HUD) ── */}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-28 pb-6 px-4 md:px-6">
-        
-        {/* Left Area: Action Center */}
-        <div className="lg:col-span-5 flex flex-col gap-6 relative mt-2">
+        {/* ── MAIN VERTICAL CONTENT ── */}
+        <div className="flex flex-col flex-1 p-4 gap-6">
           
-          {/* TICKET QUEUE / MINI-GAMES */}
-          <div className="min-h-[120px] flex items-center justify-center">
-            
-            {vipSpawned && !sideOrder && (
-              <button 
-                onClick={triggerVIP}
-                className="w-full h-full bg-yellow-500 rounded-2xl border-b-[4px] border-yellow-800 flex items-center justify-center gap-3 animate-bounce btn-tactile active:border-b-0 active:translate-y-[4px]"
-              >
-                <Zap className="w-8 h-8 text-yellow-100 fill-yellow-100" />
-                <div className="text-left">
-                  <div className="text-2xl font-display text-white uppercase tracking-widest">VIP Customer Alert!</div>
-                  <div className="text-sm text-yellow-100 font-bold">Click to trigger Dinner Rush!</div>
-                </div>
-              </button>
-            )}
-
-            {isRush && !sideOrder && (
-              <div className="w-full h-full bg-red-800 rounded-2xl border-b-[4px] border-red-950 flex items-center justify-between px-8">
-                <div className="flex items-center gap-3 text-red-200">
-                  <Zap className="w-8 h-8 fill-red-200 animate-pulse" />
-                  <div>
-                    <div className="text-2xl font-display uppercase tracking-widest text-white">Dinner Rush!</div>
-                    <div className="text-sm font-bold">2x Speed & 2x Prices</div>
+          {/* Action Center: Bake & Box */}
+          <div className="flex flex-col relative w-full">
+            {/* TICKET QUEUE / MINI-GAMES */}
+            <div className="min-h-[100px] flex items-center justify-center mb-4">
+              {vipSpawned && !sideOrder && (
+                <button onClick={triggerVIP} className="w-full h-full bg-yellow-500 rounded-2xl border-b-[4px] border-yellow-800 flex items-center justify-center gap-3 animate-bounce btn-tactile active:border-b-0 active:translate-y-[4px]">
+                  <Zap className="w-8 h-8 text-yellow-100 fill-yellow-100" />
+                  <div className="text-left">
+                    <div className="text-xl font-display text-white uppercase tracking-widest">VIP Alert!</div>
                   </div>
-                </div>
-                <div className="text-4xl font-display text-red-100 flex items-center gap-2 tabular-nums">
-                  <Clock className="w-8 h-8" /> 0:{rushTimeLeft.toString().padStart(2, '0')}
-                </div>
-              </div>
-            )}
-
-            {sideOrder && sideOrder.status === 'cooking' && (
-              <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col items-center justify-center p-5 gap-3 relative">
-                <div className="flex justify-between w-full text-sm font-display tracking-widest text-orange-400">
-                   <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500 animate-pulse"/> TICKET: {sideOrder.type === 'wings' ? 'SPICY WINGS' : 'GARLIC BREAD'}</span>
-                   <span className="animate-pulse">BAKING...</span>
-                </div>
-                
-                <div className="w-full h-8 bg-zinc-950 rounded-lg relative overflow-hidden border-2 border-zinc-800">
-                   <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
-                   <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
-                </div>
-                
-                <button 
-                  onClick={handlePullFromOven} 
-                  className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]"
-                >
-                  PULL FROM OVEN!
                 </button>
-              </div>
-            )}
-
-            {/* REDESIGNED SCRUB BOARD */}
-            {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'dirty' && (
-              <div className="w-full h-full bg-zinc-800 rounded-2xl border border-zinc-700 p-4 shadow-lg flex flex-col items-center justify-center gap-2">
-                 <div className="flex justify-between w-full text-xs font-display tracking-widest text-blue-300">
-                    <span className="flex items-center gap-2"><Droplets className="w-3 h-3 text-blue-400" /> SINK FULL</span>
-                    <span className="tabular-nums text-blue-400 font-bold bg-blue-900/50 px-2 py-0.5 rounded border border-blue-500/30">{Math.floor((sideOrder.progress / sideOrder.required) * 100)}%</span>
-                 </div>
-                 
-                 <div 
-                    className="relative w-full h-16 sm:h-20 rounded-xl bg-zinc-950 border-2 border-dashed border-blue-500/40 flex items-center justify-center cursor-crosshair touch-none overflow-hidden group shadow-inner"
-                    onMouseDown={handleScrubStart}
-                    onTouchStart={handleScrubStart}
-                    onMouseMove={handleScrub}
-                    onTouchMove={handleScrub}
-                 >
-                    {/* Water Level that fills up as you scrub */}
-                    <div 
-                       className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 transition-all duration-100 ease-out opacity-80"
-                       style={{ height: `${(sideOrder.progress / sideOrder.required) * 100}%` }}
-                    >
-                       <div className="w-full h-full animate-pulse bg-[radial-gradient(circle_at_top,_#ffffff_0%,_transparent_60%)] opacity-30"></div>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center justify-center text-blue-300/80 pointer-events-none group-hover:text-blue-100 transition-colors">
-                       <span className="text-sm sm:text-base font-black tracking-widest flex items-center gap-3 drop-shadow-md">
-                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                          SWIPE HERE TO SCRUB
-                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                       </span>
-                    </div>
-                 </div>
-              </div>
-            )}
-
-            {sideOrder && sideOrder.type === 'dishes' && sideOrder.status === 'clean' && (
-              <div className="w-full h-full rounded-2xl border-b-[4px] bg-green-800 border-green-950 text-green-100 flex items-center justify-center flex-col gap-1 p-4">
-                  <Sparkles className="w-10 h-10 animate-spin-slow mb-1" />
-                  <div className="text-3xl font-display tracking-widest uppercase">Spotless!</div>
-                  <div className="text-sm font-bold text-green-300 mt-1">2x Click Power for 60 seconds!</div>
-              </div>
-            )}
-
-            {sideOrder && sideOrder.status !== 'cooking' && sideOrder.type !== 'dishes' && (
-              <div className={`w-full h-full rounded-2xl border-b-[4px] flex items-center justify-center flex-col gap-1 p-4
-                  ${sideOrder.status === 'perfect' ? 'bg-green-800 border-green-950 text-green-100' :
-                    sideOrder.status === 'burnt' ? 'bg-red-900 border-red-950 text-red-200' :
-                    'bg-yellow-800 border-yellow-950 text-yellow-100'}`}>
-                  <div className={`text-3xl font-display tracking-widest uppercase ${sideOrder.status === 'perfect' ? 'animate-bounce' : ''}`}>
-                     {sideOrder.status}!
+              )}
+              {isRush && !sideOrder && (
+                <div className="w-full h-full bg-red-800 rounded-2xl border-b-[4px] border-red-950 flex items-center justify-between px-6 py-4">
+                  <div className="flex items-center gap-3 text-red-200">
+                    <Zap className="w-6 h-6 fill-red-200 animate-pulse" />
+                    <div className="text-xl font-display uppercase tracking-widest text-white">Dinner Rush!</div>
                   </div>
-                  <div className="font-bold font-body text-lg text-white tabular-nums">
-                     {sideOrder.status === 'perfect' ? <>Huge Bonus! +<Num value={sideOrder.rewardEarned} prefix="$" /></> :
-                      sideOrder.status === 'burnt' ? 'Ruined! $0' :
-                      <>Okay. +<Num value={sideOrder.rewardEarned} prefix="$" /></>}
+                  <div className="text-2xl font-display text-red-100 tabular-nums">0:{rushTimeLeft.toString().padStart(2, '0')}</div>
+                </div>
+              )}
+              {sideOrder && sideOrder.status === 'cooking' && (
+                <div className="w-full h-full bg-orange-950 rounded-2xl border border-orange-800 border-b-[4px] border-b-orange-950 flex flex-col justify-center p-4 gap-3">
+                  <div className="flex justify-between w-full text-sm font-display tracking-widest text-orange-400">
+                     <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500 animate-pulse"/> {sideOrder.type === 'wings' ? 'WINGS' : 'BREAD'}</span>
+                     <span className="animate-pulse">BAKING...</span>
                   </div>
-              </div>
-            )}
-            
-            {!vipSpawned && !isRush && !sideOrder && (
-              <div className="w-full h-full border-2 border-dashed border-zinc-700 rounded-2xl flex flex-col items-center justify-center text-zinc-500 text-sm font-bold uppercase tracking-widest bg-zinc-800/30">
-                {specialDelivery ? (
-                  <>
-                    <div className="text-center mb-4">
-                      <div className="text-amber-400 text-lg font-display tracking-wider mb-2">🚗 Special Delivery Ready!</div>
-                      <div className="text-zinc-400 text-xs mb-3">Complete the lane challenge for 2x rewards</div>
-                      <div className="text-amber-300 text-xs tabular-nums mb-4">
-                        Expires in: {Math.max(0, Math.ceil((specialDelivery.expiresAt - Date.now()) / 1000))}s
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setDeliveryGame(true); // Just set to true to trigger the microgame
-                        setSpecialDelivery(null);
-                      }}
-                      className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display text-sm font-black tracking-wider rounded-xl border-b-[3px] border-amber-800 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
-                    >
-                      START NOW
-                    </button>
-                  </>
-                ) : isClean ? (
-                  <>
-                    <Sparkles className="w-6 h-6 text-blue-400 mr-2" />
-                    <span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {cleanBoostTimer}s</span>
-                  </>
-                ) : (
-                  'Awaiting Orders...'
-                )}
-              </div>
-            )}
-          </div>
+                  <div className="w-full h-6 bg-zinc-950 rounded-lg relative overflow-hidden border-2 border-zinc-800">
+                     <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
+                     <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
+                  </div>
+                  <button onClick={handlePullFromOven} className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]">PULL FROM OVEN!</button>
+                </div>
+              )}
+              {sideOrder && sideOrder.status !== 'cooking' && (
+                <div className={`w-full h-full rounded-2xl border-b-[4px] flex items-center justify-center flex-col gap-1 p-4
+                    ${sideOrder.status === 'perfect' ? 'bg-green-800 border-green-950 text-green-100' :
+                      sideOrder.status === 'burnt' ? 'bg-red-900 border-red-950 text-red-200' :
+                      'bg-yellow-800 border-yellow-950 text-yellow-100'}`}>
+                    <div className={`text-2xl font-display tracking-widest uppercase ${sideOrder.status === 'perfect' ? 'animate-bounce' : ''}`}>{sideOrder.status}!</div>
+                    <div className="font-bold text-sm tabular-nums">+{fmt(sideOrder.rewardEarned)}</div>
+                </div>
+              )}
+              {!vipSpawned && !isRush && !sideOrder && (
+                <div className="w-full h-full border-2 border-dashed border-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500 text-sm font-bold uppercase tracking-widest py-8">
+                  Awaiting Orders...
+                </div>
+              )}
+            </div>
 
-          <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
+              className={`w-full rounded-[2rem] p-6 pb-8 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
                 border-b-[8px] active:shadow-none active:translate-y-[12px]
                 ${isRush
-                  ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 shadow-[0_12px_0_#000000] hover:from-red-500 hover:to-red-600'
-                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 shadow-[0_12px_0_#000000] hover:from-zinc-700 hover:to-zinc-800'
+                  ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 shadow-[0_12px_0_#000000]'
+                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 shadow-[0_12px_0_#000000]'
                 }`}
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
             >
@@ -1887,1599 +1590,390 @@ export default function App() {
               {/* COMBO METER */}
               {combo > 0 && (
                 <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
-                    ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
+                  <div className={`font-display text-3xl transition-all tabular-nums font-black ${combo > 50 ? 'text-red-200' : 'text-yellow-200'}`}>
                     x{comboMultiplier.toFixed(2)}
                   </div>
-                  <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
-                  <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
+                  <div className="w-16 h-2 bg-orange-900 rounded-full mt-1 overflow-hidden">
                     <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
                   </div>
                 </div>
               )}
 
-              {clickPopups.map(popup => (
-                <div 
-                  key={popup.id}
-                  className="absolute text-2xl font-black pointer-events-none drop-shadow-md z-50 floating-popup tabular-nums"
-                  style={{ 
-                    left: popup.x, 
-                    top: popup.y,
-                    color: isRush ? '#f87171' : '#fcd34d' 
-                  }}
-                >
-                  +${popup.value}
+              {clickPopups.map(p => (
+                <div key={p.id} className="absolute text-2xl font-black pointer-events-none z-50 floating-popup text-yellow-400" style={{ left: p.x, top: p.y }}>
+                  +${p.value}
                 </div>
               ))}
 
-              <div className="relative pointer-events-none flex flex-col items-center">
-                 {hasMichelin && (
-                   <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-7 h-7 text-yellow-300 animate-bounce z-20" />
-                 )}
-                 {hasTruffles && !isRush && (
-                   <>
-                     <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
-                     <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
-                   </>
-                 )}
-                 {/* Pizza icon — slow continuous spin */}
-                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 group-active:scale-90 transition-transform duration-150 ${pizzaColorClass}`} />
-                 {/* Ellipse pedestal shadow */}
-                 <div className="w-28 h-4 bg-orange-900 rounded-full mt-1 opacity-60" style={{ filter: 'blur(6px)' }} />
+              {/* 3D SLAMMING PIZZA BOX */}
+              <div className="relative w-32 h-32 perspective-box z-10 my-2">
+                <div className="absolute inset-x-0 bottom-0 h-[75%] bg-[#92400e] rounded-xl border-b-[8px] border-[#78350f] shadow-xl"></div>
+                <div className="absolute inset-x-0 bottom-2 h-[75%] flex items-center justify-center">
+                  <Pizza className={`w-20 h-20 transition-transform duration-75 group-active:scale-90 drop-shadow-lg ${pizzaColorClass}`} />
+                </div>
+                <div className="pizza-box-lid absolute inset-x-0 bottom-0 h-[75%] bg-[#d97706] rounded-xl border-4 border-[#b45309] shadow-inner flex items-center justify-center">
+                   <div className="font-display text-[#92400e]/40 text-3xl font-black transform rotate-180 select-none">BOXED</div>
+                </div>
               </div>
-             
+              
               <div className="pointer-events-none flex flex-col items-center z-10">
-                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
-                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
-                  isClean
-                    ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
-                    : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
-                }`}>
-                  {isClean && (
-                    <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
-                  )}
-                  <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
-                  <span className={isClean ? 'text-cyan-600' : 'text-zinc-500'}>|</span>
-                  <span>+<Num value={currentClickPower} decimals={1} /> Pizzas per Click</span>
+                <div className={`text-3xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake & Box</div>
+                <div className={`text-xs font-display px-4 py-2 rounded-full inline-flex items-center gap-2 tracking-wider border-b-2 ${isClean ? 'bg-cyan-800 border-cyan-950 text-cyan-100' : 'bg-orange-700 border-orange-950 text-orange-200'}`}>
+                  <span>+<Num value={pizzaPrice * currentClickPower} prefix="$" /></span>
+                  <span className="opacity-50">|</span>
+                  <span>+<Num value={currentClickPower} /> Pizzas</span>
                 </div>
               </div>
             </button>
           </div>
-        </div>
 
-        {/* Right Area: Management & Upgrades */}
-        <div className="lg:col-span-7 flex flex-col gap-8 transition-all duration-300 opacity-100 mt-2">
-          
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
-            <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden p-8">
-              <div className="text-center space-y-6">
-                <div className="flex items-center justify-center gap-4 mb-8">
-                  <Building className="text-purple-300 w-12 h-12" />
-                  <h2 className="text-4xl font-display tracking-wide text-purple-100">SELL FRANCHISE</h2>
-                  <Building className="text-purple-300 w-12 h-12" />
+          {/* Sell Franchise Block */}
+          {franchiseLicenses > 0 || lifetimeMoney > 50000 ? (
+            <button onClick={() => setShowPrestigeModal(true)} disabled={pendingLicenses === 0}
+              className="w-full bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 p-4 flex items-center justify-between group active:border-b-0 active:translate-y-[4px] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-900 p-2 rounded-lg border border-purple-700"><Building className="text-purple-300 w-5 h-5" /></div>
+                <div className="text-left">
+                  <div className="font-display text-lg tracking-widest text-purple-100 leading-none mb-1">Corporate</div>
+                  <div className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">{franchiseLicenses} Licenses Owned</div>
                 </div>
-                
-                {pendingLicenses > 0 ? (
-                  <>
-                    <div className="text-purple-200 text-lg mb-4">
-                      You have <span className="font-bold text-purple-100 text-2xl tabular-nums">{pendingLicenses}</span> License{pendingLicenses > 1 ? 's' : ''} available to sell
-                    </div>
-                    
-                    <button 
-                      onClick={() => setShowPrestigeModal(true)}
-                      className="w-full py-8 bg-red-600 hover:bg-red-500 text-white font-display text-2xl font-black tracking-widest rounded-xl border-b-[6px] border-red-900 active:border-b-0 active:translate-y-[6px] transition-all btn-tactile shadow-[0_8px_0_#000000] hover:shadow-[0_6px_0_#000000] transform hover:scale-105"
-                    >
-                      SELL STORE FOR {pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
-                    </button>
-                    
-                    <div className="text-purple-300 text-sm">
-                      This will reset your progress but grant you powerful franchise licenses
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-purple-300 text-lg mb-6">
-                      Keep building your empire to unlock franchise licenses
-                    </div>
-                    <div className="text-purple-400 text-sm">
-                      Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
-                    </div>
-                  </>
-                )}
               </div>
-            </div>
-            )}
-
-            {/* ── TAB NAV ── */}
-            <div className="bg-zinc-900 border-b-4 border-zinc-950 px-3 pt-3 pb-3">
-              <div className="bg-zinc-800 p-2 rounded-xl border border-zinc-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1">
-                {[
-                  { id: 'upgrades',     icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop',  active: 'bg-blue-600 text-white border-b-2 border-blue-900'       },
-                  { id: 'map',          icon: <Map          className="w-3.5 h-3.5" />, label: 'Map',       active: 'bg-emerald-600 text-white border-b-2 border-emerald-900' },
-                  { id: 'achievements', icon: <Trophy       className="w-3.5 h-3.5" />, label: 'Award',  active: 'bg-yellow-500 text-zinc-900 border-b-2 border-yellow-800'},
-                  { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
-                  { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
-                  { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
-                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }] : []),
-                ].map(({ id, icon, label, active }) => {
-                  // Calculate available deliveries for map tab
-                  const availableDeliveries = id === 'map' ? DESTINATIONS.filter(dest => {
-                    const cooldown = deliveryCooldowns[dest.id] || 0;
-                    const onCooldown = cooldown > 0;
-                    const req = dest.unlockReq;
-                    const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
-                    return isUnlocked && !onCooldown;
-                  }) : [];
-
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setActiveTab(id)}
-                      className={`flex items-center justify-center gap-1 py-2 px-2 rounded-lg font-display text-sm tracking-widest uppercase btn-tactile transition-colors duration-100 min-w-0 relative ${
-                        activeTab === id
-                          ? active
-                          : 'text-zinc-500 hover:text-zinc-300'
-                      }`}
-                    >
-                      {icon}
-                      <span className="truncate">{label}</span>
-                      {/* Delivery notification indicator */}
-                      {id === 'map' && availableDeliveries.length > 0 && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-red-700 rounded-full flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.5)] animate-pulse">
-                          <span className="text-red-100 text-xs font-black leading-none">!</span>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+              <div className="text-purple-300 font-bold text-xs bg-purple-900 px-3 py-1 rounded-full border border-purple-700">
+                {pendingLicenses > 0 ? `Sell for ${pendingLicenses}` : 'Not Ready'}
               </div>
-            </div>
+            </button>
+          ) : null}
 
-            {/* Upgrades sub-filter pills — only shown on upgrades tab */}
-            {activeTab === 'upgrades' && (
-              <div className="px-3 pt-4 pb-3">
-                <div className="grid grid-cols-2 gap-1.5">
-                  {[
-                    { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
-                    { id: 'production', label: 'Production', color: 'text-blue-400',   activeBg: 'bg-blue-900/40 border-blue-500/60 text-blue-300' },
-                    { id: 'quality',    label: 'Quality',    color: 'text-amber-400',  activeBg: 'bg-amber-900/40 border-amber-500/60 text-amber-300' },
-                    { id: 'click',      label: 'Click',      color: 'text-orange-400', activeBg: 'bg-orange-900/40 border-orange-500/60 text-orange-300' },
-                  ].map(f => (
-                    <button
-                      key={f.id}
-                      onClick={() => setUpgradeFilter(f.id)}
-                      className={`px-3 py-1 rounded-full border text-sm font-black uppercase tracking-widest transition-all ${
-                        upgradeFilter === f.id ? f.activeBg : `border-zinc-700 ${f.color} hover:border-zinc-600 bg-zinc-900/30`
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                  <div className="col-span-2 text-center text-sm text-zinc-600 font-bold uppercase tracking-widest pt-1">
-                    {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).length} items
-                  </div>
-                </div>
+          {/* Tab Navigation */}
+          <div className="bg-zinc-800 p-1.5 rounded-xl border border-zinc-700 grid grid-cols-4 sm:grid-cols-6 gap-1 shadow-inner">
+            {[
+              { id: 'upgrades', icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Shop' },
+              { id: 'map', icon: <Map className="w-3.5 h-3.5" />, label: 'Map' },
+              { id: 'achievements', icon: <Trophy className="w-3.5 h-3.5" />, label: 'Awards' },
+              { id: 'stats', icon: <TrendingUp className="w-3.5 h-3.5" />, label: 'Stats' },
+              { id: 'market', icon: <DollarSign className="w-3.5 h-3.5" />, label: 'Market' },
+              { id: 'log', icon: <ScrollText className="w-3.5 h-3.5" />, label: 'Log' },
+              ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault' }] : []),
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg font-display text-[9px] tracking-widest uppercase transition-all ${
+                  activeTab === tab.id ? 'bg-zinc-600 text-white shadow-md' : 'text-zinc-500 hover:bg-zinc-700/50'
+                }`}
+              >
+                {tab.icon}
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
+          </div>
 
-                {/* Buy Multiplier Toggle - Moved up here */}
-                <div className="mt-3">
-                  <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
-                    {[1, 10, 'MAX'].map((mult) => (
-                      <button
-                        key={mult}
-                        onClick={() => setBuyMultiplier(mult)}
-                        className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
-                          buyMultiplier === mult
-                            ? 'bg-zinc-700 text-white border border-zinc-500'
-                            : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                        }`}
-                      >
-                        {mult === 'MAX' ? 'MAX' : `${mult}x`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* TEST BUTTON - Start Delivery Game */}
-                <div className="mt-3">
-                  <button
-                    onClick={() => setDeliveryGame(true)}
-                    className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-black tracking-wider rounded-lg border-b-2 border-amber-800 active:border-b-0 active:translate-y-[2px] transition-all"
-                  >
-                    🚗 TEST: START DELIVERY GAME
+          {/* TAB CONTENT: Upgrades */}
+          {activeTab === 'upgrades' && (
+            <div className="flex flex-col gap-3">
+              {/* Desktop specific: Show Delivery Test Button on Upgrades Tab to ensure it's easily clickable */}
+              {isDesktop && (
+                 <button onClick={() => setDeliveryGame(true)} className="w-full py-3 bg-amber-600 text-white font-display text-sm tracking-widest rounded-xl border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px]">
+                    TEST: START MINIGAME ON CRT
+                 </button>
+              )}
+              
+              <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 w-full max-w-[200px] mx-auto">
+                {[1, 10, 'MAX'].map((mult) => (
+                  <button key={mult} onClick={() => setBuyMultiplier(mult)}
+                    className={`flex-1 px-2 py-1.5 rounded-lg font-display text-xs font-black tracking-wider transition-all ${buyMultiplier === mult ? 'bg-zinc-700 text-white border border-zinc-500' : 'text-zinc-400'}`}>
+                    {mult === 'MAX' ? 'MAX' : `${mult}x`}
                   </button>
-                </div>
+                ))}
               </div>
-            )}
 
-            <div className="p-4 pt-12 mt-6 space-y-4 bg-zinc-900">
-              
-              
-              {/* --- TAB: VAULT --- */}
-              {activeTab === 'vault' && (() => {
-                const SYNDICATE_PERKS_DEF = [
-                  {
-                    id: 'shadowCapital',
-                    name: 'Shadow Capital',
-                    cost: 1,
-                    icon: <DollarSign className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Begin every new run with $100,000 in seed money. No more starting from scratch.',
-                    effect: 'Start each run with $100K',
-                  },
-                  {
-                    id: 'quantumOven',
-                    name: 'Quantum Oven',
-                    cost: 2,
-                    icon: <Flame className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Warps the oven clock. Side orders advance at half-speed, making Perfect bakes trivially easy.',
-                    effect: 'Oven 2× slower — always hit Perfect',
-                  },
-                  {
-                    id: 'insiderTrading',
-                    name: 'Insider Trading',
-                    cost: 3,
-                    icon: <TrendingUp className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Your market connections feed you live data. Market prices update twice as fast.',
-                    effect: 'Market ticks every 7.5s instead of 15s',
-                  },
-                  {
-                    id: 'autoArm',
-                    name: 'Auto-Arm',
-                    cost: 5,
-                    icon: <Rocket className="w-6 h-6 text-yellow-300" />,
-                    desc: 'A robotic arm bakes and boxes one pizza every second automatically. Scales with all click multipliers.',
-                    effect: '+1 free click per second (with all multipliers)',
-                  },
-                  {
-                    id: 'timeLoop',
-                    name: 'Time Loop',
-                    cost: 10,
-                    icon: <Clock className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Break the causal fabric of time itself. All timers (rush, clean, VIP) run 5× slower, effectively giving you 5× duration.',
-                    effect: 'All buff timers last 5× longer',
-                  },
-                  {
-                    id: 'realityBend',
-                    name: 'Reality Bender',
-                    cost: 15,
-                    icon: <Sparkles className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Your pizza transcends physical laws. All production multipliers (franchise, stars, VIP, synergies) are doubled.',
-                    effect: 'All production multipliers ×2',
-                  },
-                  {
-                    id: 'infiniteOven',
-                    name: 'Infinite Oven',
-                    cost: 20,
-                    icon: <Zap className="w-6 h-6 text-yellow-300" />,
-                    desc: 'The oven contains a pocket dimension. Side orders are instantly Perfect and give 10× rewards.',
-                    effect: 'Instant Perfect side orders with 10× rewards',
-                  },
-                  {
-                    id: 'marketGod',
-                    name: 'Market Master',
-                    cost: 25,
-                    icon: <TrendingUp className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Your market connections are unparalleled. Market manipulation cooldowns are reduced by 75% and effects are increased by 50%.',
-                    effect: '75% faster cooldowns, 1.5× manipulation power',
-                  },
-                  {
-                    id: 'pizzaSingularity',
-                    name: 'Pizza Cascade',
-                    cost: 50,
-                    icon: <Gem className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Unlock a special oven mode where side orders cascade - each perfect pull has a 20% chance to spawn another side order.',
-                    effect: 'Cascade side orders from perfect pulls',
-                  },
-                  {
-                    id: 'goldenTouch',
-                    name: 'Golden Touch',
-                    cost: 75,
-                    icon: <Crown className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Your expertise turns everything to gold. All money gains are multiplied by 3×.',
-                    effect: 'All money gains ×3',
-                  },
-                  {
-                    id: 'ascension',
-                    name: 'Synergistic Click',
-                    cost: 100,
-                    icon: <Moon className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Your clicks become synergistic with your production. Each click gains +10% of your current /sec production as bonus power.',
-                    effect: 'Clicks gain +10% of /sec production',
-                  },
-                  {
-                    id: 'goldenPower',
-                    name: 'Golden Power',
-                    cost: 10,
-                    icon: <Star className="w-6 h-6 text-yellow-300" />,
-                    desc: 'Channel the essence of golden slices into pure power. Increases all production and click multipliers by 5% permanently. This can be purchased repeatedly.',
-                    effect: '+5% global multiplier per purchase (repeatable)',
-                    repeatable: true,
-                  },
-                ];
-                return (
-                  <div className="flex flex-col gap-4">
-                    {/* Header */}
-                    <div className="relative overflow-hidden rounded-xl border border-yellow-700 bg-yellow-950 p-5">
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex items-center gap-4">
-                          <div className="bg-yellow-500/10 border border-yellow-500/40 rounded-xl p-3">
-                            <Moon className="w-7 h-7 text-yellow-400" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600 mb-0.5">Hard Prestige Layer</div>
-                            <h2 className="font-display text-2xl text-yellow-100 tracking-widest">The Syndicate Vault</h2>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 bg-yellow-900/40 border border-yellow-500/40 rounded-xl px-4 py-3">
-                          <Gem className="w-5 h-5 text-yellow-400" />
-                          <div>
-                            <div className="text-sm font-black uppercase tracking-widest text-yellow-600">Golden Slices</div>
-                            <div className="font-display text-2xl text-yellow-300 tabular-nums leading-none">{goldenSlices}</div>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-zinc-400 mt-3 leading-relaxed">
-                        Golden Slices are permanent currency earned by ascending through The Culinary Syndicate. Spend them on perks that persist across all future runs.
-                      </p>
-                    </div>
+              {UPGRADES.filter(u => revealedUpgrades.has(u.id)).map(u => {
+                const isLocked = franchiseLicenses === 0 && starLevel < u.reqStars;
+                const count = safeNum(inventory?.[u.id], 0);
+                const cost = getCost(u);
+                
+                let buyAmount = buyMultiplier;
+                let displayCost = cost;
+                const maxBoost = MILESTONES[MILESTONES.length - 1];
+                
+                if (buyMultiplier === 'MAX') {
+                  const allowedPurchases = Math.max(0, maxBoost - count);
+                  let maxBuys = 0; let testCost = 0;
+                  while (maxBuys < allowedPurchases && money >= testCost + Math.floor(u.baseCost * Math.pow(u.multi, count + maxBuys))) {
+                    testCost += Math.floor(u.baseCost * Math.pow(u.multi, count + maxBuys)); maxBuys++;
+                  }
+                  buyAmount = maxBuys; displayCost = testCost;
+                } else {
+                  displayCost = 0;
+                  for (let i = 0; i < buyAmount; i++) displayCost += Math.floor(u.baseCost * Math.pow(u.multi, count + i));
+                }
 
-                    {/* Perk Cards */}
-                    {SYNDICATE_PERKS_DEF.map(perk => {
-                      const owned = syndicatePerks[perk.id];
-                      const canBuy = (!owned || perk.repeatable) && goldenSlices >= perk.cost;
-                      const currentCount = perk.repeatable ? syndicatePerks.goldenPowerCount || 0 : (owned ? 1 : 0);
-                      return (
-                        <div
-                          key={perk.id}
-                          className={`rounded-xl border ${
-                            owned ? 'border-yellow-700 bg-yellow-950' : 'border-zinc-700 bg-zinc-900'
-                          }`}
-                        >
-                          <div className="relative z-10 p-4">
-                            <div className="flex items-start gap-4">
-                              <div className={`p-3 rounded-xl border shrink-0 ${
-                                owned ? 'bg-yellow-900/40 border-yellow-500/50' : 'bg-zinc-800/60 border-zinc-700'
-                              }`}>
-                                {perk.icon}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h3 className={`font-display text-base tracking-wider ${owned ? 'text-yellow-200' : 'text-zinc-300'}`}>{perk.name}</h3>
-                                  {owned && !perk.repeatable && (
-                                    <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">UNLOCKED</span>
-                                  )}
-                                  {perk.repeatable && currentCount > 0 && (
-                                    <span className="text-sm font-black uppercase tracking-widest text-yellow-900 bg-yellow-400 px-2 py-0.5 rounded-full shrink-0">×{currentCount}</span>
-                                  )}
-                                </div>
-                                <p className="text-sm text-zinc-500 mb-2 leading-relaxed">{perk.desc}</p>
-                                <div className={`text-sm font-black uppercase tracking-wider ${owned ? 'text-yellow-500' : 'text-zinc-600'}`}>
-                                  ✦ {perk.effect}
-                                </div>
-                              </div>
-                              <div className="shrink-0 flex flex-col items-end gap-2">
-                                {owned && !perk.repeatable ? (
-                                  <div className="flex items-center gap-1.5 text-yellow-400">
-                                    <Gem className="w-4 h-4" />
-                                    <span className="font-display text-sm">Owned</span>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <div className="flex items-center gap-1 text-right">
-                                      <Gem className="w-3.5 h-3.5 text-yellow-500" />
-                                      <span className={`font-display text-lg tabular-nums ${canBuy ? 'text-yellow-300' : 'text-zinc-600'}`}>{perk.cost}</span>
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        if (!canBuy) return;
-                                        setGoldenSlices(g => g - perk.cost);
-                                        if (perk.repeatable) {
-                                          setSyndicatePerks(p => ({ ...p, goldenPowerCount: (p.goldenPowerCount || 0) + 1 }));
-                                        } else {
-                                          setSyndicatePerks(p => ({ ...p, [perk.id]: true }));
-                                        }
-                                      }}
-                                      disabled={!canBuy}
-                                      className={`px-3 py-1.5 rounded-lg font-display text-xs tracking-wider btn-tactile ${
-                                        canBuy
-                                          ? 'bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-black border-b-[2px] border-yellow-800 active:border-b-0 active:translate-y-[2px] cursor-pointer'
-                                          : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
-                                      }`}
-                                    >
-                                      {canBuy ? (perk.repeatable ? 'Buy' : 'Unlock') : goldenSlices < perk.cost ? `Need ${perk.cost - goldenSlices} more` : (perk.repeatable ? 'Buy' : 'Unlock')}
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-
-              {/* --- TAB: UPGRADES --- */}
-              {activeTab === 'upgrades' && (
-                <>
-                  {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
-                const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
-                const count = safeNum(inventory?.[upgrade.id], 0);
-                const cost = getCost(upgrade);
-                const canAfford = money >= cost;
-                const nextMilestone = getNextMilestone(count);
-                const multi = getMilestoneMultiplier(count);
-
-                // Show only revealed upgrades (path-gated); applies to locked and unlocked alike
-                if (!revealedUpgrades.has(upgrade.id)) return null;
-
-                // Projected pizza price after buying this upgrade (next level)
-                const nextCount = count + 1;
-                let projectedPizzaPrice = 2.50;
-                UPGRADES.forEach(u => {
-                  if (u.type !== 'quality') return;
-                  const c = u.id === upgrade.id ? nextCount : safeNum(inventory?.[u.id], 0);
-                  projectedPizzaPrice += u.baseValue * c;
-                });
-                projectedPizzaPrice *= achievementMultiplier * vipTokenMultiplier;
-
-                const theme = {
-                  production: { bg: 'bg-blue-950',   border: 'border-blue-800',   depthBorder: 'border-b-[4px] border-blue-950',   iconBg: 'bg-blue-900 border-blue-700',   bar: 'bg-blue-400',   text: 'text-blue-300',   badge: 'bg-blue-800 text-blue-200' },
-                  quality:    { bg: 'bg-amber-950',  border: 'border-amber-800',  depthBorder: 'border-b-[4px] border-amber-950',  iconBg: 'bg-amber-900 border-amber-700', bar: 'bg-amber-400',  text: 'text-amber-300',  badge: 'bg-amber-800 text-amber-200' },
-                  click:      { bg: 'bg-orange-950', border: 'border-orange-800', depthBorder: 'border-b-[4px] border-orange-950', iconBg: 'bg-orange-900 border-orange-700',bar: 'bg-orange-400', text: 'text-orange-300', badge: 'bg-orange-800 text-orange-200' },
-                }[upgrade.type];
+                const canAfford = money >= displayCost;
 
                 if (isLocked) {
                   return (
-                    <div key={upgrade.id} className={`w-full relative overflow-hidden rounded-xl border p-4 flex items-center justify-between gap-4 opacity-40 ${theme.bg} ${theme.border}`}>
-                      <div className="flex items-center gap-3 relative z-10 min-w-0">
-                        <div className={`p-3 rounded-xl shadow-inner border shrink-0 ${theme.iconBg} grayscale`}>
-                          {upgrade.icon}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-display text-base text-zinc-400 tracking-wider truncate">{upgrade.name}</h3>
-                            <Lock className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
-                          </div>
-                          <p className="text-xs text-zinc-500 font-bold flex items-center gap-1.5">
-                            <Star className="w-3 h-3 shrink-0" /> Requires {upgrade.reqStars} ★ · {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right relative z-10 shrink-0">
-                        <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
-                        <div className="font-display text-base font-black text-money opacity-50 tabular-nums">${fmt(cost)}</div>
-                      </div>
+                    <div key={u.id} className="w-full bg-zinc-900/40 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between opacity-50">
+                      <div className="flex items-center gap-3"><div className="text-2xl grayscale opacity-50">{u.icon}</div><div><h3 className="font-display text-sm text-zinc-500">???</h3><p className="text-[10px] text-zinc-500 font-bold">⭐ Req {u.reqStars} Stars</p></div></div>
+                      <div className="text-right"><div className="font-display text-sm text-zinc-600">${fmt(cost)}</div></div>
                     </div>
                   );
                 }
 
-                let cost10 = 0;
-                for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                let cost100 = 0;
-                for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                const can10 = money >= cost10;
-                const can100 = money >= cost100;
-
-                // Calculate display cost and buy amount
-                let displayCost = cost;
-                let buyAmount = buyMultiplier;
-                
-                if (buyMultiplier === 'MAX') {
-                  // Calculate max buys respecting milestone cap
-                  const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250
-                  const allowedPurchases = Math.max(0, maxBoost - count);
-                  
-                  let maxBuys = 0;
-                  let testCost = 0;
-                  while (maxBuys < allowedPurchases && money >= testCost + Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys))) {
-                    testCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys));
-                    maxBuys++;
-                  }
-                  buyAmount = maxBuys;
-                  displayCost = testCost;
-                } else {
-                  // Calculate cost for buyMultiplier
-                  displayCost = 0;
-                  for (let i = 0; i < buyAmount; i++) {
-                    displayCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                  }
-                }
-                
                 return (
-                  <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] p-4 gap-4 relative group">
-                    
-                    {/* Desktop: Horizontal Layout | Mobile: Vertical Layout */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      
-                      {/* Icon Block */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-zinc-950 border border-zinc-900 shadow-inner flex items-center justify-center relative overflow-hidden group-hover:border-zinc-800 transition-colors">
-                        <div className={`text-3xl sm:text-4xl ${
-                          upgrade.type === 'production' ? 'text-blue-400' :
-                          upgrade.type === 'quality' ? 'text-amber-400' :
-                          'text-orange-400'
-                        }`}>
-                          {upgrade.icon}
+                  <button key={u.id} onClick={() => {
+                    if (buyMultiplier === 1) buyUpgrade(u);
+                    else if (buyMultiplier === 10) buyUpgradeN(u, 10);
+                    else if (buyMultiplier === 'MAX') {
+                      const allowed = Math.max(0, maxBoost - count);
+                      if (allowed > 0) buyUpgradeN(u, allowed);
+                    }
+                  }} disabled={!canAfford} className={`w-full flex items-center justify-between p-3 rounded-xl text-left border transition-all ${canAfford ? 'bg-zinc-800 border-zinc-700 border-b-[4px] border-b-zinc-950 active:border-b-0 active:translate-y-[4px]' : 'bg-zinc-900 opacity-60 border-zinc-800'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl bg-zinc-950 p-2 rounded-lg border border-zinc-800">{u.icon}</div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-sm text-zinc-100">{u.name}</h3>
+                          <span className="text-[9px] font-black bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-400 border border-zinc-800">Lvl {count}</span>
                         </div>
-                        
-                        {/* Level Badge */}
-                        <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-1.5 sm:px-2 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center gap-1">
-                          <span className="text-[10px] sm:text-xs font-black text-amber-400 font-display tabular-nums">{count}</span>
-                        </div>
-                      </div>
-
-                      {/* Content Area */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                          <div className="flex-1">
-                            <h3 className="font-display text-lg sm:text-xl font-black text-amber-100 tracking-wider leading-tight mb-1">{upgrade.name}</h3>
-                            <p className="text-xs sm:text-sm text-zinc-300 font-medium tabular-nums">
-                              {upgrade.type === 'production' && (() => {
-                                const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
-                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
-                                return count === 0
-                                  ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
-                                  : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
-                              })()}
-                              {upgrade.type === 'quality' && (() => {
-                                const gainPerPizza = upgrade.baseValue;
-                                return count === 0
-                                  ? <span>Next: <span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
-                                  : <span><span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
-                              })()}
-                              {upgrade.type === 'click' && (() => {
-                                const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                                return count === 0
-                                  ? <span>Next: <span className="text-orange-400 font-bold">+{nxt} pizzas/click</span></span>
-                                  : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
-                              })()}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Laser Cut Progress Bar */}
-                        {nextMilestone !== 'MAX' && (
-                          <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50 mt-2">
-                            <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
-                          </div>
-                        )}
                       </div>
                     </div>
-
-                    {/* Mobile-Optimized Action Button */}
-                    <button 
-                      onClick={() => {
-                      if (buyMultiplier === 1) {
-                        buyUpgrade(upgrade);
-                      } else if (buyMultiplier === 10) {
-                        buyUpgradeN(upgrade, 10);
-                      } else if (buyMultiplier === 'MAX') {
-                        const currentCount = safeNum(inventory?.[upgrade.id], 0);
-                        const maxBoost = MILESTONES[MILESTONES.length - 1];
-                        const allowedPurchases = Math.max(0, maxBoost - currentCount);
-                        if (allowedPurchases > 0) {
-                          buyUpgradeN(upgrade, allowedPurchases);
-                        }
-                      }
-                    }}
-                      disabled={!canAfford}
-                      className={`w-full h-12 sm:h-14 sm:w-[110px] sm:h-[70px] rounded-lg border flex items-center justify-center gap-2 sm:flex-col transition-all duration-150 relative overflow-hidden group ${
-                        canAfford 
-                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] sm:active:translate-y-[6px] cursor-pointer' 
-                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] sm:shadow-[0_6px_0_#000000] cursor-not-allowed opacity-80'
-                      }`}
-                    >
-                      <span className={`font-display text-base sm:text-lg font-black tabular-nums leading-none ${
-                        canAfford ? 'text-amber-100' : 'text-zinc-600'
-                      }`}>
-                        ${fmt(displayCost)}
-                      </span>
-                      <span className={`text-xs font-bold uppercase tracking-wider ${
-                        canAfford ? 'text-amber-200' : 'text-zinc-700'
-                      }`}>
-                        {buyAmount === 'MAX' ? 'MAX' : `×${buyAmount}`}
-                      </span>
-                    </button>
-                  </div>
+                    <div className="text-right">
+                      <div className={`font-display text-lg ${canAfford ? 'text-green-400' : 'text-zinc-600'}`}>${fmt(displayCost)}</div>
+                      <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Buy {buyAmount === 'MAX' ? 'MAX' : buyAmount}</div>
+                    </div>
+                  </button>
                 );
               })}
-                </>
-              )}
+            </div>
+          )}
 
-              {/* --- TAB: TIME WARP DELIVERIES --- */}
-              {activeTab === 'map' && (
-                <div className="flex flex-col gap-4">
+          {/* TAB CONTENT: Map */}
+          {activeTab === 'map' && (
+             <div className="flex flex-col gap-3">
+                {DESTINATIONS.map(dest => {
+                   const cd = deliveryCooldowns[dest.id] || 0;
+                   return (
+                     <button key={dest.id} onClick={() => triggerDelivery(dest)} disabled={cd > 0} 
+                        className={`w-full p-4 rounded-xl border flex flex-col text-left transition-all ${cd > 0 ? 'bg-zinc-900 border-zinc-800 opacity-60' : 'bg-zinc-800 border-zinc-700 border-b-[4px] border-b-zinc-950 active:border-b-0 active:translate-y-[4px]'}`}>
+                        <div className="flex items-center gap-3 mb-2">
+                           <div className="p-3 bg-zinc-950 rounded-lg border border-zinc-800">{dest.icon}</div>
+                           <div>
+                              <div className="font-display text-lg text-zinc-100">{dest.name}</div>
+                              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{dest.label}</div>
+                           </div>
+                        </div>
+                        {cd > 0 ? (
+                           <div className="text-sm font-mono text-red-400 mt-2">Cooldown: {cd}s</div>
+                        ) : (
+                           <div className="text-sm font-display text-money mt-2">Instant Payout</div>
+                        )}
+                     </button>
+                   )
+                })}
+             </div>
+          )}
 
-                  {/* Header Banner */}
-                  <div className="bg-zinc-900/80 rounded-xl p-5 border border-zinc-700 shadow-inner flex items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <Zap className="w-8 h-8 text-yellow-400 shrink-0 mt-0.5" />
-                      <div>
-                        <h3 className="font-display text-xl text-yellow-100 tracking-wider">Time Warp Deliveries</h3>
-                        <p className="text-sm text-zinc-400 mt-1">Instantly collect hours of idle production. Each run is on cooldown after use.</p>
-                      </div>
-                    </div>
-                    {vipTokens > 0 && (
-                      <div className="shrink-0 flex flex-col items-center bg-purple-900 border border-purple-700 border-b-[3px] border-b-purple-950 rounded-xl px-4 py-3">
-                        <div className="text-sm text-purple-400 font-bold uppercase tracking-widest mb-1">VIP Tokens</div>
-                        <div className="font-display text-2xl text-purple-300 tabular-nums">{vipTokens}</div>
-                        <div className="text-sm text-purple-400 font-bold mt-1">+{fmt(vipTokens * 5)}% All</div>
-                      </div>
-                    )}
+          {/* TAB CONTENT: Stats */}
+          {activeTab === 'stats' && (
+            <div className="flex flex-col gap-2">
+              <AccSection sKey="production" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
+                accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
+                rows={[
+                  { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
+                  { label: 'Idle Profit / Sec', value: `$${Math.floor(idleProfitPerSec).toLocaleString()}`, sub: 'without clicking' },
+                  { label: 'Pizza Price', value: `$${Math.floor(pizzaPrice).toLocaleString()}`, sub: 'current ticket value' },
+                ]}
+              />
+              <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
+                accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
+                rows={[
+                  { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
+                  { label: 'Total Clicks', value: Math.floor(totalClicks).toLocaleString(), sub: 'lifetime' },
+                  { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
+                ]}
+              />
+              <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
+                accentBorder="border-green-500/20" accentBg="bg-green-900/20" accentText="text-green-400" valueColor="text-green-300"
+                rows={[
+                  { label: 'Money Earned', value: `$${Math.floor(lifetimeMoney).toLocaleString()}`, sub: 'lifetime' },
+                  { label: 'Pizzas Sold', value: Math.floor(totalPizzasSold).toLocaleString(), sub: 'all time' },
+                  { label: 'Deliveries', value: Math.floor(deliveriesCompleted).toLocaleString(), sub: 'time warp runs' },
+                ]}
+              />
+            </div>
+          )}
+
+          {/* TAB CONTENT: Market */}
+          {activeTab === 'market' && (
+            <div className="flex flex-col gap-4">
+              {!marketUnlocked ? (
+                <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 text-center">
+                  <h2 className="font-display text-xl text-zinc-100 mb-2">Pizza Empire Stock Exchange</h2>
+                  <p className="text-zinc-400 text-xs mb-4">Unlock the commodities market for $25,000.</p>
+                  <button onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); } }} disabled={money < 25000} className={`px-6 py-2 rounded-xl font-display btn-tactile ${money >= 25000 ? 'bg-zinc-700 text-white border-b-2 border-zinc-900 active:border-b-0 active:translate-y-[2px]' : 'bg-zinc-800 text-zinc-600'}`}>
+                    Unlock Market
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden shadow-inner">
+                  <div className="bg-zinc-950 px-4 py-2 border-b border-zinc-800 flex justify-between">
+                    <span className="text-xs font-mono text-zinc-400">PTSE Terminal</span>
+                    <span className="text-xs font-mono text-green-500">Live</span>
                   </div>
-
-                  {/* Delivery Cards */}
-                  <div className="grid grid-cols-1 gap-4">
-                    {DESTINATIONS.map(dest => {
-                      const cooldown = deliveryCooldowns[dest.id] || 0;
-                      const onCooldown = cooldown > 0;
-                      const req = dest.unlockReq;
-                      const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
-                      const WARP_CAP = 1e6;
-                      const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
-                      const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
-                      const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
-                      if (!isUnlocked) {
-                        const conditions = [
-                          req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,          current: totalPizzasSold,       target: req.pizzas    },
-                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,          current: starLevel,             target: req.stars     },
-                          req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,        current: lifetimeMoney,         target: req.lifetime  },
-                          (req.licenses||0) > 0 && { label: `Own ${req.licenses} Franchise Licenses`, current: franchiseLicenses,   target: req.licenses  },
-                        ].filter(Boolean);
-                        return (
-                          <div key={dest.id} className="w-full p-5 rounded-xl border border-zinc-700/50 bg-zinc-900/60 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
-                            <div className="p-4 rounded-xl border border-zinc-700 bg-zinc-950/60 shrink-0">
-                              <Lock className="w-8 h-8 text-zinc-500" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-display text-xl text-zinc-400 tracking-wider mb-0.5">{dest.name}</h3>
-                              <p className="text-sm text-zinc-600 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
-                              <p className="text-sm text-zinc-500 italic mb-3">{dest.unlockHint}</p>
-                              <div className="flex flex-col gap-1.5">
-                                {conditions.map(({ label, current, target }) => {
-                                  const pct = Math.min(100, (current / target) * 100);
-                                  return (
-                                    <div key={label}>
-                                      <div className="flex justify-between text-sm font-bold uppercase tracking-widest text-zinc-500 mb-0.5">
-                                        <span>{label}</span>
-                                        <span className="tabular-nums text-zinc-400">{pct >= 100 ? '✓' : `${Math.floor(pct)}%`}</span>
-                                      </div>
-                                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                                        <div className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-green-500' : 'bg-zinc-600'}`} style={{ width: `${pct}%` }} />
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-
+                  <div className="p-4 grid grid-cols-1 gap-3">
+                    {['flour', 'cheese', 'pepperoni', 'truffles'].map(key => {
+                      const price = marketPrices[key];
+                      const shares = marketShares[key];
                       return (
-                        <button
-                          key={dest.id}
-                          onClick={() => triggerDelivery(dest)}
-                          disabled={onCooldown}
-                          className={`w-full p-5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between text-left transition-all duration-300 bg-gradient-to-br relative overflow-hidden group
-                            ${onCooldown ? `${dest.bg} ${dest.border} opacity-60 cursor-not-allowed grayscale-[40%]` : `${dest.bg} ${dest.border} hover:-translate-y-1 hover:shadow-lg cursor-pointer`}`}
-                        >
-                          {/* Cooldown drain bar */}
-                          {onCooldown && (
-                            <div className="absolute bottom-0 left-0 h-1 bg-zinc-700 w-full">
-                              <div className="h-full bg-zinc-400/60 transition-all duration-1000" style={{ width: `${cooldownPct}%` }} />
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-4 w-full sm:w-auto mb-3 sm:mb-0">
-                            <div className={`p-4 rounded-xl shadow-inner border bg-zinc-950/50 ${dest.border} ${!onCooldown ? 'group-hover:scale-110' : ''} transition-transform shrink-0`}>
-                              {dest.icon}
-                            </div>
-                            <div>
-                              <h3 className="font-display text-xl text-zinc-100 tracking-wider mb-1">{dest.name}</h3>
-                              <p className="text-sm text-zinc-400 font-bold uppercase tracking-widest mb-2">{dest.label}</p>
-                              <p className="text-sm text-zinc-400">{dest.desc}</p>
+                        <div key={key} className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 flex justify-between items-center">
+                          <div>
+                            <div className="font-display text-zinc-300 uppercase">{key}</div>
+                            <div className="text-xs font-mono text-zinc-500">{shares} shares</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-mono text-money font-bold">${fmt(price)}</div>
+                            <div className="flex gap-2 mt-1">
+                               <button onClick={() => { if(money >= price) { setMoney(m=>m-price); setMarketShares(s=>({...s, [key]:s[key]+1})); } }} className="text-[10px] bg-zinc-800 px-2 py-1 rounded text-zinc-300">Buy</button>
+                               <button onClick={() => { if(shares > 0) { setMoney(m=>m+(price*shares)); setMarketShares(s=>({...s, [key]:0})); } }} className="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded">Sell All</button>
                             </div>
                           </div>
-
-                          <div className="w-full sm:w-auto sm:text-right shrink-0 border-t border-zinc-700/50 sm:border-0 pt-3 sm:pt-0 sm:pl-4">
-                            {onCooldown ? (
-                              <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-sm text-zinc-500 font-bold uppercase tracking-widest">Cooldown</div>
-                                <div className="font-display text-2xl text-zinc-500 tabular-nums flex items-center gap-2">
-                                  <Clock className="w-5 h-5" />{Math.floor(cooldown / 60)}:{String(cooldown % 60).padStart(2, '0')}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col sm:items-end gap-1">
-                                <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">Instant Payout</div>
-                                <div className="font-display text-2xl text-money tabular-nums">
-                                  +$<Num value={warpMoney} decimals={0} />
-                                </div>
-                                {warpEfficiencyDisplay < 0.99 && (
-                                  <div className="text-sm font-bold text-amber-500 tabular-nums mt-1">
-                                    {fmt(warpEfficiencyDisplay * 100)}% efficiency (softcap)
-                                  </div>
-                                )}
-                                {dest.rushSeconds > 0 && (
-                                  <div className="text-sm font-bold text-red-400 flex items-center gap-1 mt-1"><Zap className="w-3 h-3 fill-red-400" />{dest.rushSeconds}s Dinner Rush</div>
-                                )}
-                                {dest.vipToken && (
-                                  <div className="text-sm font-bold text-purple-400 flex items-center gap-1 mt-1"><Crown className="w-3 h-3" />+1 VIP Token (+5% All)</div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      );
+                        </div>
+                      )
                     })}
                   </div>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* --- TAB: ACHIEVEMENTS --- */}
-              {activeTab === 'achievements' && (
-                <div className="flex flex-col gap-3">
-                  {/* Header bar */}
-                  <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Trophy className="w-6 h-6 text-yellow-500 shrink-0" />
+          {/* TAB CONTENT: Log */}
+          {activeTab === 'log' && (
+            <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 h-[400px] overflow-y-auto">
+               <div className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4 flex justify-between">
+                  <span>Transaction Log</span>
+                  <button onClick={() => setMoneyLog([])} className="text-red-400">Clear</button>
+               </div>
+               <div className="flex flex-col gap-2">
+                 {moneyLog.map(entry => (
+                   <div key={entry.id} className="flex justify-between items-center text-xs font-mono border-b border-zinc-800 pb-2">
+                     <span className="text-zinc-400 truncate pr-2">{entry.label}</span>
+                     <span className={entry.amount >= 0 ? 'text-money' : 'text-red-400'}>{entry.amount >= 0 ? '+' : ''}${fmt(Math.abs(entry.amount))}</span>
+                   </div>
+                 ))}
+                 {moneyLog.length === 0 && <div className="text-center text-zinc-600 mt-10">No recent transactions</div>}
+               </div>
+            </div>
+          )}
+
+          {/* TAB CONTENT: Achievements */}
+          {activeTab === 'achievements' && (
+            <div className="flex flex-col gap-3">
+              <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4 text-center">
+                 <div className="font-display text-xl text-yellow-500 mb-1">Trophy Case</div>
+                 <div className="text-xs text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} Unlocked</div>
+              </div>
+              <div className="h-[400px] overflow-y-auto pr-2 space-y-2">
+                {ACHIEVEMENTS.map(ach => {
+                  const unlocked = unlockedAchievements.includes(ach.id);
+                  return (
+                    <div key={ach.id} className={`p-3 rounded-xl border flex items-center gap-3 ${unlocked ? 'bg-zinc-800 border-yellow-700/50' : 'bg-zinc-900 border-zinc-800 opacity-50'}`}>
+                      <Trophy className={`w-5 h-5 shrink-0 ${unlocked ? 'text-yellow-500' : 'text-zinc-600'}`} />
                       <div>
-                        <div className="font-display text-lg text-yellow-100 tracking-widest leading-tight">Trophy Case</div>
-                        <div className="text-sm text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} unlocked</div>
+                        <div className={`font-display text-sm ${unlocked ? 'text-zinc-200' : 'text-zinc-500'}`}>{ach.name}</div>
+                        <div className="text-[10px] text-zinc-400">{ach.desc}</div>
                       </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-sm text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
-                      <div className="font-display text-2xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 2}%</div>
-                    </div>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-700">
-                    <div className="h-full bg-yellow-400 transition-all duration-500"
-                      style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
-                  </div>
-
-                  {/* Achievement cards - 6 visible height with custom scrollbar */}
-                  <div className="h-[36rem] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-zinc-800/30 hover:scrollbar-thumb-yellow-500/70">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2">
-                      {ACHIEVEMENTS.map(ach => {
-                        const isUnlocked = unlockedAchievements.includes(ach.id);
-                        return (
-                          <div
-                            key={ach.id}
-                            className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
-                              isUnlocked
-                                ? 'bg-yellow-950 border-yellow-800'
-                                : 'bg-zinc-900 border-zinc-800 opacity-60'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-zinc-600'}`}>
-                                {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
-                              </div>
-                              <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-zinc-500'}`}>
-                                {ach.name}
-                              </span>
-                            </div>
-                            <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                              {ach.desc}
-                            </p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* --- TAB: STATS --- */}
-              {activeTab === 'stats' && (() => {
-                return (
-                  <div className="flex flex-col gap-2">
-                    <AccSection sKey="production" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
-                      accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
-                      rows={[
-                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
-                        { label: 'Idle Profit / Sec', value: `$${Math.floor(idleProfitPerSec).toLocaleString()}`, sub: 'without clicking' },
-                        { label: 'Pizza Price', value: `$${Math.floor(pizzaPrice).toLocaleString()}`, sub: 'current ticket value' },
-                        { label: 'Base Price', value: `$${Math.floor(basePizzaPrice).toLocaleString()}`, sub: 'before multipliers' },
-                        { label: 'VIP Boost', value: `${Math.floor(vipTokenMultiplier * 100).toLocaleString()}%`, sub: 'all stats' },
-                        { label: 'Ach. Boost', value: `${Math.floor(achievementMultiplier * 100).toLocaleString()}%`, sub: 'price only' },
-                      ]}
-                    />
-                    <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
-                      accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
-                      rows={[
-                        { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
-                        { label: 'Per Click $', value: `$${Math.floor(currentClickPower * pizzaPrice).toLocaleString()}`, sub: 'money per click' },
-                        { label: 'Per Click Rep', value: Math.floor(currentClickPower).toLocaleString(), sub: 'rep per click' },
-                        { label: 'Total Clicks', value: Math.floor(totalClicks).toLocaleString(), sub: 'lifetime' },
-                        { label: 'Click Mult.', value: `${Math.floor(franchiseMultiplier * 100).toLocaleString()}%`, sub: `${franchiseLicenses} licenses` },
-                        { label: 'Combo', value: `${combo}x`, sub: 'decays on idle' },
-                      ]}
-                    />
-                    <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
-                      accentBorder="border-green-500/20" accentBg="bg-green-900/20" accentText="text-green-400" valueColor="text-green-300"
-                      rows={[
-                        { label: 'Money Earned', value: `$${Math.floor(lifetimeMoney).toLocaleString()}`, sub: Math.floor(lifetimeMoney).toLocaleString() },
-                        { label: 'Pizzas Sold', value: Math.floor(totalPizzasSold).toLocaleString(), sub: 'all time' },
-                        { label: 'Perfect Bakes', value: Math.floor(perfectBakes).toLocaleString(), sub: 'oven mini-game' },
-                        { label: 'Deliveries', value: Math.floor(deliveriesCompleted).toLocaleString(), sub: 'time warp runs' },
-                        { label: 'VIP Tokens', value: Math.floor(vipTokens).toLocaleString(), sub: '+8% all per token' },
-                        { label: 'Achievements', value: `${unlockedAchievements.length} / ${ACHIEVEMENTS.length}`, sub: `+${unlockedAchievements.length * 3}% price` },
-                      ]}
-                    />
-                    <AccSection sKey="prestige" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<Building className="w-4 h-4 inline" />} label="Prestige & Reputation"
-                      accentBorder="border-purple-500/20" accentBg="bg-purple-900/20" accentText="text-purple-400" valueColor="text-purple-300"
-                      rows={[
-                        { label: 'Licenses', value: Math.floor(franchiseLicenses).toLocaleString(), sub: '+prod & click' },
-                        { label: 'Franchise Mult', value: `${Math.floor(franchiseMultiplier * 100).toLocaleString()}%`, sub: 'prod + click boost' },
-                        { label: 'Franchise Price', value: `${Math.floor(franchisePriceMultiplier * 100).toLocaleString()}%`, sub: '+15% $/pizza per license' },
-                        { label: 'Star Power', value: `${Math.floor(starPowerMultiplier * 100).toLocaleString()}%`, sub: `1.6^${starLevel} stars` },
-                        { label: 'Pending', value: Math.floor(pendingLicenses).toLocaleString(), sub: 'available to claim' },
-                        { label: 'Star Level', value: `${'★'.repeat(starLevel)}${'☆'.repeat(Math.max(0, 5 - starLevel))}`, sub: `${Math.floor(nextStarReq).toLocaleString()} rep for next` },
-                        { label: 'Next License', value: `$${Math.floor(nextLicenseCost).toLocaleString()}`, sub: 'lifetime earnings req.' },
-                      ]}
-                    />
-
-                    {/* Upgrades Owned — inline accordion */}
-                    <div className="bg-zinc-900/60 border border-zinc-600/30 rounded-xl overflow-hidden">
-                      <button
-                        onClick={() => setStatsOpen(prev => ({ ...prev, owned: !prev.owned }))}
-                        className="w-full px-4 py-2.5 bg-zinc-800/40 flex items-center justify-between gap-2 hover:brightness-110 transition-all"
-                      >
-                        <div className="flex items-center gap-2">
-                          <ShoppingCart className="w-4 h-4 text-zinc-400" />
-                          <span className="text-sm font-black uppercase tracking-widest text-zinc-400">Upgrades Owned</span>
-                        </div>
-                        <span className={`text-sm font-black text-zinc-400 transition-transform duration-200 ${statsOpen.owned ? 'rotate-180' : ''}`}>▾</span>
-                      </button>
-                      {statsOpen.owned && (
-                        <div className="divide-y divide-zinc-800/60">
-                          {['production', 'quality', 'click'].map(type => {
-                            const typeUpgrades = UPGRADES.filter(u => u.type === type);
-                            const colors = { production: 'text-blue-400', quality: 'text-amber-400', click: 'text-orange-400' };
-                            const labels = { production: 'Production', quality: 'Quality', click: 'Click' };
-                            return (
-                              <div key={type} className="px-4 py-3">
-                                <div className={`text-sm font-black uppercase tracking-widest mb-2 ${colors[type]}`}>{labels[type]}</div>
-                                <div className="flex flex-wrap gap-2">
-                                  {typeUpgrades.map(u => {
-                                    const count = safeNum(inventory?.[u.id], 0);
-                                    const locked = franchiseLicenses === 0 && starLevel < u.reqStars;
-                                    return (
-                                      <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-bold tabular-nums ${
-                                        locked ? 'bg-zinc-900/40 border-zinc-700/30 text-zinc-600' :
-                                        count > 0 ? `bg-zinc-900/60 border-zinc-600/40 ${colors[type]}` :
-                                        'bg-zinc-900/40 border-zinc-700/30 text-zinc-500'
-                                      }`}>
-                                        {u.name}
-                                        <span className="bg-zinc-950/60 px-1.5 py-0.5 rounded font-display">
-                                          {locked ? '🔒' : count}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* --- TAB: MARKET --- */}
-              {activeTab === 'market' && (
-                <div className="flex flex-col gap-4">
-                  {!marketUnlocked ? (
-                    /* Locked State */
-                    <div className="flex flex-col items-center justify-center py-16 gap-6">
-                      <div className="p-6 rounded-full bg-zinc-800 border border-zinc-600">
-                        <TrendingUp className="w-16 h-16 text-zinc-300" />
-                      </div>
-                      <div className="text-center">
-                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Empire Stock Exchange</h2>
-                        <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
-                      </div>
-                      <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-8 py-5 text-center">
-                        <div className="text-sm text-zinc-500 font-black uppercase tracking-widest mb-1">Unlock Cost</div>
-                        <div className="font-display text-3xl text-zinc-200 tabular-nums mb-4">$25,000</div>
-                        <button
-                          onClick={() => { if (money >= 25000) { setMoney(m => m - 25000); setMarketUnlocked(true); pushLog('spend', '🔓 Unlock Market', -25000); } }}
-                          disabled={money < 25000}
-                          className={`px-8 py-3 rounded-xl font-display text-lg tracking-widest btn-tactile ${money >= 25000 ? 'bg-zinc-600 hover:bg-zinc-500 text-white border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'}`}
-                        >
-                          {money >= 25000 ? 'Open the Exchange' : `Need $${Math.floor(25000 - money).toLocaleString()} more`}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Unlocked Market — Terminal UI */
-                    <>
-                      {/* ── Terminal Header Bar ── */}
-                      <div className="bg-zinc-900 border border-zinc-700/60 rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]">
-                        {/* Top chrome strip */}
-                        <div className="bg-gradient-to-r from-zinc-800 to-zinc-850 border-b border-zinc-700/50 px-4 py-2.5 flex items-center justify-between">
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex gap-1.5">
-                              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
-                              <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
-                              <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
-                            </div>
-                            <span className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Pizza Empire Stock Exchange</span>
-                          </div>
-                          <span className="text-sm text-zinc-600 font-mono tabular-nums">15s interval · live</span>
-                        </div>
-
-                        {/* Portfolio summary row */}
-                        {(() => {
-                          const totalVal = marketShares.flour * marketPrices.flour + marketShares.cheese * marketPrices.cheese + marketShares.pepperoni * marketPrices.pepperoni + marketShares.truffles * marketPrices.truffles;
-                          const totalShares = marketShares.flour + marketShares.cheese + marketShares.pepperoni + marketShares.truffles;
-                          const hasSynergy = marketShares.flour > 0 || marketShares.pepperoni > 0;
-                          return (
-                            <div className="px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
-                              <div>
-                                <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Total Portfolio</div>
-                                <div className="font-mono text-2xl text-zinc-100 tabular-nums font-bold">${fmt(totalVal)}</div>
-                                {portfolioDelta !== null && portfolioDelta !== 0 && (
-                                  <div className={`flex items-center gap-1 mt-0.5 ${portfolioDelta > 0 ? 'text-money' : 'text-red-400'}`}>
-                                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                                      {portfolioDelta > 0
-                                        ? <><polyline points="1,9 4,4 7,6 11,2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,2 11,2 11,5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>
-                                        : <><polyline points="1,3 4,8 7,6 11,10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="8,10 11,10 11,7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
-                                    </svg>
-                                    <span className="text-sm font-black font-mono tabular-nums">{portfolioDelta > 0 ? '+' : ''}${fmt(portfolioDelta)} session P&L</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex gap-4">
-                                <div className="text-right">
-                                  <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Shares Held</div>
-                                  <div className="font-mono text-lg text-zinc-300 tabular-nums font-bold">{fmtInt(totalShares)}</div>
-                                </div>
-                                {hasSynergy && (
-                                  <div className="text-right border-l border-zinc-700/50 pl-4">
-                                    <div className="text-sm text-zinc-600 font-black uppercase tracking-widest mb-0.5">Active Synergies</div>
-                                    <div className="flex flex-col items-end gap-0.5">
-                                      {marketShares.flour > 0 && <span className="text-sm text-zinc-300 font-mono">🌾 +{fmt(marketShares.flour * 0.1)}% Prod</span>}
-                                      {marketShares.pepperoni > 0 && <span className="text-sm text-zinc-300 font-mono">🍕 +{fmt(marketShares.pepperoni * 0.1)}% Price</span>}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Ticker tape */}
-                        <div className="border-t border-zinc-700/50 bg-zinc-950/60 px-4 py-1.5 flex gap-6 overflow-x-auto scrollbar-none">
-                          {[
-                            { key: 'flour', ticker: 'FLUR' },
-                            { key: 'cheese', ticker: 'CHSE' },
-                            { key: 'pepperoni', ticker: 'PPRI' },
-                            { key: 'truffles', ticker: 'TRFL' },
-                          ].map(({ key, ticker }) => (
-                            <div key={key} className="flex items-center gap-2 shrink-0">
-                              <span className="text-sm font-black text-zinc-500 tracking-widest font-mono">{ticker}</span>
-                              <span className={`text-sm font-bold font-mono tabular-nums ${marketTrends[key] === 1 ? 'text-money' : 'text-red-400'}`}>
-                                ${fmt(marketPrices[key])}
-                              </span>
-                              <span className={`text-sm font-mono ${marketTrends[key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
-                                {marketTrends[key] === 1 ? '▲' : '▼'}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* ── Market Controls (shared global cooldown) ── */}
-                      {(() => {
-                        const TARGETS = [
-                          { key: 'flour',     label: 'Flour',     emoji: '🌾' },
-                          { key: 'cheese',    label: 'Cheese',    emoji: '🧀' },
-                          { key: 'pepperoni', label: 'Pepperoni', emoji: '🍕' },
-                          { key: 'truffles',  label: 'Truffles',  emoji: '💎' },
-                        ];
-                        const rumorCd   = marketCooldowns.rumors;
-                        const squeezeCd = marketCooldowns.squeeze;
-                        const targetPrice = marketPrices[manipTarget];
-                        const targetShares = marketShares[manipTarget];
-                        const forceSellTarget = () => {
-                          if (targetShares > 0) {
-                            const proceeds = targetShares * targetPrice * 0.995;
-                            setMoney(m => m + proceeds);
-                            setLifetimeMoney(lm => lm + proceeds);
-                            setMarketShares(prev => ({ ...prev, [manipTarget]: 0 }));
-                            setMarketCostBasis(prev => ({ ...prev, [manipTarget]: 0 }));
-                            const targetLabel = {
-                              flour: 'Flour',
-                              cheese: 'Cheese', 
-                              pepperoni: 'Pepperoni',
-                              truffles: 'Truffles'
-                            }[manipTarget];
-                            pushLog('market', `📈 Squeeze Sell ${targetShares}× ${targetLabel} @ $${fmt(targetPrice)}`, proceeds);
-                          }
-                        };
-                        return (
-                          <div className="bg-zinc-900/80 border border-zinc-700/60 rounded-xl p-3 flex flex-col gap-2.5">
-                            <div className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
-                              <Briefcase className="w-3 h-3" /> Market Controls
-                              <span className="ml-auto text-zinc-700 font-mono text-sm">one action locks all</span>
-                            </div>
-                            {/* Target selector */}
-                            <div className="flex gap-1.5">
-                              {TARGETS.map(t => (
-                                <button key={t.key} onClick={() => setManipTarget(t.key)}
-                                  className={`flex-1 py-1.5 rounded text-sm font-black uppercase tracking-widest font-mono transition-all flex items-center justify-center gap-1 ${
-                                    manipTarget === t.key
-                                      ? 'bg-zinc-600 text-zinc-100 border border-zinc-400/60'
-                                      : 'bg-zinc-800 text-zinc-500 border border-zinc-700 hover:text-zinc-300'
-                                  }`}>
-                                  <span>{t.emoji}</span><span className="hidden sm:inline">{t.label}</span>
-                                </button>
-                              ))}
-                            </div>
-                            {/* Action buttons */}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  if (rumorCd > 0) return;
-                                  forceSellTarget();
-                                  const crashMult = 0.75 - Math.min(0.15, franchiseLicenses * 0.015);
-                                  setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * crashMult).toFixed(2)) }));
-                                  setMarketCooldowns(c => ({ ...c, rumors: 600 }));
-                                }}
-                                disabled={rumorCd > 0}
-                                className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${
-                                  rumorCd > 0
-                                    ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                    : 'bg-red-950/60 hover:bg-red-900/60 text-red-400 border border-red-800/50'
-                                }`}
-                              >
-                                {rumorCd > 0 ? `📉 ${Math.floor(rumorCd / 60)}m${rumorCd % 60}s` : '📉 Rumor'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (squeezeCd > 0) return;
-                                  forceSellTarget();
-                                  const squeezeMult = 1.15 + Math.min(0.6, franchiseLicenses * 0.06);
-                                  setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * squeezeMult).toFixed(2)) }));
-                                  setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
-                                }}
-                                disabled={squeezeCd > 0}
-                                className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${
-                                  squeezeCd > 0
-                                    ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'
-                                    : 'bg-green-950/60 hover:bg-green-900/60 text-green-400 border border-green-800/50'
-                                }`}
-                              >
-                                {squeezeCd > 0 ? `📈 ${Math.floor(squeezeCd / 60)}m${squeezeCd % 60}s` : '📈 Squeeze'}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* ── Commodity Cards ── */}
-                      {(() => {
-                        const COMMODITIES = [
-                          { key: 'flour',     label: 'Flour',     ticker: 'FLUR', emoji: '🌾', synergy: '+1% Production per 10 shares' },
-                          { key: 'cheese',    label: 'Cheese',    ticker: 'CHSE', emoji: '🧀', synergy: null },
-                          { key: 'pepperoni', label: 'Pepperoni', ticker: 'PPRI', emoji: '🍕', synergy: '+1% Pizza Price per 10 shares' },
-                          { key: 'truffles',  label: 'Truffles',  ticker: 'TRFL', emoji: '💎', synergy: null },
-                        ];
-
-                        return (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {COMMODITIES.map(({ key, label, ticker, emoji, synergy }) => {
-                              const price = marketPrices[key];
-                              const trend = marketTrends[key];
-                              const shares = marketShares[key];
-                              const holdingValue = shares * price;
-                              const FEE = 0.005;
-                              const canBuy1  = money >= price * 1 * (1 + FEE);
-                              const canBuy10 = money >= price * 10 * (1 + FEE);
-                              const maxBuy   = Math.floor(money / (price * (1 + FEE)));
-                              const buyShares = (n) => {
-                                const cost = price * n * (1 + FEE);
-                                if (money < cost) return;
-                                setMoney(m => m - cost);
-                                setMarketShares(prev => ({ ...prev, [key]: prev[key] + n }));
-                                setMarketCostBasis(prev => ({ ...prev, [key]: prev[key] + cost }));
-                                pushLog('market', `📉 Buy ${n}× ${label} @ $${fmt(price)}`, -cost);
-                              };
-                              const sellAll = () => {
-                                if (shares <= 0) return;
-                                const proceeds = shares * price * (1 - FEE);
-                                const basis = marketCostBasis[key] || 0;
-                                const pnl = proceeds - basis;
-                                console.log('SELL ALL:', { shares, price, proceeds, basis, pnl, label });
-                                setMoney(m => m + proceeds);
-                                setLifetimeMoney(lm => lm + proceeds);
-                                setMarketShares(prev => ({ ...prev, [key]: 0 }));
-                                setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
-                                pushLog('market', `📈 Sell ${shares}× ${label} (P&L: ${pnl >= 0 ? '+' : ''}$${fmt(pnl)})`, proceeds);
-                              };
-
-                              // Chart math
-                              const history = marketHistory[key] || [];
-                              const csColor = { up: '#22c55e', down: '#ef4444', wick: '#52525b' };
-                              const candles = [];
-                              for (let i = 1; i < history.length; i++) {
-                                const open  = history[i - 1];
-                                const close = history[i];
-                                const high  = Math.max(open, close) * 1.005;
-                                const low   = Math.min(open, close) * 0.995;
-                                candles.push({ open, close, high, low });
-                              }
-                              const grouped = candles.slice(-16);
-                              const allPrices = grouped.length > 0 ? grouped.flatMap(c => [c.high, c.low]) : [price * 0.9, price * 1.1];
-                              const priceMin = Math.min(...allPrices);
-                              const priceMax = Math.max(...allPrices);
-                              const priceRange = priceMax - priceMin || price * 0.1 || 1;
-                              const labelW = 44;
-                              const svgH = 110, svgW = 240, padT = 10, padB = 10, padL = labelW + 4, padR = 6;
-                              const chartH = svgH - padT - padB;
-                              const chartW = svgW - padL - padR;
-                              const toY = (p) => padT + chartH - ((p - priceMin) / priceRange) * chartH;
-                              const candleW = grouped.length > 0 ? chartW / grouped.length : chartW;
-                              const midPrice = (priceMin + priceMax) / 2;
-                              // Session high/low from history
-                              const sessionHigh = history.length > 0 ? Math.max(...history) : price;
-                              const sessionLow  = history.length > 0 ? Math.min(...history) : price;
-                              const sessionRange = sessionHigh - sessionLow || 1;
-                              const pricePosPct = Math.min(100, Math.max(0, ((price - sessionLow) / sessionRange) * 100));
-
-                              return (
-                                <div key={key} className="bg-zinc-900 border border-zinc-700/50 rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.04)]">
-
-                                  {/* Card header */}
-                                  <div className="px-4 pt-3 pb-2 flex items-start justify-between border-b border-zinc-800">
-                                    <div className="flex items-center gap-2.5">
-                                      <span className="text-xl leading-none">{emoji}</span>
-                                      <div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-mono text-xs font-black text-zinc-400 tracking-widest">{ticker}</span>
-                                          {synergy && <span className="text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-500 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider">SYNERGY</span>}
-                                        </div>
-                                        <div className="font-display text-base text-zinc-100 tracking-wide leading-tight">{label}</div>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className={`font-mono text-xl font-bold tabular-nums leading-tight ${trend === 1 ? 'text-green-400' : 'text-red-400'}`}>
-                                        ${fmt(price)}
-                                      </div>
-                                      <div className={`flex items-center justify-end gap-1 text-[10px] font-mono ${trend === 1 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {trend === 1 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                                        <span>{trend === 1 ? 'BID UP' : 'BID DOWN'}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Candlestick chart */}
-                                  <div className="bg-zinc-950 border-b border-zinc-800">
-                                    <svg width="100%" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none" style={{ display: 'block', height: '110px' }}>
-                                      {/* BG grid */}
-                                      {[priceMax, midPrice, priceMin].map((p, gi) => {
-                                        const y = toY(p);
-                                        return (
-                                          <g key={gi}>
-                                            <line x1={padL} y1={y} x2={svgW - padR} y2={y} stroke="#27272a" strokeWidth="0.8" />
-                                            <text x={labelW} y={y - 2} textAnchor="end" fontSize="7.5" fill="#71717a" fontFamily="monospace">${fmt(p)}</text>
-                                          </g>
-                                        );
-                                      })}
-                                      {/* Current price dashed line */}
-                                      {grouped.length > 0 && (() => {
-                                        const cy = toY(price);
-                                        return <>
-                                          <line x1={padL} y1={cy} x2={svgW - padR} y2={cy} stroke={trend === 1 ? '#16a34a' : '#dc2626'} strokeWidth="0.6" strokeDasharray="3,2" strokeOpacity="0.7" />
-                                          <rect x={svgW - padR} y={cy - 5} width={padR + 2} height={10} fill={trend === 1 ? '#16a34a' : '#dc2626'} fillOpacity="0.15" />
-                                        </>;
-                                      })()}
-                                      {/* Candles */}
-                                      {grouped.map((c, i) => {
-                                        const isUp = c.close >= c.open;
-                                        const x = padL + i * candleW + candleW / 2;
-                                        const bodyTop = toY(Math.max(c.open, c.close));
-                                        const bodyBot = toY(Math.min(c.open, c.close));
-                                        const bodyH = Math.max(bodyBot - bodyTop, 1.5);
-                                        const bw = Math.max(candleW * 0.55, 2);
-                                        return (
-                                          <g key={i}>
-                                            <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={isUp ? '#16a34a' : '#dc2626'} strokeWidth="0.8" strokeOpacity="0.6" />
-                                            <rect x={x - bw/2} y={bodyTop} width={bw} height={bodyH} fill={isUp ? '#22c55e' : '#ef4444'} fillOpacity={isUp ? '0.85' : '0.9'} rx="0.5" />
-                                          </g>
-                                        );
-                                      })}
-                                      {grouped.length === 0 && (
-                                        <text x={svgW/2} y={svgH/2+3} textAnchor="middle" fontSize="7" fill="#3f3f46" fontFamily="monospace">awaiting price data</text>
-                                      )}
-                                    </svg>
-                                  </div>
-
-                                  {/* Session range bar */}
-                                  <div className="px-4 py-2 border-b border-zinc-800 flex items-center gap-3">
-                                    <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">L ${fmt(sessionLow)}</span>
-                                    <div className="flex-1 h-1 bg-zinc-800 rounded-full relative">
-                                      <div className="absolute h-1 bg-gradient-to-r from-red-500 to-green-500 rounded-full" style={{ width: '100%', opacity: 0.25 }} />
-                                      <div className="absolute w-2 h-2 rounded-full bg-white -top-0.5 -translate-x-1/2" style={{ left: `${pricePosPct}%` }} />
-                                    </div>
-                                    <span className="text-[9px] font-mono text-zinc-600 tabular-nums shrink-0">H ${fmt(sessionHigh)}</span>
-                                  </div>
-
-                                  {/* Stats row */}
-                                  <div className="px-4 py-2 grid grid-cols-3 gap-2 border-b border-zinc-800">
-                                    <div>
-                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Shares</div>
-                                      <div className="font-mono text-sm text-zinc-200 tabular-nums font-bold">{fmtInt(shares)}</div>
-                                    </div>
-                                    <div>
-                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Value</div>
-                                      <div className="font-mono text-sm text-zinc-200 tabular-nums font-bold">${fmt(holdingValue)}</div>
-                                    </div>
-                                    <div>
-                                      <div className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Avg Cost</div>
-                                      <div className="font-mono text-sm text-zinc-400 tabular-nums">{shares > 0 && marketCostBasis[key] > 0 ? `$${fmt(marketCostBasis[key] / shares)}` : '—'}</div>
-                                    </div>
-                                  </div>
-
-                                  {/* Synergy info */}
-                                  {synergy && shares > 0 && (
-                                    <div className="px-4 py-1.5 bg-zinc-950/40 border-b border-zinc-800 flex items-center justify-between">
-                                      <span className="text-[9px] text-zinc-500 font-mono">{synergy}</span>
-                                      <span className="text-[9px] text-green-500 font-mono font-bold">ACTIVE</span>
-                                    </div>
-                                  )}
-
-                                  {/* Action bar */}
-                                  <div className="p-3 pt-0 flex gap-2">
-                                    <button onClick={() => buyShares(1)} disabled={!canBuy1}
-                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${canBuy1 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
-                                      +1
-                                    </button>
-                                    <button onClick={() => buyShares(10)} disabled={!canBuy10}
-                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${canBuy10 ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
-                                      +10
-                                    </button>
-                                    <button onClick={() => buyShares(maxBuy)} disabled={maxBuy <= 0}
-                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${maxBuy > 0 ? 'bg-zinc-600 hover:bg-zinc-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
-                                      MAX
-                                    </button>
-                                    <div className="w-px bg-zinc-700 mx-1 self-stretch" />
-                                    <button onClick={sellAll} disabled={shares <= 0}
-                                      className={`flex-1 py-2 rounded text-sm font-black uppercase tracking-widest font-mono transition-all ${shares > 0 ? 'bg-red-950 hover:bg-red-900 text-red-400 border border-red-800/60 shadow-[inset_0_1px_0_rgba(255,100,100,0.08)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed'}`}>
-                                      SELL
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      })()}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* --- TAB: LOG --- */}
-              {activeTab === 'log' && (() => {
-                const CAT_META = {
-                  click:    { icon: '🖱️', label: 'Click Income',      color: 'text-orange-400', bg: 'bg-orange-900/20 border-orange-500/20' },
-                  idle:     { icon: '⚙️', label: 'Idle Production',   color: 'text-blue-400',   bg: 'bg-blue-900/20 border-blue-500/20'   },
-                  oven:     { icon: '🔥', label: 'Oven Pull',         color: 'text-amber-400',  bg: 'bg-amber-900/20 border-amber-500/20' },
-                  delivery: { icon: '🚗', label: 'Delivery',          color: 'text-green-400',  bg: 'bg-green-900/20 border-green-500/20' },
-                  golden:   { icon: '✨', label: 'Golden Slice',      color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-500/20'},
-                  market:   { icon: '📈', label: 'Market',            color: 'text-emerald-400',bg: 'bg-emerald-900/20 border-emerald-500/20'},
-                  spend:    { icon: '💸', label: 'Expense',           color: 'text-red-400',    bg: 'bg-red-900/20 border-red-500/20'     },
-                };
-                const totals = moneyLog.reduce((acc, e) => {
-                  acc[e.category] = (acc[e.category] || 0) + e.amount;
-                  return acc;
-                }, {});
-                const now = Date.now();
-                const fmtAge = (ts) => {
-                  const s = Math.floor((now - ts) / 1000);
-                  if (s < 60) return `${s}s ago`;
-                  if (s < 3600) return `${Math.floor(s/60)}m ago`;
-                  return `${Math.floor(s/3600)}h ago`;
-                };
-                return (
-                  <div className="flex flex-col gap-3">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ScrollText className="w-4 h-4 text-zinc-400" />
-                        <span className="text-xs font-black uppercase tracking-widest text-zinc-400">Transaction Log</span>
-                        <span className="text-[9px] bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded font-mono">{moneyLog.length}/200</span>
-                      </div>
-                      <button
-                        onClick={() => setMoneyLog([])}
-                        className="text-[9px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-400 transition-colors border border-zinc-700 hover:border-red-800 px-2 py-1 rounded"
-                      >Clear</button>
-                    </div>
-
-                    {/* Summary pills */}
-                    {moneyLog.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {Object.entries(totals).map(([cat, total]) => {
-                          const m = CAT_META[cat] || CAT_META.idle;
-                          return (
-                            <div key={cat} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[9px] font-bold ${m.bg}`}>
-                              <span>{m.icon}</span>
-                              <span className="text-zinc-400 uppercase tracking-widest">{m.label}</span>
-                              <span className={`font-display tabular-nums ${m.color}`}>${fmt(total)}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Empty state */}
-                    {moneyLog.length === 0 && (
-                      <div className="flex flex-col items-center justify-center py-12 gap-3 text-zinc-600">
-                        <ScrollText className="w-10 h-10 opacity-30" />
-                        <p className="text-xs font-bold uppercase tracking-widest">No transactions yet</p>
-                        <p className="text-[10px] text-zinc-700">Start clicking or wait for idle income.</p>
-                      </div>
-                    )}
-
-                    {/* Entries — fixed height, fades at bottom, new entries slide in */}
-                    <div className="relative">
-                      <div className="overflow-y-auto flex flex-col" style={{ maxHeight: '420px' }}>
-                        {moneyLog.map((entry) => {
-                          const m = CAT_META[entry.category] || CAT_META.idle;
-                          const isPositive = entry.amount >= 0;
-                          return (
-                            <div key={entry.id}
-                              className="flex items-center gap-3 py-2.5 px-1 border-b border-zinc-800/60 animate-[logSlideIn_0.2s_ease-out]"
-                            >
-                              <span className="text-base w-6 text-center shrink-0">{m.icon}</span>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-zinc-300 truncate">{entry.label}</div>
-                                <div className="text-[9px] text-zinc-600 font-mono tabular-nums">{fmtAge(entry.ts)}</div>
-                              </div>
-                              <div className={`font-display text-sm font-black tabular-nums shrink-0 ${isPositive ? m.color : 'text-red-400'}`}>
-                                {isPositive ? '+' : ''}<span className="text-money">$</span>{fmt(Math.abs(entry.amount))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {/* Fade overlay at bottom */}
-                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-zinc-800 to-transparent" />
-                    </div>
-                  </div>
-                );
-              })()}
-
-            </div>
-
-            {/* ── MONETIZATION STRIP ── */}
-            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-zinc-700 bg-zinc-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                <Zap className="w-3 h-3 text-zinc-600" />
-                Monetization
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
-                  isMuted
-                    ? 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
-                  : 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
-                }`}
-                >
-                  {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
-                  {isMuted ? 'Muted' : 'Sound'}
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-700 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-300 hover:bg-amber-800 transition-colors btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]">
-                  <Crown className="w-3 h-3" /> Premium Pass
-                </button>
+                  )
+                })}
               </div>
             </div>
+          )}
 
         </div>
+      </div>
 
+      {/* --- CSS BLOCK --- */}
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
-
         *, *::-webkit-scrollbar { scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
-
         .tabular-nums { font-variant-numeric: tabular-nums; }
-
-        .font-display {
-          font-family: 'Oswald', sans-serif;
-          text-transform: uppercase;
-          font-variant-numeric: tabular-nums;
-        }
-
-        .font-body {
-          font-family: 'Inter', sans-serif;
-          font-variant-numeric: tabular-nums;
-        }
-
-        .metallic-text {
-          background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.9));
-        }
-
+        .font-display { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+        .font-body { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+        .metallic-text { background: linear-gradient(to bottom, #f8fafc 0%, #cbd5e1 40%, #64748b 50%, #e2e8f0 55%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 1px rgba(0,0,0,0.9)); }
         .text-money { color: #84cc16; }
-        .text-glow-green  {}
-        .text-glow-blue   {}
-        .text-glow-red    {}
-        .text-glow-yellow {}
-        .text-glow-orange {}
-        .text-glow-purple {}
-
-        /* Tactile depth button base — add border-b-[N] border-[darker-color] and active:border-b-0 active:translate-y-[N] */
-        .btn-tactile {
-          transition: border-bottom-width 80ms ease, transform 80ms ease, background-color 120ms ease;
-        }
-
-        @keyframes logSlideIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shake {
-          0%   { transform: translate(0, 0) rotate(0deg); }
-          15%  { transform: translate(-4px, 3px) rotate(-1deg); }
-          30%  { transform: translate(4px, -3px) rotate(1deg); }
-          45%  { transform: translate(-3px, 4px) rotate(0.5deg); }
-          60%  { transform: translate(3px, -2px) rotate(-0.5deg); }
-          75%  { transform: translate(-2px, 3px) rotate(0.3deg); }
-          90%  { transform: translate(2px, -1px) rotate(-0.3deg); }
-          100% { transform: translate(0, 0) rotate(0deg); }
-        }
-        @keyframes floatUpFade {
-          0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-          100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); }
-        }
-        .floating-popup {
-          animation: floatUpFade 0.8s ease-out forwards;
-          will-change: transform, opacity;
-          font-family: 'Oswald', sans-serif;
-          text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9);
-        }
-        @keyframes pizzaSpin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        .pizza-spin { animation: pizzaSpin 20s linear infinite; }
+        .btn-tactile { transition: border-bottom-width 80ms ease, transform 80ms ease, background-color 120ms ease; }
+        @keyframes floatUpFade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100px) scale(1.3); } }
+        .floating-popup { animation: floatUpFade 0.8s ease-out forwards; will-change: transform, opacity; font-family: 'Oswald', sans-serif; text-shadow: 0px 3px 0px rgba(0,0,0,0.9), 1px 1px 1px rgba(0,0,0,0.9), -1px -1px 1px rgba(0,0,0,0.9); }
+        .perspective-box { perspective: 1000px; }
+        .pizza-box-lid { transform-origin: top; transform: rotateX(-105deg); transition: transform 0.06s cubic-bezier(0.4, 0, 0.2, 1); backface-visibility: hidden; }
+        .group:active .pizza-box-lid { transform: rotateX(0deg); transition: transform 0.03s ease-out; }
       `}} />
 
     </div>
-  </div>
-      </ManagerDesk>
-      <Analytics />
-    </>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DELIVERY MICROGAME COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
-
 function DeliveryMicrogame({ onComplete }) {
-  const [playerLane, setPlayerLane] = useState(1); // 0, 1, 2
-  const [obstacles, setObstacles] = useState([
-    { id: 1, lane: 0, y: -20 }, 
-    { id: 2, lane: 2, y: -60 }, 
-    { id: 3, lane: 1, y: -100 }
-  ]);
-  const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds in milliseconds
+  const [playerLane, setPlayerLane] = useState(1);
+  const [obstacles, setObstacles] = useState([{ id: 1, lane: 0, y: -20 }, { id: 2, lane: 2, y: -60 }, { id: 3, lane: 1, y: -100 }]);
+  const [timeLeft, setTimeLeft] = useState(5000); 
   const playerLaneRef = useRef(1);
 
-  const moveLeft = () => {
-    setPlayerLane(p => {
-      const newLane = Math.max(0, p - 1);
-      playerLaneRef.current = newLane;
-      return newLane;
-    });
-  };
-  const moveRight = () => {
-    setPlayerLane(p => {
-      const newLane = Math.min(2, p + 1);
-      playerLaneRef.current = newLane;
-      return newLane;
-    });
-  };
+  const moveLeft = () => { setPlayerLane(p => { const n = Math.max(0, p - 1); playerLaneRef.current = n; return n; }); };
+  const moveRight = () => { setPlayerLane(p => { const n = Math.min(2, p + 1); playerLaneRef.current = n; return n; }); };
 
   useEffect(() => {
-    const tick = 50;
-    const speed = 2; // Obstacle falling speed (pixels per tick)
-
+    const tick = 50; const speed = 2;
     const loop = setInterval(() => {
       setTimeLeft(t => {
-        if (t <= 0) {
-          clearInterval(loop);
-          onComplete(true); // Survived!
-          return 0;
-        }
+        if (t <= 0) { clearInterval(loop); onComplete(true); return 0; }
         return t - tick;
       });
-
       setObstacles(prev => {
         let next = prev.map(o => ({ ...o, y: o.y + speed }));
-        
-        // Hitbox collision (Player is at y: 75-95)
         const hit = next.some(o => o.lane === playerLaneRef.current && o.y > 75 && o.y < 95);
-        if (hit) {
-          clearInterval(loop);
-          onComplete(false); // Crashed!
-        }
+        if (hit) { clearInterval(loop); onComplete(false); }
         return next;
       });
     }, tick);
-
     return () => clearInterval(loop);
   }, [onComplete]);
 
   return (
-    <div className="w-full max-w-md bg-black rounded-2xl border-4 border-yellow-500 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(212,175,55,0.3)] animate-in zoom-in duration-200">
-      
-      {/* Header */}
+    <div className="w-full max-w-sm bg-black rounded-2xl border-4 border-yellow-500 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(212,175,55,0.3)]">
       <div className="bg-zinc-950 p-4 flex justify-between items-center border-b-4 border-yellow-500">
-        <div className="text-yellow-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg">
-          <MapPin size={20} /> Delivery Challenge
-        </div>
-        <div className="text-yellow-100 font-mono font-bold text-xl tabular-nums">
-          {Math.ceil(timeLeft/1000)}s
-        </div>
+        <div className="text-yellow-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg"><MapPin size={20} /> Delivery</div>
+        <div className="text-yellow-100 font-mono font-bold text-xl tabular-nums">{Math.ceil(timeLeft/1000)}s</div>
       </div>
-
-      {/* Highway View */}
-      <div className="h-80 relative bg-zinc-950 overflow-hidden flex border-b-4 border-yellow-500">
-        {/* Lanes */}
+      <div className="h-64 relative bg-zinc-950 overflow-hidden flex border-b-4 border-yellow-500">
         <div className="absolute inset-0 flex justify-evenly pointer-events-none opacity-20">
           <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
           <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
         </div>
-
-        {/* Obstacles */}
         {obstacles.map(obs => (
           <div key={obs.id} className="absolute w-1/3 flex justify-center" style={{ left: `${obs.lane * 33.33}%`, top: `${obs.y}%` }}>
-            <div className="bg-[#2a2a2a] border-2 border-yellow-600 rounded w-12 h-10 flex items-center justify-center relative overflow-hidden">
+            <div className="bg-zinc-800 border-2 border-yellow-600 rounded w-12 h-10 flex items-center justify-center relative overflow-hidden">
                <div className="absolute inset-0 flex"><div className="w-1/2 bg-yellow-500 transform -skew-x-12"></div></div>
             </div>
           </div>
         ))}
-
-        {/* Player */}
-        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-150" style={{ left: `${playerLane * 33.33}%` }}>
-          <div className="text-5xl">
-            🚗
+        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-75" style={{ left: `${playerLane * 33.33}%` }}>
+          <div className="w-10 h-14 bg-blue-500 rounded-xl border-2 border-blue-900 shadow-lg flex flex-col items-center justify-center relative">
+            <div className="w-5 h-3 bg-blue-900 rounded-sm mb-1"></div>
+            <Package size={14} className="text-orange-300" />
           </div>
         </div>
       </div>
-
-      {/* Massive Controls for Mobile */}
-      <div className="p-6 flex gap-4 bg-black">
-        <button 
-          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
-          onClick={moveLeft}
-          onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
-        >◀</button>
-        <button 
-          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
-          onClick={moveRight}
-          onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
-        >▶</button>
+      <div className="p-4 flex gap-4 bg-black">
+        <button className="flex-1 h-16 bg-zinc-900 border-b-4 border-zinc-950 active:border-b-0 active:translate-y-1 rounded-xl font-black text-2xl text-gray-400 touch-manipulation transition-all" onClick={moveLeft} onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}>◀</button>
+        <button className="flex-1 h-16 bg-zinc-900 border-b-4 border-zinc-950 active:border-b-0 active:translate-y-1 rounded-xl font-black text-2xl text-gray-400 touch-manipulation transition-all" onClick={moveRight} onTouchStart={(e) => { e.preventDefault(); moveRight(); }}>▶</button>
       </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .bg-dashed-line { background-image: linear-gradient(to bottom, #444 50%, transparent 50%); background-size: 100% 40px; }
-        @keyframes slide-down { 0% { background-position: 0 0; } 100% { background-position: 0 40px; } }
-        .animate-slide-down { animation: slide-down 1s linear infinite; }
-      `}} />
+      <style dangerouslySetInnerHTML={{__html: `.bg-dashed-line { background-image: linear-gradient(to bottom, #444 50%, transparent 50%); background-size: 100% 40px; } @keyframes slide-down { 0% { background-position: 0 0; } 100% { background-position: 0 40px; } } .animate-slide-down { animation: slide-down 0.2s linear infinite; }`}} />
     </div>
   );
 }
