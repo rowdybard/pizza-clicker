@@ -2426,12 +2426,14 @@ export default function App() {
 
                         {/* Laser Cut Progress Bar */}
                         {nextMilestone !== 'MAX' && (
-                          <div className="relative mt-2">
+                          <div className="mt-2">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="text-sm font-display font-black text-zinc-400 tabular-nums">
+                                {count}/{nextMilestone}
+                              </div>
+                            </div>
                             <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50">
                               <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
-                            </div>
-                            <div className="absolute -top-0.5 right-0 text-xs font-bold text-zinc-400 tabular-nums">
-                              {count}/{nextMilestone}
                             </div>
                           </div>
                         )}
