@@ -1133,100 +1133,6 @@ export default function App() {
     return () => clearInterval(cleanup);
   }, []);
 
-  // 7. Delivery Game Loop
-  useEffect(() => {
-    if (!deliveryGame || !deliveryGame.gameActive) return;
-
-    const gameTick = setInterval(() => {
-      setDeliveryGame(prev => {
-        if (!prev || !prev.gameActive) return prev;
-
-        // Update distance
-        const newDistance = prev.distance + prev.speed;
-
-        // Generate new obstacles
-        const newObstacles = [...prev.obstacles];
-        
-        // Move existing obstacles down
-        const movedObstacles = newObstacles
-          .map(obs => ({ ...obs, position: obs.position - prev.speed }))
-          .filter(obs => obs.position > -20); // Remove obstacles that went off screen
-
-        // Add new obstacles randomly
-        if (Math.random() < 0.02 + (newDistance / 10000)) { // Increase difficulty over distance
-          const lane = Math.floor(Math.random() * 3);
-          const types = ['cone', 'pothole', 'car'];
-          const type = types[Math.floor(Math.random() * types.length)];
-          
-          movedObstacles.push({
-            id: `obs-${Date.now()}-${Math.random()}`,
-            lane,
-            type,
-            position: 120 // Start from top
-          });
-        }
-
-        // Check collisions
-        const collision = movedObstacles.some(obs => 
-          obs.lane === prev.lane && 
-          obs.position >= 15 && 
-          obs.position <= 35 // Collision zone around player car
-        );
-
-        if (collision) {
-          // Game over - calculate reward
-          const baseReward = 1000 + (prev.score * 10);
-          const finalReward = Math.floor(baseReward * 2); // 2x multiplier for special delivery
-          
-          setMoney(m => m + finalReward);
-          pushLog('click', `🚗 Special Delivery: +$${fmt(finalReward)}`, finalReward);
-          
-          return {
-            ...prev,
-            gameActive: false,
-            gameOver: true,
-            finalReward
-          };
-        }
-
-        // Update score based on survival
-        const newScore = prev.score + 1;
-
-        return {
-          ...prev,
-          distance: newDistance,
-          obstacles: movedObstacles,
-          score: newScore,
-          speed: Math.min(15, 5 + newDistance / 500) // Gradually increase speed
-        };
-      });
-    }, 50); // 20 FPS for smooth gameplay
-
-    return () => clearInterval(gameTick);
-  }, [deliveryGame?.gameActive]);
-
-  // 8. Delivery Game Keyboard Controls
-  useEffect(() => {
-    if (!deliveryGame || !deliveryGame.gameActive) return;
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        if (deliveryGame.lane > 0) {
-          setDeliveryGame(prev => ({ ...prev, lane: prev.lane - 1 }));
-        }
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        if (deliveryGame.lane < 2) {
-          setDeliveryGame(prev => ({ ...prev, lane: prev.lane + 1 }));
-        }
-      } else if (e.key === 'Escape') {
-        setDeliveryGame(null);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [deliveryGame?.gameActive, deliveryGame?.lane]);
-
   // --- MARKET PRICE ENGINE ---
   useEffect(() => {
     // Baseline "fair value" — prices drift back toward these over time
@@ -1788,139 +1694,18 @@ export default function App() {
       )}
 
 
-      {/* --- DELIVERY DRIVING GAME MODAL --- */}
-      {deliveryGame && deliveryGame.gameActive && (
-        <div className="fixed inset-0 z-[120] bg-[#050505] flex items-center justify-center p-0">
-          <div className="relative w-full h-full overflow-hidden">
-            {/* Game Header */}
-            <div className="absolute top-0 left-0 right-0 z-10 bg-zinc-900/90 border-b-2 border-amber-600 px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Car className="w-6 h-6 text-amber-400" />
-                <span className="text-amber-300 font-display text-lg tracking-wider">SPECIAL DELIVERY</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-zinc-300 text-sm font-bold tabular-nums">Score: {deliveryGame.score}</div>
-                <div className="text-zinc-300 text-sm font-bold tabular-nums">Distance: {deliveryGame.distance}m</div>
-                <button 
-                  onClick={() => setDeliveryGame(null)}
-                  className="text-zinc-400 hover:text-red-400 transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            {/* Game Road */}
-            <div className="relative w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900 flex items-center justify-center">
-              {/* Game Over Overlay */}
-              {deliveryGame.gameOver && (
-                <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
-                  <div className="bg-zinc-900 border-2 border-amber-600 border-b-4 border-b-zinc-950 rounded-2xl p-8 max-w-md w-full text-center">
-                    <div className="text-4xl mb-4">💥</div>
-                    <h2 className="text-2xl font-display text-amber-400 tracking-wider mb-4">DELIVERY COMPLETE!</h2>
-                    <div className="space-y-3 mb-6">
-                      <div className="text-zinc-300">
-                        <div className="text-sm uppercase tracking-wider mb-1">Distance Traveled</div>
-                        <div className="font-display text-2xl tabular-nums">{deliveryGame.distance}m</div>
-                      </div>
-                      <div className="text-zinc-300">
-                        <div className="text-sm uppercase tracking-wider mb-1">Final Score</div>
-                        <div className="font-display text-2xl tabular-nums">{deliveryGame.score}</div>
-                      </div>
-                      <div className="text-amber-400">
-                        <div className="text-sm uppercase tracking-wider mb-1">Reward Earned</div>
-                        <div className="font-display text-3xl tabular-nums text-money">+${fmt(deliveryGame.finalReward)}</div>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setDeliveryGame(null)}
-                      className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-display text-lg font-black tracking-wider rounded-xl border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px] transition-all btn-tactile"
-                    >
-                      COLLECT REWARD
-                    </button>
-                  </div>
-                </div>
-              )}
-              {/* Road lanes */}
-              <div className="relative w-full max-w-md h-full">
-                {/* Lane dividers */}
-                <div className="absolute inset-0 flex">
-                  <div className="flex-1 border-r-2 border-dashed border-zinc-600"></div>
-                  <div className="flex-1 border-r-2 border-dashed border-zinc-600"></div>
-                  <div className="flex-1"></div>
-                </div>
-
-                {/* Player car */}
-                <div 
-                  className={`absolute bottom-20 w-16 h-20 bg-gradient-to-b from-amber-500 to-amber-700 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 flex items-center justify-center text-2xl`}
-                  style={{ 
-                    left: `${25 + deliveryGame.lane * 25}%`,
-                    transform: 'translateX(-50%)'
-                  }}
-                >
-                  🚗
-                </div>
-
-                {/* Obstacles */}
-                {deliveryGame.obstacles.map((obstacle, index) => (
-                  <div
-                    key={obstacle.id}
-                    className={`absolute w-16 h-16 bg-gradient-to-b from-red-600 to-red-800 rounded-lg border-2 border-red-900 shadow-lg flex items-center justify-center text-2xl`}
-                    style={{
-                      left: `${25 + obstacle.lane * 25}%`,
-                      bottom: `${obstacle.position}%`,
-                      transform: 'translateX(-50%)'
-                    }}
-                  >
-                    {obstacle.type === 'cone' ? '🚧' : obstacle.type === 'pothole' ? '🕳️' : obstacle.type === 'car' ? '🚙' : '⚠️'}
-                  </div>
-                ))}
-
-                {/* Road edges */}
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-zinc-700 border-r-4 border-zinc-800"></div>
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-zinc-700 border-l-4 border-zinc-800"></div>
-              </div>
-            </div>
-
-            {/* Game Controls */}
-            <div className="absolute bottom-0 left-0 right-0 bg-zinc-900/90 border-t-2 border-amber-600 p-4">
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    if (deliveryGame.lane > 0) {
-                      setDeliveryGame(prev => ({ ...prev, lane: prev.lane - 1 }));
-                    }
-                  }}
-                  disabled={deliveryGame.lane === 0}
-                  className={`px-8 py-4 rounded-xl font-display text-lg font-black tracking-wider transition-all ${
-                    deliveryGame.lane === 0 
-                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
-                      : 'bg-amber-600 hover:bg-amber-500 text-white border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px]'
-                  }`}
-                >
-                  ← LEFT
-                </button>
-                <button
-                  onClick={() => {
-                    if (deliveryGame.lane < 2) {
-                      setDeliveryGame(prev => ({ ...prev, lane: prev.lane + 1 }));
-                    }
-                  }}
-                  disabled={deliveryGame.lane === 2}
-                  className={`px-8 py-4 rounded-xl font-display text-lg font-black tracking-wider transition-all ${
-                    deliveryGame.lane === 2 
-                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
-                      : 'bg-amber-600 hover:bg-amber-500 text-white border-b-4 border-amber-800 active:border-b-0 active:translate-y-[4px]'
-                  }`}
-                >
-                  RIGHT →
-                </button>
-              </div>
-              <div className="text-center mt-2 text-zinc-400 text-sm">
-                Avoid obstacles and survive as long as possible!
-              </div>
-            </div>
-          </div>
+      {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
+      {deliveryGame && (
+        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <DeliveryMicrogame 
+            onComplete={(success) => {
+              const baseReward = 2000;
+              const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
+              setMoney(m => m + finalReward);
+              pushLog('click', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
+              setDeliveryGame(null);
+            }}
+          />
         </div>
       )}
 
@@ -2053,14 +1838,7 @@ export default function App() {
                     </div>
                     <button 
                       onClick={() => {
-                        setDeliveryGame({
-                          lane: 1, // Start in middle lane (0, 1, 2)
-                          score: 0,
-                          speed: 5,
-                          obstacles: [],
-                          gameActive: true,
-                          distance: 0
-                        });
+                        setDeliveryGame(true); // Just set to true to trigger the microgame
                         setSpecialDelivery(null);
                       }}
                       className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display text-sm font-black tracking-wider rounded-xl border-b-[3px] border-amber-800 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
@@ -3556,5 +3334,113 @@ export default function App() {
   </div>
     <Analytics />
     </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DELIVERY MICROGAME COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+function DeliveryMicrogame({ onComplete }) {
+  const [playerLane, setPlayerLane] = useState(1); // 0, 1, 2
+  const [obstacles, setObstacles] = useState([
+    { id: 1, lane: 0, y: -20 }, 
+    { id: 2, lane: 2, y: -60 }, 
+    { id: 3, lane: 1, y: -100 }
+  ]);
+  const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds
+
+  const moveLeft = () => setPlayerLane(p => Math.max(0, p - 1));
+  const moveRight = () => setPlayerLane(p => Math.min(2, p + 1));
+
+  useEffect(() => {
+    const tick = 50;
+    const speed = 4; // Fast falling speed
+
+    const loop = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 0) {
+          clearInterval(loop);
+          onComplete(true); // Survived!
+          return 0;
+        }
+        return t - tick;
+      });
+
+      setObstacles(prev => {
+        let next = prev.map(o => ({ ...o, y: o.y + speed }));
+        
+        // Hitbox collision (Player is at y: 75-95)
+        const hit = next.some(o => o.lane === playerLane && o.y > 75 && o.y < 95);
+        if (hit) {
+          clearInterval(loop);
+          onComplete(false); // Crashed!
+        }
+        return next;
+      });
+    }, tick);
+
+    return () => clearInterval(loop);
+  }, [playerLane, onComplete]);
+
+  return (
+    <div className="w-full max-w-sm bg-[#1a1a1a] rounded-3xl border-4 border-[#333] overflow-hidden flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.8)] animate-in zoom-in duration-200">
+      
+      {/* Header */}
+      <div className="bg-[#222] p-3 flex justify-between items-center border-b-2 border-[#111]">
+        <div className="text-[#d97706] font-black uppercase tracking-widest flex items-center gap-2">
+          <MapPin size={18} /> Delivery
+        </div>
+        <div className="text-white font-mono font-bold text-lg">
+          0{Math.ceil(timeLeft/1000)}:{(timeLeft%1000).toString().padStart(3, '0').slice(0,2)}
+        </div>
+      </div>
+
+      {/* Highway View */}
+      <div className="h-64 relative bg-[#111] overflow-hidden flex">
+        {/* Lanes */}
+        <div className="absolute inset-0 flex justify-evenly pointer-events-none opacity-20">
+          <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
+          <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
+        </div>
+
+        {/* Obstacles */}
+        {obstacles.map(obs => (
+          <div key={obs.id} className="absolute w-1/3 flex justify-center" style={{ left: `${obs.lane * 33.33}%`, top: `${obs.y}%` }}>
+            <div className="bg-[#2a2a2a] border-2 border-yellow-600 rounded w-12 h-10 flex items-center justify-center relative overflow-hidden">
+               <div className="absolute inset-0 flex"><div className="w-1/2 bg-yellow-500 transform -skew-x-12"></div></div>
+            </div>
+          </div>
+        ))}
+
+        {/* Player */}
+        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-75" style={{ left: `${playerLane * 33.33}%` }}>
+          <div className="w-12 h-16 bg-blue-500 rounded-xl border-2 border-blue-900 shadow-lg flex flex-col items-center justify-center relative">
+            <div className="w-6 h-4 bg-blue-900 rounded-sm mb-1"></div>
+            <Package size={16} className="text-orange-300" />
+          </div>
+        </div>
+      </div>
+
+      {/* Massive Controls for Mobile */}
+      <div className="p-4 flex gap-4 bg-[#222]">
+        <button 
+          className="flex-1 h-20 bg-[#333] border-b-4 border-[#111] active:border-b-0 active:translate-y-1 rounded-xl font-black text-3xl text-gray-400 select-none touch-manipulation focus:outline-none"
+          onClick={moveLeft}
+          onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
+        >◀</button>
+        <button 
+          className="flex-1 h-20 bg-[#333] border-b-4 border-[#111] active:border-b-0 active:translate-y-1 rounded-xl font-black text-3xl text-gray-400 select-none touch-manipulation focus:outline-none"
+          onClick={moveRight}
+          onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
+        >▶</button>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .bg-dashed-line { background-image: linear-gradient(to bottom, #444 50%, transparent 50%); background-size: 100% 40px; }
+        @keyframes slide-down { 0% { background-position: 0 0; } 100% { background-position: 0 40px; } }
+        .animate-slide-down { animation: slide-down 0.2s linear infinite; }
+      `}} />
+    </div>
   );
 }
