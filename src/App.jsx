@@ -5,7 +5,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, MapPin, Package
+  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, MapPin, Package, Check
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
