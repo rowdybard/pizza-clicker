@@ -1926,22 +1926,22 @@ export default function App() {
           {/* CORPORATE OFFICE - Below Bake & Box */}
           {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
             <div className="w-full max-w-md mx-auto mt-4">
-              <div className="bg-purple-900/90 backdrop-blur-sm rounded-xl border-2 border-purple-600 border-b-[4px] border-b-purple-800 shadow-xl overflow-hidden">
+              <div className="bg-zinc-950 backdrop-blur-sm rounded-xl border-2 border-amber-700/50 border-b-[4px] border-b-amber-700/50 shadow-xl overflow-hidden">
                 <button
                   onClick={() => setCorpOfficeOpen(prev => !prev)}
-                  className="w-full px-5 py-3 bg-purple-800/70 hover:bg-purple-700/80 flex items-center justify-between gap-2 transition-all"
+                  className="w-full px-5 py-3 bg-zinc-900/70 hover:bg-zinc-800/80 flex items-center justify-between gap-2 transition-all"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Building className="w-5 h-5 text-purple-200" />
-                    <span className="text-base font-black uppercase tracking-widest text-white">Corporate Office</span>
+                    <Building className="w-5 h-5 text-amber-400" />
+                    <span className="text-base font-black uppercase tracking-widest text-amber-400">Corporate Office</span>
                   </div>
-                  <span className={`text-base font-black text-purple-200 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
+                  <span className={`text-base font-black text-amber-200 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
                 </button>
                 {corpOfficeOpen && (
-                  <div className="p-5 space-y-3 bg-purple-950/60">
+                  <div className="p-5 space-y-3 bg-zinc-950">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-purple-200 font-bold uppercase tracking-wider">Licenses Owned</span>
-                      <span className="font-display text-2xl text-white tabular-nums">{franchiseLicenses}</span>
+                      <span className="text-sm text-amber-200 font-bold uppercase tracking-wider">Licenses Owned</span>
+                      <span className="font-display text-2xl text-amber-400 tabular-nums">{franchiseLicenses}</span>
                     </div>
                     {pendingLicenses > 0 && (
                       <button
@@ -1953,8 +1953,8 @@ export default function App() {
                     )}
                     {pendingLicenses === 0 && (
                       <div className="text-center py-2">
-                        <div className="text-sm text-purple-200 mb-1">Next License</div>
-                        <div className="font-display text-base text-white tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
+                        <div className="text-sm text-amber-200 mb-1">Next License</div>
+                        <div className="font-display text-base text-amber-400 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
                       </div>
                     )}
                   </div>
