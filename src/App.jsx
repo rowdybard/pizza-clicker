@@ -3361,9 +3361,22 @@ function DeliveryMicrogame({ onComplete }) {
     { id: 3, lane: 1, y: -100 }
   ]);
   const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds in milliseconds
+  const playerLaneRef = useRef(1);
 
-  const moveLeft = () => setPlayerLane(p => Math.max(0, p - 1));
-  const moveRight = () => setPlayerLane(p => Math.min(2, p + 1));
+  const moveLeft = () => {
+    setPlayerLane(p => {
+      const newLane = Math.max(0, p - 1);
+      playerLaneRef.current = newLane;
+      return newLane;
+    });
+  };
+  const moveRight = () => {
+    setPlayerLane(p => {
+      const newLane = Math.min(2, p + 1);
+      playerLaneRef.current = newLane;
+      return newLane;
+    });
+  };
 
   useEffect(() => {
     const tick = 50;
@@ -3383,7 +3396,7 @@ function DeliveryMicrogame({ onComplete }) {
         let next = prev.map(o => ({ ...o, y: o.y + speed }));
         
         // Hitbox collision (Player is at y: 75-95)
-        const hit = next.some(o => o.lane === playerLane && o.y > 75 && o.y < 95);
+        const hit = next.some(o => o.lane === playerLaneRef.current && o.y > 75 && o.y < 95);
         if (hit) {
           clearInterval(loop);
           onComplete(false); // Crashed!
@@ -3393,7 +3406,7 @@ function DeliveryMicrogame({ onComplete }) {
     }, tick);
 
     return () => clearInterval(loop);
-  }, [playerLane, onComplete]);
+  }, [onComplete]);
 
   return (
     <div className="w-full max-w-md bg-black rounded-2xl border-4 border-yellow-500 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(212,175,55,0.3)] animate-in zoom-in duration-200">
