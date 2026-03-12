@@ -1672,7 +1672,7 @@ export default function App() {
         <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
           <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]" style={{minHeight: '500px'}}>
             <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
-            <h2 className="text-5xl text-amber-400 mb-4" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
+            <h2 className="text-4xl text-amber-400 mb-4 whitespace-nowrap" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
             <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
             <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
                <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
