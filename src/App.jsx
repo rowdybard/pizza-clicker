@@ -308,7 +308,25 @@ const computeOfflineEarnings = (data) => {
   };
 };
 
-const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, onConfirm, fmt }) {
+const BIG_ABBR_MOD = [
+  [1e303,'Ce'],[1e100,'Gg'],[1e63,'Vg'],[1e60,'Nvd'],[1e57,'Otd'],[1e54,'Spd'],
+  [1e51,'Sxd'],[1e48,'Qnd'],[1e45,'Qtd'],[1e42,'Trd'],[1e39,'Dud'],[1e36,'Und'],
+  [1e33,'Dc'],[1e30,'No'],[1e27,'Oc'],[1e24,'Sp'],[1e21,'Sx'],[1e18,'Qi'],
+  [1e15,'Qu'],[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K'],
+];
+const fmtMod = (n) => {
+  if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return '0';
+  const abs = Math.abs(n);
+  for (const [thresh, abbr] of BIG_ABBR_MOD) {
+    if (abs >= thresh) {
+      const num = (n / thresh).toFixed(2);
+      return `${num}${abbr}`;
+    }
+  }
+  return n.toFixed(2);
+};
+
+const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, onConfirm }) {
   if (!snapshot) return null;
   const { pendingLicenses: snapPending, franchiseLicenses: snapCurrent } = snapshot;
   const newLics = snapCurrent + snapPending;
@@ -324,9 +342,9 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
         <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
           <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
           <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{snapPending}</span> Franchise License{snapPending !== 1 ? 's' : ''} ({newLics} total).</span></div>
-          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmt(startCash)}</span> capital.</span></div>
-          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmt(floorMoney)}</span>/sec prior to enhancements.</span></div>
-          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmt(1 + newLics * 1.2)}× production/click · {fmt(Math.pow(1.25, newLics))}× price multiplier.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmtMod(startCash)}</span> capital.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmtMod(floorMoney)}</span>/sec prior to enhancements.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmtMod(1 + newLics * 1.2)}× production/click · {fmtMod(Math.pow(1.25, newLics))}× price multiplier.</span></div>
         </div>
         <div className="flex gap-4">
           <button onClick={onDecline} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
@@ -468,6 +486,7 @@ export default function App() {
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
+  const prestigeSnapshotRef = useRef(null);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -841,18 +860,21 @@ export default function App() {
     setDeliveryCooldowns(prev => ({ ...prev, [dest.id]: dest.cooldown }));
   };
 
-  const confirmPrestige = () => {
-    const newLicenses = franchiseLicenses + pendingLicenses;
+  const confirmPrestige = useCallback(() => {
+    const snap = prestigeSnapshotRef.current;
+    if (!snap) return;
+    const newLicenses = snap.franchiseLicenses + snap.pendingLicenses;
     setFranchiseLicenses(newLicenses);
-    // Starting cash: $500 * licenses^2, or shadowCapital if larger
     const licenseStartMoney = 500 * Math.pow(newLicenses, 2);
-    setMoney(Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney));
+    setMoney(prev => Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney));
     setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
     setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
-    pushLog('spend', `🏢 Prestige +${pendingLicenses} License${pendingLicenses > 1 ? 's' : ''}`, 0);
+    pushLog('spend', `🏢 Prestige +${snap.pendingLicenses} License${snap.pendingLicenses > 1 ? 's' : ''}`, 0);
     setShowPrestigeModal(false);
-  };
+  }, [syndicatePerks.shadowCapital, pushLog]);
+
+  const usePrestigeDecline = useCallback(() => setShowPrestigeModal(false), []);
 
   // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
@@ -1696,9 +1718,8 @@ export default function App() {
       {showPrestigeModal && (
         <PrestigeModal
           snapshot={prestigeSnapshot}
-          onDecline={() => setShowPrestigeModal(false)}
+          onDecline={usePrestigeDecline}
           onConfirm={confirmPrestige}
-          fmt={fmt}
         />
       )}
 
@@ -1964,7 +1985,9 @@ export default function App() {
                     {pendingLicenses > 0 && (
                       <button
                         onClick={() => {
-                          setPrestigeSnapshot({ pendingLicenses, franchiseLicenses });
+                          const snap = { pendingLicenses, franchiseLicenses };
+                          setPrestigeSnapshot(snap);
+                          prestigeSnapshotRef.current = snap;
                           setShowPrestigeModal(true);
                         }}
                         className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-display text-base font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
