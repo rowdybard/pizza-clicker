@@ -2422,11 +2422,8 @@ export default function App() {
                       } else if (buyMultiplier === 10) {
                         buyUpgradeN(upgrade, 10);
                       } else if (buyMultiplier === 'MAX') {
-                        const currentCount = safeNum(inventory?.[upgrade.id], 0);
-                        const maxBoost = MILESTONES[MILESTONES.length - 1];
-                        const allowedPurchases = Math.max(0, maxBoost - currentCount);
-                        if (allowedPurchases > 0) {
-                          buyUpgradeN(upgrade, allowedPurchases);
+                        if (buyAmount > 0) {
+                          buyUpgradeN(upgrade, buyAmount);
                         }
                       }
                     }}
