@@ -782,13 +782,11 @@ export default function App() {
     const warpEfficiency = 1 / (1 + idleProfitPerSec / WARP_CAP);
     const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
     const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
-    const warpRep = Math.ceil(Math.sqrt(idlePizzasPerSec) * 0.25) * dest.warpSeconds * warpEfficiency;
 
     setMoney(m => m + warpMoney);
     setLifetimeMoney(m => m + warpMoney);
     pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
     setTotalPizzasSold(tp => tp + warpPizzas);
-    setReputation(r => r + warpRep);
 
     if (dest.rushSeconds > 0) {
       setRushTimeLeft(prev => prev + dest.rushSeconds);
