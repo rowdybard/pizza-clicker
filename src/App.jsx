@@ -308,6 +308,35 @@ const computeOfflineEarnings = (data) => {
   };
 };
 
+const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, onConfirm, fmt }) {
+  if (!snapshot) return null;
+  const { pendingLicenses: snapPending, franchiseLicenses: snapCurrent } = snapshot;
+  const newLics = snapCurrent + snapPending;
+  const startCash = 500 * Math.pow(newLics, 2);
+  const floorPizzas = 2 * Math.pow(1.4, newLics);
+  const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
+      <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]">
+        <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
+        <h2 className="text-4xl text-amber-400 mb-4 whitespace-nowrap" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
+        <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
+        <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
+          <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{snapPending}</span> Franchise License{snapPending !== 1 ? 's' : ''} ({newLics} total).</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmt(startCash)}</span> capital.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmt(floorMoney)}</span>/sec prior to enhancements.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmt(1 + newLics * 1.2)}× production/click · {fmt(Math.pow(1.25, newLics))}× price multiplier.</span></div>
+        </div>
+        <div className="flex gap-4">
+          <button onClick={onDecline} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
+          <button onClick={onConfirm} className="flex-1 py-4 bg-amber-700 hover:bg-amber-600 text-zinc-950 text-xl rounded-lg border-2 border-amber-500 hover:border-amber-400 transition-colors shadow-[0_0_20px_rgba(217,119,6,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Accept Offer</button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function App() {
   // --- EMERGENCY UNLOCK EFFECT ---
   useEffect(() => {
@@ -1664,38 +1693,14 @@ export default function App() {
       })()}
 
       {/* --- PRESTIGE MODAL --- */}
-      {showPrestigeModal && prestigeSnapshot && (() => {
-        const snapPending = prestigeSnapshot.pendingLicenses;
-        const snapCurrent = prestigeSnapshot.franchiseLicenses;
-        const newLics = snapCurrent + snapPending;
-        return (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]" style={{minHeight: '500px', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden', WebkitFontSmoothing: 'antialiased'}}>
-            <Building className="w-20 h-20 text-amber-500 mx-auto mb-6" />
-            <h2 className="text-4xl text-amber-400 mb-4 whitespace-nowrap" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Corporate Buyout</h2>
-            <p className="text-amber-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Are you certain you wish to sell your establishment to Corporate?</p>
-            <div className="bg-black/40 p-6 rounded-lg border-2 border-amber-700/50 mb-8 text-left space-y-4">
-               <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All currency, improvements, and standing shall be forfeit.</span></div>
-               <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{snapPending}</span> Franchise License{snapPending !== 1 ? 's' : ''} ({newLics} total).</span></div>
-               {(() => {
-                 const startCash = 500 * Math.pow(newLics, 2);
-                 const floorPizzas = 2 * Math.pow(1.4, newLics);
-                 const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
-                 return (<>
-                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmt(startCash)}</span> capital.</span></div>
-                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmt(floorMoney)}</span>/sec prior to enhancements.</span></div>
-                   <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmt(1 + newLics * 1.2)}× production/click · {fmt(Math.pow(1.25, newLics))}× price multiplier.</span></div>
-                 </>);
-               })()}
-            </div>
-            <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
-                <button onClick={confirmPrestige} className="flex-1 py-4 bg-amber-700 hover:bg-amber-600 text-zinc-950 text-xl rounded-lg border-2 border-amber-500 hover:border-amber-400 transition-colors shadow-[0_0_20px_rgba(217,119,6,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Accept Offer</button>
-            </div>
-          </div>
-        </div>
-        );
-      })()}
+      {showPrestigeModal && (
+        <PrestigeModal
+          snapshot={prestigeSnapshot}
+          onDecline={() => setShowPrestigeModal(false)}
+          onConfirm={confirmPrestige}
+          fmt={fmt}
+        />
+      )}
 
 
       {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
