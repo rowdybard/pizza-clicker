@@ -5,7 +5,7 @@ import {
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
   Plane, Rocket, Gem, Crown, Coffee, MousePointerClick, Flame,
   Trophy, Droplets, Sparkles, CheckCircle, Lock, Settings, Save, Download, Upload, AlertTriangle,
-  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText
+  Map, Home, Briefcase, Moon, Mic, MicOff, ScrollText, MapPin, Package
 } from 'lucide-react';
 
 const SAVE_KEY = 'pizzaTycoonSave_v10';
@@ -3394,20 +3394,20 @@ function DeliveryMicrogame({ onComplete }) {
   }, [playerLane, onComplete]);
 
   return (
-    <div className="w-full max-w-md bg-zinc-900 rounded-2xl border-4 border-amber-600 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.9)] animate-in zoom-in duration-200">
+    <div className="w-full max-w-md bg-black rounded-2xl border-4 border-yellow-500 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(212,175,55,0.3)] animate-in zoom-in duration-200">
       
       {/* Header */}
-      <div className="bg-zinc-800 p-4 flex justify-between items-center border-b-4 border-amber-600">
-        <div className="text-amber-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg">
+      <div className="bg-zinc-950 p-4 flex justify-between items-center border-b-4 border-yellow-500">
+        <div className="text-yellow-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg">
           <MapPin size={20} /> Delivery Challenge
         </div>
-        <div className="text-white font-mono font-bold text-xl tabular-nums">
+        <div className="text-yellow-100 font-mono font-bold text-xl tabular-nums">
           0{Math.ceil(timeLeft/1000)}:{(timeLeft%1000).toString().padStart(3, '0').slice(0,2)}
         </div>
       </div>
 
       {/* Highway View */}
-      <div className="h-80 relative bg-zinc-800 overflow-hidden flex border-b-4 border-amber-600">
+      <div className="h-80 relative bg-zinc-950 overflow-hidden flex border-b-4 border-yellow-500">
         {/* Lanes */}
         <div className="absolute inset-0 flex justify-evenly pointer-events-none opacity-20">
           <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
@@ -3425,22 +3425,22 @@ function DeliveryMicrogame({ onComplete }) {
 
         {/* Player */}
         <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-75" style={{ left: `${playerLane * 33.33}%` }}>
-          <div className="w-12 h-16 bg-blue-500 rounded-xl border-2 border-blue-900 shadow-lg flex flex-col items-center justify-center relative">
-            <div className="w-6 h-4 bg-blue-900 rounded-sm mb-1"></div>
-            <Package size={16} className="text-orange-300" />
+          <div className="w-12 h-16 bg-yellow-500 rounded-xl border-2 border-yellow-600 shadow-lg flex flex-col items-center justify-center relative">
+            <div className="w-6 h-4 bg-yellow-600 rounded-sm mb-1"></div>
+            <Package size={16} className="text-zinc-900" />
           </div>
         </div>
       </div>
 
       {/* Massive Controls for Mobile */}
-      <div className="p-6 flex gap-4 bg-zinc-900">
+      <div className="p-6 flex gap-4 bg-black">
         <button 
-          className="flex-1 h-20 bg-amber-600 hover:bg-amber-500 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-white select-none touch-manipulation focus:outline-none transition-all shadow-lg"
+          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
           onClick={moveLeft}
           onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
         >◀</button>
         <button 
-          className="flex-1 h-20 bg-amber-600 hover:bg-amber-500 border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-white select-none touch-manipulation focus:outline-none transition-all shadow-lg"
+          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
           onClick={moveRight}
           onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
         >▶</button>
