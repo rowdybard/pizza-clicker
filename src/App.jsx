@@ -1677,8 +1677,8 @@ export default function App() {
                })()}
             </div>
             <div className="flex gap-4">
-                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg btn-tactile border-2 border-zinc-700 hover:border-zinc-600 transition-all" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
-                <button onClick={confirmPrestige} className="flex-1 py-4 bg-amber-700 hover:bg-amber-600 text-zinc-950 text-xl rounded-lg btn-tactile border-2 border-amber-500 hover:border-amber-400 transition-all shadow-[0_0_20px_rgba(217,119,6,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Accept Offer</button>
+                <button onClick={() => setShowPrestigeModal(false)} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
+                <button onClick={confirmPrestige} className="flex-1 py-4 bg-amber-700 hover:bg-amber-600 text-zinc-950 text-xl rounded-lg border-2 border-amber-500 hover:border-amber-400 transition-colors shadow-[0_0_20px_rgba(217,119,6,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Accept Offer</button>
             </div>
           </div>
         </div>
@@ -1910,7 +1910,7 @@ export default function App() {
                 <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
                   isClean
                     ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
-                    : 'text-orange-200 bg-orange-700 border-b-2 border-orange-950'
+                    : 'text-amber-100 bg-amber-700 border-b-2 border-amber-950'
                 }`}>
                   {isClean && (
                     <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
