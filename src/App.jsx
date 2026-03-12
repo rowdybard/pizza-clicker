@@ -2225,7 +2225,7 @@ export default function App() {
               {activeTab === 'upgrades' && (
                 <>
                   {/* Upgrades Container - wraps filters, multiplier, and cards */}
-                  <div className="space-y-4">
+                  <div className="bg-zinc-800/50 rounded-xl p-4 space-y-4">
                     {/* Upgrade Filter Pills */}
                     <div>
                       <div className="grid grid-cols-2 gap-1.5">
