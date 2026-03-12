@@ -1087,37 +1087,37 @@ export default function App() {
     return () => clearInterval(saveLoop);
   }, []);
 
-  // 6. Special Delivery Timer Loop
-  useEffect(() => {
-    // Check if player has at least one delivery unlocked
-    const hasAnyDelivery = DESTINATIONS.some(dest => {
-      const req = dest.unlockReq;
-      return totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
-    });
+  // 6. Special Delivery Timer Loop (DISABLED - delivery game removed from auto-spawn)
+  // useEffect(() => {
+  //   // Check if player has at least one delivery unlocked
+  //   const hasAnyDelivery = DESTINATIONS.some(dest => {
+  //     const req = dest.unlockReq;
+  //     return totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
+  //   });
 
-    if (!hasAnyDelivery) return;
+  //   if (!hasAnyDelivery) return;
 
-    const specialDeliveryTick = setInterval(() => {
-      setSpecialDelivery(prev => {
-        // If there's already a special delivery, don't create a new one
-        if (prev) return prev;
+  //   const specialDeliveryTick = setInterval(() => {
+  //     setSpecialDelivery(prev => {
+  //       // If there's already a special delivery, don't create a new one
+  //       if (prev) return prev;
         
-        // 20% chance every 30 seconds (roughly every 6-8 minutes on average)
-        if (Math.random() < 0.2) {
-          const expiresAt = Date.now() + 45000; // 45 seconds to accept
-          return {
-            id: `special-${Date.now()}`,
-            expiresAt,
-            rewardMultiplier: 2.0, // 2x rewards
-            created: Date.now()
-          };
-        }
-        return prev;
-      });
-    }, 30000); // Check every 30 seconds
+  //       // 20% chance every 30 seconds (roughly every 6-8 minutes on average)
+  //       if (Math.random() < 0.2) {
+  //         const expiresAt = Date.now() + 45000; // 45 seconds to accept
+  //         return {
+  //           id: `special-${Date.now()}`,
+  //           expiresAt,
+  //           rewardMultiplier: 2.0, // 2x rewards
+  //           created: Date.now()
+  //         };
+  //       }
+  //       return prev;
+  //     });
+  //   }, 30000); // Check every 30 seconds
 
-    return () => clearInterval(specialDeliveryTick);
-  }, [totalPizzasSold, starLevel, lifetimeMoney, franchiseLicenses]);
+  //   return () => clearInterval(specialDeliveryTick);
+  // }, [totalPizzasSold, starLevel, lifetimeMoney, franchiseLicenses]);
 
   // Clean up expired special deliveries
   useEffect(() => {
@@ -1389,7 +1389,7 @@ export default function App() {
 
       {/* ── FIXED HUD ── */}
       <div className={`fixed top-0 inset-x-0 z-40 bg-[#050505] border-b-4 border-zinc-900 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3 relative">
 
           {/* LEFT: Title + stars */}
           <div className="flex flex-col justify-center shrink-0 min-w-0">
@@ -1420,40 +1420,30 @@ export default function App() {
 
           {/* RIGHT: Secondary stat pills + settings */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Golden Slices - only show if player has any */}
-            {goldenSlices > 0 && (
-              <div className="hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-b-[3px] border-yellow-700/50 shrink-0">
-                <div className="text-sm text-yellow-600 font-bold uppercase tracking-widest">GOLDEN SLICES</div>
-                <div className="flex items-center gap-1">
-                  <Gem className="w-3 h-3 text-yellow-400 shrink-0" />
-                  <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none">{goldenSlices}</span>
-                </div>
-              </div>
-            )}
             {/* Profit/sec */}
-            <div className={`hidden sm:flex flex-col items-center gap-1 px-4 py-2 rounded-xl border-b-[3px] shrink-0 ${
+            <div className={`hidden sm:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg border-b-[3px] shrink-0 ${
               isRush ? 'bg-red-800 border-red-950 text-red-200' : recentCps > 0 ? 'bg-orange-900 border-orange-950 text-orange-200' : 'bg-zinc-800 border-zinc-950 text-zinc-400'
             }`}>
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
+              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PROFIT</div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 shrink-0" />
-                <span className="font-display text-lg md:text-xl tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
+                <span className="font-display text-base tabular-nums leading-none"><Num value={displayProfitPerSec} prefix="$" decimals={1} />/s</span>
               </div>
             </div>
             {/* Pizzas/sec */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
+              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PIZZAS</div>
               <div className="flex items-center gap-1">
                 <Pizza className="w-3 h-3 text-orange-400 shrink-0" />
-                <span className="font-display text-lg md:text-xl text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
+                <span className="font-display text-base text-zinc-300 tabular-nums leading-none"><Num value={idlePizzasPerSec} decimals={1} />/s</span>
               </div>
             </div>
             {/* Ticket avg */}
-            <div className="hidden lg:flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
+            <div className="hidden lg:flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 border-b-[3px] border-zinc-950 shrink-0">
+              <div className="text-xs text-zinc-400 font-bold uppercase tracking-widest">PRICE</div>
               <div className="flex items-center gap-1">
                 <Award className="w-3 h-3 text-yellow-500 shrink-0" />
-                <span className="font-display text-lg md:text-xl text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
+                <span className="font-display text-base text-yellow-300 tabular-nums leading-none"><Num value={pizzaPrice} prefix="$" decimals={2} /></span>
               </div>
             </div>
             {/* Settings only */}
@@ -1463,6 +1453,46 @@ export default function App() {
               </button>
             </div>
           </div>
+
+          {/* CORPORATE OFFICE - Collapsible top-right */}
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
+            <div className="absolute top-full right-3 mt-2 w-80 z-50">
+              <div className="bg-purple-950/95 backdrop-blur-sm rounded-xl border border-purple-800 border-b-[3px] border-b-purple-950 shadow-2xl overflow-hidden">
+                <button
+                  onClick={() => setCorpOfficeOpen(prev => !prev)}
+                  className="w-full px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 flex items-center justify-between gap-2 transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <Building className="w-4 h-4 text-purple-300" />
+                    <span className="text-sm font-black uppercase tracking-widest text-purple-200">Corporate Office</span>
+                  </div>
+                  <span className={`text-sm font-black text-purple-300 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
+                </button>
+                {corpOfficeOpen && (
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-purple-400 font-bold uppercase tracking-wider">Licenses Owned</span>
+                      <span className="font-display text-xl text-purple-100 tabular-nums">{franchiseLicenses}</span>
+                    </div>
+                    {pendingLicenses > 0 && (
+                      <button
+                        onClick={() => setShowPrestigeModal(true)}
+                        className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-display text-sm font-black tracking-widest rounded-lg border-b-[3px] border-red-900 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
+                      >
+                        SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
+                      </button>
+                    )}
+                    {pendingLicenses === 0 && (
+                      <div className="text-center py-2">
+                        <div className="text-xs text-purple-400 mb-1">Next License</div>
+                        <div className="font-display text-sm text-purple-300 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Rep bar — thin strip under HUD */}
@@ -1935,46 +1965,6 @@ export default function App() {
 
         {/* Right Area: Management & Upgrades */}
         <div className="lg:col-span-7 flex flex-col gap-8 transition-all duration-300 opacity-100 mt-2">
-          
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
-            <div className="bg-purple-950 rounded-2xl border border-purple-800 border-b-[4px] border-b-purple-950 relative overflow-hidden p-8">
-              <div className="text-center space-y-6">
-                <div className="flex items-center justify-center gap-4 mb-8">
-                  <Building className="text-purple-300 w-12 h-12" />
-                  <h2 className="text-4xl font-display tracking-wide text-purple-100">SELL FRANCHISE</h2>
-                  <Building className="text-purple-300 w-12 h-12" />
-                </div>
-                
-                {pendingLicenses > 0 ? (
-                  <>
-                    <div className="text-purple-200 text-lg mb-4">
-                      You have <span className="font-bold text-purple-100 text-2xl tabular-nums">{pendingLicenses}</span> License{pendingLicenses > 1 ? 's' : ''} available to sell
-                    </div>
-                    
-                    <button 
-                      onClick={() => setShowPrestigeModal(true)}
-                      className="w-full py-8 bg-red-600 hover:bg-red-500 text-white font-display text-2xl font-black tracking-widest rounded-xl border-b-[6px] border-red-900 active:border-b-0 active:translate-y-[6px] transition-all btn-tactile shadow-[0_8px_0_#000000] hover:shadow-[0_6px_0_#000000] transform hover:scale-105"
-                    >
-                      SELL STORE FOR {pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
-                    </button>
-                    
-                    <div className="text-purple-300 text-sm">
-                      This will reset your progress but grant you powerful franchise licenses
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-purple-300 text-lg mb-6">
-                      Keep building your empire to unlock franchise licenses
-                    </div>
-                    <div className="text-purple-400 text-sm">
-                      Next license at <Num value={nextLicenseCost} prefix="$" decimals={0} />
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            )}
 
             {/* ── TAB NAV ── */}
             <div className="bg-zinc-900 border-b-4 border-zinc-950 px-3 pt-3 pb-3">
@@ -2023,7 +2013,7 @@ export default function App() {
 
             {/* Upgrades sub-filter pills — only shown on upgrades tab */}
             {activeTab === 'upgrades' && (
-              <div className="px-3 pt-4 pb-3">
+              <div className="px-3 pt-2 pb-2">
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { id: 'all',        label: 'All',        color: 'text-zinc-300',  activeBg: 'bg-zinc-700 border-zinc-500 text-white' },
@@ -2065,15 +2055,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* TEST BUTTON - Start Delivery Game */}
-                <div className="mt-3">
-                  <button
-                    onClick={() => setDeliveryGame(true)}
-                    className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-black tracking-wider rounded-lg border-b-2 border-amber-800 active:border-b-0 active:translate-y-[2px] transition-all"
-                  >
-                    🚗 TEST: START DELIVERY GAME
-                  </button>
-                </div>
               </div>
             )}
 
@@ -2450,13 +2431,13 @@ export default function App() {
                       }
                     }}
                       disabled={!canAfford}
-                      className={`w-full h-12 sm:h-14 sm:w-[110px] sm:h-[70px] rounded-lg border flex items-center justify-center gap-2 sm:flex-col transition-all duration-150 relative overflow-hidden group ${
+                      className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all duration-150 relative overflow-hidden group ${
                         canAfford 
-                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] sm:active:translate-y-[6px] cursor-pointer' 
-                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] sm:shadow-[0_6px_0_#000000] cursor-not-allowed opacity-80'
+                          ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] cursor-pointer' 
+                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] cursor-not-allowed opacity-80'
                       }`}
                     >
-                      <span className={`font-display text-base sm:text-lg font-black tabular-nums leading-none ${
+                      <span className={`font-display text-xl font-black tabular-nums leading-none ${
                         canAfford ? 'text-amber-100' : 'text-zinc-600'
                       }`}>
                         ${fmt(displayCost)}
@@ -2464,7 +2445,7 @@ export default function App() {
                       <span className={`text-xs font-bold uppercase tracking-wider ${
                         canAfford ? 'text-amber-200' : 'text-zinc-700'
                       }`}>
-                        {buyAmount === 'MAX' ? 'MAX' : `×${buyAmount}`}
+                        {buyAmount === 'MAX' ? 'MAX' : `BUY ×${buyAmount}`}
                       </span>
                     </button>
                   </div>
