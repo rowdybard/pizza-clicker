@@ -2115,7 +2115,9 @@ export default function App() {
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
-                  ...(goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean) ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }] : []),
+                  ...((lifetimeMoney > 100000 || franchiseLicenses > 0 || goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean))
+                    ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }]
+                    : []),
                 ].map(({ id, icon, label, active }) => {
                   // Calculate available deliveries for map tab
                   const availableDeliveries = id === 'map' ? DESTINATIONS.filter(dest => {
