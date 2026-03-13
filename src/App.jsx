@@ -177,31 +177,31 @@ const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
   { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 1, icon: <Sparkles className="text-orange-400" /> },
   { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 2, icon: <Zap className="text-orange-400" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 1200000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
-  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 50000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-orange-400" /> },
-  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 5000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-orange-400" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 6000000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 500000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-orange-400" /> },
+  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 100000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-orange-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.33, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-400" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-blue-400" /> },
-  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 25000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-blue-400" /> },
-  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 180000, multi: 1.18, baseValue: 100, reqStars: 4, icon: <Zap className="text-blue-400" /> },
-  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 1500000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-blue-400" /> },
-  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 20000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-blue-400" /> },
-  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 2000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-blue-400" /> },
+  { id: 'franchise', name: 'Ghost Kitchen', type: 'production', baseCost: 125000, multi: 1.18, baseValue: 25, reqStars: 3, icon: <Store className="text-blue-400" /> },
+  { id: 'drone', name: 'Robo Kitchen', type: 'production', baseCost: 1200000, multi: 1.18, baseValue: 100, reqStars: 4, icon: <Zap className="text-blue-400" /> },
+  { id: 'orbital', name: 'Mega Facility', type: 'production', baseCost: 18000000, multi: 1.18, baseValue: 500, reqStars: 5, icon: <Rocket className="text-blue-400" /> },
+  { id: 'darkKitchen', name: 'Dark Kitchen Grid', type: 'production', baseCost: 500000000, multi: 1.18, baseValue: 2500, reqStars: 5, icon: <Moon className="text-blue-400" /> },
+  { id: 'pizzaMatrix', name: 'Pizza Matrix', type: 'production', baseCost: 90000000000, multi: 1.18, baseValue: 15000, reqStars: 5, icon: <Building className="text-blue-400" /> },
   { id: 'soda', name: 'Soda Combos', type: 'quality', baseCost: 350, multi: 1.72, baseValue: 2.00, reqStars: 0, icon: <Coffee className="text-amber-400" /> },
   { id: 'garlicCrust', name: 'Garlic Crust', type: 'quality', baseCost: 800, multi: 1.72, baseValue: 4.00, reqStars: 1, icon: <Award className="text-amber-400" /> },
   { id: 'premiumMeat', name: 'Premium Meats', type: 'quality', baseCost: 5000, multi: 1.72, baseValue: 8.00, reqStars: 2, icon: <Pizza className="text-amber-400" /> },
-  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 45000, multi: 1.72, baseValue: 1.50, reqStars: 3, icon: <Zap className="text-amber-400" /> },
-  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 250000, multi: 1.72, baseValue: 3.75, reqStars: 4, icon: <Gem className="text-amber-400" /> },
-  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 2000000, multi: 1.72, baseValue: 12.00, reqStars: 5, icon: <Crown className="text-amber-400" /> },
-  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 80000000, multi: 1.72, baseValue: 37.50, reqStars: 5, icon: <Flame className="text-amber-400" /> },
-  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 10000000000, multi: 1.72, baseValue: 225.00, reqStars: 5, icon: <Sparkles className="text-amber-400" /> },
+  { id: 'woodFire', name: 'Wood-Fired Oven', type: 'quality', baseCost: 200000, multi: 1.72, baseValue: 1.50, reqStars: 3, icon: <Zap className="text-amber-400" /> },
+  { id: 'truffles', name: 'Artisan Truffles', type: 'quality', baseCost: 2200000, multi: 1.72, baseValue: 3.75, reqStars: 4, icon: <Gem className="text-amber-400" /> },
+  { id: 'michelin', name: 'Michelin Star', type: 'quality', baseCost: 25000000, multi: 1.72, baseValue: 12.00, reqStars: 5, icon: <Crown className="text-amber-400" /> },
+  { id: 'wagyu', name: 'Wagyu Topping', type: 'quality', baseCost: 1500000000, multi: 1.72, baseValue: 37.50, reqStars: 5, icon: <Flame className="text-amber-400" /> },
+  { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 300000000000, multi: 1.72, baseValue: 225.00, reqStars: 5, icon: <Sparkles className="text-amber-400" /> },
 ];
 
 const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 3000, 15000, 75000, 400000];
-const FRANCHISE_BASE_COST = 5e12; // scaled down so licenses 5-15 are reachable
+const FRANCHISE_BASE_COST = 5e14; // steeper license progression to slow late-game snowballing
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
@@ -437,25 +437,27 @@ export default function App() {
   const [specialDelivery, setSpecialDelivery] = useState(null);
   const [deliveryGame, setDeliveryGame] = useState(null);
 
-  const calculateCost = (upgrade, currentCount, amount) => {
+  const calculateCost = (baseCost, ownedCount) => Math.floor(baseCost * Math.pow(1.15, ownedCount));
+
+  const calculateBulkCost = (baseCost, currentCount, amount) => {
     let totalCost = 0;
-    for (let i = 0; i < amount; i++) totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
+    for (let i = 0; i < amount; i++) totalCost += calculateCost(baseCost, currentCount + i);
     return totalCost;
   };
 
-  const calculateMax = (upgrade, currentCount) => {
+  const calculateMaxAffordable = (baseCost, currentCount, balance, maxPurchases = Infinity) => {
     let cost = 0;
     let amount = 0;
-    let simulatedMoney = money;
-    while (true) {
-      const nextCost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + amount));
-      if (simulatedMoney >= nextCost) {
-        simulatedMoney -= nextCost;
+    while (amount < maxPurchases) {
+      const nextCost = calculateCost(baseCost, currentCount + amount);
+      if (balance >= cost + nextCost) {
         cost += nextCost;
         amount++;
-      } else break;
+      } else {
+        break;
+      }
     }
-    return { amount: Math.max(1, amount), cost: amount > 0 ? cost : Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount)) };
+    return { amount, cost };
   };
 
   // --- JUICE STATE ---
@@ -522,7 +524,7 @@ export default function App() {
           if (idx === 0) { next.add(upgrade.id); return; }
           const prev_upgrade = path[idx - 1];
           const prevCount = safeNum(inventory?.[prev_upgrade.id], 0);
-          const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
+          const cost = calculateCost(upgrade.baseCost, safeNum(inventory?.[upgrade.id], 0));
           if (prevCount >= 1 && money >= cost * 0.8 && starLevel >= upgrade.reqStars) {
             next.add(upgrade.id);
           }
@@ -627,7 +629,7 @@ export default function App() {
   const activeProfitPerSec = activePizzasPerSec * pizzaPrice * goldenTouchMult;
   const displayProfitPerSec = idleProfitPerSec + activeProfitPerSec;
 
-  const getCost = (upgrade) => Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, safeNum(inventory?.[upgrade.id], 0)));
+  const getCost = (upgrade) => calculateCost(upgrade.baseCost, safeNum(inventory?.[upgrade.id], 0));
 
   // --- DISHWASHING INTERACTION STATE ---
   const lastScrubPos = useRef({ x: 0, y: 0 });
@@ -829,10 +831,7 @@ export default function App() {
     
     if (actualPurchases === 0) return; // Don't allow buying if at max boost
     
-    let totalCost = 0;
-    for (let i = 0; i < actualPurchases; i++) {
-      totalCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, currentCount + i));
-    }
+    const totalCost = calculateBulkCost(upgrade.baseCost, currentCount, actualPurchases);
     if (money >= totalCost) {
       setMoney(prev => prev - totalCost);
       setInventory(prev => ({ ...prev, [upgrade.id]: currentCount + actualPurchases }));
@@ -2415,7 +2414,6 @@ export default function App() {
                 const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
-                const canAfford = money >= cost;
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
 
@@ -2456,44 +2454,31 @@ export default function App() {
                         </div>
                       </div>
                       <div className="text-right relative z-10 shrink-0">
-                        <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Base Cost</div>
+                        <div className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Next Cost</div>
                         <div className="font-display text-base font-black text-money opacity-50 tabular-nums">${fmt(cost)}</div>
                       </div>
                     </div>
                   );
                 }
 
-                let cost10 = 0;
-                for (let i = 0; i < 10; i++) cost10 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                let cost100 = 0;
-                for (let i = 0; i < 100; i++) cost100 += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                const can10 = money >= cost10;
-                const can100 = money >= cost100;
-
                 // Calculate display cost and buy amount
-                let displayCost = cost;
-                let buyAmount = buyMultiplier;
-                
+                const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250
+                const allowedPurchases = Math.max(0, maxBoost - count);
+                let buyAmount = 0;
+                let displayCost = 0;
+
                 if (buyMultiplier === 'MAX') {
-                  // Calculate max buys respecting milestone cap
-                  const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250
-                  const allowedPurchases = Math.max(0, maxBoost - count);
-                  
-                  let maxBuys = 0;
-                  let testCost = 0;
-                  while (maxBuys < allowedPurchases && money >= testCost + Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys))) {
-                    testCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + maxBuys));
-                    maxBuys++;
-                  }
-                  buyAmount = maxBuys;
-                  displayCost = testCost;
+                  const maxBundle = calculateMaxAffordable(upgrade.baseCost, count, money, allowedPurchases);
+                  buyAmount = maxBundle.amount;
+                  displayCost = maxBundle.cost;
                 } else {
-                  // Calculate cost for buyMultiplier
-                  displayCost = 0;
-                  for (let i = 0; i < buyAmount; i++) {
-                    displayCost += Math.floor(upgrade.baseCost * Math.pow(upgrade.multi, count + i));
-                  }
+                  const cap = Math.min(Number(buyMultiplier), allowedPurchases);
+                  const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, cap);
+                  buyAmount = affordableBundle.amount;
+                  displayCost = affordableBundle.cost;
                 }
+
+                const canAfford = buyAmount > 0;
                 
                 return (
                   <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] p-4 gap-4 relative group">
@@ -2574,10 +2559,19 @@ export default function App() {
                               <div className="text-sm font-display font-black text-zinc-400 tabular-nums">
                                 {count}/{nextMilestone}
                               </div>
+                              <div className="text-sm font-black text-zinc-500 uppercase tracking-wider tabular-nums">
+                                Next ${fmt(cost)}
+                              </div>
                             </div>
                             <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50">
                               <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
                             </div>
+                          </div>
+                        )}
+
+                        {nextMilestone === 'MAX' && (
+                          <div className="mt-2 text-sm font-black text-zinc-500 uppercase tracking-wider tabular-nums">
+                            Next ${fmt(cost)}
                           </div>
                         )}
                       </div>
@@ -2586,21 +2580,18 @@ export default function App() {
                     {/* Mobile-Optimized Action Button */}
                     <button 
                       onClick={() => {
-                      if (buyMultiplier === 1) {
-                        buyUpgrade(upgrade);
-                      } else if (buyMultiplier === 10) {
-                        buyUpgradeN(upgrade, 10);
-                      } else if (buyMultiplier === 'MAX') {
-                        if (buyAmount > 0) {
+                        if (!canAfford || buyAmount <= 0) return;
+                        if (buyAmount === 1) {
+                          buyUpgrade(upgrade);
+                        } else {
                           buyUpgradeN(upgrade, buyAmount);
                         }
-                      }
-                    }}
+                      }}
                       disabled={!canAfford}
                       className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all duration-150 relative overflow-hidden group ${
                         canAfford 
                           ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] cursor-pointer' 
-                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] cursor-not-allowed opacity-80'
+                          : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] cursor-not-allowed opacity-50'
                       }`}
                     >
                       <span className={`font-display text-xl font-black tabular-nums leading-none ${
@@ -2609,9 +2600,9 @@ export default function App() {
                         ${fmt(displayCost)}
                       </span>
                       <span className={`text-xs font-bold uppercase tracking-wider ${
-                        canAfford ? 'text-amber-200' : 'text-zinc-700'
+                        canAfford ? 'text-amber-200' : 'text-zinc-500'
                       }`}>
-                        {buyAmount === 'MAX' ? 'MAX' : `BUY ×${buyAmount}`}
+                        {buyAmount > 0 ? `BUY ×${buyAmount}` : 'MAXED'}
                       </span>
                     </button>
                   </div>
