@@ -97,7 +97,7 @@ const ACHIEVEMENTS = [
 
   // Lifetime Earnings
   { id: 'life_10k', name: 'Humble Beginnings', desc: 'Earn $10,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000 },
-  { id: 'life_10m', name: 'Pizza Empire', desc: 'Earn $10,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000000 },
+  { id: 'life_10m', name: 'Crust Fund', desc: 'Earn $10,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000000 },
   { id: 'life_1t', name: 'Infinite Wealth', desc: 'Earn $1,000,000,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 1000000000000 },
 
   // Total Pizzas Sold
@@ -131,7 +131,7 @@ const ACHIEVEMENTS = [
   { id: 'franchise_5',  name: 'Corporate Board',    desc: 'Gain 5 Franchise Licenses.',   req: (s) => s.franchiseLicenses >= 5  },
   { id: 'franchise_10', name: 'Pizza Conglomerate',  desc: 'Gain 10 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 10 },
   { id: 'franchise_25', name: 'Global Syndicate',    desc: 'Gain 25 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 25 },
-  { id: 'franchise_50', name: 'Pizza Empire',       desc: 'Gain 50 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 50 },
+  { id: 'franchise_50', name: 'Crust Fund',       desc: 'Gain 50 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 50 },
   { id: 'franchise_100', name: 'Galactic Dominance', desc: 'Gain 100 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 100 },
   { id: 'franchise_150', name: 'Universal Control', desc: 'Gain 150 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 150 },
   { id: 'franchise_200', name: 'Dimensional Overlord', desc: 'Gain 200 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 200 },
@@ -1628,7 +1628,7 @@ export default function App() {
                   <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-amber-100" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                  The Legend of Pizza Empire
+                  The Legend of Crust Fund
                 </h1>
                 <div className="w-8 h-8 bg-red-800 rounded-full border-2 border-red-900 flex items-center justify-center">
                   <div className="w-4 h-4 bg-yellow-500 transform rotate-45"></div>
@@ -2922,7 +2922,7 @@ export default function App() {
                         <TrendingUp className="w-16 h-16 text-zinc-300" />
                       </div>
                       <div className="text-center">
-                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Pizza Empire Stock Exchange</h2>
+                        <h2 className="font-display text-3xl text-zinc-100 tracking-widest mb-2">Crust Fund Stock Exchange</h2>
                         <p className="text-zinc-500 text-sm max-w-sm">Trade ingredient commodities. Flour and Pepperoni shares passively boost your production and pizza price.</p>
                       </div>
                       <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-8 py-5 text-center">
@@ -2950,7 +2950,7 @@ export default function App() {
                               <div className="w-2.5 h-2.5 rounded-full bg-zinc-600" />
                               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                             </div>
-                            <span className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Pizza Empire Stock Exchange</span>
+                            <span className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">PESE — Crust Fund Stock Exchange</span>
                           </div>
                           <span className="text-sm text-zinc-600 font-mono tabular-nums">15s interval · live</span>
                         </div>
