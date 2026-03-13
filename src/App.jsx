@@ -1956,7 +1956,7 @@ export default function App() {
             ))}
             {/* Visual Hull */}
             <div
-              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative outline-none
+              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative outline-none touch-none
                 ${isRush
                   ? 'bg-gradient-to-b from-red-600 to-red-700 border border-red-950 border-t-red-500'
                   : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700'
@@ -2042,8 +2042,8 @@ export default function App() {
             </div>
             {/* Layer 1: Ghost Hitbox — absorbs all pointer events */}
             <div
-              className="absolute inset-0 z-[60] cursor-pointer"
-              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+              className="absolute inset-0 z-[60] cursor-pointer touch-none"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               onClick={handleBakeAndBox}
               onMouseDown={handleBakePress}
               onMouseUp={handleBakeRelease}
