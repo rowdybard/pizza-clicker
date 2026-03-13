@@ -495,7 +495,6 @@ export default function App() {
   const [particles, setParticles] = useState([]);
   const [pressStyle, setPressStyle] = useState({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
   const [isPressed, setIsPressed] = useState(false);
-  const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
@@ -564,7 +563,7 @@ export default function App() {
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
-  const canAffordVaultPerk = goldenSlices >= 1;
+  const canAccessVaultTab = franchiseLicenses >= 25 || hasVaultProgress;
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
@@ -1398,6 +1397,12 @@ export default function App() {
     ? 'bg-zinc-900 text-zinc-100'
     : 'bg-zinc-900 text-zinc-100';
 
+  useEffect(() => {
+    if (!canAccessVaultTab && activeTab === 'vault') {
+      setActiveTab('upgrades');
+    }
+  }, [canAccessVaultTab, activeTab]);
+
   const hasTruffles = (inventory?.truffles || 0) > 0;
   const hasWoodFire = (inventory?.woodFire || 0) > 0;
   const hasMichelin = (inventory?.michelin || 0) > 0;
@@ -2059,7 +2064,7 @@ export default function App() {
           </div>
 
           {/* CORPORATE OFFICE - Below Bake & Box */}
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0 || hasVaultProgress) && (
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
             <div className="w-full max-w-md mx-auto mt-4">
               <div className="bg-zinc-950 backdrop-blur-sm rounded-xl border-2 border-amber-700/50 border-b-[4px] border-b-amber-700/50 shadow-xl overflow-hidden">
                 <button
@@ -2074,28 +2079,6 @@ export default function App() {
                 </button>
                 {corpOfficeOpen && (
                   <div className="p-5 space-y-3 bg-zinc-950">
-                    <div className="rounded-lg border border-yellow-700/40 bg-yellow-950/30 p-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-yellow-200 font-bold uppercase tracking-wider">Syndicate Vault</span>
-                        <span className="font-display text-xl text-yellow-300 tabular-nums">{goldenSlices} GS</span>
-                      </div>
-                      <div className="text-xs text-zinc-400 mt-1">
-                        {canAffordVaultPerk
-                          ? 'You can afford Vault perks right now.'
-                          : 'Earn Golden Slices via Syndicate ascension to unlock permanent perks.'}
-                      </div>
-                      <button
-                        onClick={() => setActiveTab('vault')}
-                        className={`mt-2 w-full py-2 rounded-md font-display text-sm font-black tracking-widest border-b-[2px] transition-all btn-tactile active:border-b-0 active:translate-y-[2px] ${
-                          canAffordVaultPerk
-                            ? 'bg-yellow-600 hover:bg-yellow-500 text-zinc-950 border-yellow-900'
-                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-950'
-                        }`}
-                      >
-                        {canAffordVaultPerk ? 'OPEN VAULT (PERKS AVAILABLE)' : 'OPEN VAULT'}
-                      </button>
-                    </div>
-
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-amber-200 font-bold uppercase tracking-wider">Licenses Owned</span>
                       <span className="font-display text-2xl text-amber-400 tabular-nums">{franchiseLicenses}</span>
@@ -2139,7 +2122,7 @@ export default function App() {
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
-                  ...((goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean))
+                  ...(canAccessVaultTab
                     ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }]
                     : []),
                 ].map(({ id, icon, label, active }) => {
@@ -2181,7 +2164,7 @@ export default function App() {
               
               
               {/* --- TAB: VAULT --- */}
-              {activeTab === 'vault' && (() => {
+              {activeTab === 'vault' && canAccessVaultTab && (() => {
                 const SYNDICATE_PERKS_DEF = [
                   {
                     id: 'shadowCapital',
