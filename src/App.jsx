@@ -610,6 +610,14 @@ export default function App() {
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
   const currentClickPower = franchisedClick * (isClean ? 2 : 1) * comboMultiplier * frenzyMultiplier; 
+  const clickMultiplierForGlow = (isClean ? 2 : 1) * comboMultiplier * frenzyMultiplier;
+  const clickGlowStrength = Math.min(1, Math.max(0, (clickMultiplierForGlow - 1) / 5));
+  const bankBalanceGlowStyle = {
+    textShadow: isRush
+      ? `0 0 ${8 + clickGlowStrength * 12}px rgba(248, 113, 113, ${0.35 + clickGlowStrength * 0.45}), 0 0 ${16 + clickGlowStrength * 18}px rgba(239, 68, 68, ${0.2 + clickGlowStrength * 0.35})`
+      : `0 0 ${8 + clickGlowStrength * 12}px rgba(250, 204, 21, ${0.35 + clickGlowStrength * 0.45}), 0 0 ${16 + clickGlowStrength * 18}px rgba(249, 115, 22, ${0.2 + clickGlowStrength * 0.35})`,
+    transition: 'text-shadow 120ms linear',
+  };
   
   const idlePizzasPerSec = productionRate;
   const activePizzasPerSec = smoothCps * currentClickPower;
@@ -1495,7 +1503,7 @@ export default function App() {
             }`}>
               <div className="text-xs sm:text-sm text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap leading-none">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
-                <span className={`font-display text-2xl sm:text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
+                <span className={`font-display text-2xl sm:text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`} style={bankBalanceGlowStyle}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
