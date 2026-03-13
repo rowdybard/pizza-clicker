@@ -177,9 +177,9 @@ const UPGRADES = [
   { id: 'pizzaCutter', name: 'Pro Cutter', type: 'click', baseCost: 150, multi: 1.65, baseValue: 0.75, reqStars: 0, icon: <MousePointerClick className="text-orange-400" /> },
   { id: 'doughSpinner', name: 'Dough Spinner', type: 'click', baseCost: 8000, multi: 1.65, baseValue: 7, reqStars: 1, icon: <Sparkles className="text-orange-400" /> },
   { id: 'laserSlicer', name: 'Laser Slicer', type: 'click', baseCost: 120000, multi: 1.65, baseValue: 50, reqStars: 2, icon: <Zap className="text-orange-400" /> },
-  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 6000000, multi: 1.65, baseValue: 300, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
-  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 500000000, multi: 1.65, baseValue: 2000, reqStars: 4, icon: <Zap className="text-orange-400" /> },
-  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 100000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Crown className="text-orange-400" /> },
+  { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 45000000, multi: 1.65, baseValue: 90, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
+  { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 4000000000, multi: 1.65, baseValue: 600, reqStars: 4, icon: <Zap className="text-orange-400" /> },
+  { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 1200000000000, multi: 1.65, baseValue: 4500, reqStars: 5, icon: <Crown className="text-orange-400" /> },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.33, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-400" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-blue-400" /> },
@@ -715,11 +715,12 @@ export default function App() {
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
     const moneyEarned = pizzaPrice * currentClickPower;
+    const reputationEarned = Math.max(1, Math.ceil(Math.pow(currentClickPower, 0.6) * 0.35));
 
     setMoney(prev => prev + moneyEarned);
     setLifetimeMoney(prev => prev + moneyEarned);
     setTotalPizzasSold(prev => prev + currentClickPower);
-    setReputation(prev => prev + Math.ceil(currentClickPower * 0.1));
+    setReputation(prev => prev + reputationEarned);
     setTotalClicks(prev => prev + 1);
 
     // Accumulate clicks for log — flush every 5s regardless of click rate
