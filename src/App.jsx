@@ -487,7 +487,8 @@ export default function App() {
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
   const prestigeSnapshotRef = useRef(null);
-  const [isBakePressed, setIsBakePressed] = useState(false);
+  const [bakeState, setBakeState] = useState('idle'); // 'idle' | 'pressed' | 'flash'
+  const bakeTimerRef = useRef(null);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -672,7 +673,6 @@ export default function App() {
 
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
-    playSound('pop');
     const moneyEarned = pizzaPrice * currentClickPower;
 
     setMoney(prev => prev + moneyEarned);
@@ -1902,13 +1902,13 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              onMouseDown={() => setIsBakePressed(true)}
-              onMouseUp={() => setIsBakePressed(false)}
-              onMouseLeave={() => setIsBakePressed(false)}
-              onTouchStart={() => setIsBakePressed(true)}
-              onTouchEnd={() => setIsBakePressed(false)}
+              onMouseDown={() => { setBakeState('pressed'); playSound('pop'); }}
+              onMouseUp={() => { setBakeState('flash'); if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current); bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80); }}
+              onMouseLeave={() => setBakeState('idle')}
+              onTouchStart={() => { setBakeState('pressed'); playSound('pop'); }}
+              onTouchEnd={() => { setBakeState('flash'); if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current); bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80); }}
               className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none
-                ${isBakePressed ? 'scale-x-[1.05] scale-y-[0.90]' : ''}
+                ${bakeState === 'pressed' ? 'scale-[0.92]' : ''}
                 ${isRush
                   ? 'bg-gradient-to-b from-red-600 to-red-700 border border-red-950 border-t-red-500 hover:from-red-500 hover:to-red-600'
                   : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 hover:from-zinc-700 hover:to-zinc-800'
@@ -1917,9 +1917,16 @@ export default function App() {
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation',
                 transformOrigin: 'center center',
-                transition: isBakePressed
-                  ? 'transform 30ms ease-in, box-shadow 30ms ease-in, border-bottom-width 30ms ease-in'
-                  : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 550ms cubic-bezier(0.34, 1.56, 0.64, 1), border-bottom-width 400ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+                filter: bakeState === 'pressed'
+                  ? 'brightness(0.82) drop-shadow(0 1px 3px rgba(0,0,0,0.9))'
+                  : bakeState === 'flash'
+                    ? isRush ? 'brightness(1.55) drop-shadow(0 0 28px rgba(239,68,68,0.7))' : 'brightness(1.55) drop-shadow(0 0 28px rgba(251,146,60,0.7))'
+                    : 'brightness(1)',
+                transition: bakeState === 'pressed'
+                  ? 'transform 30ms ease-in, filter 30ms ease-in'
+                  : bakeState === 'flash'
+                    ? 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 0ms'
+                    : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 280ms ease-out'
               }}
             >
               
