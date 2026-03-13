@@ -686,20 +686,7 @@ export default function App() {
     const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
     const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
     setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
-    const cx = clientX - rect.left;
-    const cy = clientY - rect.top;
-    const count = Math.floor(Math.random() * 3) + 8;
-    const newParticles = Array.from({ length: count }, (_, i) => ({
-      id: Date.now() + i,
-      x: cx, y: cy,
-      targetX: (Math.random() - 0.5) * 250,
-      targetY: (Math.random() - 0.5) * 250,
-      rot: (Math.random() - 0.5) * 720,
-      scale: 0.6 + Math.random() * 0.8,
-      duration: 500 + Math.random() * 300,
-    }));
-    setParticles(prev => [...prev, ...newParticles]);
-    setTimeout(() => setParticles(prev => prev.filter(p => !newParticles.find(n => n.id === p.id))), 900);
+    // Click spark particles intentionally disabled; keep core click/press engine unchanged.
   };
 
   const handleBakeRelease = () => {
@@ -1502,13 +1489,13 @@ export default function App() {
           </div>
 
           {/* CENTER: Dominant bank display */}
-          <div className="flex-1 flex justify-center">
-            <div className={`flex flex-col items-center gap-1 px-6 py-3 rounded-xl border-b-[4px] shrink-0 ${
+          <div className="flex-1 flex justify-center min-w-0">
+            <div className={`flex flex-col items-center gap-1 px-3 sm:px-6 py-3 rounded-xl border-b-[4px] min-w-0 ${
               isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
             }`}>
               <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
-                <span className={`font-display text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
+                <span className={`font-display text-2xl sm:text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
                   <Num value={money} prefix="$" decimals={2} />
                 </span>
                 {numWords(money) && (
