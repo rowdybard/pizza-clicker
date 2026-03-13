@@ -202,7 +202,6 @@ const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 3000, 15000, 75000, 400000];
 const FRANCHISE_BASE_COST = 5e14; // steeper license progression to slow late-game snowballing
-const SYNDICATE_ASCEND_LICENSE_REQ = 25;
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
@@ -356,123 +355,6 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
   );
 });
 
-const AscendModal = React.memo(function AscendModal({ open, onClose, franchiseLicenses, requirement, goldenSlices, hasVaultProgress }) {
-  if (!open) return null;
-
-  const readyToAscend = franchiseLicenses >= requirement;
-  const licensesRemaining = Math.max(0, requirement - franchiseLicenses);
-
-  return (
-    <div className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative max-w-2xl w-full overflow-hidden rounded-[28px] border border-amber-500/40 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.18),_transparent_38%),linear-gradient(180deg,_rgba(39,39,42,0.98),_rgba(9,9,11,1))] shadow-[0_0_80px_rgba(245,158,11,0.16)]">
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(135deg,transparent_0%,rgba(251,191,36,0.05)_45%,transparent_100%)]" />
-        <div className="relative p-6 md:p-8">
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 h-10 w-10 rounded-full border border-amber-500/30 bg-black/30 text-amber-200 hover:bg-amber-500/10 transition-colors"
-            aria-label="Close ascend modal"
-          >
-            ✕
-          </button>
-
-          <div className="flex items-start gap-4 pr-10">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-amber-400/40 bg-amber-500/10 shadow-[inset_0_0_20px_rgba(251,191,36,0.08)]">
-              <Crown className="h-8 w-8 text-amber-300" />
-            </div>
-            <div>
-              <div className="text-xs font-black uppercase tracking-[0.35em] text-amber-500/80">Obsidian Ascension</div>
-              <h2 className="mt-2 text-3xl text-amber-50" style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700 }}>
-                Enter The Culinary Syndicate
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-amber-100/70">
-                Ascension is the obsidian-and-gold prestige layer above your corporate empire. It cashes out a mature run into permanent Syndicate progress.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-amber-500/20 bg-black/30 p-4 text-left">
-              <div className="flex items-center gap-2 text-amber-300">
-                <Gem className="h-5 w-5" />
-                <span className="text-xs font-black uppercase tracking-[0.25em]">Permanent Currency</span>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-                Ascending grants Golden Slices, the permanent currency used for your highest-tier progression.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-amber-500/20 bg-black/30 p-4 text-left">
-              <div className="flex items-center gap-2 text-amber-300">
-                <Sparkles className="h-5 w-5" />
-                <span className="text-xs font-black uppercase tracking-[0.25em]">Vault Perks</span>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-                Golden Slices unlock permanent perks like Shadow Capital, Time Loop, Golden Touch, and other cross-run boosts.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-amber-500/20 bg-black/30 p-4 text-left">
-              <div className="flex items-center gap-2 text-amber-300">
-                <Moon className="h-5 w-5" />
-                <span className="text-xs font-black uppercase tracking-[0.25em]">Fresh Chapter</span>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-300">
-                Your active run resets, but your Golden Slices and purchased Syndicate perks carry forward into every future empire.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-3xl border border-amber-400/30 bg-gradient-to-br from-amber-950/70 via-zinc-950 to-black p-5 shadow-[inset_0_1px_0_rgba(251,191,36,0.15)]">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[0.3em] text-amber-500/80">Ascension Threshold</div>
-                <div className="mt-2 font-display text-3xl tracking-widest text-amber-200 tabular-nums">
-                  {franchiseLicenses} / {requirement} Licenses
-                </div>
-              </div>
-              <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.25em] ${
-                readyToAscend
-                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
-                  : 'border-amber-500/30 bg-amber-500/10 text-amber-200'
-              }`}>
-                {readyToAscend ? <CheckCircle className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                {readyToAscend ? 'Ascension Ready' : `${licensesRemaining} More Needed`}
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <div className="rounded-2xl border border-amber-500/20 bg-black/25 p-4">
-                <div className="text-xs font-black uppercase tracking-[0.25em] text-amber-500/70">Current Vault Balance</div>
-                <div className="mt-2 font-display text-2xl tracking-widest text-yellow-300 tabular-nums">{goldenSlices} GS</div>
-              </div>
-              <div className="rounded-2xl border border-amber-500/20 bg-black/25 p-4">
-                <div className="text-xs font-black uppercase tracking-[0.25em] text-amber-500/70">What To Expect</div>
-                <div className="mt-2 text-sm leading-relaxed text-zinc-300">
-                  {readyToAscend
-                    ? 'You have enough licenses to start the Syndicate climb. Golden Slices and permanent perks are the payoff for cashing out this run.'
-                    : `Keep scaling until you reach ${requirement} Franchise Licenses to unlock Syndicate ascension.`}
-                </div>
-              </div>
-            </div>
-
-            {hasVaultProgress && (
-              <div className="mt-4 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-100/80">
-                Your Vault progress is already permanent. This modal only explains what ascension does and when the next climb is ready.
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={onClose}
-              className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-5 py-3 font-display text-sm tracking-[0.2em] text-amber-100 transition-colors hover:bg-amber-500/20"
-            >
-              CLOSE
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
 
 export default function App() {
   // --- EMERGENCY UNLOCK EFFECT ---
@@ -681,9 +563,8 @@ export default function App() {
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
-  const canAscendSyndicate = franchiseLicenses >= SYNDICATE_ASCEND_LICENSE_REQ;
   const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
-  const showSyndicateOffice = canAscendSyndicate || hasVaultProgress;
+  const canAffordVaultPerk = goldenSlices >= 1;
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
@@ -1736,15 +1617,6 @@ export default function App() {
         </div>
       )}
 
-      <AscendModal
-        open={showAscendModal}
-        onClose={() => setShowAscendModal(false)}
-        franchiseLicenses={franchiseLicenses}
-        requirement={SYNDICATE_ASCEND_LICENSE_REQ}
-        goldenSlices={goldenSlices}
-        hasVaultProgress={hasVaultProgress}
-      />
-
       {/* --- PARCHMENT TALE MODAL --- */}
       {showParchmentModal && (
         <div className="fixed inset-0 z-[100] bg-gray-900/95 flex items-center justify-center p-4">
@@ -2187,7 +2059,7 @@ export default function App() {
           </div>
 
           {/* CORPORATE OFFICE - Below Bake & Box */}
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0 || showSyndicateOffice) && (
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0 || hasVaultProgress) && (
             <div className="w-full max-w-md mx-auto mt-4">
               <div className="bg-zinc-950 backdrop-blur-sm rounded-xl border-2 border-amber-700/50 border-b-[4px] border-b-amber-700/50 shadow-xl overflow-hidden">
                 <button
@@ -2202,36 +2074,27 @@ export default function App() {
                 </button>
                 {corpOfficeOpen && (
                   <div className="p-5 space-y-3 bg-zinc-950">
-                    {showSyndicateOffice && (
-                      <div className="rounded-lg border border-yellow-700/40 bg-[linear-gradient(180deg,rgba(113,63,18,0.24),rgba(9,9,11,0.9))] p-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <span className="text-sm text-yellow-200 font-bold uppercase tracking-wider">Culinary Syndicate</span>
-                            <div className="text-xs text-zinc-400 mt-1">
-                              {canAscendSyndicate
-                                ? 'Your license stack is high enough to begin the next prestige layer.'
-                                : `Syndicate ascent unlocks at ${SYNDICATE_ASCEND_LICENSE_REQ} Franchise Licenses.`}
-                            </div>
-                          </div>
-                          <span className="font-display text-xl text-yellow-300 tabular-nums">{goldenSlices} GS</span>
-                        </div>
-                        <button
-                          onClick={() => setShowAscendModal(true)}
-                          className={`mt-3 w-full py-2 rounded-md font-display text-sm font-black tracking-widest border-b-[2px] transition-all btn-tactile active:border-b-0 active:translate-y-[2px] ${
-                            canAscendSyndicate
-                              ? 'bg-yellow-600 hover:bg-yellow-500 text-zinc-950 border-yellow-900'
-                              : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-950'
-                          }`}
-                        >
-                          {canAscendSyndicate ? 'ASCEND' : 'ASCEND OVERVIEW'}
-                        </button>
-                        {hasVaultProgress && (
-                          <div className="mt-2 text-[11px] uppercase tracking-[0.2em] text-yellow-300/70">
-                            Vault perks remain available from the Vault tab after your first Syndicate climb.
-                          </div>
-                        )}
+                    <div className="rounded-lg border border-yellow-700/40 bg-yellow-950/30 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-yellow-200 font-bold uppercase tracking-wider">Syndicate Vault</span>
+                        <span className="font-display text-xl text-yellow-300 tabular-nums">{goldenSlices} GS</span>
                       </div>
-                    )}
+                      <div className="text-xs text-zinc-400 mt-1">
+                        {canAffordVaultPerk
+                          ? 'You can afford Vault perks right now.'
+                          : 'Earn Golden Slices via Syndicate ascension to unlock permanent perks.'}
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('vault')}
+                        className={`mt-2 w-full py-2 rounded-md font-display text-sm font-black tracking-widest border-b-[2px] transition-all btn-tactile active:border-b-0 active:translate-y-[2px] ${
+                          canAffordVaultPerk
+                            ? 'bg-yellow-600 hover:bg-yellow-500 text-zinc-950 border-yellow-900'
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-950'
+                        }`}
+                      >
+                        {canAffordVaultPerk ? 'OPEN VAULT (PERKS AVAILABLE)' : 'OPEN VAULT'}
+                      </button>
+                    </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-amber-200 font-bold uppercase tracking-wider">Licenses Owned</span>
@@ -2276,7 +2139,7 @@ export default function App() {
                   { id: 'stats',        icon: <TrendingUp   className="w-3.5 h-3.5" />, label: 'Stats',     active: 'bg-sky-600 text-white border-b-2 border-sky-900'         },
                   { id: 'market',       icon: <DollarSign   className="w-3.5 h-3.5" />, label: marketUnlocked ? 'PTSE' : 'Mkt', active: 'bg-teal-600 text-white border-b-2 border-teal-900' },
                   { id: 'log',          icon: <ScrollText   className="w-3.5 h-3.5" />, label: 'Log',       active: 'bg-zinc-600 text-white border-b-2 border-zinc-900'    },
-                  ...(hasVaultProgress
+                  ...((goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean))
                     ? [{ id: 'vault', icon: <Gem className="w-3.5 h-3.5" />, label: 'Vault', active: 'bg-yellow-600 text-zinc-900 border-b-2 border-yellow-900' }]
                     : []),
                 ].map(({ id, icon, label, active }) => {
