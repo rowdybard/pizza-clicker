@@ -1935,9 +1935,9 @@ export default function App() {
 
           <div className="relative perspective-[1000px] select-none flex items-center justify-center">
             {/* Layer 3: Socket — static depth base */}
-            <div className="absolute w-full h-full rounded-[3.5rem] bg-black border-4 border-zinc-900 shadow-[inset_0_15px_30px_rgba(0,0,0,0.9)] translate-y-2 pointer-events-none" />
+            <div className="absolute -inset-1 rounded-[2.2rem] bg-black border-4 border-zinc-900 shadow-[inset_0_15px_30px_rgba(0,0,0,0.9)] translate-y-2 pointer-events-none" />
             {/* Layer 4: Opposing shadow — shifts opposite to tilt */}
-            <div className="absolute w-full h-full rounded-[3.5rem] bg-black/60 pointer-events-none"
+            <div className="absolute -inset-1 rounded-[2.2rem] bg-black/60 pointer-events-none"
               style={{
                 filter: 'blur(20px)',
                 transform: `translate(${-pressStyle.tiltY * 0.3}px, ${pressStyle.tiltX * 0.3}px)`,
