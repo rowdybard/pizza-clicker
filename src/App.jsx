@@ -742,7 +742,7 @@ export default function App() {
     const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
     
     const now = Date.now();
-    setClickPopups(prev => [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]);
+    setClickPopups(prev => { const next = [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]; return next.length > 25 ? next.slice(next.length - 25) : next; });
   };
 
   const handlePullFromOven = () => {
@@ -2005,8 +2005,8 @@ export default function App() {
                 {clickPopups.map(popup => (
                   <div
                     key={popup.id}
-                    className="absolute text-2xl font-black pointer-events-none drop-shadow-md z-50 floating-popup tabular-nums"
-                    style={{ left: popup.x, top: popup.y, color: isRush ? '#f87171' : '#fcd34d' }}
+                    className="absolute text-4xl font-black pointer-events-none drop-shadow-md z-50 floating-popup tabular-nums"
+                    style={{ left: popup.x, top: popup.y, color: isRush ? '#f87171' : '#4ade80' }}
                   >
                     +${popup.value}
                   </div>
