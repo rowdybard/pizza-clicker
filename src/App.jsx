@@ -1909,7 +1909,7 @@ export default function App() {
               onTouchEnd={() => setIsBakePressed(false)}
               className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none
                 border-b-[8px]
-                ${isBakePressed ? 'scale-x-[1.08] scale-y-[0.85] translate-y-4 shadow-none border-b-0' : 'shadow-[0_12px_0_#000000]'}
+                ${isBakePressed ? 'scale-x-[1.05] scale-y-[0.90] shadow-none border-b-0' : 'shadow-[0_12px_0_#000000]'}
                 ${isRush
                   ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 hover:from-red-500 hover:to-red-600'
                   : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 hover:from-zinc-700 hover:to-zinc-800'
@@ -1917,9 +1917,10 @@ export default function App() {
               style={{
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation',
+                transformOrigin: 'center bottom',
                 transition: isBakePressed
-                  ? 'transform 60ms linear, box-shadow 60ms linear, border-bottom-width 60ms linear'
-                  : 'transform 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4), box-shadow 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4), border-bottom-width 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4)'
+                  ? 'transform 30ms ease-in, box-shadow 30ms ease-in, border-bottom-width 30ms ease-in'
+                  : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 550ms cubic-bezier(0.34, 1.56, 0.64, 1), border-bottom-width 400ms cubic-bezier(0.34, 1.56, 0.64, 1)'
               }}
             >
               
