@@ -487,6 +487,7 @@ export default function App() {
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
   const prestigeSnapshotRef = useRef(null);
+  const [isBakePressed, setIsBakePressed] = useState(false);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -1784,13 +1785,23 @@ export default function App() {
                 </div>
                 
                 <div className="w-full h-8 bg-zinc-950 rounded-lg relative overflow-hidden border-2 border-zinc-800">
+                   {/* Burn warning: faint red after sweet spot */}
+                   <div className="absolute top-0 bottom-0 bg-red-950/40 z-[5]" style={{ left: '88%', right: 0 }}></div>
+                   {/* Sweet spot indicator */}
                    <div className="absolute top-0 bottom-0 bg-green-700 border-x-2 border-green-500 z-10" style={{ left: '75%', width: '13%' }}></div>
-                   <div className="h-full bg-orange-600 relative z-0" style={{ width: `${sideOrder.progress}%` }}></div>
+                   {/* Progress bar */}
+                   <div className="h-full bg-orange-600 z-0" style={{ width: `${sideOrder.progress}%` }}></div>
+                   {/* Playhead: sharp white line at leading edge */}
+                   <div className="absolute top-0 bottom-0 z-30 w-[2px] bg-white" style={{ left: `calc(${sideOrder.progress}% - 1px)`, boxShadow: '0 0 4px rgba(255,255,255,0.9)' }}></div>
                 </div>
                 
                 <button 
                   onClick={handlePullFromOven} 
-                  className="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] border-orange-900 active:border-b-0 active:translate-y-[3px]"
+                  className={`w-full py-2 text-white font-display tracking-widest rounded-xl btn-tactile border-b-[3px] active:border-b-0 active:translate-y-[3px] transition-colors duration-150 ${
+                    sideOrder.progress >= 75 && sideOrder.progress <= 88
+                      ? 'bg-green-500 hover:bg-green-400 border-green-900 animate-pulse'
+                      : 'bg-orange-600 hover:bg-orange-500 border-orange-900'
+                  }`}
                 >
                   PULL FROM OVEN!
                 </button>
@@ -1891,13 +1902,25 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={handleBakeAndBox}
-              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none btn-tactile
-                border-b-[8px] active:shadow-none active:translate-y-[12px]
+              onMouseDown={() => setIsBakePressed(true)}
+              onMouseUp={() => setIsBakePressed(false)}
+              onMouseLeave={() => setIsBakePressed(false)}
+              onTouchStart={() => setIsBakePressed(true)}
+              onTouchEnd={() => setIsBakePressed(false)}
+              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none
+                border-b-[8px]
+                ${isBakePressed ? 'scale-x-[1.08] scale-y-[0.85] translate-y-4 shadow-none border-b-0' : 'shadow-[0_12px_0_#000000]'}
                 ${isRush
-                  ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 shadow-[0_12px_0_#000000] hover:from-red-500 hover:to-red-600'
-                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 shadow-[0_12px_0_#000000] hover:from-zinc-700 hover:to-zinc-800'
+                  ? 'bg-gradient-to-b from-red-600 to-red-700 border-red-950 border-t-red-500 hover:from-red-500 hover:to-red-600'
+                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 hover:from-zinc-700 hover:to-zinc-800'
                 }`}
-              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+              style={{
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation',
+                transition: isBakePressed
+                  ? 'transform 60ms linear, box-shadow 60ms linear, border-bottom-width 60ms linear'
+                  : 'transform 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4), box-shadow 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4), border-bottom-width 400ms cubic-bezier(0.175, 0.885, 0.32, 1.4)'
+              }}
             >
               
               {/* COMBO METER */}
