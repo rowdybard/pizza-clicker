@@ -489,6 +489,9 @@ export default function App() {
   const prestigeSnapshotRef = useRef(null);
   const [bakeState, setBakeState] = useState('idle'); // 'idle' | 'pressed' | 'flash'
   const bakeTimerRef = useRef(null);
+  const [particles, setParticles] = useState([]);
+  const [pressStyle, setPressStyle] = useState({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
+  const [isPressed, setIsPressed] = useState(false);
   const [showAscendModal, setShowAscendModal] = useState(false);
   const [showParchmentModal, setShowParchmentModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -670,6 +673,42 @@ export default function App() {
     const entry = { id: Date.now() + Math.random(), ts: Date.now(), category, label, amount };
     setMoneyLog(prev => [entry, ...prev].slice(0, 200));
   }, []);
+
+  const handleBakePress = (e) => {
+    playSound('pop');
+    setBakeState('pressed');
+    setIsPressed(true);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width / 2);
+    const clientY = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height / 2);
+    const rawX = ((clientX - rect.left) / rect.width - 0.5) * 2;
+    const rawY = ((clientY - rect.top) / rect.height - 0.5) * 2;
+    const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
+    const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
+    setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
+    const cx = clientX - rect.left;
+    const cy = clientY - rect.top;
+    const count = Math.floor(Math.random() * 3) + 8;
+    const newParticles = Array.from({ length: count }, (_, i) => ({
+      id: Date.now() + i,
+      x: cx, y: cy,
+      targetX: (Math.random() - 0.5) * 250,
+      targetY: (Math.random() - 0.5) * 250,
+      rot: (Math.random() - 0.5) * 720,
+      scale: 0.6 + Math.random() * 0.8,
+      duration: 500 + Math.random() * 300,
+    }));
+    setParticles(prev => [...prev, ...newParticles]);
+    setTimeout(() => setParticles(prev => prev.filter(p => !newParticles.find(n => n.id === p.id))), 900);
+  };
+
+  const handleBakeRelease = () => {
+    setIsPressed(false);
+    setBakeState('flash');
+    setPressStyle({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
+    if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current);
+    bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80);
+  };
 
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
@@ -1899,97 +1938,124 @@ export default function App() {
             )}
           </div>
 
-          <div className="relative">
-            <button 
-              onClick={handleBakeAndBox}
-              onMouseDown={() => { setBakeState('pressed'); playSound('pop'); }}
-              onMouseUp={() => { setBakeState('flash'); if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current); bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80); }}
-              onMouseLeave={() => setBakeState('idle')}
-              onTouchStart={() => { setBakeState('pressed'); playSound('pop'); }}
-              onTouchEnd={() => { setBakeState('flash'); if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current); bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80); }}
-              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative select-none outline-none
-                ${bakeState === 'pressed' ? 'scale-[0.92]' : ''}
+          <div className="relative perspective-[1000px] select-none flex items-center justify-center">
+            {/* Layer 3: Socket — static depth base */}
+            <div className="absolute w-full h-full rounded-[3.5rem] bg-black border-4 border-zinc-900 shadow-[inset_0_15px_30px_rgba(0,0,0,0.9)] translate-y-2 pointer-events-none" />
+            {/* Layer 4: Opposing shadow — shifts opposite to tilt */}
+            <div className="absolute w-full h-full rounded-[3.5rem] bg-black/60 pointer-events-none"
+              style={{
+                filter: 'blur(20px)',
+                transform: `translate(${-pressStyle.tiltY * 0.3}px, ${pressStyle.tiltX * 0.3}px)`,
+                transition: isPressed ? 'transform 30ms ease-in' : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }} />
+            {/* Layer 2: Particles */}
+            {particles.map(p => (
+              <div key={p.id}
+                className="absolute z-[70] w-1.5 h-8 bg-amber-200 rounded-full shadow-[0_0_10px_#fde047] animate-premium-burst pointer-events-none"
+                style={{
+                  left: p.x, top: p.y,
+                  '--tx': `${p.targetX}px`, '--ty': `${p.targetY}px`,
+                  '--rot': `${p.rot}deg`, '--scale': p.scale,
+                  animationDuration: `${p.duration}ms`,
+                }} />
+            ))}
+            {/* Visual Hull */}
+            <div
+              className={`w-full rounded-[2rem] p-6 pb-8 md:pb-6 flex flex-col items-center justify-center gap-4 group relative outline-none
                 ${isRush
-                  ? 'bg-gradient-to-b from-red-600 to-red-700 border border-red-950 border-t-red-500 hover:from-red-500 hover:to-red-600'
-                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 hover:from-zinc-700 hover:to-zinc-800'
+                  ? 'bg-gradient-to-b from-red-600 to-red-700 border border-red-950 border-t-red-500'
+                  : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700'
                 }`}
               style={{
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation',
-                transformOrigin: 'center center',
-                filter: bakeState === 'pressed'
-                  ? 'brightness(0.82) drop-shadow(0 1px 3px rgba(0,0,0,0.9))'
-                  : bakeState === 'flash'
-                    ? isRush ? 'brightness(1.55) drop-shadow(0 0 28px rgba(239,68,68,0.7))' : 'brightness(1.55) drop-shadow(0 0 28px rgba(251,146,60,0.7))'
-                    : 'brightness(1)',
-                transition: bakeState === 'pressed'
+                transformStyle: 'preserve-3d',
+                transform: isPressed
+                  ? `rotateX(${pressStyle.tiltX}deg) rotateY(${pressStyle.tiltY}deg) scale(0.96) translateZ(-20px) translateY(8px)`
+                  : 'rotateX(0deg) rotateY(0deg) scale(1) translateZ(0px) translateY(0px)',
+                filter: bakeState === 'flash'
+                  ? isRush ? 'brightness(1.55) drop-shadow(0 0 28px rgba(239,68,68,0.7))' : 'brightness(1.55) drop-shadow(0 0 28px rgba(251,146,60,0.7))'
+                  : 'brightness(1)',
+                transition: isPressed
                   ? 'transform 30ms ease-in, filter 30ms ease-in'
                   : bakeState === 'flash'
                     ? 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 0ms'
-                    : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 280ms ease-out'
+                    : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 280ms ease-out',
+                willChange: 'transform',
               }}
             >
-              
-              {/* COMBO METER */}
-              {combo > 0 && (
-                <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
-                  <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
-                    ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
-                    x{comboMultiplier.toFixed(2)}
+              {/* Parallax inner content — floats above hull surface */}
+              <div style={{
+                transform: `translate3d(${pressStyle.parallaxX}px, ${pressStyle.parallaxY}px, 40px)`,
+                transition: isPressed ? 'transform 30ms ease-in' : 'transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', position: 'relative',
+              }}>
+                {/* COMBO METER */}
+                {combo > 0 && (
+                  <div className="absolute top-5 right-5 flex flex-col items-end pointer-events-none">
+                    <div className={`font-display text-3xl md:text-5xl transition-all duration-100 tabular-nums font-black
+                      ${combo >= 100 && heatBarPct >= 0.9 ? 'text-white scale-125' : combo > 50 ? 'text-red-200 scale-110' : combo > 20 ? 'text-orange-100' : 'text-yellow-200'}`}>
+                      x{comboMultiplier.toFixed(2)}
+                    </div>
+                    <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
+                    <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
+                      <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
+                    </div>
                   </div>
-                  <div className="text-sm font-black tracking-widest uppercase text-orange-900 bg-orange-200 px-2 py-0.5 rounded mt-1">Combo</div>
-                  <div className="w-20 h-2 bg-orange-900 rounded-full mt-1.5 overflow-hidden">
-                    <div className="h-full bg-yellow-300 transition-all duration-100" style={{ width: `${(comboDecayTimer / 20) * 100}%` }} />
+                )}
+
+                {clickPopups.map(popup => (
+                  <div
+                    key={popup.id}
+                    className="absolute text-2xl font-black pointer-events-none drop-shadow-md z-50 floating-popup tabular-nums"
+                    style={{ left: popup.x, top: popup.y, color: isRush ? '#f87171' : '#fcd34d' }}
+                  >
+                    +${popup.value}
                   </div>
-                </div>
-              )}
+                ))}
 
-              {clickPopups.map(popup => (
-                <div 
-                  key={popup.id}
-                  className="absolute text-2xl font-black pointer-events-none drop-shadow-md z-50 floating-popup tabular-nums"
-                  style={{ 
-                    left: popup.x, 
-                    top: popup.y,
-                    color: isRush ? '#f87171' : '#fcd34d' 
-                  }}
-                >
-                  +${popup.value}
-                </div>
-              ))}
-
-              <div className="relative pointer-events-none flex flex-col items-center">
-                 {hasMichelin && (
-                   <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-7 h-7 text-yellow-300 animate-bounce z-20" />
-                 )}
-                 {hasTruffles && !isRush && (
-                   <>
-                     <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
-                     <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
-                   </>
-                 )}
-                 {/* Pizza icon — slow continuous spin */}
-                 <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 group-active:scale-90 transition-transform duration-150 ${pizzaColorClass}`} />
-                 {/* Ellipse pedestal shadow */}
-                 <div className="w-28 h-4 bg-orange-900 rounded-full mt-1 opacity-60" style={{ filter: 'blur(6px)' }} />
-              </div>
-             
-              <div className="pointer-events-none flex flex-col items-center z-10">
-                <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
-                <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
-                  isClean
-                    ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
-                    : 'text-amber-100 bg-amber-700 border-b-2 border-amber-950'
-                }`}>
-                  {isClean && (
-                    <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
+                <div className="relative pointer-events-none flex flex-col items-center">
+                  {hasMichelin && (
+                    <Crown className="absolute -top-7 left-1/2 -translate-x-1/2 w-7 h-7 text-yellow-300 animate-bounce z-20" />
                   )}
-                  <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
-                  <span className={isClean ? 'text-cyan-600' : 'text-zinc-500'}>|</span>
-                  <span>+<Num value={currentClickPower} decimals={1} /> Pizzas per Click</span>
+                  {hasTruffles && !isRush && (
+                    <>
+                      <Sparkles className="absolute -top-1 -left-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0s' }} />
+                      <Sparkles className="absolute -top-1 -right-4 w-5 h-5 text-cyan-200 opacity-90 animate-bounce z-20" style={{ animationDelay: '0.3s' }} />
+                    </>
+                  )}
+                  {/* Pizza icon — slow continuous spin */}
+                  <Pizza className={`w-32 h-32 md:w-40 md:h-40 relative z-10 pizza-spin group-hover:scale-110 transition-transform duration-150 ${pizzaColorClass}`} />
+                  {/* Ellipse pedestal shadow */}
+                  <div className="w-28 h-4 bg-orange-900 rounded-full mt-1 opacity-60" style={{ filter: 'blur(6px)' }} />
+                </div>
+
+                <div className="pointer-events-none flex flex-col items-center z-10">
+                  <div className={`text-4xl font-display tracking-widest uppercase mb-2 ${isRush ? 'text-red-100' : 'text-orange-100'}`}>Bake &amp; Box</div>
+                  <div className={`text-sm md:text-base font-display px-5 py-2 rounded-full inline-flex items-center gap-2 tracking-wider tabular-nums transition-all duration-300 ${
+                    isClean
+                      ? 'text-cyan-100 bg-cyan-800 border-b-2 border-cyan-950'
+                      : 'text-amber-100 bg-amber-700 border-b-2 border-amber-950'
+                  }`}>
+                    {isClean && (
+                      <span className="text-sm font-black uppercase tracking-widest text-cyan-400 bg-cyan-900/60 border border-cyan-500/50 px-1.5 py-0.5 rounded shrink-0">2× CLEAN</span>
+                    )}
+                    <span>+$<Num value={pizzaPrice * currentClickPower} decimals={2} /></span>
+                    <span className={isClean ? 'text-cyan-600' : 'text-zinc-500'}>|</span>
+                    <span>+<Num value={currentClickPower} decimals={1} /> Pizzas per Click</span>
+                  </div>
                 </div>
               </div>
-            </button>
+            </div>
+            {/* Layer 1: Ghost Hitbox — absorbs all pointer events */}
+            <div
+              className="absolute inset-0 z-[60] cursor-pointer"
+              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+              onClick={handleBakeAndBox}
+              onMouseDown={handleBakePress}
+              onMouseUp={handleBakeRelease}
+              onMouseLeave={handleBakeRelease}
+              onTouchStart={handleBakePress}
+              onTouchEnd={handleBakeRelease}
+            />
           </div>
 
           {/* CORPORATE OFFICE - Below Bake & Box */}
@@ -3432,6 +3498,13 @@ export default function App() {
           to   { transform: rotate(360deg); }
         }
         .pizza-spin { animation: pizzaSpin 20s linear infinite; }
+
+        @keyframes premium-burst {
+          0%   { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
+          15%  { transform: translate(calc(-50% + var(--tx) * 0.6), calc(-50% + var(--ty) * 0.6)) scale(var(--scale)) rotate(calc(var(--rot) * 0.5)); opacity: 1; }
+          100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty) + 60px)) scale(0) rotate(var(--rot)); opacity: 0; }
+        }
+        .animate-premium-burst { animation: premium-burst ease-out forwards; }
       `}} />
 
     </div>
