@@ -562,6 +562,8 @@ export default function App() {
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
+  const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
+  const canAffordVaultPerk = goldenSlices >= 1;
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
@@ -2056,7 +2058,7 @@ export default function App() {
           </div>
 
           {/* CORPORATE OFFICE - Below Bake & Box */}
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
+          {(lifetimeMoney > 100000 || franchiseLicenses > 0 || hasVaultProgress) && (
             <div className="w-full max-w-md mx-auto mt-4">
               <div className="bg-zinc-950 backdrop-blur-sm rounded-xl border-2 border-amber-700/50 border-b-[4px] border-b-amber-700/50 shadow-xl overflow-hidden">
                 <button
@@ -2071,6 +2073,28 @@ export default function App() {
                 </button>
                 {corpOfficeOpen && (
                   <div className="p-5 space-y-3 bg-zinc-950">
+                    <div className="rounded-lg border border-yellow-700/40 bg-yellow-950/30 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-yellow-200 font-bold uppercase tracking-wider">Syndicate Vault</span>
+                        <span className="font-display text-xl text-yellow-300 tabular-nums">{goldenSlices} GS</span>
+                      </div>
+                      <div className="text-xs text-zinc-400 mt-1">
+                        {canAffordVaultPerk
+                          ? 'You can afford Vault perks right now.'
+                          : 'Earn Golden Slices via Syndicate ascension to unlock permanent perks.'}
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('vault')}
+                        className={`mt-2 w-full py-2 rounded-md font-display text-sm font-black tracking-widest border-b-[2px] transition-all btn-tactile active:border-b-0 active:translate-y-[2px] ${
+                          canAffordVaultPerk
+                            ? 'bg-yellow-600 hover:bg-yellow-500 text-zinc-950 border-yellow-900'
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-950'
+                        }`}
+                      >
+                        {canAffordVaultPerk ? 'OPEN VAULT (PERKS AVAILABLE)' : 'OPEN VAULT'}
+                      </button>
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-amber-200 font-bold uppercase tracking-wider">Licenses Owned</span>
                       <span className="font-display text-2xl text-amber-400 tabular-nums">{franchiseLicenses}</span>
