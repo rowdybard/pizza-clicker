@@ -683,6 +683,9 @@ export default function App() {
   }, []);
 
   const handleBakePress = (e) => {
+    if (e.type?.includes('touch') && e.cancelable) {
+      e.preventDefault();
+    }
     playSound('pop');
     setBakeState('pressed');
     setIsPressed(true);
