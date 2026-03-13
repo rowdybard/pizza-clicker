@@ -1489,11 +1489,11 @@ export default function App() {
           </div>
 
           {/* CENTER: Dominant bank display */}
-          <div className="flex-1 flex justify-center min-w-0">
-            <div className={`flex flex-col items-center gap-1 px-3 sm:px-6 py-3 rounded-xl border-b-[4px] min-w-0 ${
+          <div className="flex-1 flex justify-end sm:justify-center min-w-0">
+            <div className={`flex flex-col items-center gap-0.5 px-3 sm:px-6 py-2 sm:py-3 rounded-xl border-b-[4px] min-w-0 ${
               isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
             }`}>
-              <div className="text-sm text-zinc-400 font-bold uppercase tracking-widest">BANK BALANCE</div>
+              <div className="text-xs sm:text-sm text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap leading-none">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
                 <span className={`font-display text-2xl sm:text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`}>
                   <Num value={money} prefix="$" decimals={2} />
