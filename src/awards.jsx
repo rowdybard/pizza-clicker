@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Star, Pizza, Building2, Flame, Globe2, 
   Lock, MousePointerClick, CircleDollarSign, 
@@ -55,9 +55,17 @@ const AWARDS_DB = [
 export default function ExecutiveStickerbook() {
   // Default to showing the first unlocked award in the focus panel
   const [selectedAward, setSelectedAward] = useState(AWARDS_DB[0]);
+  const focusPanelRef = useRef(null);
 
   const unlockedCount = AWARDS_DB.filter(a => a.isUnlocked).length;
   const totalCount = AWARDS_DB.length;
+
+  // Scroll focus panel into view when award selection changes
+  useEffect(() => {
+    if (focusPanelRef.current) {
+      focusPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedAward]);
 
   return (
     // Self-contained scroll viewport to override App.jsx hidden overflow
@@ -82,7 +90,7 @@ export default function ExecutiveStickerbook() {
       </div>
 
       {/* --- 1. THE FOCUS PANEL (Mobile-Optimized & Sticky) --- */}
-      <div className="w-full max-w-4xl bg-zinc-800/95 border border-zinc-700/50 rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-2xl mb-6 flex flex-row gap-3 sm:gap-4 md:gap-6 items-center transition-all duration-300 sticky top-0 z-40 backdrop-blur-2xl">
+      <div ref={focusPanelRef} className="w-full max-w-4xl bg-zinc-800/95 border border-zinc-700/50 rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-2xl mb-6 flex flex-row gap-3 sm:gap-4 md:gap-6 items-center transition-all duration-300 sticky top-0 z-40 backdrop-blur-2xl">
         
         {/* Scaled Icon Display */}
         <div className={`w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-xl md:rounded-3xl shrink-0 flex items-center justify-center shadow-inner border-[2px] md:border-[3px] transition-colors duration-500
