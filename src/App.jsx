@@ -1329,7 +1329,60 @@ export default function App() {
     } else {
       console.log('No localStorage backup found');
     }
+    
+    // Check for production state recovery (when app was minimized)
+    const productionState = localStorage.getItem('pizzaProductionState');
+    if (productionState) {
+      try {
+        const parsed = JSON.parse(productionState);
+        const now = Date.now();
+        const timeSinceLastSave = (now - parsed.timestamp) / 1000; // seconds
+        
+        // If it's been more than 5 seconds, we were probably minimized
+        if (timeSinceLastSave > 5 && parsed.idlePizzasPerSec > 0) {
+          const missingPizzas = parsed.idlePizzasPerSec * timeSinceLastSave;
+          console.log('App was minimized for', timeSinceLastSave.toFixed(1), 'seconds');
+          console.log('Calculating missing production:', missingPizzas.toFixed(1), 'pizzas');
+          
+          pendingProduction.current += missingPizzas;
+          
+          // Clear the production state after recovery
+          localStorage.removeItem('pizzaProductionState');
+          
+          // Sync immediately
+          setTimeout(() => {
+            console.log('Triggering production recovery sync...');
+            syncWithGlobalSyndicate();
+          }, 500);
+        } else {
+          console.log('Production state is recent or no production, clearing...');
+          localStorage.removeItem('pizzaProductionState');
+        }
+      } catch (error) {
+        console.error('Error parsing production state:', error);
+        localStorage.removeItem('pizzaProductionState');
+      }
+    } else {
+      console.log('No production state found');
+    }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
+
+  // Continuous production state saving for mobile reliability
+  useEffect(() => {
+    const saveInterval = setInterval(() => {
+      const now = Date.now();
+      const state = {
+        pendingPizzas: pendingProduction.current,
+        idlePizzasPerSec: engineRefs.current.idlePizzasPerSec,
+        timestamp: now,
+        lastSaveTime: engineRefs.current.lastGlobalSyncSave
+      };
+      localStorage.setItem('pizzaProductionState', JSON.stringify(state));
+      engineRefs.current.lastGlobalSyncSave = now;
+    }, 2000); // Save every 2 seconds
+
+    return () => clearInterval(saveInterval);
+  }, []);
 
   // Sync Loop - every 500ms for ultra-aggressive mobile sync
   useEffect(() => {
@@ -1510,6 +1563,7 @@ export default function App() {
       clickTimestamps: [], // ring buffer for rolling CPS
       syndicatePerks: { shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false },
       currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0, marketUnlocked: false,
+      lastGlobalSyncSave: Date.now(), // Track when we last saved global sync state
   });
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
