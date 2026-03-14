@@ -1175,10 +1175,15 @@ export default function App() {
           setGlobalPizzas(data.total);
           lastSyncTime.current = Date.now();
           
-                    
-          // Log if using mock data
+          // Log different response types
           if (data.mock) {
             console.warn('Using mock KV data - environment variables not configured');
+          } else if (data.cached && data.estimated) {
+            console.warn('Using estimated total (Redis down):', data.total);
+          } else if (data.cached) {
+            console.warn('Using cached total:', data.total);
+          } else {
+            console.log('Sync successful - real Redis data:', data.total);
           }
         }
       } else {
@@ -1210,9 +1215,13 @@ export default function App() {
           setGlobalPizzas(data.total);
           lastPollTime.current = now;
           
-          // Log if using mock data
+          // Log different response types
           if (data.mock) {
-            console.warn('Using mock KV data - environment variables not configured');
+            console.warn('Poll - Using mock KV data');
+          } else if (data.cached) {
+            console.warn('Poll - Using cached total:', data.total);
+          } else {
+            console.log('Poll - Real Redis data:', data.total);
           }
         }
       }
@@ -1236,9 +1245,13 @@ export default function App() {
                     if (data.success) {
             setGlobalPizzas(data.total);
             
-            // Log if using mock data
+            // Log different response types
             if (data.mock) {
-              console.warn('Using mock KV data - environment variables not configured');
+              console.warn('Initial - Using mock KV data');
+            } else if (data.cached) {
+              console.warn('Initial - Using cached total:', data.total);
+            } else {
+              console.log('Initial - Real Redis data:', data.total);
             }
           }
         }

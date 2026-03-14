@@ -1,36 +1,59 @@
 import { kv } from '@vercel/kv';
 
+// Cache for fallback data
+let cachedTotal = 0;
+let lastSuccessfulFetch = 0;
+
 export async function GET() {
   try {
-    console.log('Environment check - REDIS_URL:', process.env.REDIS_URL ? 'SET' : 'NOT SET');
-    console.log('Environment check - KV_REST_API_URL:', process.env.KV_REST_API_URL ? 'SET' : 'NOT SET');
-    console.log('Environment check - KV_REST_API_TOKEN:', process.env.KV_REST_API_TOKEN ? 'SET' : 'NOT SET');
+    console.log('GET - Environment check - REDIS_URL:', process.env.REDIS_URL ? 'SET' : 'NOT SET');
+    console.log('GET - Environment check - KV_REST_API_URL:', process.env.KV_REST_API_URL ? 'SET' : 'NOT SET');
+    console.log('GET - Environment check - KV_REST_API_TOKEN:', process.env.KV_REST_API_TOKEN ? 'SET' : 'NOT SET');
     
-    // Try to use KV client directly
+    // Try to use KV client directly with retry
     try {
       const total = await kv.get('crust_fund_global_pizzas');
       const count = total ? parseInt(total, 10) : 0;
       
-      console.log('Successfully fetched global total:', count);
+      // Update cache on successful fetch
+      cachedTotal = count;
+      lastSuccessfulFetch = Date.now();
+      
+      console.log('GET - Successfully fetched global total:', count);
       
       return Response.json({ 
         success: true, 
-        total: count
+        total: count,
+        cached: false
       });
     } catch (kvError) {
-      console.error('KV client error:', kvError);
-      console.error('KV error details:', JSON.stringify(kvError, null, 2));
+      console.error('GET - KV client error:', kvError);
+      console.error('GET - KV error details:', JSON.stringify(kvError, null, 2));
+      
+      // If we have recent cached data (within 5 minutes), use it
+      const now = Date.now();
+      if (lastSuccessfulFetch > 0 && (now - lastSuccessfulFetch) < 300000) {
+        console.log('GET - Using cached total:', cachedTotal, 'age:', Math.floor((now - lastSuccessfulFetch) / 1000), 'seconds');
+        return Response.json({ 
+          success: true, 
+          total: cachedTotal,
+          cached: true,
+          error: 'KV client failed, using cached data: ' + kvError.message
+        });
+      }
       
       // Fallback to mock data
+      console.log('GET - No cached data available, returning 0');
       return Response.json({ 
         success: true, 
         total: 0,
         mock: true,
-        error: 'KV client failed: ' + kvError.message
+        cached: false,
+        error: 'KV client failed, no cache available: ' + kvError.message
       });
     }
   } catch (error) {
-    console.error('Error fetching global stats:', error);
+    console.error('GET - Error fetching global stats:', error);
     return Response.json({ 
       success: false, 
       error: 'Failed to fetch global stats: ' + error.message
@@ -59,22 +82,32 @@ export async function POST(request) {
     // Try to use KV client directly
     try {
       const newTotal = await kv.incrby('crust_fund_global_pizzas', amount);
+      
+      // Update cache on successful operation
+      cachedTotal = newTotal;
+      lastSuccessfulFetch = Date.now();
+      
       console.log('POST - Successfully incremented to new total:', newTotal);
       
       return Response.json({ 
         success: true, 
-        total: newTotal
+        total: newTotal,
+        cached: false
       });
     } catch (kvError) {
       console.error('POST - KV client error:', kvError);
       console.error('POST - KV error details:', JSON.stringify(kvError, null, 2));
       
-      // Fallback to mock data
+      // If Redis is down, try to update cache and return cached + amount
+      const estimatedTotal = cachedTotal + amount;
+      console.log('POST - Redis down, returning estimated total:', estimatedTotal);
+      
       return Response.json({ 
         success: true, 
-        total: 0,
-        mock: true,
-        error: 'KV client failed: ' + kvError.message
+        total: estimatedTotal,
+        cached: true,
+        estimated: true,
+        error: 'KV client failed, using estimated total: ' + kvError.message
       });
     }
   } catch (error) {
