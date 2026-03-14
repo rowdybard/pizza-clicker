@@ -3014,7 +3014,11 @@ export default function App() {
                       <span className={`text-xs font-bold uppercase tracking-wider ${
                         canAfford ? 'text-amber-200' : 'text-zinc-500'
                       }`}>
-                        {buyAmount > 0 ? `BUY ×${buyAmount}` : 'MAXED'}
+                        {buyAmount > 0 ? `BUY ×${buyAmount}` : (() => {
+                          if (buyMultiplier === 'MAX') return 'MAX';
+                          if (buyMultiplier === 'custom') return `BUY ×${customBuyAmount}`;
+                          return `BUY ×${buyMultiplier}`;
+                        })()}
                       </span>
                     </button>
                   </div>
