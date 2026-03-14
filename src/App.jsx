@@ -2049,7 +2049,7 @@ export default function App() {
                 className={`text-2xl font-black uppercase tracking-widest mb-3 ${isSecretLocked ? 'text-fuchsia-400' : 'text-amber-400'}`}
                 style={{ fontSize: '1.5rem' }}
               >
-                {isSecretLocked ? 'THE SYNDICATE KEY' : selectedAchievement.name}
+                {selectedAchievement.name}
               </h2>
               
               {/* Description or Hint */}
@@ -3135,7 +3135,7 @@ export default function App() {
                               }}
                             >
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60 z-20">SYNDICATE FILE 14-B</div>
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -3177,7 +3177,7 @@ export default function App() {
                               zIndex: 1
                             }}>
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700 z-20">SYNDICATE FILE 14-B</div>
+                              {meta.isSecret && <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>}
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
@@ -3210,7 +3210,7 @@ export default function App() {
                             }}
                           >
                             {/* File label */}
-                            <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60 z-20">SYNDICATE FILE 14-B</div>
+                            {meta.isSecret && <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>}
                             
                             {/* Checkmark badge */}
                             <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-20" style={{ boxShadow: '0 0 12px rgba(34,197,94,0.8)' }}>
