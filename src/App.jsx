@@ -2874,7 +2874,8 @@ export default function App() {
                   const maxBundle = calculateMaxAffordable(upgrade.baseCost, count, money, allowedPurchases);
                   buyAmount = maxBundle.amount;
                   displayCost = maxBundle.cost;
-                  intendedCost = maxBundle.cost;
+                  // If can't afford any, show cost of 1 upgrade
+                  intendedCost = maxBundle.amount > 0 ? maxBundle.cost : calculateCost(upgrade.baseCost, count);
                 } else if (buyMultiplier === 'custom') {
                   const requestedAmount = Math.min(customBuyAmount, allowedPurchases);
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
