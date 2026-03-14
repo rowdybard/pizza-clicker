@@ -855,6 +855,7 @@ export default function App() {
     
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
+    console.log('Click - currentClickPower:', currentClickPower, 'pendingProduction:', pendingProduction.current);
 
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1150,6 +1151,8 @@ export default function App() {
   const syncWithGlobalSyndicate = useCallback(async () => {
     const amountToSend = Math.floor(pendingProduction.current);
     
+    console.log('Sync attempt - pendingProduction:', pendingProduction.current, 'amountToSend:', amountToSend);
+    
     if (amountToSend <= 0) return;
     
     try {
@@ -1168,6 +1171,8 @@ export default function App() {
           pendingProduction.current -= amountToSend;
           setGlobalPizzas(data.total);
           lastSyncTime.current = Date.now();
+          
+          console.log('Sync successful - sent:', amountToSend, 'new total:', data.total);
           
           // Log if using mock data
           if (data.mock) {
@@ -1213,9 +1218,12 @@ export default function App() {
   useEffect(() => {
     const fetchInitialStats = async () => {
       try {
+        console.log('Fetching initial global stats...');
         const response = await fetch('/api/global-stats');
+        console.log('Initial fetch response:', response.status);
         if (response.ok) {
           const data = await response.json();
+          console.log('Initial fetch data:', data);
           if (data.success) {
             setGlobalPizzas(data.total);
             
@@ -1381,6 +1389,7 @@ export default function App() {
               
               // Add to pending production for global sync
               pendingProduction.current += pizzasThisTick;
+              console.log('Production tick - pizzasThisTick:', pizzasThisTick, 'pendingProduction:', pendingProduction.current);
           }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
