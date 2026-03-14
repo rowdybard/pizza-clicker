@@ -1090,7 +1090,6 @@ export default function App() {
     setMarketCostBasis({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
     setMarketHistory({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
     setCorpOfficeOpen(false);
-    setBuyMultiplier(1);
     setSpecialDelivery(null);
     setDeliveryGame(null);
     setMoneyLog([]);
