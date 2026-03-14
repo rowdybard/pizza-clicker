@@ -1365,6 +1365,39 @@ export default function App() {
     } else {
       console.log('No production state found');
     }
+    
+    // Check for emergency backup (last resort recovery)
+    const emergencyBackup = localStorage.getItem('pizzaEmergencyBackup');
+    if (emergencyBackup) {
+      try {
+        const parsed = JSON.parse(emergencyBackup);
+        const now = Date.now();
+        const ageMinutes = (now - parsed.timestamp) / (1000 * 60);
+        
+        // Only use emergency backup if it's less than 5 minutes old
+        if (ageMinutes < 5 && parsed.pendingPizzas > 0) {
+          console.log('Found emergency backup -', parsed.pendingPizzas, 'pizzas from', ageMinutes.toFixed(1), 'minutes ago');
+          pendingProduction.current += parsed.pendingPizzas;
+          
+          // Clear the emergency backup after using it
+          localStorage.removeItem('pizzaEmergencyBackup');
+          
+          // Sync immediately
+          setTimeout(() => {
+            console.log('Triggering emergency backup sync...');
+            syncWithGlobalSyndicate();
+          }, 500);
+        } else {
+          console.log('Emergency backup too old or empty, clearing...');
+          localStorage.removeItem('pizzaEmergencyBackup');
+        }
+      } catch (error) {
+        console.error('Error parsing emergency backup:', error);
+        localStorage.removeItem('pizzaEmergencyBackup');
+      }
+    } else {
+      console.log('No emergency backup found');
+    }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
 
   // Continuous production state saving for mobile reliability
@@ -1384,11 +1417,11 @@ export default function App() {
     return () => clearInterval(saveInterval);
   }, []);
 
-  // Sync Loop - every 500ms for ultra-aggressive mobile sync
+  // Sync Loop - every 300ms for maximum robustness
   useEffect(() => {
     const syncInterval = setInterval(() => {
       syncWithGlobalSyndicate();
-    }, 500); // Sync every 500ms for mobile reliability
+    }, 300); // Sync every 300ms for maximum reliability
 
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
@@ -1414,22 +1447,67 @@ export default function App() {
             ? 'http://localhost:5173/api/global-stats'
             : '/api/global-stats';
             
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amountToSend }),
-            // Use keepalive for better reliability during page unload
-            keepalive: true
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Force sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
-          } else {
-            console.warn('Force sync failed:', response.status);
+          // Try multiple times for robustness
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amountToSend }),
+                // Use keepalive for better reliability during page unload
+                keepalive: true,
+                // Short timeout for mobile reliability
+                signal: AbortSignal.timeout(2000)
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                console.log('Force sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
+                pendingProduction.current -= amountToSend;
+                setGlobalPizzas(data.total);
+                return; // Success, exit retry loop
+              } else {
+                console.warn('Force sync attempt', attempt, 'failed:', response.status);
+                if (attempt === 3) {
+                  // Save to localStorage as last resort
+                  const emergencyBackup = {
+                    pendingPizzas: amountToSend,
+                    timestamp: Date.now(),
+                    emergency: true
+                  };
+                  localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
+                  console.log('Emergency backup saved to localStorage');
+                }
+              }
+            } catch (attemptError) {
+              console.error('Force sync attempt', attempt, 'error:', attemptError);
+              if (attempt === 3) {
+                // Save to localStorage as last resort
+                const emergencyBackup = {
+                  pendingPizzas: amountToSend,
+                  timestamp: Date.now(),
+                  emergency: true
+                };
+                localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
+                console.log('Emergency backup saved to localStorage due to error');
+              }
+            }
+            
+            // Brief delay between retries
+            if (attempt < 3) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
           }
         } catch (error) {
-          console.error('Error force syncing:', error);
+          console.error('All force sync attempts failed:', error);
+          // Final emergency backup
+          const emergencyBackup = {
+            pendingPizzas: amountToSend,
+            timestamp: Date.now(),
+            emergency: true
+          };
+          localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
+          console.log('Final emergency backup saved to localStorage');
         }
       } else {
         console.log('No pending pizzas to force sync');
