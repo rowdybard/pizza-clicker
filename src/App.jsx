@@ -856,6 +856,11 @@ export default function App() {
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
     
+    // Immediate sync for large click bursts
+    if (pendingProduction.current >= 5) {
+      syncWithGlobalSyndicate();
+    }
+    
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
     pc.total += moneyEarned;
@@ -1199,8 +1204,8 @@ export default function App() {
   const pollGlobalStats = useCallback(async () => {
     const now = Date.now();
     
-    // Only poll every 30 seconds and only if idle (no recent production)
-    if (now - lastPollTime.current < 30000 || pendingProduction.current > 0) return;
+    // Only poll every 15 seconds and only if idle (no recent production)
+    if (now - lastPollTime.current < 15000 || pendingProduction.current > 0) return;
     
     try {
       // Use correct API URL based on environment
@@ -1263,20 +1268,20 @@ export default function App() {
     fetchInitialStats();
   }, []);
 
-  // Sync Loop - every 5 seconds
+  // Sync Loop - every 2 seconds
   useEffect(() => {
     const syncInterval = setInterval(() => {
       syncWithGlobalSyndicate();
-    }, 5000);
+    }, 2000);
     
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
 
-  // Polling Loop - every 30 seconds
+  // Polling Loop - every 15 seconds
   useEffect(() => {
     const pollInterval = setInterval(() => {
       pollGlobalStats();
-    }, 30000);
+    }, 15000);
     
     return () => clearInterval(pollInterval);
   }, [pollGlobalStats]);
@@ -1411,6 +1416,11 @@ export default function App() {
               
               // Add to pending production for global sync
               pendingProduction.current += pizzasThisTick;
+              
+              // Immediate sync for large bursts (more than 10 pizzas)
+              if (pendingProduction.current >= 10) {
+                syncWithGlobalSyndicate();
+              }
                         }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
