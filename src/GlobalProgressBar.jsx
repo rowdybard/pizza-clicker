@@ -10,8 +10,8 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
 
-  // Smooth number animation
-  const animateNumber = (from, to, duration = 800) => {
+  // Smooth number animation - faster and more responsive
+  const animateNumber = (from, to, duration = 300) => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -36,17 +36,9 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Format number with K, M, B notation
+  // Format number with commas (full number)
   const formatNumber = (num) => {
-    if (num >= 1000000000) {
-      return `${(num / 1000000000).toFixed(2)}B`;
-    } else if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(2)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    } else {
-      return num.toString();
-    }
+    return num.toLocaleString('en-US');
   };
 
   // Update when global pizzas change
@@ -80,7 +72,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
       <div className="relative">
         <div className="w-full bg-zinc-900 rounded-full h-6 overflow-hidden border border-zinc-600">
           <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out flex items-center justify-end pr-2"
             style={{ width: `${Math.min(displayProgress, 100)}%` }}
           >
             {displayProgress > 5 && (

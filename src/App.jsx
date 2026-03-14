@@ -1280,21 +1280,21 @@ export default function App() {
     }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
 
-  // Sync Loop - every 2 seconds
+  // Sync Loop - every 1 second for ultra-responsive updates
   useEffect(() => {
     const syncInterval = setInterval(() => {
       syncWithGlobalSyndicate();
-    }, 2000);
-    
+    }, 1000); // Sync every 1 second
+
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
 
-  // Polling Loop - every 15 seconds
+  // Polling Loop - every 10 seconds for fresher data
   useEffect(() => {
     const pollInterval = setInterval(() => {
       pollGlobalStats();
-    }, 15000);
-    
+    }, 10000); // Poll every 10 seconds
+
     return () => clearInterval(pollInterval);
   }, [pollGlobalStats]);
 
