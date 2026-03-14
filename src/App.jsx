@@ -532,7 +532,8 @@ export default function App() {
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX' (locked at 10 when selected)
+  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 5, 10, 'custom', or 'MAX' (locked at value when selected)
+  const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -2744,29 +2745,73 @@ export default function App() {
                     {/* Buy Multiplier Toggle */}
                     <div>
                       <div className="flex bg-zinc-800 border border-zinc-600 rounded-xl p-1 mx-auto max-w-xs">
-                        {[1, 10, 'MAX'].map((mult) => (
+                        {[1, 5, 10, 'custom', 'MAX'].map((mult) => (
                           <button
                             key={mult}
                             onClick={() => {
-                              if (mult === 10) {
+                              if (mult === 5) {
+                                setBuyMultiplier(5);
+                              } else if (mult === 10) {
                                 setBuyMultiplier(10);
+                              } else if (mult === 'custom') {
+                                setBuyMultiplier('custom');
                               } else if (mult === 'MAX') {
                                 setBuyMultiplier('MAX');
                               } else {
                                 setBuyMultiplier(1);
                               }
                             }}
-                            className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
+                            className={`flex-1 px-2 py-2 rounded-lg font-display text-xs sm:text-sm font-black tracking-wider transition-all ${
                               buyMultiplier === mult
                                 ? 'bg-zinc-700 text-white border border-zinc-500'
                                 : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
                             }`}
                           >
-                            {mult === 'MAX' ? 'MAX' : `${mult}x`}
+                            {mult === 'MAX' ? 'MAX' : mult === 'custom' ? `${customBuyAmount}` : `${mult}x`}
                           </button>
                         ))}
                       </div>
                     </div>
+
+                    {/* Custom Buy Amount Input (shown when custom is selected) */}
+                    {buyMultiplier === 'custom' && (
+                      <div className="mt-2 px-2">
+                        <div className="flex items-center gap-2 bg-zinc-800 border border-zinc-600 rounded-lg p-2">
+                          <button
+                            onClick={() => setCustomBuyAmount(Math.max(1, customBuyAmount - 10))}
+                            className="px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded text-sm font-bold"
+                          >
+                            -10
+                          </button>
+                          <button
+                            onClick={() => setCustomBuyAmount(Math.max(1, customBuyAmount - 1))}
+                            className="px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded text-sm font-bold"
+                          >
+                            -1
+                          </button>
+                          <input
+                            type="number"
+                            value={customBuyAmount}
+                            onChange={(e) => setCustomBuyAmount(Math.max(1, parseInt(e.target.value) || 1))}
+                            className="flex-1 bg-zinc-900 border border-zinc-600 rounded px-2 py-1 text-center text-zinc-300 font-bold text-sm w-20"
+                            min="1"
+                            max="9999"
+                          />
+                          <button
+                            onClick={() => setCustomBuyAmount(customBuyAmount + 1)}
+                            className="px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded text-sm font-bold"
+                          >
+                            +1
+                          </button>
+                          <button
+                            onClick={() => setCustomBuyAmount(customBuyAmount + 10)}
+                            className="px-2 py-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded text-sm font-bold"
+                          >
+                            +10
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Upgrade Cards */}
                   {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
@@ -2830,6 +2875,11 @@ export default function App() {
                   const maxBundle = calculateMaxAffordable(upgrade.baseCost, count, money, allowedPurchases);
                   buyAmount = maxBundle.amount;
                   displayCost = maxBundle.cost;
+                } else if (buyMultiplier === 'custom') {
+                  const cap = Math.min(customBuyAmount, allowedPurchases);
+                  const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, cap);
+                  buyAmount = affordableBundle.amount;
+                  displayCost = affordableBundle.cost;
                 } else {
                   const cap = Math.min(Number(buyMultiplier), allowedPurchases);
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, cap);
