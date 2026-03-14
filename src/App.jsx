@@ -967,6 +967,12 @@ export default function App() {
     setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
     setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
+    const prestigeDefaultRevealed = new Set();
+    ['click', 'production', 'quality'].forEach(type => {
+      const first = UPGRADES.find(u => u.type === type);
+      if (first) prestigeDefaultRevealed.add(first.id);
+    });
+    setRevealedUpgrades(prestigeDefaultRevealed);
     pushLog('spend', `🏢 Prestige +${snap.pendingLicenses} License${snap.pendingLicenses > 1 ? 's' : ''}`, 0);
     setShowPrestigeModal(false);
   }, [syndicatePerks.shadowCapital, pushLog]);
@@ -1266,14 +1272,14 @@ export default function App() {
             idleLogTickRef.current = 0;
           }
 
-          // autoArm perk: simulate 1 free click per second
+          // autoArm perk: simulate 50 free clicks per second
           if (state.syndicatePerks.autoArm && state.hasStarted) {
-              const autoMoney = state.idleClickMoney;
+              const autoMoney = state.idleClickMoney * 50;
               setMoney(m => m + autoMoney);
               setLifetimeMoney(lm => lm + autoMoney);
-              setTotalPizzasSold(tp => tp + state.currentClickPower);
-              setReputation(r => r + Math.ceil(state.currentClickPower * 0.1));
-              setTotalClicks(tc => tc + 1);
+              setTotalPizzasSold(tp => tp + state.currentClickPower * 50);
+              setReputation(r => r + Math.ceil(state.currentClickPower * 0.1 * 50));
+              setTotalClicks(tc => tc + 50);
           }
 
       }, 1000);
@@ -2289,7 +2295,7 @@ export default function App() {
                           prestigeSnapshotRef.current = snap;
                           setShowPrestigeModal(true);
                         }}
-                        className="w-full py-3 bg-gradient-to-r from-purple-800 to-fuchsia-900 hover:from-purple-700 hover:to-fuchsia-800 text-fuchsia-200 font-display text-base font-black tracking-widest rounded-xl border-b-[4px] border-purple-950 active:border-b-0 active:translate-y-1 transition-all duration-[60ms] btn-tactile"
+                        className="w-full py-3 bg-zinc-950 border-2 border-zinc-800 hover:border-amber-900 text-zinc-400 text-sm font-bold uppercase tracking-widest rounded-xl transition-colors"
                       >
                         SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
                       </button>
@@ -2398,8 +2404,8 @@ export default function App() {
                     name: 'Auto-Arm',
                     cost: 5,
                     icon: <Rocket className="w-6 h-6 text-yellow-300" />,
-                    desc: 'A robotic arm bakes and boxes one pizza every second automatically. Scales with all click multipliers.',
-                    effect: '+1 free click per second (with all multipliers)',
+                    desc: 'A robotic arm bakes and boxes pizzas at machine speed. Simulates 50 clicks per second, fully scaled with all click multipliers.',
+                    effect: '+50 free clicks per second (with all multipliers)',
                   },
                   {
                     id: 'timeLoop',
