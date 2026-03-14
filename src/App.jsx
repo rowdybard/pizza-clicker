@@ -543,10 +543,26 @@ export default function App() {
     });
     return fallback;
   });
+  const latestRevealInputsRef = useRef({ money, inventory, starLevel });
+  latestRevealInputsRef.current = { money, inventory, starLevel };
 
   // --- UPGRADE REVEAL EFFECT ---
   useEffect(() => {
+    const capturedMoney = money;
+    const capturedInventory = inventory;
+    const capturedStarLevel = starLevel;
+
     setRevealedUpgrades(prev => {
+      const latest = latestRevealInputsRef.current;
+      if (
+        !latest ||
+        latest.money !== capturedMoney ||
+        latest.inventory !== capturedInventory ||
+        latest.starLevel !== capturedStarLevel
+      ) {
+        return prev;
+      }
+
       const next = new Set(prev);
       ['click','production','quality'].forEach(type => {
         const path = UPGRADES.filter(u => u.type === type);
@@ -563,7 +579,7 @@ export default function App() {
       return next;
     });
   // eslint-disable-next-line
-  }, [money, inventory]);
+  }, [money, inventory, starLevel]);
 
   // --- DERIVED STATS MATH ---
   const prestigeStarScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
