@@ -3056,35 +3056,71 @@ export default function App() {
                         const meta = ACHIEVEMENT_META[ach.id] || {};
                         const isSecretLocked = meta.isSecret && !isUnlocked;
 
+                        // SECRET RIDDLE (Syndicate File)
                         if (isSecretLocked) {
                           return (
-                            <div key={ach.id} className="bg-zinc-950 border-2 border-zinc-900 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
-                              <Lock className="w-7 h-7 text-fuchsia-800 animate-pulse" style={{ filter: 'drop-shadow(0 0 6px #a855f7)' }} />
-                              <p className="text-[8px] text-fuchsia-900 font-bold uppercase tracking-wider text-center leading-relaxed">
-                                THE OBSIDIAN SYNDICATE IS WATCHING...<br />{meta.hint}
+                            <div key={ach.id} className="relative bg-black border-4 border-fuchsia-600 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 aspect-square overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                              {/* Crown silhouette overlay - very subtle */}
+                              <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                                <Crown className="w-20 h-20 text-fuchsia-500" />
+                              </div>
+                              {/* Biometric lock */}
+                              <div className="relative z-10 mb-2">
+                                <Lock className="w-10 h-10 text-fuchsia-500 animate-pulse" style={{ filter: 'drop-shadow(0 0 12px #d946ef) drop-shadow(0 0 24px #a855f7)' }} />
+                                <div className="absolute -inset-2 border-2 border-fuchsia-600/30 rounded-lg animate-pulse" />
+                                <div className="absolute -inset-4 border border-fuchsia-700/20 rounded-xl animate-pulse" style={{ animationDelay: '0.3s' }} />
+                              </div>
+                              {/* Riddle text */}
+                              <p className="text-[9px] text-fuchsia-400 font-bold uppercase tracking-wider text-center leading-relaxed relative z-10">
+                                THE OBSIDIAN SYNDICATE IS WATCHING...
+                              </p>
+                              <p className="text-[8px] text-fuchsia-600 italic text-center leading-relaxed relative z-10">
+                                A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.
                               </p>
                             </div>
                           );
                         }
 
+                        // LOCKED PUBLIC (Dark Silhouette)
+                        if (!isUnlocked) {
+                          return (
+                            <div key={ach.id} className="relative bg-zinc-950 border-2 border-zinc-900 rounded-2xl p-3 flex flex-col items-center justify-center aspect-square overflow-hidden">
+                              {/* Faint fuchsia data pattern */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-950/10 via-transparent to-fuchsia-950/5 pointer-events-none" />
+                              <div className="absolute inset-0 opacity-5 pointer-events-none" style={{
+                                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(168,85,247,0.1) 2px, rgba(168,85,247,0.1) 4px)',
+                              }} />
+                              {/* Name only, no icon */}
+                              <div className="text-[9px] font-black uppercase tracking-widest text-center leading-tight text-zinc-800 w-full px-1">
+                                {ach.name}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // UNLOCKED (Gold Foil Premium)
                         return (
                           <div key={ach.id}
-                            className={`relative overflow-hidden rounded-2xl border-2 shadow-lg flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all ${
-                              isUnlocked
-                                ? 'bg-gradient-to-br from-zinc-800 to-zinc-900 border-zinc-700'
-                                : 'bg-zinc-900/40 border-zinc-800/60 opacity-40 grayscale'
-                            }`}
+                            className="relative overflow-hidden rounded-2xl border-4 shadow-2xl flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all"
+                            style={{
+                              background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #0a0a0a 100%)',
+                              borderImage: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706, #fbbf24) 1',
+                              boxShadow: '0 0 30px rgba(251,191,36,0.3), inset 0 1px 0 rgba(251,191,36,0.2)',
+                            }}
                           >
-                            {isUnlocked && (
-                              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/10 to-transparent pointer-events-none" />
-                            )}
-                            {isUnlocked && (
-                              <CheckCircle className="absolute top-2 right-2 w-3.5 h-3.5 text-green-400" style={{ filter: 'drop-shadow(0 0 4px rgba(74,222,128,0.8))' }} />
-                            )}
-                            <div className={`mb-1 ${meta.color || 'text-amber-400'}`}>
-                              {meta.icon || <Star className="w-8 h-8" />}
+                            {/* Textured fuchsia gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-transparent to-fuchsia-950/10 pointer-events-none" />
+                            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
+                              backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(168,85,247,0.3) 0%, transparent 50%)',
+                            }} />
+                            {/* Green checkmark badge */}
+                            <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-green-400 z-20" style={{ filter: 'drop-shadow(0 0 6px rgba(74,222,128,0.9))' }} />
+                            {/* Large vibrant icon */}
+                            <div className={`mb-2 ${meta.color || 'text-emerald-400'} relative z-10`} style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>
+                              {meta.icon || <Star className="w-12 h-12" />}
                             </div>
-                            <div className="text-[9px] font-black uppercase tracking-widest text-center leading-tight text-white w-full px-0.5 truncate">
+                            {/* Title */}
+                            <div className="text-[10px] font-black uppercase tracking-widest text-center leading-tight text-emerald-300 w-full px-0.5 relative z-10" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
                               {ach.name}
                             </div>
                           </div>
