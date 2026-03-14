@@ -2876,6 +2876,12 @@ export default function App() {
                   displayCost = maxBundle.cost;
                   // If can't afford any, show cost of 1 upgrade
                   intendedCost = maxBundle.amount > 0 ? maxBundle.cost : calculateCost(upgrade.baseCost, count);
+                  // Ensure we never try to buy more than 250 total upgrades
+                  if (count + buyAmount > 250) {
+                    const cappedAmount = Math.max(0, 250 - count);
+                    buyAmount = cappedAmount;
+                    displayCost = cappedAmount > 0 ? calculateBulkCost(upgrade.baseCost, count, cappedAmount) : 0;
+                  }
                 } else if (buyMultiplier === 'custom') {
                   const requestedAmount = Math.min(customBuyAmount, allowedPurchases);
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
