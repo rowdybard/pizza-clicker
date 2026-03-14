@@ -1266,7 +1266,19 @@ export default function App() {
     };
     
     fetchInitialStats();
-  }, []);
+    
+    // Add offline pizzas to global sync
+    if (_offlineCalc.report?.pizzasEarned > 0) {
+      const offlinePizzas = Math.floor(_offlineCalc.report.pizzasEarned);
+      pendingProduction.current += offlinePizzas;
+      console.log('Added offline pizzas to global sync:', offlinePizzas);
+      
+      // Sync immediately if we have a significant amount
+      if (offlinePizzas >= 5) {
+        setTimeout(() => syncWithGlobalSyndicate(), 1000); // Delay 1s to ensure globalPizzas is set
+      }
+    }
+  }, [syncWithGlobalSyndicate, _offlineCalc]);
 
   // Sync Loop - every 2 seconds
   useEffect(() => {
