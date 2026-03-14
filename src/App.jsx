@@ -3021,7 +3021,7 @@ export default function App() {
                         canAfford ? 'text-amber-200' : 'text-zinc-500'
                       }`}>
                         {buyAmount > 0 ? `BUY ×${buyAmount}` : (() => {
-                          if (buyMultiplier === 'MAX') return 'MAX';
+                          if (buyMultiplier === 'MAX') return 'BUY ×1';
                           if (buyMultiplier === 'custom') return `BUY ×${customBuyAmount}`;
                           return `BUY ×${buyMultiplier}`;
                         })()}
