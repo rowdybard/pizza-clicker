@@ -543,6 +543,12 @@ export default function App() {
     });
     return fallback;
   });
+
+  // --- DERIVED STATS MATH ---
+  const prestigeStarScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
+  const scaledStarThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * prestigeStarScale));
+  const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
+  const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
   const latestRevealInputsRef = useRef({ money, inventory, starLevel });
   latestRevealInputsRef.current = { money, inventory, starLevel };
 
@@ -580,12 +586,6 @@ export default function App() {
     });
   // eslint-disable-next-line
   }, [money, inventory, starLevel]);
-
-  // --- DERIVED STATS MATH ---
-  const prestigeStarScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
-  const scaledStarThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * prestigeStarScale));
-  const starLevel = scaledStarThresholds.filter(t => reputation >= t).length - 1;
-  const nextStarReq = scaledStarThresholds[starLevel + 1] || scaledStarThresholds[scaledStarThresholds.length - 1];
 
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
