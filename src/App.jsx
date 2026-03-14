@@ -2869,22 +2869,26 @@ export default function App() {
                 const allowedPurchases = Math.max(0, maxBoost - count);
                 let buyAmount = 0;
                 let displayCost = 0;
+                let intendedCost = 0;
 
                 if (buyMultiplier === 'MAX') {
                   const maxBundle = calculateMaxAffordable(upgrade.baseCost, count, money, allowedPurchases);
                   buyAmount = maxBundle.amount;
                   displayCost = maxBundle.cost;
+                  intendedCost = maxBundle.cost;
                 } else if (buyMultiplier === 'custom') {
-                  const cap = Math.min(customBuyAmount, allowedPurchases);
-                  const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, cap);
+                  const requestedAmount = Math.min(customBuyAmount, allowedPurchases);
+                  const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
+                  intendedCost = calculateBulkCost(upgrade.baseCost, count, requestedAmount);
                 } else {
                   // Keep the multiplier locked - buy what you can afford, not what the multiplier says
                   const requestedAmount = Math.min(Number(buyMultiplier), allowedPurchases);
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
+                  intendedCost = calculateBulkCost(upgrade.baseCost, count, requestedAmount);
                   
                   // Don't change the multiplier - keep it locked at user's selection
                   // This prevents accidental 1x purchases when user has 10x locked
@@ -3009,7 +3013,7 @@ export default function App() {
                       <span className={`font-display text-xl font-black tabular-nums leading-none ${
                         canAfford ? 'text-amber-100' : 'text-zinc-600'
                       }`}>
-                        ${fmt(displayCost)}
+                        ${fmt(canAfford ? displayCost : intendedCost)}
                       </span>
                       <span className={`text-xs font-bold uppercase tracking-wider ${
                         canAfford ? 'text-amber-200' : 'text-zinc-500'
