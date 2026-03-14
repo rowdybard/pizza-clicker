@@ -63,7 +63,7 @@ export default function ExecutiveStickerbook() {
   // Scroll focus panel into view when award selection changes
   useEffect(() => {
     if (focusPanelRef.current) {
-      focusPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      focusPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [selectedAward]);
 
