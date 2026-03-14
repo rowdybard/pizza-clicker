@@ -2,9 +2,9 @@ import { kv } from '@vercel/kv';
 
 export async function GET() {
   try {
-    // Check if KV is available
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-      console.warn('KV environment variables not found, returning mock data');
+    // Check if KV/Redis is available
+    if (!process.env.REDIS_URL) {
+      console.warn('Redis environment variables not found, returning mock data');
       return Response.json({ 
         success: true, 
         total: 0,
@@ -30,9 +30,9 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    // Check if KV is available
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-      console.warn('KV environment variables not found, returning mock response');
+    // Check if KV/Redis is available
+    if (!process.env.REDIS_URL) {
+      console.warn('Redis environment variables not found, returning mock response');
       return Response.json({ 
         success: true, 
         total: 0,
