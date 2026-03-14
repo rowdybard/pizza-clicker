@@ -76,89 +76,89 @@ const safeNum = (val, fallback = 0) => {
 
 // --- ACHIEVEMENT DEFINITIONS ---
 const ACHIEVEMENTS = [
-  { id: 'first_blood', name: 'Open for Business', desc: 'Sell your first pizza.', req: (s) => s.totalPizzasSold >= 1 },
-  { id: 'pizza_10k', name: 'Local Legend', desc: 'Sell 10,000 pizzas total.', req: (s) => s.totalPizzasSold >= 10000 },
-  { id: 'pizza_1m', name: 'Pizza Magnate', desc: 'Sell 1,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 1000000 },
-  { id: 'clicker_1k', name: 'Carpal Tunnel', desc: 'Click the pizza 1,000 times.', req: (s) => s.totalClicks >= 1000 },
-  { id: 'combo_max', name: 'On Fire!', desc: 'Reach a 100x Click Combo.', req: (s) => s.combo >= 100 },
-  { id: 'perfect_pull', name: 'Chef\'s Kiss', desc: 'Pull a Perfect pizza from the oven.', req: (s) => s.perfectBakes >= 1 },
-  { id: 'delivery_first', name: 'Road Trip', desc: 'Complete your first map delivery.', req: (s) => s.deliveriesCompleted >= 1 },
-  { id: 'delivery_10', name: 'Logistics Master', desc: 'Complete 10 map deliveries.', req: (s) => s.deliveriesCompleted >= 10 },
-  { id: 'dispo_sadge', name: 'Scammed Outta Dispo', desc: 'Have exactly $13.00 in the bank.', req: (s) => Math.round(s.money * 100) === 1300 },
-  { id: 'sellout', name: 'Corporate Sellout', desc: 'Prestige your restaurant for the first time.', req: (s) => s.franchiseLicenses > 0 },
-  { id: 'billionaire', name: 'Pizza Billionaire', desc: 'Earn $1,000,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 1000000000 },
+  { id: 'first_blood', name: 'Open for Business', desc: 'Every empire begins with a single slice. The Syndicate has taken notice of your first sale.', req: (s) => s.totalPizzasSold >= 1 },
+  { id: 'pizza_10k', name: 'Local Legend', desc: 'Your name echoes through the streets. 10,000 pizzas sold. The neighborhood whispers your recipes like sacred texts.', req: (s) => s.totalPizzasSold >= 10000 },
+  { id: 'pizza_1m', name: 'Pizza Magnate', desc: 'One million souls fed. Your influence spreads like sauce on dough. The Obsidian Syndicate watches with interest.', req: (s) => s.totalPizzasSold >= 1000000 },
+  { id: 'clicker_1k', name: 'Carpal Tunnel', desc: 'Your fingers have become instruments of profit. 1,000 clicks. Each one a prayer to the god of commerce.', req: (s) => s.totalClicks >= 1000 },
+  { id: 'combo_max', name: 'On Fire!', desc: 'Time bends to your will. 100x combo achieved. You have touched the edge of what the Syndicate calls "The Flow State."', req: (s) => s.combo >= 100 },
+  { id: 'perfect_pull', name: 'Chef\'s Kiss', desc: 'Perfection achieved. The oven reveals its secrets only to those who listen. This is the first step toward mastery.', req: (s) => s.perfectBakes >= 1 },
+  { id: 'delivery_first', name: 'Road Trip', desc: 'The first delivery through the time-warped routes. You have glimpsed the temporal network the Syndicate controls.', req: (s) => s.deliveriesCompleted >= 1 },
+  { id: 'delivery_10', name: 'Logistics Master', desc: 'Ten journeys through folded space. You begin to understand: the map is not the territory. The territory is whatever you make it.', req: (s) => s.deliveriesCompleted >= 10 },
+  { id: 'dispo_sadge', name: 'Scammed Outta Dispo', desc: 'Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.', req: (s) => Math.round(s.money * 100) === 1300 },
+  { id: 'sellout', name: 'Corporate Sellout', desc: 'You sold your soul for a Franchise License. But was it really yours to begin with? The cycle begins anew.', req: (s) => s.franchiseLicenses > 0 },
+  { id: 'billionaire', name: 'Pizza Billionaire', desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', req: (s) => s.lifetimeMoney >= 1000000000 },
 
   // Bank Balance
-  { id: 'bank_10k', name: 'Ten Grand', desc: 'Save $10,000 in the bank.', req: (s) => s.money >= 10000 },
-  { id: 'bank_100k', name: 'Six Figures', desc: 'Save $100,000 in the bank.', req: (s) => s.money >= 100000 },
-  { id: 'bank_1m', name: 'Liquid Millionaire', desc: 'Save $1,000,000 in the bank.', req: (s) => s.money >= 1000000 },
-  { id: 'bank_1b', name: 'Tres Commas', desc: 'Save $1,000,000,000 in the bank.', req: (s) => s.money >= 1000000000 },
-  { id: 'bank_1t', name: 'Trillionaire', desc: 'Save $1,000,000,000,000 in the bank.', req: (s) => s.money >= 1000000000000 },
+  { id: 'bank_10k', name: 'Ten Grand', desc: 'Your first real savings. $10,000 in liquid capital. The foundation of something greater.', req: (s) => s.money >= 10000 },
+  { id: 'bank_100k', name: 'Six Figures', desc: 'Six figures in the bank. You are no longer playing the game—you are becoming the game.', req: (s) => s.money >= 100000 },
+  { id: 'bank_1m', name: 'Liquid Millionaire', desc: 'One million in liquid assets. The weight of wealth changes you. You feel the Syndicate\'s gaze intensify.', req: (s) => s.money >= 1000000 },
+  { id: 'bank_1b', name: 'Tres Commas', desc: 'Three commas. A billion dollars sitting idle. At this scale, money becomes a weapon, a tool, a reality unto itself.', req: (s) => s.money >= 1000000000 },
+  { id: 'bank_1t', name: 'Trillionaire', desc: 'One trillion dollars. You have transcended economics. The Syndicate nods in approval—you are ready for the Vault.', req: (s) => s.money >= 1000000000000 },
 
   // Lifetime Earnings
-  { id: 'life_10k', name: 'Humble Beginnings', desc: 'Earn $10,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000 },
-  { id: 'life_10m', name: 'Crust Fund', desc: 'Earn $10,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 10000000 },
-  { id: 'life_1t', name: 'Infinite Wealth', desc: 'Earn $1,000,000,000,000 lifetime.', req: (s) => s.lifetimeMoney >= 1000000000000 },
+  { id: 'life_10k', name: 'Humble Beginnings', desc: 'Your first $10,000 earned. Every fortune starts somewhere. The Syndicate remembers its own humble origins.', req: (s) => s.lifetimeMoney >= 10000 },
+  { id: 'life_10m', name: 'Crust Fund', desc: 'Ten million earned across all timelines. Your legacy grows. The dough rises, as do you.', req: (s) => s.lifetimeMoney >= 10000000 },
+  { id: 'life_1t', name: 'Infinite Wealth', desc: 'One trillion earned across all realities. Wealth is no longer a goal—it is a state of being. The Syndicate beckons.', req: (s) => s.lifetimeMoney >= 1000000000000 },
 
   // Total Pizzas Sold
-  { id: 'pizza_100', name: 'Warming Up', desc: 'Sell 100 pizzas total.', req: (s) => s.totalPizzasSold >= 100 },
-  { id: 'pizza_100k', name: 'Neighborhood Favorite', desc: 'Sell 100,000 pizzas total.', req: (s) => s.totalPizzasSold >= 100000 },
-  { id: 'pizza_10m', name: 'National Chain', desc: 'Sell 10,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 10000000 },
-  { id: 'pizza_1b', name: 'Global Dominance', desc: 'Sell 1,000,000,000 pizzas total.', req: (s) => s.totalPizzasSold >= 1000000000 },
+  { id: 'pizza_100', name: 'Warming Up', desc: 'One hundred pizzas sold. The oven is warm, your hands are steady. This is just the prelude.', req: (s) => s.totalPizzasSold >= 100 },
+  { id: 'pizza_100k', name: 'Neighborhood Favorite', desc: 'One hundred thousand pizzas. You are no longer a chef—you are an institution. A pillar of the community.', req: (s) => s.totalPizzasSold >= 100000 },
+  { id: 'pizza_10m', name: 'National Chain', desc: 'Ten million pizzas across the nation. Your brand is everywhere. The Syndicate takes note of your expansion.', req: (s) => s.totalPizzasSold >= 10000000 },
+  { id: 'pizza_1b', name: 'Global Dominance', desc: 'One billion pizzas sold worldwide. Nations rise and fall on your supply chain. You are no longer in the pizza business—you ARE the pizza business.', req: (s) => s.totalPizzasSold >= 1000000000 },
 
   // Clicking
-  { id: 'click_100', name: 'Finger Stretches', desc: 'Click the pizza 100 times.', req: (s) => s.totalClicks >= 100 },
-  { id: 'click_10k', name: 'Clicking Machine', desc: 'Click the pizza 10,000 times.', req: (s) => s.totalClicks >= 10000 },
-  { id: 'click_100k', name: 'The Auto-Clicker', desc: 'Click the pizza 100,000 times.', req: (s) => s.totalClicks >= 100000 },
+  { id: 'click_100', name: 'Finger Stretches', desc: 'One hundred clicks. Your fingers learn the rhythm. Click. Profit. Repeat. The mantra begins.', req: (s) => s.totalClicks >= 100 },
+  { id: 'click_10k', name: 'Clicking Machine', desc: 'Ten thousand clicks. You and the pizza are one. The boundary between action and intention dissolves.', req: (s) => s.totalClicks >= 10000 },
+  { id: 'click_100k', name: 'The Auto-Clicker', desc: 'One hundred thousand clicks. Are you clicking, or is the universe clicking through you? The Syndicate knows the answer.', req: (s) => s.totalClicks >= 100000 },
 
   // Combos
-  { id: 'combo_10', name: 'Heating Up', desc: 'Reach a 10x Click Combo.', req: (s) => s.combo >= 10 },
-  { id: 'combo_50', name: 'Blazing Fast', desc: 'Reach a 50x Click Combo.', req: (s) => s.combo >= 50 },
+  { id: 'combo_10', name: 'Heating Up', desc: 'Ten-click combo. The rhythm accelerates. You feel the heat building, the momentum gathering.', req: (s) => s.combo >= 10 },
+  { id: 'combo_50', name: 'Blazing Fast', desc: 'Fifty-click combo. Your hands are a blur. Time itself seems to slow around you. The Syndicate calls this "temporal dilation."', req: (s) => s.combo >= 50 },
 
   // Perfect Bakes
-  { id: 'perfect_10', name: 'Oven Master', desc: 'Pull 10 Perfect pizzas from the oven.', req: (s) => s.perfectBakes >= 10 },
-  { id: 'perfect_50', name: 'Flawless Execution', desc: 'Pull 50 Perfect pizzas from the oven.', req: (s) => s.perfectBakes >= 50 },
+  { id: 'perfect_10', name: 'Oven Master', desc: 'Ten perfect pizzas. You have learned to read the oven\'s language. Heat, time, and intuition become one.', req: (s) => s.perfectBakes >= 10 },
+  { id: 'perfect_50', name: 'Flawless Execution', desc: 'Fifty perfect pizzas. Perfection is no longer luck—it is your default state. The oven obeys your will.', req: (s) => s.perfectBakes >= 50 },
 
   // Deliveries
-  { id: 'delivery_50', name: 'Logistics Expert', desc: 'Complete 50 map deliveries.', req: (s) => s.deliveriesCompleted >= 50 },
-  { id: 'delivery_250', name: 'Worldwide Shipping', desc: 'Complete 250 map deliveries.', req: (s) => s.deliveriesCompleted >= 250 },
+  { id: 'delivery_50', name: 'Logistics Expert', desc: 'Fifty deliveries through the warped routes. You navigate the impossible with ease. The Syndicate\'s temporal network is yours to command.', req: (s) => s.deliveriesCompleted >= 50 },
+  { id: 'delivery_250', name: 'Worldwide Shipping', desc: 'Two hundred fifty deliveries across space and time. You have mastered the art of being everywhere at once.', req: (s) => s.deliveriesCompleted >= 250 },
 
   // Reputation
-  { id: 'rep_500', name: 'Rising Star', desc: 'Gain 500 Reputation.', req: (s) => s.reputation >= 500 },
-  { id: 'rep_10k', name: 'Household Name', desc: 'Gain 10,000 Reputation.', req: (s) => s.reputation >= 10000 },
+  { id: 'rep_500', name: 'Rising Star', desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', req: (s) => s.reputation >= 500 },
+  { id: 'rep_10k', name: 'Household Name', desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', req: (s) => s.reputation >= 10000 },
 
   // Franchise
-  { id: 'franchise_5',  name: 'Corporate Board',    desc: 'Gain 5 Franchise Licenses.',   req: (s) => s.franchiseLicenses >= 5  },
-  { id: 'franchise_10', name: 'Pizza Conglomerate',  desc: 'Gain 10 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 10 },
-  { id: 'franchise_25', name: 'Global Syndicate',    desc: 'Gain 25 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 25 },
-  { id: 'franchise_50', name: 'Crust Fund',       desc: 'Gain 50 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 50 },
-  { id: 'franchise_100', name: 'Galactic Dominance', desc: 'Gain 100 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 100 },
-  { id: 'franchise_150', name: 'Universal Control', desc: 'Gain 150 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 150 },
-  { id: 'franchise_200', name: 'Dimensional Overlord', desc: 'Gain 200 Franchise Licenses.', req: (s) => s.franchiseLicenses >= 200 },
-  { id: 'franchise_250', name: 'Pizza God',          desc: 'Gain 250 Franchise Licenses.',  req: (s) => s.franchiseLicenses >= 250 },
+  { id: 'franchise_5',  name: 'Corporate Board',    desc: 'Five Franchise Licenses. You sit at the table now. The Corporate veil begins to lift, revealing something darker beneath.',   req: (s) => s.franchiseLicenses >= 5  },
+  { id: 'franchise_10', name: 'Pizza Conglomerate',  desc: 'Ten Franchise Licenses. Your empire spans realities. Each reset makes you stronger. The Syndicate smiles.',  req: (s) => s.franchiseLicenses >= 10 },
+  { id: 'franchise_25', name: 'Global Syndicate',    desc: 'Twenty-five Licenses. You have become what you once feared. The Obsidian Syndicate welcomes you as one of their own.',  req: (s) => s.franchiseLicenses >= 25 },
+  { id: 'franchise_50', name: 'Crust Fund',       desc: 'Fifty Licenses. Your wealth compounds across timelines. The Syndicate reveals the first truth: time is a circle.',  req: (s) => s.franchiseLicenses >= 50 },
+  { id: 'franchise_100', name: 'Galactic Dominance', desc: 'One hundred Licenses. You control galaxies of franchises. The Syndicate whispers: "You are ready for the Golden Slices."', req: (s) => s.franchiseLicenses >= 100 },
+  { id: 'franchise_150', name: 'Universal Control', desc: 'One hundred fifty Licenses. Universes bend to your franchise model. The Syndicate reveals the second truth: reality is negotiable.', req: (s) => s.franchiseLicenses >= 150 },
+  { id: 'franchise_200', name: 'Dimensional Overlord', desc: 'Two hundred Licenses. You operate across dimensions. The Syndicate reveals the third truth: you were always one of us.', req: (s) => s.franchiseLicenses >= 200 },
+  { id: 'franchise_250', name: 'Pizza God',          desc: 'Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.',  req: (s) => s.franchiseLicenses >= 250 },
 
   // Lifetime earnings — deep progression
-  { id: 'life_1q',  name: 'Quadrillionaire',   desc: 'Earn $1,000,000,000,000,000 lifetime.',              req: (s) => s.lifetimeMoney >= 1e15  },
-  { id: 'life_1qi', name: 'Beyond Counting',   desc: 'Earn one quintillion dollars lifetime.',             req: (s) => s.lifetimeMoney >= 1e18  },
+  { id: 'life_1q',  name: 'Quadrillionaire',   desc: 'One quadrillion dollars earned. Numbers lose meaning at this scale. The Syndicate nods: "You understand now."',              req: (s) => s.lifetimeMoney >= 1e15  },
+  { id: 'life_1qi', name: 'Beyond Counting',   desc: 'One quintillion dollars. Mathematics breaks down. You have transcended the concept of wealth itself. The Vault awaits.',             req: (s) => s.lifetimeMoney >= 1e18  },
 
   // Pizza volume — long-haul
-  { id: 'pizza_10b', name: 'Factory Planet',   desc: 'Sell 10 billion pizzas total.',                      req: (s) => s.totalPizzasSold >= 1e10 },
-  { id: 'pizza_1t',  name: 'Universe Fed',     desc: 'Sell 1 trillion pizzas total.',                      req: (s) => s.totalPizzasSold >= 1e12 },
+  { id: 'pizza_10b', name: 'Factory Planet',   desc: 'Ten billion pizzas. Entire planets are dedicated to your production. The Syndicate reveals: this is only one timeline.',                      req: (s) => s.totalPizzasSold >= 1e10 },
+  { id: 'pizza_1t',  name: 'Universe Fed',     desc: 'One trillion pizzas. You have fed entire universes. The Syndicate whispers: "Every slice contains a fragment of eternity."',                      req: (s) => s.totalPizzasSold >= 1e12 },
 
   // Late upgrades
-  { id: 'upgrade_wagyu',     name: 'Premium Grade', desc: 'Purchase a Wagyu Topping upgrade.',              req: (s) => (s.inventory?.wagyu || 0) >= 1          },
-  { id: 'upgrade_antimatter',name: 'Beyond Physics', desc: 'Purchase an Antimatter Crust upgrade.',         req: (s) => (s.inventory?.antimatterCrust || 0) >= 1 },
-  { id: 'upgrade_neural',    name: 'Mind Over Pizza', desc: 'Purchase a Neural Clicker upgrade.',            req: (s) => (s.inventory?.neuralClicker || 0) >= 1  },
+  { id: 'upgrade_wagyu',     name: 'Premium Grade', desc: 'Wagyu beef on pizza. Decadence incarnate. The Syndicate approves of your refined taste for the excessive.',              req: (s) => (s.inventory?.wagyu || 0) >= 1          },
+  { id: 'upgrade_antimatter',name: 'Beyond Physics', desc: 'Antimatter crust. You have broken the laws of physics for profit. The Syndicate reveals: reality is just another ingredient.',         req: (s) => (s.inventory?.antimatterCrust || 0) >= 1 },
+  { id: 'upgrade_neural',    name: 'Mind Over Pizza', desc: 'Neural interface clicking. Your thoughts become pizzas. The boundary between mind and matter dissolves. The Syndicate smiles.',            req: (s) => (s.inventory?.neuralClicker || 0) >= 1  },
 
   // Specific Upgrades
-  { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'Purchase a Michelin Star upgrade.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
+  { id: 'upgrade_michelin', name: 'Fine Dining', desc: 'A Michelin Star. The culinary elite recognize your mastery. But the Syndicate knows: stars are just burning gas.', req: (s) => (s.inventory?.michelin || 0) >= 1 },
 
   // Market Achievements
-  { id: 'market_first_trade', name: 'Wall Street Rookie', desc: 'Execute your first market trade.', req: (s) => (s.totalMarketTrades || 0) >= 1 },
-  { id: 'market_100_trades', name: 'Day Trader', desc: 'Execute 100 market trades.', req: (s) => (s.totalMarketTrades || 0) >= 100 },
-  { id: 'market_1k_trades', name: 'Market Veteran', desc: 'Execute 1,000 market trades.', req: (s) => (s.totalMarketTrades || 0) >= 1000 },
-  { id: 'market_profit_1m', name: 'Portfolio Manager', desc: 'Earn $1,000,000 total profit from market trades.', req: (s) => (s.marketProfitLifetime || 0) >= 1000000 },
-  { id: 'market_big_win', name: 'Diamond Hands', desc: 'Make a single market trade with $100,000+ profit.', req: (s) => (s.biggestMarketGain || 0) >= 100000 },
+  { id: 'market_first_trade', name: 'Wall Street Rookie', desc: 'Your first market trade. You have entered the game within the game. The Syndicate controls the market—but you can learn to dance with it.', req: (s) => (s.totalMarketTrades || 0) >= 1 },
+  { id: 'market_100_trades', name: 'Day Trader', desc: 'One hundred trades. You read the patterns now. Buy low, sell high. The Syndicate watches your growing understanding.', req: (s) => (s.totalMarketTrades || 0) >= 100 },
+  { id: 'market_1k_trades', name: 'Market Veteran', desc: 'One thousand trades. The market is your playground. You manipulate flour prices like a puppet master. The Syndicate nods in approval.', req: (s) => (s.totalMarketTrades || 0) >= 1000 },
+  { id: 'market_profit_1m', name: 'Portfolio Manager', desc: 'One million in market profits. You have learned to extract value from chaos itself. The Syndicate reveals: chaos is just order you don\'t understand yet.', req: (s) => (s.marketProfitLifetime || 0) >= 1000000 },
+  { id: 'market_big_win', name: 'Diamond Hands', desc: 'One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: "Diamond hands forge diamond empires."', req: (s) => (s.biggestMarketGain || 0) >= 100000 },
 ];
 
 const ACHIEVEMENT_META = {
@@ -522,7 +522,8 @@ export default function App() {
   const [biggestMarketGain, setBiggestMarketGain] = useState(initialData?.biggestMarketGain || 0);
 
   // --- MODAL STATE ---
-  const [corpOfficeOpen, setCorpOfficeOpen] = useState(false);
+  const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
+  const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
   const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
 
@@ -2008,6 +2009,41 @@ export default function App() {
         />
       )}
 
+      {/* --- ACHIEVEMENT DETAIL MODAL --- */}
+      {selectedAchievement && (
+        <div className="fixed inset-0 z-[102] bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedAchievement(null)}>
+          <div className="bg-zinc-950 border-4 border-amber-500 rounded-2xl p-8 max-w-md w-full text-center relative shadow-[0_0_60px_rgba(245,158,11,0.4)]" onClick={(e) => e.stopPropagation()}>
+            {/* Close button */}
+            <button onClick={() => setSelectedAchievement(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-300 transition-colors">
+              <span className="text-2xl">×</span>
+            </button>
+            
+            {/* Icon */}
+            <div className="mb-4">
+              {(ACHIEVEMENT_META[selectedAchievement.id]?.icon || <Star className="w-16 h-16 mx-auto" />)}
+            </div>
+            
+            {/* Title */}
+            <h2 className="text-2xl font-black uppercase tracking-widest text-amber-400 mb-3" style={{ fontSize: '1.5rem' }}>
+              {selectedAchievement.name}
+            </h2>
+            
+            {/* Description */}
+            <p className="text-zinc-300 mb-6" style={{ fontSize: '14pt', lineHeight: '1.5' }}>
+              {selectedAchievement.desc}
+            </p>
+            
+            {/* Close button */}
+            <button 
+              onClick={() => setSelectedAchievement(null)}
+              className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-lg transition-colors"
+              style={{ fontSize: '14pt' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* --- DELIVERY MICROGAME (placeholder — DeliveryMicrogame component not yet implemented) --- */}
 
@@ -3071,10 +3107,10 @@ export default function App() {
                                 <div className="absolute -inset-4 border border-fuchsia-700/20 rounded-xl animate-pulse" style={{ animationDelay: '0.3s' }} />
                               </div>
                               {/* Riddle text */}
-                              <p className="text-[9px] text-fuchsia-400 font-bold uppercase tracking-wider text-center leading-relaxed relative z-10">
+                              <p className="text-sm text-fuchsia-400 font-bold uppercase tracking-wider text-center leading-relaxed relative z-10">
                                 THE OBSIDIAN SYNDICATE IS WATCHING...
                               </p>
-                              <p className="text-[8px] text-fuchsia-600 italic text-center leading-relaxed relative z-10">
+                              <p className="text-xs text-fuchsia-600 italic text-center leading-relaxed relative z-10">
                                 A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.
                               </p>
                             </div>
@@ -3091,7 +3127,7 @@ export default function App() {
                                 backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(168,85,247,0.1) 2px, rgba(168,85,247,0.1) 4px)',
                               }} />
                               {/* Name only, no icon */}
-                              <div className="text-[9px] font-black uppercase tracking-widest text-center leading-tight text-zinc-800 w-full px-1">
+                              <div className="text-sm font-black uppercase tracking-widest text-center leading-tight text-zinc-800 w-full px-1">
                                 {ach.name}
                               </div>
                             </div>
@@ -3100,8 +3136,10 @@ export default function App() {
 
                         // UNLOCKED (Gold Foil Premium)
                         return (
-                          <div key={ach.id}
-                            className="relative overflow-hidden rounded-2xl border-4 shadow-2xl flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all"
+                          <button
+                            key={ach.id}
+                            onClick={() => setSelectedAchievement(ach)}
+                            className="relative overflow-hidden rounded-2xl border-4 shadow-2xl flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all hover:scale-105 hover:brightness-110 cursor-pointer"
                             style={{
                               background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #0a0a0a 100%)',
                               borderImage: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706, #fbbf24) 1',
@@ -3120,10 +3158,10 @@ export default function App() {
                               {meta.icon || <Star className="w-12 h-12" />}
                             </div>
                             {/* Title */}
-                            <div className="text-[10px] font-black uppercase tracking-widest text-center leading-tight text-emerald-300 w-full px-0.5 relative z-10" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                            <div className="text-sm font-black uppercase tracking-widest text-center leading-tight text-emerald-300 w-full px-0.5 relative z-10" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
                               {ach.name}
                             </div>
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
