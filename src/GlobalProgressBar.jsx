@@ -10,8 +10,8 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
 
-  // Smooth count-up animation
-  const animateCountUp = (from, to, duration = 1000) => {
+  // Smooth number animation
+  const animateNumber = (from, to, duration = 800) => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -21,9 +21,9 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Easing function for smooth animation
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      const current = from + (to - from) * easeOutQuart;
+      // Smooth easing function
+      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+      const current = from + (to - from) * easeOutCubic;
       
       setDisplayPizzas(Math.floor(current));
       setDisplayProgress((current / GLOBAL_PIZZAS_GOAL) * 100);
@@ -52,7 +52,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   // Update when global pizzas change
   useEffect(() => {
     if (currentGlobalPizzas !== previousPizzas.current) {
-      animateCountUp(previousPizzas.current, currentGlobalPizzas);
+      animateNumber(previousPizzas.current, currentGlobalPizzas);
       previousPizzas.current = currentGlobalPizzas;
     }
   }, [currentGlobalPizzas]);

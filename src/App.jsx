@@ -538,10 +538,9 @@ export default function App() {
   
   // Global Network Sync Engine
   const [globalPizzas, setGlobalPizzas] = useState(0);
-  const [displayGlobalPizzas, setDisplayGlobalPizzas] = useState(0);
   const pendingProduction = useRef(0);
-  const unsyncedPizzas = useRef(0);
   const lastSyncTime = useRef(0);
+  const lastPollTime = useRef(0);
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -1149,13 +1148,9 @@ export default function App() {
 
   // --- GLOBAL NETWORK SYNC ENGINE ---
   const syncWithGlobalSyndicate = useCallback(async () => {
-    const now = Date.now();
+    const amountToSend = Math.floor(pendingProduction.current);
     
-    // Only sync every 5 seconds
-    if (now - lastSyncTime.current < 5000) return;
-    
-    const totalToSync = pendingProduction.current + unsyncedPizzas.current;
-    if (totalToSync <= 0) return;
+    if (amountToSend <= 0) return;
     
     try {
       const response = await fetch('/api/global-stats', {
@@ -1163,63 +1158,109 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ amount: Math.floor(totalToSync) }),
+        body: JSON.stringify({ amount: amountToSend }),
       });
       
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
+          // CRITICAL: Only subtract after successful response
+          pendingProduction.current -= amountToSend;
           setGlobalPizzas(data.total);
-          setDisplayGlobalPizzas(data.total);
-          pendingProduction.current = 0;
-          unsyncedPizzas.current = 0;
-          lastSyncTime.current = now;
+          lastSyncTime.current = Date.now();
+          
+          // Log if using mock data
+          if (data.mock) {
+            console.warn('Using mock KV data - environment variables not configured');
+          }
         }
+      } else {
+        console.warn('Sync failed:', response.status);
       }
     } catch (error) {
       console.error('Error syncing with global syndicate:', error);
-      // Save unsynced pizzas for next attempt
-      unsyncedPizzas.current += pendingProduction.current;
-      pendingProduction.current = 0;
-      lastSyncTime.current = now;
+      // Don't subtract on error - keep for retry
     }
   }, []);
 
-  // Initial fetch of global stats
+  // Poll global stats to keep fresh
+  const pollGlobalStats = useCallback(async () => {
+    const now = Date.now();
+    
+    // Only poll every 30 seconds and only if idle (no recent production)
+    if (now - lastPollTime.current < 30000 || pendingProduction.current > 0) return;
+    
+    try {
+      const response = await fetch('/api/global-stats');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setGlobalPizzas(data.total);
+          lastPollTime.current = now;
+          
+          // Log if using mock data
+          if (data.mock) {
+            console.warn('Using mock KV data - environment variables not configured');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error polling global stats:', error);
+    }
+  }, []);
+
+  // Initial fetch on mount
   useEffect(() => {
-    const fetchGlobalStats = async () => {
+    const fetchInitialStats = async () => {
       try {
         const response = await fetch('/api/global-stats');
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
             setGlobalPizzas(data.total);
-            setDisplayGlobalPizzas(data.total);
+            
+            // Log if using mock data
+            if (data.mock) {
+              console.warn('Using mock KV data - environment variables not configured');
+            }
           }
         }
       } catch (error) {
-        console.error('Error fetching global stats:', error);
+        console.error('Error fetching initial global stats:', error);
       }
     };
     
-    fetchGlobalStats();
-    
-    // Sync every 5 seconds
-    const syncInterval = setInterval(syncWithGlobalSyndicate, 5000);
+    fetchInitialStats();
+  }, []);
+
+  // Sync Loop - every 5 seconds
+  useEffect(() => {
+    const syncInterval = setInterval(() => {
+      syncWithGlobalSyndicate();
+    }, 5000);
     
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
 
+  // Polling Loop - every 30 seconds
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      pollGlobalStats();
+    }, 30000);
+    
+    return () => clearInterval(pollInterval);
+  }, [pollGlobalStats]);
+
   // Force sync on page unload
   useEffect(() => {
     const handleBeforeUnload = async () => {
-      const totalToSync = pendingProduction.current + unsyncedPizzas.current;
-      if (totalToSync > 0) {
+      const amountToSend = Math.floor(pendingProduction.current);
+      if (amountToSend > 0) {
         try {
           await fetch('/api/global-stats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.floor(totalToSync) }),
+            body: JSON.stringify({ amount: amountToSend }),
           });
         } catch (error) {
           console.error('Error syncing on unload:', error);

@@ -1,85 +1,67 @@
 import { kv } from '@vercel/kv';
 
-const GLOBAL_PIZZAS_KEY = 'crust_fund_global_pizzas';
-
 export async function GET() {
   try {
-    const total = await kv.get(GLOBAL_PIZZAS_KEY);
+    // Check if KV is available
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      console.warn('KV environment variables not found, returning mock data');
+      return Response.json({ 
+        success: true, 
+        total: 0,
+        mock: true
+      });
+    }
+
+    const total = await kv.get('crust_fund_global_pizzas');
     const count = total || 0;
     
-    return new Response(JSON.stringify({ 
+    return Response.json({ 
       success: true, 
-      total: count,
-      formatted: formatNumber(count)
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      }
+      total: count
     });
   } catch (error) {
     console.error('Error fetching global stats:', error);
-    return new Response(JSON.stringify({ 
+    return Response.json({ 
       success: false, 
       error: 'Failed to fetch global stats' 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
+    // Check if KV is available
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      console.warn('KV environment variables not found, returning mock response');
+      return Response.json({ 
+        success: true, 
+        total: 0,
+        mock: true
+      });
+    }
+
     const body = await request.json();
     const { amount } = body;
     
     if (typeof amount !== 'number' || amount <= 0) {
-      return new Response(JSON.stringify({ 
+      return Response.json({ 
         success: false, 
         error: 'Invalid amount. Must be a positive number.' 
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      }, { status: 400 });
     }
     
     // Atomically increment the global counter
-    const newTotal = await kv.incrby(GLOBAL_PIZZAS_KEY, amount);
+    const newTotal = await kv.incrby('crust_fund_global_pizzas', amount);
     
-    return new Response(JSON.stringify({ 
+    return Response.json({ 
       success: true, 
-      total: newTotal,
-      added: amount,
-      formatted: formatNumber(newTotal)
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      }
+      total: newTotal
     });
   } catch (error) {
     console.error('Error updating global stats:', error);
-    return new Response(JSON.stringify({ 
+    return Response.json({ 
       success: false, 
       error: 'Failed to update global stats' 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
-function formatNumber(num) {
-  if (num >= 1000000000) {
-    return `${(num / 1000000000).toFixed(2)}B`;
-  } else if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(2)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  } else {
-    return num.toString();
+    }, { status: 500 });
   }
 }
