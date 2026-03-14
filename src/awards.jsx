@@ -60,10 +60,14 @@ export default function ExecutiveStickerbook() {
   const unlockedCount = AWARDS_DB.filter(a => a.isUnlocked).length;
   const totalCount = AWARDS_DB.length;
 
-  // Scroll focus panel into view when award selection changes
+  // Scroll to award when selection changes (mobile-friendly)
   useEffect(() => {
-    if (focusPanelRef.current) {
-      focusPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Find the clicked award button and scroll it into view
+    const awardButton = document.querySelector(`[data-award-id="${selectedAward.id}"]`);
+    if (awardButton) {
+      // On mobile, use center; on desktop, use nearest for better UX
+      const isMobile = window.innerWidth < 768;
+      awardButton.scrollIntoView({ behavior: 'smooth', block: isMobile ? 'center' : 'nearest' });
     }
   }, [selectedAward]);
 
@@ -89,8 +93,8 @@ export default function ExecutiveStickerbook() {
         </div>
       </div>
 
-      {/* --- 1. THE FOCUS PANEL (Mobile-Optimized & Sticky) --- */}
-      <div ref={focusPanelRef} className="w-full max-w-4xl bg-zinc-800/95 border border-zinc-700/50 rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-2xl mb-6 flex flex-row gap-3 sm:gap-4 md:gap-6 items-center transition-all duration-300 sticky top-0 z-40 backdrop-blur-2xl">
+      {/* --- 1. THE FOCUS PANEL (Mobile-Optimized) --- */}
+      <div ref={focusPanelRef} className="w-full max-w-4xl bg-zinc-800/95 border border-zinc-700/50 rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-2xl mb-6 flex flex-row gap-3 sm:gap-4 md:gap-6 items-center transition-all duration-300 backdrop-blur-2xl">
         
         {/* Scaled Icon Display */}
         <div className={`w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-xl md:rounded-3xl shrink-0 flex items-center justify-center shadow-inner border-[2px] md:border-[3px] transition-colors duration-500
@@ -152,6 +156,7 @@ export default function ExecutiveStickerbook() {
               return (
                 <button 
                   key={award.id}
+                  data-award-id={award.id}
                   onClick={() => setSelectedAward(award)}
                   className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
                     bg-zinc-800 border-2 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-zinc-900
@@ -175,6 +180,7 @@ export default function ExecutiveStickerbook() {
               return (
                 <button 
                   key={award.id}
+                  data-award-id={award.id}
                   onClick={() => setSelectedAward(award)}
                   className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
                     bg-zinc-950 border-2 shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:ring-offset-zinc-900
@@ -193,6 +199,7 @@ export default function ExecutiveStickerbook() {
             return (
               <button 
                 key={award.id}
+                data-award-id={award.id}
                 onClick={() => setSelectedAward(award)}
                 className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
                   bg-zinc-800/30 border-2 shadow-[inset_0_4px_12px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-900
