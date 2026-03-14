@@ -434,6 +434,7 @@ export default function App() {
 
   // --- SYNDICATE STATE ---
   const [goldenSlices, setGoldenSlices] = useState(safeNum(initialData?.goldenSlices, 0));
+  const [ascensionSpentLicenses, setAscensionSpentLicenses] = useState(safeNum(initialData?.ascensionSpentLicenses, 0));
   const [syndicatePerks, setSyndicatePerks] = useState(() => ({
     shadowCapital:  initialData?.syndicatePerks?.shadowCapital  ?? false,
     quantumOven:    initialData?.syndicatePerks?.quantumOven    ?? false,
@@ -589,7 +590,8 @@ export default function App() {
     if (n < 5) return Math.pow(n + 1, 2) * 150000;
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
-  const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
+  const effectiveEarnableLicenses = Math.max(0, totalEarnableLicenses - ascensionSpentLicenses);
+  const pendingLicenses = Math.max(0, effectiveEarnableLicenses - franchiseLicenses);
   const affordableAscensionSlices = Math.floor(franchiseLicenses / LICENSES_PER_ASCENSION_SLICE);
   const ascensionLicenseCost = affordableAscensionSlices * LICENSES_PER_ASCENSION_SLICE;
   const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
@@ -965,6 +967,7 @@ export default function App() {
     const snap = ascensionSnapshotRef.current;
     if (!snap) return;
     setFranchiseLicenses(prev => Math.max(0, prev - snap.licenseCost));
+    setAscensionSpentLicenses(prev => prev + snap.licenseCost);
     setGoldenSlices(prev => prev + snap.sliceGain);
     pushLog('spend', `🌙 Ascension exchange: -${snap.licenseCost} Licenses, +${snap.sliceGain} Golden Slice${snap.sliceGain !== 1 ? 's' : ''}`, 0);
     setShowAscensionModal(false);
@@ -977,7 +980,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -996,6 +999,7 @@ export default function App() {
         setMarketUnlocked(decoded.marketUnlocked || false);
         setMarketShares(decoded.marketShares || { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
         if (decoded.goldenSlices !== undefined) setGoldenSlices(safeNum(decoded.goldenSlices));
+        if (decoded.ascensionSpentLicenses !== undefined) setAscensionSpentLicenses(safeNum(decoded.ascensionSpentLicenses));
         if (decoded.syndicatePerks) setSyndicatePerks(p => ({ ...p, ...decoded.syndicatePerks }));
         if (decoded.marketCooldowns) setMarketCooldowns(decoded.marketCooldowns);
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
@@ -1017,7 +1021,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -1234,7 +1238,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
