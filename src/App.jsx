@@ -2118,18 +2118,23 @@ export default function App() {
         >
           {/* Spy Icon */}
           <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center shadow-lg border-2 border-purple-500/50 hover:from-purple-500 hover:to-purple-700 transition-all duration-300 hover:scale-110 hover:shadow-purple-500/25">
-            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              <circle cx="12" cy="12" r="3" fill="white" opacity="0.9"/>
-              <path d="M9 11c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm6 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/>
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              {/* Spy hat */}
+              <path d="M12 2 L8 6 L16 6 Z" fill="currentColor"/>
+              <rect x="8" y="6" width="8" height="2" fill="currentColor"/>
+              {/* Face */}
+              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor"/>
+              {/* Eye */}
+              <circle cx="12" cy="12" r="2" fill="currentColor"/>
+              <circle cx="13" cy="11" r="0.5" fill="white"/>
+              {/* Brim of hat */}
+              <path d="M6 8 Q12 10 18 8" fill="none" stroke="currentColor"/>
             </svg>
           </div>
           
           {/* Tooltip */}
           <div className="absolute top-full mt-2 right-0 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
             <div className="text-xs font-black text-purple-300 uppercase tracking-wider">Join the Syndicate</div>
-            <div className="text-xs text-zinc-500">Connect with agents</div>
             {/* Arrow */}
             <div className="absolute -top-2 right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-zinc-800"></div>
           </div>
