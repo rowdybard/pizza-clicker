@@ -161,6 +161,12 @@ const ACHIEVEMENTS = [
   { id: 'market_big_win', name: 'Diamond Hands', desc: 'One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: "Diamond hands forge diamond empires."', req: (s) => (s.biggestMarketGain || 0) >= 100000 },
 ];
 
+// Create file number mapping for each achievement
+const ACHIEVEMENT_FILE_NUMBERS = {};
+ACHIEVEMENTS.forEach((ach, index) => {
+  ACHIEVEMENT_FILE_NUMBERS[ach.id] = String(index + 1).padStart(3, '0');
+});
+
 const ACHIEVEMENT_META = {
   first_blood:         { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Sell your first pizza' },
   pizza_10k:           { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Sell 10,000 pizzas' },
@@ -3135,7 +3141,7 @@ export default function App() {
                               }}
                             >
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -3177,7 +3183,7 @@ export default function App() {
                               zIndex: 1
                             }}>
                               {/* File label */}
-                              {meta.isSecret && <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>}
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
@@ -3210,7 +3216,7 @@ export default function App() {
                             }}
                           >
                             {/* File label */}
-                            {meta.isSecret && <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE 14-B</div>}
+                            <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                             
                             {/* Checkmark badge */}
                             <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-20" style={{ boxShadow: '0 0 12px rgba(34,197,94,0.8)' }}>
