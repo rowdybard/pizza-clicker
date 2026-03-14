@@ -538,7 +538,6 @@ export default function App() {
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
   const [deliveryGame, setDeliveryGame] = useState(null);
-
   const calculateCost = (baseCost, ownedCount) => Math.floor(baseCost * Math.pow(1.15, ownedCount));
 
   const calculateBulkCost = (baseCost, currentCount, amount) => {
