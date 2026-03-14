@@ -1155,8 +1155,12 @@ export default function App() {
   const syncWithGlobalSyndicate = useCallback(async () => {
     const amountToSend = Math.floor(pendingProduction.current);
     
-        
-    if (amountToSend <= 0) return;
+    console.log('Sync attempt - pending pizzas:', amountToSend);
+    
+    if (amountToSend <= 0) {
+      console.log('No pending pizzas to sync');
+      return;
+    }
     
     try {
       // Use correct API URL based on environment
@@ -1174,11 +1178,14 @@ export default function App() {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Sync response:', data);
         if (data.success) {
           // CRITICAL: Only subtract after successful response
           pendingProduction.current -= amountToSend;
           setGlobalPizzas(data.total);
           lastSyncTime.current = Date.now();
+          
+          console.log('Sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
           
           // Log different response types
           if (data.mock) {
@@ -1188,11 +1195,13 @@ export default function App() {
           } else if (data.cached) {
             console.warn('Using cached total:', data.total);
           } else {
-            console.log('Sync successful - real Redis data:', data.total);
+            console.log('Real Redis data - global total updated:', data.total);
           }
+        } else {
+          console.warn('Sync failed - success false:', data);
         }
       } else {
-        console.warn('Sync failed:', response.status);
+        console.warn('Sync failed - HTTP error:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error syncing with global syndicate:', error);
@@ -1272,11 +1281,15 @@ export default function App() {
       const offlinePizzas = Math.floor(_offlineCalc.report.pizzasEarned);
       pendingProduction.current += offlinePizzas;
       console.log('Added offline pizzas to global sync:', offlinePizzas);
+      console.log('Offline report details:', _offlineCalc.report);
       
-      // Sync immediately if we have a significant amount
-      if (offlinePizzas >= 5) {
-        setTimeout(() => syncWithGlobalSyndicate(), 1000); // Delay 1s to ensure globalPizzas is set
-      }
+      // Always sync offline pizzas immediately, regardless of amount
+      setTimeout(() => {
+        console.log('Triggering immediate offline sync...');
+        syncWithGlobalSyndicate();
+      }, 500); // Shorter delay for faster sync
+    } else {
+      console.log('No offline pizzas to sync');
     }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
 
