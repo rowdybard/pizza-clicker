@@ -2286,6 +2286,13 @@ export default function App() {
         <div className="h-1 bg-zinc-950 w-full">
           <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
         </div>
+        
+        {/* Global Progress Section */}
+        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-2">
+          <div className="max-w-7xl mx-auto">
+            <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
+          </div>
+        </div>
       </div>
 
       {/* --- SETTINGS MODAL --- */}
@@ -3192,11 +3199,7 @@ export default function App() {
                 );
               })()}
 
-              {/* --- GLOBAL PROGRESS BAR --- */}
-              <div className="mb-6">
-                <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
-              </div>
-
+              
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
