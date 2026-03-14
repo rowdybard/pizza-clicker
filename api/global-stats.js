@@ -1,10 +1,24 @@
-import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
+
+// Initialize Redis client
+let redis;
+try {
+  if (process.env.REDIS_URL) {
+    redis = new Redis(process.env.REDIS_URL);
+    console.log('Redis client initialized with REDIS_URL');
+  } else {
+    console.warn('REDIS_URL not found, using mock mode');
+    redis = null;
+  }
+} catch (error) {
+  console.error('Failed to initialize Redis client:', error);
+  redis = null;
+}
 
 export async function GET() {
   try {
-    // Check if KV/Redis is available
-    if (!process.env.REDIS_URL) {
-      console.warn('Redis environment variables not found, returning mock data');
+    if (!redis) {
+      console.warn('Redis not available, returning mock data');
       return Response.json({ 
         success: true, 
         total: 0,
@@ -12,8 +26,10 @@ export async function GET() {
       });
     }
 
-    const total = await kv.get('crust_fund_global_pizzas');
-    const count = total || 0;
+    const total = await redis.get('crust_fund_global_pizzas');
+    const count = total ? parseInt(total, 10) : 0;
+    
+    console.log('Successfully fetched global total:', count);
     
     return Response.json({ 
       success: true, 
@@ -30,9 +46,8 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    // Check if KV/Redis is available
-    if (!process.env.REDIS_URL) {
-      console.warn('Redis environment variables not found, returning mock response');
+    if (!redis) {
+      console.warn('Redis not available, returning mock response');
       return Response.json({ 
         success: true, 
         total: 0,
@@ -50,15 +65,19 @@ export async function POST(request) {
       }, { status: 400 });
     }
     
+    console.log('POST - Attempting to add amount:', amount);
+    
     // Atomically increment the global counter
-    const newTotal = await kv.incrby('crust_fund_global_pizzas', amount);
+    const newTotal = await redis.incrby('crust_fund_global_pizzas', amount);
+    
+    console.log('POST - Successfully incremented to new total:', newTotal);
     
     return Response.json({ 
       success: true, 
       total: newTotal
     });
   } catch (error) {
-    console.error('Error updating global stats:', error);
+    console.error('POST - Error updating global stats:', error);
     return Response.json({ 
       success: false, 
       error: 'Failed to update global stats' 
