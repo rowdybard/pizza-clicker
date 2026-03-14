@@ -4,12 +4,12 @@ import {
   Lock, MousePointerClick, CircleDollarSign, 
   ShieldQuestion, CheckCircle2, Crown, Terminal, 
   TrendingDown, Briefcase, Zap, Rocket, Truck, 
-  Clock, Ghost, Eye, X
+  Clock, Ghost, Eye, X, Camera, Mouse, Droplets, Shield
 } from 'lucide-react';
 
-// --- THE EXPANDED DATABASE ---
+// --- THE EXPANDED DATABASE (Full 55-slot capacity) ---
 const AWARDS_DB = [
-  // 1. THE TREASURY ROADMAP
+  // 1. THE TREASURY ROADMAP (Money Milestones)
   { id: 'money_1', title: 'Open for Business', isSecret: false, isUnlocked: true, desc: 'Earn your first dollar. The empire begins.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
   { id: 'money_2', title: 'In the Black', isSecret: false, isUnlocked: true, desc: 'Reach $10,000 in the bank. You are officially profitable.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
   { id: 'money_3', title: 'Millionaire', isSecret: false, isUnlocked: true, desc: 'Reach $1,000,000. Time to buy a yacht.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
@@ -18,7 +18,7 @@ const AWARDS_DB = [
   { id: 'money_6', title: 'Quadrillionaire', isSecret: false, isUnlocked: false, desc: 'Goal: Reach $1,000,000,000,000,000. Math starts breaking down.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
   { id: 'money_7', title: 'Beyond Counting', isSecret: false, isUnlocked: false, desc: 'Goal: Max out the integer limit. Pure economic singularity.', icon: <Star size={40} className="text-zinc-600" /> },
 
-  // 2. THE PRODUCTION ROADMAP
+  // 2. THE PRODUCTION ROADMAP (Pizza Milestones)
   { id: 'prod_1', title: 'First Bake', isSecret: false, isUnlocked: true, desc: 'You baked a pizza. It probably tastes okay.', icon: <Pizza size={40} className="text-orange-500" /> },
   { id: 'prod_2', title: 'Local Legend', isSecret: false, isUnlocked: true, desc: 'Baked 10,000 pizzas. The neighborhood knows your name.', icon: <Flame size={40} className="text-orange-500" /> },
   { id: 'prod_3', title: 'Pizza Magnate', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1,000,000 Pizzas', icon: <Building2 size={40} className="text-zinc-600" /> },
@@ -27,16 +27,29 @@ const AWARDS_DB = [
   { id: 'prod_6', title: 'Factory Planet', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1 Trillion Pizzas. The crust consumes all.', icon: <Globe2 size={40} className="text-zinc-600" /> },
   { id: 'prod_7', title: 'Universal Crust', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1 Quadrillion Pizzas.', icon: <Rocket size={40} className="text-zinc-600" /> },
 
-  // 3. THE CARPAL TUNNEL SERIES
+  // 3. THE CARPAL TUNNEL SERIES (Clicking)
   { id: 'click_1', title: 'Warming Up', isSecret: false, isUnlocked: true, desc: 'Manually clicked the Bake button 100 times.', icon: <MousePointerClick size={40} className="text-blue-500" /> },
   { id: 'click_2', title: 'Carpal Tunnel', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 10,000 times.', icon: <Zap size={40} className="text-zinc-600" /> },
   { id: 'click_3', title: 'Machine Gun', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 100,000 times.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
   { id: 'click_4', title: 'Silicon Smasher', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 1,000,000 times. Buy a new mouse.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
 
-  // 5. THE 11 SYNDICATE RIDDLES
+  // 4. THE CORPORATE LADDER & LIFESTYLE
+  { id: 'pres_1', title: 'Hostile Takeover', isSecret: false, isUnlocked: false, desc: 'Goal: Earn your first Franchise License.', icon: <Briefcase size={40} className="text-zinc-600" /> },
+  { id: 'pres_2', title: 'Monopoly', isSecret: false, isUnlocked: false, desc: 'Goal: Hold 50 Franchise Licenses simultaneously.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'time_1', title: 'Shift Worker', isSecret: false, isUnlocked: false, desc: 'Goal: Play for 24 hours total.', icon: <Clock size={40} className="text-zinc-600" /> },
+
+  // 5. THE 11 SYNDICATE RIDDLES (Secret Tier)
   { id: 'rid_1', title: 'The Syndicate Key', isSecret: true, isUnlocked: false, riddle: "A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.", icon: <Lock size={32} className="text-rose-200" /> },
   { id: 'rid_2', title: 'Zero-Day Cipher', isSecret: true, isUnlocked: false, riddle: "The ledger is pristine, but the architecture has a flaw. Tap the un-tappable to shatter the illusion of control.", icon: <Terminal size={32} className="text-rose-200" /> },
-  { id: 'rid_3', title: 'The Day Trader', isSecret: true, isUnlocked: false, riddle: "The Obsidian Syndicate feasts on the panicked. To join the table, you must intentionally bleed your own portfolio.", icon: <TrendingDown size={32} className="text-rose-200" /> }
+  { id: 'rid_3', title: 'The Day Trader', isSecret: true, isUnlocked: false, riddle: "The Obsidian Syndicate feasts on the panicked. To join the table, you must intentionally bleed your own portfolio.", icon: <TrendingDown size={32} className="text-rose-200" /> },
+  { id: 'rid_4', title: 'Rival CEO', isSecret: true, isUnlocked: false, riddle: "Pride is a liability. True power comes when you are willing to liquidate your soul to the corporate machine.", icon: <Building2 size={32} className="text-rose-200" /> },
+  { id: 'rid_5', title: 'Alleyway Barnaby', isSecret: true, isUnlocked: false, riddle: "Where there is smoke, there is a free meal. Some clients prefer the taste of failure.", icon: <ShieldQuestion size={32} className="text-rose-200" /> },
+  { id: 'rid_6', title: 'Late-Night Dave', isSecret: true, isUnlocked: false, riddle: "The best deals are made when the sun is dead. We are technically closed, but the oven is still hot.", icon: <Clock size={32} className="text-rose-200" /> },
+  { id: 'rid_7', title: 'The Phantom Driver', isSecret: true, isUnlocked: false, riddle: "Execute a maneuver when the ledger reads zero. The ghost walks only when the factory is silent.", icon: <Ghost size={32} className="text-rose-200" /> },
+  { id: 'rid_8', title: 'Michelin Critic', isSecret: true, isUnlocked: false, riddle: "True art cannot be bought, it must go completely viral against all mathematical odds.", icon: <Star size={32} className="text-rose-200" /> },
+  { id: 'rid_9', title: 'The Office Intern', isSecret: true, isUnlocked: false, riddle: "Repetition breeds insanity, or in our case, efficiency. Drop the package at the same desk until they notice.", icon: <Briefcase size={32} className="text-rose-200" /> },
+  { id: 'rid_10', title: 'The Watcher', isSecret: true, isUnlocked: false, riddle: "Patience is the currency of the elite. Do absolutely nothing, and watch the world burn.", icon: <Eye size={32} className="text-rose-200" /> },
+  { id: 'rid_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> }
 ];
 
 export default function ExecutiveStickerbook() {
@@ -72,7 +85,7 @@ export default function ExecutiveStickerbook() {
       <div className="w-full max-w-4xl mb-8 flex flex-row justify-between items-end gap-2 px-2">
         <div>
           <h1 className="text-2xl sm:text-4xl font-black text-zinc-100 tracking-tight uppercase">Executive Portfolio</h1>
-          <p className="text-[10px] sm:text-xs text-zinc-500 font-bold tracking-widest mt-1 uppercase">Sticker Ledger v2.2 (Alignment Fixed)</p>
+          <p className="text-[10px] sm:text-xs text-zinc-500 font-bold tracking-widest mt-1 uppercase">Sticker Ledger v2.3 (Full Database)</p>
         </div>
         <div className="bg-zinc-800/50 border border-zinc-700/50 px-4 py-2 rounded-xl shadow-inner shrink-0">
           <span className="text-xs sm:text-sm font-black text-amber-500 tabular-nums uppercase">
