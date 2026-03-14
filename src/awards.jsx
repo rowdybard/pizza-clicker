@@ -92,7 +92,7 @@ export default function ExecutiveStickerbook() {
 
   return (
     // Self-contained scroll viewport to override App.jsx hidden overflow
-    <div className="h-[100dvh] w-full overflow-y-auto overscroll-y-contain bg-[#1c1c1e] text-zinc-100 p-3 sm:p-6 md:p-8 font-sans flex flex-col items-center pb-32">
+    <div className="h-[100dvh] w-full overflow-y-auto overscroll-y-contain bg-[#1c1c1e] text-zinc-100 p-3 sm:p-6 md:p-8 font-sans flex flex-col items-center pb-32 overflow-visible">
       
       {/* HEADER */}
       <div className="w-full max-w-4xl mb-4 md:mb-6 flex flex-row justify-between items-end px-1 md:px-2 gap-2">
@@ -114,15 +114,11 @@ export default function ExecutiveStickerbook() {
 
       
       {/* --- 2. THE TACTILE GRID (3 wide on mobile) --- */}
-      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner overflow-hidden">
+      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner overflow-visible">
         
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 relative">
-          {AWARDS_DB.map((award, index) => {
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 overflow-visible">
+          {AWARDS_DB.map((award) => {
             const isSelected = selectedAward.id === award.id;
-            const gridCols = window.innerWidth >= 1280 ? 5 : window.innerWidth >= 768 ? 5 : window.innerWidth >= 640 ? 4 : 3;
-            const column = index % gridCols;
-            const isLeftColumn = column === 0;
-            const isRightColumn = column === gridCols - 1;
 
             // STATE A: Unlocked (Gold Enamel Pin)
             if (award.isUnlocked) {
@@ -148,9 +144,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel attached to this award (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-16 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
-                      isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                    }`}>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                       <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                         <button 
                           onClick={closeModal}
@@ -167,9 +161,7 @@ export default function ExecutiveStickerbook() {
                         <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
                       </div>
                       {/* Arrow pointing to icon */}
-                      <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-amber-400 ${
-                        isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                      }`}></div>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-amber-400"></div>
                     </div>
                   )}
                 </div>
@@ -196,9 +188,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel for secret awards (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-16 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
-                      isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                    }`}>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                       <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                         <button 
                           onClick={closeModal}
@@ -217,9 +207,7 @@ export default function ExecutiveStickerbook() {
                         </div>
                       </div>
                       {/* Arrow pointing to icon */}
-                      <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-rose-500 ${
-                        isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                      }`}></div>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-rose-500"></div>
                     </div>
                   )}
                 </div>
@@ -248,9 +236,7 @@ export default function ExecutiveStickerbook() {
                 
                 {/* Popover panel for locked awards (desktop only) */}
                 {isSelected && showModal && !isMobile && (
-                  <div className={`absolute -top-16 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
-                    isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                  }`}>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                     <div className="bg-zinc-800/98 border-2 border-zinc-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                       <button 
                         onClick={closeModal}
@@ -267,9 +253,7 @@ export default function ExecutiveStickerbook() {
                       <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
                     </div>
                     {/* Arrow pointing to icon */}
-                    <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-zinc-400 ${
-                      isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                    }`}></div>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-zinc-400"></div>
                   </div>
                 )}
               </div>
