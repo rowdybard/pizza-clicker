@@ -3140,8 +3140,10 @@ export default function App() {
                                 zIndex: 100
                               }}
                             >
-                              {/* File label */}
-                              <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              {/* File label - only for secret achievements */}
+                              {meta.isSecret && (
+                                <div className="absolute -top-2 right-2 text-[14px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              )}
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -3182,8 +3184,10 @@ export default function App() {
                               boxShadow: '0 0 20px rgba(63,63,70,0.3)',
                               zIndex: 1
                             }}>
-                              {/* File label */}
-                              <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              {/* File label - only for secret achievements */}
+                              {meta.isSecret && (
+                                <div className="absolute -top-2 right-2 text-[14px] font-black uppercase tracking-widest text-zinc-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              )}
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
@@ -3215,8 +3219,10 @@ export default function App() {
                               zIndex: 100
                             }}
                           >
-                            {/* File label */}
-                            <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                            {/* File label - only for secret achievements */}
+                            {meta.isSecret && (
+                              <div className="absolute -top-2 right-2 text-[14px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                            )}
                             
                             {/* Checkmark badge */}
                             <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-20" style={{ boxShadow: '0 0 12px rgba(34,197,94,0.8)' }}>
