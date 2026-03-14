@@ -1349,25 +1349,27 @@ export default function App() {
     [1e3,   'K'],
   ];
 
-  const fmt = (n) => {
-    if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
+  const fmt = (n, decimals = 2) => {
+    if (n === Infinity) return '∞';
+    if (n === -Infinity) return '-∞';
+    if (n === null || n === undefined || Number.isNaN(n)) return '0';
     const abs = Math.abs(n);
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
-        const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-sm text-zinc-400 ml-0.5">{abbr}</span></span>;
+        return `${(n / thresh).toFixed(decimals)}${abbr}`;
       }
     }
-    return n.toFixed(2);
+    return Number(n).toFixed(decimals);
   };
 
   const fmtInt = (n) => {
-    if (n === null || n === undefined || isNaN(n) || !isFinite(n)) return isFinite(n) ? '∞' : '0';
+    if (n === Infinity) return '∞';
+    if (n === -Infinity) return '-∞';
+    if (n === null || n === undefined || Number.isNaN(n)) return '0';
     const abs = Math.abs(n);
     for (const [thresh, abbr] of BIG_ABBR) {
       if (abs >= thresh) {
-        const num = (n / thresh).toFixed(2);
-        return <span>{num}<span className="text-sm text-zinc-400 ml-0.5">{abbr}</span></span>;
+        return `${(n / thresh).toFixed(2)}${abbr}`;
       }
     }
     return Math.floor(n).toLocaleString();
@@ -3028,9 +3030,9 @@ export default function App() {
                         const squeezeCd = marketCooldowns.squeeze;
                         const targetPrice = marketPrices[manipTarget];
                         const targetShares = marketShares[manipTarget];
-                        const forceSellTarget = () => {
+                        const forceSellTarget = (sellPrice = targetPrice, actionLabel = 'Squeeze Sell') => {
                           if (targetShares > 0) {
-                            const proceeds = targetShares * targetPrice * 0.995;
+                            const proceeds = targetShares * sellPrice * 0.995;
                             setMoney(m => m + proceeds);
                             setLifetimeMoney(lm => lm + proceeds);
                             setMarketShares(prev => ({ ...prev, [manipTarget]: 0 }));
@@ -3041,7 +3043,7 @@ export default function App() {
                               pepperoni: 'Pepperoni',
                               truffles: 'Truffles'
                             }[manipTarget];
-                            pushLog('market', `📈 Squeeze Sell ${targetShares}× ${targetLabel} @ $${fmt(targetPrice)}`, proceeds);
+                            pushLog('market', `📈 ${actionLabel} ${targetShares}× ${targetLabel} @ $${fmt(sellPrice)}`, proceeds);
                           }
                         };
                         return (
@@ -3068,7 +3070,7 @@ export default function App() {
                               <button
                                 onClick={() => {
                                   if (rumorCd > 0) return;
-                                  forceSellTarget();
+                                  forceSellTarget(targetPrice, 'Rumor Sell');
                                   const crashMult = 0.75 - Math.min(0.15, franchiseLicenses * 0.015);
                                   setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * crashMult).toFixed(2)) }));
                                   setMarketCooldowns(c => ({ ...c, rumors: 600 }));
@@ -3085,9 +3087,10 @@ export default function App() {
                               <button
                                 onClick={() => {
                                   if (squeezeCd > 0) return;
-                                  forceSellTarget();
-                                  const squeezeMult = 1.15 + Math.min(0.6, franchiseLicenses * 0.06);
-                                  setMarketPrices(p => ({ ...p, [manipTarget]: parseFloat((p[manipTarget] * squeezeMult).toFixed(2)) }));
+                                  const squeezeMult = 1.3 + Math.min(1.0, franchiseLicenses * 0.08);
+                                  const squeezedPrice = parseFloat((targetPrice * squeezeMult).toFixed(2));
+                                  setMarketPrices(p => ({ ...p, [manipTarget]: squeezedPrice }));
+                                  forceSellTarget(squeezedPrice, 'Squeeze Sell');
                                   setMarketCooldowns(c => ({ ...c, squeeze: 600 }));
                                 }}
                                 disabled={squeezeCd > 0}
