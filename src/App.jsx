@@ -364,12 +364,13 @@ const AscensionModal = React.memo(function AscensionModal({ snapshot, onDecline,
       <div className="bg-zinc-950 border-4 border-yellow-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(161,98,7,0.35)]">
         <Moon className="w-20 h-20 text-yellow-500 mx-auto mb-6" />
         <h2 className="text-4xl text-yellow-400 mb-4 whitespace-nowrap" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Ascension Rite</h2>
-        <p className="text-yellow-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Trade your Corporate Licenses for permanent Golden Slices?</p>
+        <p className="text-yellow-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Ascend into a hard reset and transmute your Licenses into Golden Slices?</p>
         <div className="bg-black/50 p-6 rounded-lg border-2 border-yellow-700/50 mb-8 text-left space-y-4">
           <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>Spend <span className="font-bold tabular-nums">{licenseCost}</span> Franchise License{licenseCost !== 1 ? 's' : ''}.</span></div>
+          <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>All run progress is wiped: cash, upgrades, reputation, market position, cooldowns, perks, and current run achievements.</span></div>
           <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{sliceGain}</span> Golden Slice{sliceGain !== 1 ? 's' : ''} permanently.</span></div>
           <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Licenses remaining after Ascension: <span className="font-bold tabular-nums">{remainingLicenses}</span>.</span></div>
-          <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Golden Slices can be spent in the Syndicate Vault for permanent powers.</span></div>
+          <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Lifetime totals, Golden Slices, and remaining Licenses are preserved.</span></div>
         </div>
         <div className="flex gap-4">
           <button onClick={onDecline} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
@@ -966,10 +967,73 @@ export default function App() {
   const confirmAscension = useCallback(() => {
     const snap = ascensionSnapshotRef.current;
     if (!snap) return;
+
+    const defaultRevealed = new Set();
+    ['click', 'production', 'quality'].forEach(type => {
+      const first = UPGRADES.find(u => u.type === type);
+      if (first) defaultRevealed.add(first.id);
+    });
+
+    // Hard prestige: preserve only lifetime totals, licenses, golden slices, and ascension spend history.
+    setMoney(0);
+    setReputation(0);
+    setInventory({});
+    setUnlockedAchievements([]);
+    setCombo(0);
+    setComboDecayTimer(0);
+    setSmoothCps(0);
+    setRecentCps(0);
+    clickTimestampsRef.current = [];
+    setVipTokens(0);
+    setDeliveryCooldowns({});
+    setSyndicatePerks({ shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false, goldenPowerCount: 0 });
+    setMarketUnlocked(false);
+    setMarketShares({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
+    setMarketPrices({ flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
+    setMarketTrends({ flour: 1, cheese: 1, pepperoni: 1, truffles: 1 });
+    setPortfolioDelta(null);
+    setMarketCostBasis({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
+    setMarketHistory({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
+    setCorpOfficeOpen(false);
+    setBuyMultiplier(1);
+    setSpecialDelivery(null);
+    setDeliveryGame(null);
+    setMoneyLog([]);
+    pendingClickRef.current = { total: 0, count: 0, lastFlush: Date.now() };
+    setMarketCrashBanner(false);
+    setInstantCashPopup(null);
+    setMarketCooldowns({ rumors: 0, squeeze: 0 });
+    setManipTarget('flour');
+    setActiveTab('upgrades');
+    setAchievementToasts([]);
+    setClickPopups([]);
+    setRushTimeLeft(0);
+    setVipTimeLeft(0);
+    setVipSpawned(false);
+    setSideOrder(null);
+    setCleanBoostTimer(0);
+    setShowPrestigeModal(false);
+    setPrestigeSnapshot(null);
+    prestigeSnapshotRef.current = null;
+    setBakeState('idle');
+    setParticles([]);
+    setPressStyle({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
+    setIsPressed(false);
+    setShowParchmentModal(false);
+    setShowSettings(false);
+    setImportText('');
+    setShowWipeConfirm(false);
+    setHudSettingsOpen(false);
+    setUpgradeFilter('all');
+    setStatsOpen({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
+    setRevealedUpgrades(defaultRevealed);
+
     setFranchiseLicenses(prev => Math.max(0, prev - snap.licenseCost));
     setAscensionSpentLicenses(prev => prev + snap.licenseCost);
     setGoldenSlices(prev => prev + snap.sliceGain);
     pushLog('spend', `🌙 Ascension exchange: -${snap.licenseCost} Licenses, +${snap.sliceGain} Golden Slice${snap.sliceGain !== 1 ? 's' : ''}`, 0);
+    ascensionSnapshotRef.current = null;
+    setAscensionSnapshot(null);
     setShowAscensionModal(false);
   }, [pushLog]);
 
