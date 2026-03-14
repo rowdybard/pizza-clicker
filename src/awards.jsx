@@ -146,32 +146,6 @@ export default function ExecutiveStickerbook() {
                     </div>
                   </button>
                   
-                  {/* Popover panel attached to this award (desktop only) */}
-                  {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-12 mb-2 w-48 sm:w-56 z-[9999] pointer-events-auto ${
-                      isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                    }`}>
-                      <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
-                        <button 
-                          onClick={closeModal}
-                          className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
-                        >
-                          <span className="text-sm">×</span>
-                        </button>
-                        
-                        <div className="flex items-center gap-1 mb-2">
-                          <CheckCircle2 size={12} className="text-amber-500" />
-                          <span className="text-xs font-black text-amber-500 uppercase tracking-wider">Verified</span>
-                        </div>
-                        <h3 className="text-base sm:text-lg font-black text-white mb-2">{award.title}</h3>
-                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
-                      </div>
-                      {/* Arrow pointing to icon */}
-                      <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-amber-400 ${
-                        isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                      }`}></div>
-                    </div>
-                  )}
                 </div>
               );
             }
@@ -194,34 +168,6 @@ export default function ExecutiveStickerbook() {
                     </div>
                   </button>
                   
-                  {/* Popover panel for secret awards (desktop only) */}
-                  {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-12 mb-2 w-48 sm:w-56 z-[9999] pointer-events-auto ${
-                      isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                    }`}>
-                      <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
-                        <button 
-                          onClick={closeModal}
-                          className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
-                        >
-                          <span className="text-sm">×</span>
-                        </button>
-                        
-                        <div className="flex items-center gap-1 mb-2">
-                          <Lock size={12} className="text-rose-500" />
-                          <span className="text-xs font-black text-rose-500 uppercase tracking-wider">Encrypted</span>
-                        </div>
-                        <h3 className="text-base sm:text-lg font-black text-zinc-100 mb-2">Classified</h3>
-                        <div className="bg-rose-950/30 border border-rose-900/50 p-2 rounded-lg">
-                          <p className="text-xs sm:text-sm text-rose-200/80 italic leading-relaxed font-serif">"{award.riddle}"</p>
-                        </div>
-                      </div>
-                      {/* Arrow pointing to icon */}
-                      <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-rose-500 ${
-                        isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                      }`}></div>
-                    </div>
-                  )}
                 </div>
               );
             }
@@ -246,37 +192,51 @@ export default function ExecutiveStickerbook() {
                   </div>
                 </button>
                 
-                {/* Popover panel for locked awards (desktop only) */}
-                {isSelected && showModal && !isMobile && (
-                  <div className={`absolute bottom-full mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
-                    isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
-                  }`}>
-                    <div className="bg-zinc-800/98 border-2 border-zinc-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
-                      <button 
-                        onClick={closeModal}
-                        className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
-                      >
-                        <span className="text-sm">×</span>
-                      </button>
-                      
-                      <div className="flex items-center gap-1 mb-2">
-                        <div className="w-2 h-2 rounded-full bg-zinc-600" />
-                        <span className="text-xs font-black text-zinc-500 uppercase tracking-wider">Pending</span>
-                      </div>
-                      <h3 className="text-base sm:text-lg font-black text-white mb-2">{award.title}</h3>
-                      <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
-                    </div>
-                    {/* Arrow pointing to icon */}
-                    <div className={`absolute top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-zinc-400 ${
-                      isLeftColumn ? 'left-4' : isRightColumn ? 'right-4' : 'left-1/2 -translate-x-1/2'
-                    }`}></div>
-                  </div>
-                )}
               </div>
             );
           })}
 
       </div>
+
+      {/* --- DESKTOP POPOVER (Appears on desktop only) --- */}
+      {showModal && !isMobile && selectedAward && (
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] pointer-events-auto">
+          <div className={`w-64 sm:w-80 bg-zinc-800/98 border-2 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl ${
+            selectedAward.isSecret ? 'border-rose-500' : selectedAward.isUnlocked ? 'border-amber-400' : 'border-zinc-400'
+          }`}>
+            <button 
+              onClick={closeModal}
+              className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
+            >
+              <span className="text-sm">×</span>
+            </button>
+            
+            {selectedAward.isSecret && !selectedAward.isUnlocked ? (
+              <>
+                <div className="flex items-center gap-1 mb-2">
+                  <Lock size={12} className="text-rose-500" />
+                  <span className="text-xs font-black text-rose-500 uppercase tracking-wider">Encrypted</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-zinc-100 mb-2">Classified</h3>
+                <div className="bg-rose-950/30 border border-rose-900/50 p-2 rounded-lg">
+                  <p className="text-xs sm:text-sm text-rose-200/80 italic leading-relaxed font-serif">"{selectedAward.riddle}"</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={`text-xs font-black uppercase tracking-[0.2em] mb-1 flex items-center gap-1 ${
+                  selectedAward.isUnlocked ? 'text-amber-500' : 'text-zinc-500'
+                }`}>
+                  {selectedAward.isUnlocked ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-zinc-600" />}
+                  {selectedAward.isUnlocked ? 'Verified' : 'Pending'}
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-white mb-2">{selectedAward.title}</h3>
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{selectedAward.desc}</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* --- MOBILE MODAL (Appears on mobile only) --- */}
       {showModal && isMobile && selectedAward && (
