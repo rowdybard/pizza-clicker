@@ -1136,6 +1136,7 @@ export default function App() {
   };
 
   const idleLogTickRef = useRef(0);
+  const autoArmTickRef = useRef(0);
   const pushLogRef = useRef(null);
   useEffect(() => { pushLogRef.current = pushLog; }, [pushLog]);
 
@@ -1272,14 +1273,17 @@ export default function App() {
             idleLogTickRef.current = 0;
           }
 
-          // autoArm perk: simulate 50 free clicks per second
+          // autoArm perk: burst 10 clicks every 2 seconds
           if (state.syndicatePerks.autoArm && state.hasStarted) {
-              const autoMoney = state.idleClickMoney * 50;
-              setMoney(m => m + autoMoney);
-              setLifetimeMoney(lm => lm + autoMoney);
-              setTotalPizzasSold(tp => tp + state.currentClickPower * 50);
-              setReputation(r => r + Math.ceil(state.currentClickPower * 0.1 * 50));
-              setTotalClicks(tc => tc + 50);
+              autoArmTickRef.current = (autoArmTickRef.current + 1) % 2;
+              if (autoArmTickRef.current === 0) {
+                const autoMoney = state.idleClickMoney * 10;
+                setMoney(m => m + autoMoney);
+                setLifetimeMoney(lm => lm + autoMoney);
+                setTotalPizzasSold(tp => tp + state.currentClickPower * 10);
+                setReputation(r => r + Math.ceil(state.currentClickPower * 0.1 * 10));
+                setTotalClicks(tc => tc + 10);
+              }
           }
 
       }, 1000);
@@ -2404,8 +2408,8 @@ export default function App() {
                     name: 'Auto-Arm',
                     cost: 5,
                     icon: <Rocket className="w-6 h-6 text-yellow-300" />,
-                    desc: 'A robotic arm bakes and boxes pizzas at machine speed. Simulates 50 clicks per second, fully scaled with all click multipliers.',
-                    effect: '+50 free clicks per second (with all multipliers)',
+                    desc: 'A robotic arm bakes and boxes pizzas automatically. Bursts 10 clicks every 2 seconds, fully scaled with all click multipliers.',
+                    effect: '+10 clicks every 2 seconds (with all multipliers)',
                   },
                   {
                     id: 'timeLoop',
