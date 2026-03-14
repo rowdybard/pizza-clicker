@@ -1074,6 +1074,21 @@ export default function App() {
   };
 
   const handleImportSave = () => {
+    if (importText.trim().toLowerCase() === 'breakthegame') {
+      setMoney(1e18);
+      setLifetimeMoney(1e18);
+      setFranchiseLicenses(50);
+      setGoldenSlices(500);
+      setTotalPizzasSold(1e12);
+      setReputation(99999);
+      setAscensionSpentLicenses(25);
+      setMarketUnlocked(true);
+      setVipTokens(20);
+      setRevealedUpgrades(new Set(UPGRADES.map(u => u.id)));
+      setShowSettings(false);
+      setImportText('');
+      return;
+    }
     try {
       if (!importText) return;
       const decoded = JSON.parse(atob(importText));
