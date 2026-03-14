@@ -2978,10 +2978,10 @@ export default function App() {
                       rows={[
                         { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
                         { label: 'Idle Profit / Sec', value: `$${fmtInt(idleProfitPerSec)}`, sub: 'without clicking' },
-                        { label: 'Pizza Price', value: `$${fmtInt(pizzaPrice)}`, sub: 'current ticket value' },
-                        { label: 'Base Price', value: `$${fmtInt(basePizzaPrice)}`, sub: 'before multipliers' },
-                        { label: 'VIP Boost', value: `${fmtInt(vipTokenMultiplier * 100)}%`, sub: 'all stats' },
-                        { label: 'Ach. Boost', value: `${fmtInt(achievementMultiplier * 100)}%`, sub: 'price only' },
+                        { label: 'Pizza Price', value: `$${fmt(pizzaPrice, 2)}`, sub: 'current ticket value' },
+                        { label: 'Base Price', value: `$${fmt(basePizzaPrice, 2)}`, sub: 'before multipliers' },
+                        { label: 'VIP Boost', value: `+${fmtInt((vipTokenMultiplier - 1) * 100)}%`, sub: 'all stats' },
+                        { label: 'Ach. Boost', value: `+${fmtInt((achievementMultiplier - 1) * 100)}%`, sub: 'price only' },
                       ]}
                     />
                     <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
