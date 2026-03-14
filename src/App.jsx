@@ -856,6 +856,13 @@ export default function App() {
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
     
+    // Save to localStorage as backup for mobile
+    const backupData = {
+      pendingPizzas: pendingProduction.current,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
+    
     // Immediate sync for every click to minimize mobile loss
     syncWithGlobalSyndicate();
     
@@ -1289,6 +1296,39 @@ export default function App() {
     } else {
       console.log('No offline pizzas to sync');
     }
+    
+    // Check for localStorage backup from mobile session
+    const backupData = localStorage.getItem('pizzaGlobalSyncBackup');
+    if (backupData) {
+      try {
+        const parsed = JSON.parse(backupData);
+        const now = Date.now();
+        const ageMinutes = (now - parsed.timestamp) / (1000 * 60);
+        
+        // Only use backup if it's less than 10 minutes old
+        if (ageMinutes < 10 && parsed.pendingPizzas > 0) {
+          console.log('Found localStorage backup -', parsed.pendingPizzas, 'pizzas from', ageMinutes.toFixed(1), 'minutes ago');
+          pendingProduction.current += parsed.pendingPizzas;
+          
+          // Clear the backup after using it
+          localStorage.removeItem('pizzaGlobalSyncBackup');
+          
+          // Sync immediately
+          setTimeout(() => {
+            console.log('Triggering backup sync...');
+            syncWithGlobalSyndicate();
+          }, 500);
+        } else {
+          console.log('localStorage backup too old or empty, clearing...');
+          localStorage.removeItem('pizzaGlobalSyncBackup');
+        }
+      } catch (error) {
+        console.error('Error parsing localStorage backup:', error);
+        localStorage.removeItem('pizzaGlobalSyncBackup');
+      }
+    } else {
+      console.log('No localStorage backup found');
+    }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
 
   // Sync Loop - every 500ms for ultra-aggressive mobile sync
@@ -1499,6 +1539,13 @@ export default function App() {
               
               // Add to pending production for global sync
               pendingProduction.current += pizzasThisTick;
+              
+              // Save to localStorage as backup for mobile
+              const backupData = {
+                pendingPizzas: pendingProduction.current,
+                timestamp: Date.now()
+              };
+              localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
               
               // Immediate sync for production to minimize mobile loss
               if (pizzasThisTick >= 1) {
