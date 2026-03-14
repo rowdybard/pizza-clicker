@@ -55,10 +55,20 @@ const AWARDS_DB = [
 export default function ExecutiveStickerbook() {
   // Default to showing the first unlocked award in the focus panel
   const [selectedAward, setSelectedAward] = useState(AWARDS_DB[0]);
+  const [showModal, setShowModal] = useState(false);
   const focusPanelRef = useRef(null);
 
   const unlockedCount = AWARDS_DB.filter(a => a.isUnlocked).length;
   const totalCount = AWARDS_DB.length;
+
+  const handleAwardClick = (award) => {
+    setSelectedAward(award);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   // Scroll to award when selection changes (mobile-friendly)
   useEffect(() => {
@@ -107,7 +117,7 @@ export default function ExecutiveStickerbook() {
                 <button 
                   key={award.id}
                   data-award-id={award.id}
-                  onClick={() => setSelectedAward(award)}
+                  onClick={() => handleAwardClick(award)}
                   className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
                     bg-zinc-800 border-2 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-zinc-900
                     ${isSelected ? 'border-amber-400 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-zinc-700 hover:border-zinc-500 hover:scale-105'}`}
@@ -131,7 +141,7 @@ export default function ExecutiveStickerbook() {
                 <button 
                   key={award.id}
                   data-award-id={award.id}
-                  onClick={() => setSelectedAward(award)}
+                  onClick={() => handleAwardClick(award)}
                   className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
                     bg-zinc-950 border-2 shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:ring-offset-zinc-900
                     ${isSelected ? 'border-rose-500 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-rose-900/20 hover:border-rose-800/50 hover:scale-105'}`}
@@ -169,13 +179,13 @@ export default function ExecutiveStickerbook() {
         </div>
 
         {/* --- INLINE FOCUS PANEL (Appears next to selected award) --- */}
-        {selectedAward && (
+        {showModal && selectedAward && (
           <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedAward(AWARDS_DB[0])} />
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={closeModal} />
             <div className="relative bg-zinc-800/95 border border-zinc-700/50 rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl pointer-events-auto">
               {/* Close button */}
               <button 
-                onClick={() => setSelectedAward(AWARDS_DB[0])}
+                onClick={closeModal}
                 className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-200 transition-colors"
               >
                 <span className="text-xl">×</span>
