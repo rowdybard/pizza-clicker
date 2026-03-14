@@ -1154,7 +1154,12 @@ export default function App() {
     if (amountToSend <= 0) return;
     
     try {
-      const response = await fetch('/api/global-stats', {
+      // Use correct API URL based on environment
+      const apiUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5173/api/global-stats'
+        : '/api/global-stats';
+        
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1193,7 +1198,12 @@ export default function App() {
     if (now - lastPollTime.current < 30000 || pendingProduction.current > 0) return;
     
     try {
-      const response = await fetch('/api/global-stats');
+      // Use correct API URL based on environment
+      const apiUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5173/api/global-stats'
+        : '/api/global-stats';
+        
+      const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -1215,7 +1225,12 @@ export default function App() {
   useEffect(() => {
     const fetchInitialStats = async () => {
       try {
-        const response = await fetch('/api/global-stats');
+        // Use correct API URL based on environment
+        const apiUrl = window.location.hostname === 'localhost' 
+          ? 'http://localhost:5173/api/global-stats'
+          : '/api/global-stats';
+          
+        const response = await fetch(apiUrl);
         if (response.ok) {
           const data = await response.json();
                     if (data.success) {
