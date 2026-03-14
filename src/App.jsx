@@ -161,6 +161,64 @@ const ACHIEVEMENTS = [
   { id: 'market_big_win', name: 'Diamond Hands', desc: 'Make a single market trade with $100,000+ profit.', req: (s) => (s.biggestMarketGain || 0) >= 100000 },
 ];
 
+const ACHIEVEMENT_META = {
+  first_blood:         { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Sell your first pizza' },
+  pizza_10k:           { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Sell 10,000 pizzas' },
+  pizza_1m:            { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-500',   isSecret: false, hint: 'Sell 1 million pizzas' },
+  clicker_1k:          { icon: <MousePointerClick className="w-8 h-8" />, color: 'text-orange-400',  isSecret: false, hint: 'Click 1,000 times' },
+  combo_max:           { icon: <Zap className="w-8 h-8" />,               color: 'text-orange-500',  isSecret: false, hint: 'Hit a 100x combo' },
+  perfect_pull:        { icon: <Flame className="w-8 h-8" />,             color: 'text-red-400',     isSecret: false, hint: 'Pull a perfect pizza' },
+  delivery_first:      { icon: <Car className="w-8 h-8" />,               color: 'text-green-400',   isSecret: false, hint: 'Complete 1 delivery' },
+  delivery_10:         { icon: <Car className="w-8 h-8" />,               color: 'text-green-500',   isSecret: false, hint: 'Complete 10 deliveries' },
+  dispo_sadge:         { icon: <DollarSign className="w-8 h-8" />,        color: 'text-zinc-400',    isSecret: true,  hint: 'a very specific bank balance awaits you...' },
+  sellout:             { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-400', isSecret: false, hint: 'Prestige for the first time' },
+  billionaire:         { icon: <Crown className="w-8 h-8" />,             color: 'text-yellow-400',  isSecret: false, hint: 'Earn $1B lifetime' },
+  bank_10k:            { icon: <DollarSign className="w-8 h-8" />,        color: 'text-green-400',   isSecret: false, hint: 'Save $10,000' },
+  bank_100k:           { icon: <DollarSign className="w-8 h-8" />,        color: 'text-green-500',   isSecret: false, hint: 'Save $100,000' },
+  bank_1m:             { icon: <DollarSign className="w-8 h-8" />,        color: 'text-emerald-400', isSecret: false, hint: 'Save $1M' },
+  bank_1b:             { icon: <DollarSign className="w-8 h-8" />,        color: 'text-emerald-500', isSecret: false, hint: 'Save $1B' },
+  bank_1t:             { icon: <Crown className="w-8 h-8" />,             color: 'text-yellow-300',  isSecret: false, hint: 'Save $1T' },
+  life_10k:            { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-blue-400',    isSecret: false, hint: 'Earn $10K lifetime' },
+  life_10m:            { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-blue-500',    isSecret: false, hint: 'Earn $10M lifetime' },
+  life_1t:             { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-sky-400',     isSecret: false, hint: 'Earn $1T lifetime' },
+  pizza_100:           { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-300',   isSecret: false, hint: 'Sell 100 pizzas' },
+  pizza_100k:          { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Sell 100K pizzas' },
+  pizza_10m:           { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-500',   isSecret: false, hint: 'Sell 10M pizzas' },
+  pizza_1b:            { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-600',   isSecret: false, hint: 'Sell 1B pizzas' },
+  click_100:           { icon: <MousePointerClick className="w-8 h-8" />, color: 'text-orange-300',  isSecret: false, hint: 'Click 100 times' },
+  click_10k:           { icon: <MousePointerClick className="w-8 h-8" />, color: 'text-orange-400',  isSecret: false, hint: 'Click 10,000 times' },
+  click_100k:          { icon: <MousePointerClick className="w-8 h-8" />, color: 'text-orange-500',  isSecret: false, hint: 'Click 100,000 times' },
+  combo_10:            { icon: <Zap className="w-8 h-8" />,               color: 'text-orange-300',  isSecret: false, hint: 'Hit a 10x combo' },
+  combo_50:            { icon: <Zap className="w-8 h-8" />,               color: 'text-orange-400',  isSecret: false, hint: 'Hit a 50x combo' },
+  perfect_10:          { icon: <Flame className="w-8 h-8" />,             color: 'text-red-400',     isSecret: false, hint: 'Pull 10 perfect pizzas' },
+  perfect_50:          { icon: <Flame className="w-8 h-8" />,             color: 'text-red-500',     isSecret: false, hint: 'Pull 50 perfect pizzas' },
+  delivery_50:         { icon: <Plane className="w-8 h-8" />,             color: 'text-green-400',   isSecret: false, hint: 'Complete 50 deliveries' },
+  delivery_250:        { icon: <Rocket className="w-8 h-8" />,            color: 'text-green-500',   isSecret: false, hint: 'Complete 250 deliveries' },
+  rep_500:             { icon: <Star className="w-8 h-8" />,              color: 'text-yellow-400',  isSecret: false, hint: 'Gain 500 reputation' },
+  rep_10k:             { icon: <Star className="w-8 h-8" />,              color: 'text-yellow-500',  isSecret: false, hint: 'Gain 10K reputation' },
+  franchise_5:         { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-300', isSecret: false, hint: 'Own 5 licenses' },
+  franchise_10:        { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-400', isSecret: false, hint: 'Own 10 licenses' },
+  franchise_25:        { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-500', isSecret: false, hint: 'Own 25 licenses' },
+  franchise_50:        { icon: <Gem className="w-8 h-8" />,               color: 'text-fuchsia-400', isSecret: false, hint: 'Own 50 licenses' },
+  franchise_100:       { icon: <Crown className="w-8 h-8" />,             color: 'text-purple-400',  isSecret: false, hint: 'Own 100 licenses' },
+  franchise_150:       { icon: <Crown className="w-8 h-8" />,             color: 'text-purple-500',  isSecret: false, hint: 'Own 150 licenses' },
+  franchise_200:       { icon: <Crown className="w-8 h-8" />,             color: 'text-purple-600',  isSecret: false, hint: 'Own 200 licenses' },
+  franchise_250:       { icon: <Crown className="w-8 h-8" />,             color: 'text-yellow-400',  isSecret: true,  hint: 'the pinnacle of corporate dominion...' },
+  life_1q:             { icon: <Sparkles className="w-8 h-8" />,          color: 'text-yellow-300',  isSecret: false, hint: 'Earn $1 quadrillion lifetime' },
+  life_1qi:            { icon: <Sparkles className="w-8 h-8" />,          color: 'text-yellow-200',  isSecret: true,  hint: 'a number beyond counting awaits...' },
+  pizza_10b:           { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-600',   isSecret: false, hint: 'Sell 10B pizzas' },
+  pizza_1t:            { icon: <Pizza className="w-8 h-8" />,             color: 'text-amber-700',   isSecret: true,  hint: 'one trillion slices consumed...' },
+  upgrade_wagyu:       { icon: <Award className="w-8 h-8" />,             color: 'text-amber-400',   isSecret: false, hint: 'Buy Wagyu Topping' },
+  upgrade_antimatter:  { icon: <Zap className="w-8 h-8" />,               color: 'text-cyan-400',    isSecret: false, hint: 'Buy Antimatter Crust' },
+  upgrade_neural:      { icon: <Crown className="w-8 h-8" />,             color: 'text-purple-400',  isSecret: false, hint: 'Buy Neural Clicker' },
+  upgrade_michelin:    { icon: <Crown className="w-8 h-8" />,             color: 'text-amber-300',   isSecret: false, hint: 'Buy Michelin Star' },
+  market_first_trade:  { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-teal-400',    isSecret: false, hint: 'Execute 1 market trade' },
+  market_100_trades:   { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-teal-500',    isSecret: false, hint: 'Execute 100 trades' },
+  market_1k_trades:    { icon: <TrendingUp className="w-8 h-8" />,        color: 'text-emerald-400', isSecret: false, hint: 'Execute 1,000 trades' },
+  market_profit_1m:    { icon: <DollarSign className="w-8 h-8" />,        color: 'text-green-400',   isSecret: false, hint: 'Earn $1M market profit' },
+  market_big_win:      { icon: <Gem className="w-8 h-8" />,               color: 'text-cyan-400',    isSecret: true,  hint: 'a single trade of legendary magnitude...' },
+};
+
 const DESTINATIONS = [
   { id: 'suburb',   name: 'Local Suburbs',     warpSeconds: 180,  rushSeconds: 0,  vipToken: false, cooldown: 60,   icon: <Home     className="w-8 h-8 text-green-400"  />, bg: 'from-green-900/20 to-slate-800',  border: 'border-green-500/30',  color: 'text-green-400',  label: '3 Min Idle Drop',             desc: 'Instantly collect 3 minutes of your current idle production.',
     unlockReq: { pizzas: 50,    stars: 0, lifetime: 0       }, unlockHint: 'Sell 50 pizzas to open local routes.' },
@@ -2966,62 +3024,74 @@ export default function App() {
                 </div>
               )}
 
-              {/* --- TAB: ACHIEVEMENTS --- */}
+              {/* --- TAB: ACHIEVEMENTS (VIP Stickerbook Ledger) --- */}
               {activeTab === 'achievements' && (
-                <div className="bg-zinc-800/50 rounded-xl p-4">
-                <div className="flex flex-col gap-3">
-                  {/* Header bar */}
-                  <div className="flex items-center justify-between bg-yellow-900/15 border border-yellow-500/25 rounded-xl px-6 py-4">
+                <div className="flex flex-col gap-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-fuchsia-950/30 border border-fuchsia-900/40 rounded-xl px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <Trophy className="w-6 h-6 text-yellow-500 shrink-0" />
+                      <Trophy className="w-5 h-5 text-fuchsia-400 shrink-0" />
                       <div>
-                        <div className="font-display text-lg text-yellow-100 tracking-widest leading-tight">Trophy Case</div>
-                        <div className="text-sm text-yellow-600 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} unlocked</div>
+                        <div className="font-display text-base text-fuchsia-200 tracking-widest leading-tight">VIP Stickerbook</div>
+                        <div className="text-xs text-fuchsia-700 font-bold uppercase tracking-widest">{unlockedAchievements.length} / {ACHIEVEMENTS.length} collected</div>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-sm text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
-                      <div className="font-display text-2xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 3}%</div>
+                      <div className="text-[10px] text-fuchsia-700 font-black uppercase tracking-widest">Price Bonus</div>
+                      <div className="font-display text-xl text-fuchsia-300 tabular-nums">+{unlockedAchievements.length * 3}%</div>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-700">
-                    <div className="h-full bg-yellow-400 transition-all duration-500"
+                  <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                    <div className="h-full bg-gradient-to-r from-fuchsia-600 to-purple-500 transition-all duration-500"
                       style={{ width: `${(unlockedAchievements.length / ACHIEVEMENTS.length) * 100}%` }} />
                   </div>
 
-                  {/* Achievement cards - 6 visible height with custom scrollbar */}
-                  <div className="h-[36rem] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-zinc-800/30 hover:scrollbar-thumb-yellow-500/70">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2">
+                  {/* 3-column stickerbook grid */}
+                  <div className="overflow-y-auto" style={{ maxHeight: '34rem' }}>
+                    <div className="grid grid-cols-3 gap-2">
                       {ACHIEVEMENTS.map(ach => {
                         const isUnlocked = unlockedAchievements.includes(ach.id);
+                        const meta = ACHIEVEMENT_META[ach.id] || {};
+                        const isSecretLocked = meta.isSecret && !isUnlocked;
+
+                        if (isSecretLocked) {
+                          return (
+                            <div key={ach.id} className="bg-zinc-950 border-2 border-zinc-900 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
+                              <Lock className="w-7 h-7 text-fuchsia-800 animate-pulse" style={{ filter: 'drop-shadow(0 0 6px #a855f7)' }} />
+                              <p className="text-[8px] text-fuchsia-900 font-bold uppercase tracking-wider text-center leading-relaxed">
+                                THE OBSIDIAN SYNDICATE IS WATCHING...<br />{meta.hint}
+                              </p>
+                            </div>
+                          );
+                        }
+
                         return (
-                          <div
-                            key={ach.id}
-                            className={`group relative flex flex-col gap-2 p-4 rounded-xl border cursor-default ${
+                          <div key={ach.id}
+                            className={`relative overflow-hidden rounded-2xl border-2 shadow-lg flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all ${
                               isUnlocked
-                                ? 'bg-yellow-950 border-yellow-800'
-                                : 'bg-zinc-900 border-zinc-800 opacity-60'
+                                ? 'bg-gradient-to-br from-zinc-800 to-zinc-900 border-zinc-700'
+                                : 'bg-zinc-900/40 border-zinc-800/60 opacity-40 grayscale'
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <div className={`shrink-0 ${isUnlocked ? 'text-yellow-400' : 'text-zinc-600'}`}>
-                                {isUnlocked ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
-                              </div>
-                              <span className={`font-display text-base font-bold tracking-wide leading-tight ${isUnlocked ? 'text-yellow-100' : 'text-zinc-500'}`}>
-                                {ach.name}
-                              </span>
+                            {isUnlocked && (
+                              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/10 to-transparent pointer-events-none" />
+                            )}
+                            {isUnlocked && (
+                              <CheckCircle className="absolute top-2 right-2 w-3.5 h-3.5 text-green-400" style={{ filter: 'drop-shadow(0 0 4px rgba(74,222,128,0.8))' }} />
+                            )}
+                            <div className={`mb-1 ${meta.color || 'text-amber-400'}`}>
+                              {meta.icon || <Star className="w-8 h-8" />}
                             </div>
-                            <p className={`text-sm font-medium leading-relaxed ${isUnlocked ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                              {ach.desc}
-                            </p>
+                            <div className="text-[9px] font-black uppercase tracking-widest text-center leading-tight text-white w-full px-0.5 truncate">
+                              {ach.name}
+                            </div>
                           </div>
                         );
                       })}
                     </div>
                   </div>
-                </div>
                 </div>
               )}
 
