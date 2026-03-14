@@ -1311,25 +1311,70 @@ export default function App() {
     return () => clearInterval(pollInterval);
   }, [pollGlobalStats]);
 
-  // Force sync on page unload
+  // Force sync on page unload and visibility change
   useEffect(() => {
-    const handleBeforeUnload = async () => {
+    const forceSyncAll = async () => {
       const amountToSend = Math.floor(pendingProduction.current);
+      console.log('Force sync attempt - pending pizzas:', amountToSend);
+      
       if (amountToSend > 0) {
         try {
-          await fetch('/api/global-stats', {
+          const apiUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5173/api/global-stats'
+            : '/api/global-stats';
+            
+          const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount: amountToSend }),
+            // Use keepalive for better reliability during page unload
+            keepalive: true
           });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Force sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
+          } else {
+            console.warn('Force sync failed:', response.status);
+          }
         } catch (error) {
-          console.error('Error syncing on unload:', error);
+          console.error('Error force syncing:', error);
         }
+      } else {
+        console.log('No pending pizzas to force sync');
       }
     };
 
+    const handleBeforeUnload = (e) => {
+      // Sync immediately when page is unloading
+      forceSyncAll();
+      // Don't show confirmation dialog - just sync
+      e.preventDefault = undefined;
+    };
+
+    const handleVisibilityChange = () => {
+      // Sync when page becomes hidden (app closed, tab switched, etc.)
+      if (document.hidden) {
+        console.log('Page hidden, triggering force sync...');
+        forceSyncAll();
+      }
+    };
+
+    const handlePageHide = (e) => {
+      // This is more reliable for mobile apps
+      console.log('Page hide event, triggering force sync...');
+      forceSyncAll();
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+    };
   }, []);
 
 // --- SETTINGS ACTIONS ---
