@@ -532,7 +532,7 @@ export default function App() {
   const [corpOfficeOpen, setCorpOfficeOpen] = useState(true);
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX'
+  const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 10, or 'MAX' (locked at 10 when selected)
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -2747,7 +2747,15 @@ export default function App() {
                         {[1, 10, 'MAX'].map((mult) => (
                           <button
                             key={mult}
-                            onClick={() => setBuyMultiplier(mult)}
+                            onClick={() => {
+                              if (mult === 10) {
+                                setBuyMultiplier(10);
+                              } else if (mult === 'MAX') {
+                                setBuyMultiplier('MAX');
+                              } else {
+                                setBuyMultiplier(1);
+                              }
+                            }}
                             className={`flex-1 px-3 py-2 rounded-lg font-display text-sm font-black tracking-wider transition-all ${
                               buyMultiplier === mult
                                 ? 'bg-zinc-700 text-white border border-zinc-500'
