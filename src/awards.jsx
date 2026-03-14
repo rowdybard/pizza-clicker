@@ -148,7 +148,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel attached to this award (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-20 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
+                    <div className={`absolute -top-16 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
                       isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
                     }`}>
                       <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
@@ -196,7 +196,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel for secret awards (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute -top-20 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
+                    <div className={`absolute -top-16 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
                       isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
                     }`}>
                       <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
@@ -248,7 +248,7 @@ export default function ExecutiveStickerbook() {
                 
                 {/* Popover panel for locked awards (desktop only) */}
                 {isSelected && showModal && !isMobile && (
-                  <div className={`absolute -top-20 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
+                  <div className={`absolute -top-16 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
                     isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
                   }`}>
                     <div className="bg-zinc-800/98 border-2 border-zinc-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
