@@ -93,57 +93,7 @@ export default function ExecutiveStickerbook() {
         </div>
       </div>
 
-      {/* --- 1. THE FOCUS PANEL (Mobile-Optimized) --- */}
-      <div ref={focusPanelRef} className="w-full max-w-4xl bg-zinc-800/95 border border-zinc-700/50 rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-2xl mb-6 flex flex-row gap-3 sm:gap-4 md:gap-6 items-center transition-all duration-300 backdrop-blur-2xl">
-        
-        {/* Scaled Icon Display */}
-        <div className={`w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-xl md:rounded-3xl shrink-0 flex items-center justify-center shadow-inner border-[2px] md:border-[3px] transition-colors duration-500
-          ${selectedAward.isUnlocked 
-            ? 'bg-gradient-to-br from-amber-100 to-amber-300 border-amber-400 shadow-[0_10px_30px_rgba(251,191,36,0.25)]' 
-            : selectedAward.isSecret 
-              ? 'bg-gradient-to-br from-rose-900 to-rose-950 border-rose-800 shadow-inner'
-              : 'bg-zinc-900 border-zinc-800 shadow-inner'}`}
-        >
-          <div className={`transition-all duration-500 ${selectedAward.isUnlocked ? 'scale-110 md:scale-150 drop-shadow-lg' : selectedAward.isSecret ? 'scale-100 md:scale-125' : 'scale-100 md:scale-125 opacity-30 grayscale'}`}>
-            {selectedAward.icon}
-          </div>
-        </div>
-
-        {/* Compact Readable Text */}
-        <div className="flex-1 min-w-0 w-full text-left">
-          {selectedAward.isSecret && !selectedAward.isUnlocked ? (
-            <>
-              <div className="text-[9px] sm:text-xs font-black text-rose-500 uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 flex items-center justify-start gap-1 sm:gap-2">
-                <Lock size={10} className="sm:w-3 sm:h-3" /> Encrypted
-              </div>
-              <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-zinc-100 mb-2 md:mb-4 truncate">
-                Classified
-              </h2>
-              <div className="bg-rose-950/30 border border-rose-900/50 p-2 md:p-4 rounded-lg md:rounded-xl">
-                <p className="text-[10px] sm:text-sm md:text-base text-rose-200/80 italic leading-snug md:leading-relaxed font-serif line-clamp-3 md:line-clamp-none">
-                  "{selectedAward.riddle}"
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className={`text-[9px] sm:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 flex items-center justify-start gap-1 sm:gap-2
-                ${selectedAward.isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}
-              >
-                {selectedAward.isUnlocked ? <CheckCircle2 size={10} className="sm:w-3 sm:h-3" /> : <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-zinc-600" />}
-                {selectedAward.isUnlocked ? 'Verified' : 'Pending'}
-              </div>
-              <h2 className="text-lg sm:text-2xl md:text-4xl font-black text-white mb-1 md:mb-3 truncate">
-                {selectedAward.title}
-              </h2>
-              <p className="text-[10px] sm:text-base md:text-lg text-zinc-400 leading-snug md:leading-relaxed font-medium line-clamp-2 sm:line-clamp-3">
-                {selectedAward.desc}
-              </p>
-            </>
-          )}
-        </div>
-      </div>
-
+      
       {/* --- 2. THE TACTILE GRID (3 wide on mobile) --- */}
       <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner">
         
@@ -217,6 +167,72 @@ export default function ExecutiveStickerbook() {
             );
           })}
         </div>
+
+        {/* --- INLINE FOCUS PANEL (Appears next to selected award) --- */}
+        {isSelected && (
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedAward(AWARDS_DB[0])} />
+            <div className="relative bg-zinc-800/95 border border-zinc-700/50 rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl pointer-events-auto">
+              {/* Close button */}
+              <button 
+                onClick={() => setSelectedAward(AWARDS_DB[0])}
+                className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                <span className="text-xl">×</span>
+              </button>
+              
+              {/* Award details */}
+              <div className="flex gap-4 items-start">
+                {/* Icon */}
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl flex items-center justify-center shadow-inner border-2 transition-colors duration-500
+                  ${selectedAward.isUnlocked 
+                    ? 'bg-gradient-to-br from-amber-100 to-amber-300 border-amber-400' 
+                    : selectedAward.isSecret 
+                      ? 'bg-gradient-to-br from-rose-900 to-rose-950 border-rose-800'
+                      : 'bg-zinc-900 border-zinc-800'}`}
+                >
+                  <div className={`transition-all duration-500 ${selectedAward.isUnlocked ? 'scale-110 drop-shadow-lg' : selectedAward.isSecret ? 'scale-100' : 'scale-100 opacity-30 grayscale'}`}>
+                    {selectedAward.icon}
+                  </div>
+                </div>
+
+                {/* Text content */}
+                <div className="flex-1 min-w-0">
+                  {selectedAward.isSecret && !selectedAward.isUnlocked ? (
+                    <>
+                      <div className="text-xs font-black text-rose-500 uppercase tracking-[0.2em] mb-1 flex items-center gap-1">
+                        <Lock size={12} /> Encrypted
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-black text-zinc-100 mb-2">
+                        Classified
+                      </h3>
+                      <div className="bg-rose-950/30 border border-rose-900/50 p-3 rounded-lg">
+                        <p className="text-sm text-rose-200/80 italic leading-relaxed font-serif">
+                          "{selectedAward.riddle}"
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className={`text-xs font-black uppercase tracking-[0.2em] mb-1 flex items-center gap-1
+                        ${selectedAward.isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}
+                      >
+                        {selectedAward.isUnlocked ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-zinc-600" />}
+                        {selectedAward.isUnlocked ? 'Verified' : 'Pending'}
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-black text-white mb-2">
+                        {selectedAward.title}
+                      </h3>
+                      <p className="text-sm text-zinc-400 leading-relaxed font-medium">
+                        {selectedAward.desc}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
 
