@@ -2288,7 +2288,7 @@ export default function App() {
         </div>
         
         {/* Global Progress Section */}
-        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-2">
+        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
           <div className="max-w-7xl mx-auto">
             <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
           </div>
