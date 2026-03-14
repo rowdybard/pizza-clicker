@@ -3137,11 +3137,11 @@ export default function App() {
                               style={{
                                 background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%)',
                                 boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
-                                zIndex: 10
+                                zIndex: 100
                               }}
                             >
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
@@ -3183,7 +3183,7 @@ export default function App() {
                               zIndex: 1
                             }}>
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                              <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
@@ -3212,11 +3212,11 @@ export default function App() {
                             style={{
                               background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%)',
                               boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
-                              zIndex: 10
+                              zIndex: 100
                             }}
                           >
                             {/* File label */}
-                            <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60" style={{ zIndex: 100 }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
+                            <div className="absolute -top-2 right-2 text-[7px] font-black uppercase tracking-widest text-amber-500" style={{ zIndex: 1000, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>SYNDICATE FILE {ACHIEVEMENT_FILE_NUMBERS[ach.id]}-B</div>
                             
                             {/* Checkmark badge */}
                             <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-20" style={{ boxShadow: '0 0 12px rgba(34,197,94,0.8)' }}>
