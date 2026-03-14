@@ -135,7 +135,7 @@ export default function ExecutiveStickerbook() {
       {/* --- 2. THE TACTILE GRID (3 wide on mobile) --- */}
       <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner">
         
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-5">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
           {AWARDS_DB.map((award) => {
             const isSelected = selectedAward.id === award.id;
 
