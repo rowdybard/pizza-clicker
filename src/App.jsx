@@ -84,7 +84,9 @@ const ACHIEVEMENTS = [
   { id: 'clicker_1k', name: 'Carpal Tunnel', desc: 'Your fingers have become instruments of profit. 1,000 clicks. Each one a prayer to the god of commerce.', req: (s) => s.totalClicks >= 1000 },
   { id: 'combo_max', name: 'On Fire!', desc: 'Time bends to your will. 100x combo achieved. You have touched the edge of what the Syndicate calls "The Flow State."', req: (s) => s.combo >= 100 },
   { id: 'perfect_pull', name: 'Chef\'s Kiss', desc: 'Perfection achieved. The oven reveals its secrets only to those who listen. This is the first step toward mastery.', req: (s) => s.perfectBakes >= 1 },
-    { id: 'dispo_sadge', name: 'Scammed Outta Dispo', desc: 'Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.', req: (s) => Math.round(s.money * 100) === 1300 },
+  { id: 'delivery_first', name: 'Road Trip', desc: 'The first delivery through the time-warped routes. You have glimpsed the temporal network the Syndicate controls.', req: (s) => s.deliveriesCompleted >= 1 },
+  { id: 'delivery_10', name: 'Logistics Master', desc: 'Ten journeys through folded space. You begin to understand: the map is not the territory. The territory is whatever you make it.', req: (s) => s.deliveriesCompleted >= 10 },
+  { id: 'dispo_sadge', name: 'Scammed Outta Dispo', desc: 'Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.', req: (s) => Math.round(s.money * 100) === 1300 },
   { id: 'sellout', name: 'Corporate Sellout', desc: 'You sold your soul for a Franchise License. But was it really yours to begin with? The cycle begins anew.', req: (s) => s.franchiseLicenses > 0 },
   { id: 'billionaire', name: 'Pizza Billionaire', desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', req: (s) => s.lifetimeMoney >= 1000000000 },
 
@@ -119,7 +121,10 @@ const ACHIEVEMENTS = [
   { id: 'perfect_10', name: 'Oven Master', desc: 'Ten perfect pizzas. You have learned to read the oven\'s language. Heat, time, and intuition become one.', req: (s) => s.perfectBakes >= 10 },
   { id: 'perfect_50', name: 'Flawless Execution', desc: 'Fifty perfect pizzas. Perfection is no longer luck—it is your default state. The oven obeys your will.', req: (s) => s.perfectBakes >= 50 },
 
-  
+  // Deliveries
+  { id: 'delivery_50', name: 'Logistics Expert', desc: 'Fifty deliveries through the warped routes. You navigate the impossible with ease. The Syndicate\'s temporal network is yours to command.', req: (s) => s.deliveriesCompleted >= 50 },
+  { id: 'delivery_250', name: 'Worldwide Shipping', desc: 'Two hundred fifty deliveries across space and time. You have mastered the art of being everywhere at once.', req: (s) => s.deliveriesCompleted >= 250 },
+
   // Reputation
   { id: 'rep_500', name: 'Rising Star', desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', req: (s) => s.reputation >= 500 },
   { id: 'rep_10k', name: 'Household Name', desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', req: (s) => s.reputation >= 10000 },
@@ -171,7 +176,9 @@ const ACHIEVEMENT_META = {
   clicker_1k:          { icon: <MousePointerClick className="w-8 h-8" />, color: 'text-orange-400',  isSecret: false, hint: 'Click 1,000 times' },
   combo_max:           { icon: <Zap className="w-8 h-8" />,               color: 'text-orange-500',  isSecret: false, hint: 'Hit a 100x combo' },
   perfect_pull:        { icon: <Flame className="w-8 h-8" />,             color: 'text-red-400',     isSecret: false, hint: 'Pull a perfect pizza' },
-    dispo_sadge:         { icon: <DollarSign className="w-8 h-8" />,        color: 'text-zinc-400',    isSecret: true,  hint: 'a very specific bank balance awaits you...' },
+  delivery_first:      { icon: <Car className="w-8 h-8" />,               color: 'text-green-400',   isSecret: false, hint: 'Complete 1 delivery' },
+  delivery_10:         { icon: <Car className="w-8 h-8" />,               color: 'text-green-500',   isSecret: false, hint: 'Complete 10 deliveries' },
+  dispo_sadge:         { icon: <DollarSign className="w-8 h-8" />,        color: 'text-zinc-400',    isSecret: true,  hint: 'a very specific bank balance awaits you...' },
   sellout:             { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-400', isSecret: false, hint: 'Prestige for the first time' },
   billionaire:         { icon: <Crown className="w-8 h-8" />,             color: 'text-yellow-400',  isSecret: false, hint: 'Earn $1B lifetime' },
   bank_10k:            { icon: <DollarSign className="w-8 h-8" />,        color: 'text-green-400',   isSecret: false, hint: 'Save $10,000' },
@@ -193,7 +200,9 @@ const ACHIEVEMENT_META = {
   combo_50:            { icon: <Zap className="w-8 h-8" />,               color: 'text-orange-400',  isSecret: false, hint: 'Hit a 50x combo' },
   perfect_10:          { icon: <Flame className="w-8 h-8" />,             color: 'text-red-400',     isSecret: false, hint: 'Pull 10 perfect pizzas' },
   perfect_50:          { icon: <Flame className="w-8 h-8" />,             color: 'text-red-500',     isSecret: false, hint: 'Pull 50 perfect pizzas' },
-    rep_500:             { icon: <Star className="w-8 h-8" />,              color: 'text-yellow-400',  isSecret: false, hint: 'Gain 500 reputation' },
+  delivery_50:         { icon: <Plane className="w-8 h-8" />,             color: 'text-green-400',   isSecret: false, hint: 'Complete 50 deliveries' },
+  delivery_250:        { icon: <Rocket className="w-8 h-8" />,            color: 'text-green-500',   isSecret: false, hint: 'Complete 250 deliveries' },
+  rep_500:             { icon: <Star className="w-8 h-8" />,              color: 'text-yellow-400',  isSecret: false, hint: 'Gain 500 reputation' },
   rep_10k:             { icon: <Star className="w-8 h-8" />,              color: 'text-yellow-500',  isSecret: false, hint: 'Gain 10K reputation' },
   franchise_5:         { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-300', isSecret: false, hint: 'Own 5 licenses' },
   franchise_10:        { icon: <Building className="w-8 h-8" />,          color: 'text-fuchsia-400', isSecret: false, hint: 'Own 10 licenses' },
@@ -486,7 +495,9 @@ export default function App() {
   const clickTimestampsRef = useRef([]);
   const [recentCps, setRecentCps] = useState(0);
 
+  const [deliveriesCompleted, setDeliveriesCompleted] = useState(safeNum(initialData?.deliveriesCompleted, 0));
   const [vipTokens, setVipTokens] = useState(safeNum(initialData?.vipTokens, 0));
+  const [deliveryCooldowns, setDeliveryCooldowns] = useState(initialData?.deliveryCooldowns || {});
 
   // --- SYNDICATE STATE ---
   const [goldenSlices, setGoldenSlices] = useState(safeNum(initialData?.goldenSlices, 0));
@@ -531,6 +542,9 @@ export default function App() {
   const lastSyncTime = useRef(0);
   const lastPollTime = useRef(0);
 
+  // --- SPECIAL DELIVERY STATE ---
+  const [specialDelivery, setSpecialDelivery] = useState(null);
+  const [deliveryGame, setDeliveryGame] = useState(null);
   const calculateCost = (baseCost, ownedCount) => Math.floor(baseCost * Math.pow(1.15, ownedCount));
 
   const calculateBulkCost = (baseCost, currentCount, amount) => {
@@ -796,7 +810,7 @@ export default function App() {
 
 
   // --- MONEY LOG HELPER ---
-  // category: 'click' | 'idle' | 'oven' | 'market' | 'golden' | 'spend'
+  // category: 'click' | 'idle' | 'oven' | 'delivery' | 'market' | 'golden' | 'spend'
   const pushLog = useCallback((category, label, amount) => {
     const entry = { id: Date.now() + Math.random(), ts: Date.now(), category, label, amount };
     setMoneyLog(prev => [entry, ...prev].slice(0, 200));
@@ -1002,6 +1016,36 @@ export default function App() {
     setGoldenSliceEvent(null);
   };
 
+  const triggerDelivery = (dest) => {
+    const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
+    if (cooldownRemaining > 0) return;
+
+    const WARP_CAP = 1e8; // softcap threshold: $100M/sec idle
+    const warpEfficiency = idleProfitPerSec <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(idleProfitPerSec / WARP_CAP));
+    const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
+    const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
+
+    setMoney(m => m + warpMoney);
+    setLifetimeMoney(m => m + warpMoney);
+    pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
+    setTotalPizzasSold(tp => tp + warpPizzas);
+    
+    // Add to pending production for global sync
+    pendingProduction.current += warpPizzas;
+
+    if (dest.rushSeconds > 0) {
+      setRushTimeLeft(prev => prev + dest.rushSeconds);
+    }
+    if (dest.vipToken) {
+      const tokens = dest.id === 'station' ? 2 : 1;
+      setVipTokens(t => t + tokens);
+    }
+
+    playSound('chaching');
+    setDeliveriesCompleted(d => d + 1);
+    setDeliveryCooldowns(prev => ({ ...prev, [dest.id]: dest.cooldown }));
+  };
+
   const confirmPrestige = useCallback(() => {
     const snap = prestigeSnapshotRef.current;
     if (!snap) return;
@@ -1010,7 +1054,7 @@ export default function App() {
     const licenseStartMoney = 500 * Math.pow(newLicenses, 2);
     setMoney(prev => Math.max(syndicatePerks.shadowCapital ? 100000 : 0, licenseStartMoney));
     setReputation(0); setTotalPizzasSold(0); setRushTimeLeft(0); setVipTimeLeft(0);
-    setVipSpawned(false); setSideOrder(null); setCombo(0);
+    setVipSpawned(false); setSideOrder(null); setCombo(0); setDeliveryCooldowns({});
     setInventory({});
     const prestigeDefaultRevealed = new Set();
     ['click', 'production', 'quality'].forEach(type => {
@@ -1059,6 +1103,7 @@ export default function App() {
     setRecentCps(0);
     clickTimestampsRef.current = [];
     setVipTokens(0);
+    setDeliveryCooldowns({});
     setSyndicatePerks({ shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false, goldenPowerCount: 0, realityBend: false, goldenTouch: false, pizzaSingularity: false, infiniteOven: false, ascension: false, timeLoop: false, marketGod: false });
     setMarketUnlocked(false);
     setMarketShares({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
@@ -1068,6 +1113,8 @@ export default function App() {
     setMarketCostBasis({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
     setMarketHistory({ flour: Array(20).fill(15), cheese: Array(20).fill(60), pepperoni: Array(20).fill(250), truffles: Array(20).fill(1200) });
     setCorpOfficeOpen(false);
+    setSpecialDelivery(null);
+    setDeliveryGame(null);
     setMoneyLog([]);
     pendingClickRef.current = { total: 0, count: 0, lastFlush: Date.now() };
     setMarketCrashBanner(false);
@@ -1138,8 +1185,8 @@ export default function App() {
         const data = await response.json();
         console.log('Sync response:', data);
         if (data.success) {
-          // CRITICAL: Only subtract after successful response, with safety check
-          pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
+          // CRITICAL: Only subtract after successful response
+          pendingProduction.current -= amountToSend;
           setGlobalPizzas(data.total);
           lastSyncTime.current = Date.now();
           
@@ -1416,7 +1463,7 @@ export default function App() {
               if (response.ok) {
                 const data = await response.json();
                 console.log('Force sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
-                pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
+                pendingProduction.current -= amountToSend;
                 setGlobalPizzas(data.total);
                 return; // Success, exit retry loop
               } else {
@@ -2167,26 +2214,25 @@ export default function App() {
       </div>
 
       {/* ── FIXED HUD ── */}
-      <div className={`fixed top-0 inset-x-0 z-40 bg-[#050505]`}>
-        {/* ── MAIN GAME HEADER ── */}
-        <header className="relative z-10 bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-800/50 px-4 py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            {/* LEFT: Title + stars */}
-            <div className="flex flex-col justify-center shrink-0 min-w-0">
-              <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">CRUST FUND</h1>
-              <div className="flex gap-1 mt-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 fill-zinc-700'}`} />
-                ))}
-              </div>
-            </div>
+      <div className={`fixed top-0 inset-x-0 z-40 bg-[#050505] border-b-4 border-zinc-900 transition-colors duration-300 ${isRush ? 'bg-red-950 border-red-900' : ''}`}>
+        <div className="max-w-6xl mx-auto px-3 h-24 flex items-center gap-3 relative">
 
-            {/* CENTER: Dominant bank display */}
-            <div className="flex-1 flex justify-end sm:justify-center min-w-0">
-              <div className={`flex flex-col items-center gap-0.5 px-3 sm:px-6 py-2 sm:py-3 rounded-xl border-b-[4px] min-w-0 ${
-                isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
-              }`}>
-                <div className="text-xs sm:text-sm text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap leading-none">BANK BALANCE</div>
+          {/* LEFT: Title + stars */}
+          <div className="flex flex-col justify-center shrink-0 min-w-0">
+            <h1 className="text-2xl md:text-3xl font-display tracking-widest metallic-text whitespace-nowrap leading-none">CRUST FUND</h1>
+            <div className="flex gap-1 mt-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`w-5 h-5 ${i < starLevel ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 fill-zinc-700'}`} />
+              ))}
+            </div>
+          </div>
+
+          {/* CENTER: Dominant bank display */}
+          <div className="flex-1 flex justify-end sm:justify-center min-w-0">
+            <div className={`flex flex-col items-center gap-0.5 px-3 sm:px-6 py-2 sm:py-3 rounded-xl border-b-[4px] min-w-0 ${
+              isRush ? 'bg-red-800 border-red-950' : 'bg-zinc-800 border-zinc-950'
+            }`}>
+              <div className="text-xs sm:text-sm text-zinc-400 font-bold uppercase tracking-widest whitespace-nowrap leading-none">BANK BALANCE</div>
               <div className="flex items-baseline gap-2">
                 <span className={`font-display text-2xl sm:text-3xl md:text-4xl tabular-nums leading-none ${isRush ? 'text-red-200' : 'text-money'}`} style={bankBalanceGlowStyle}>
                   <Num value={money} prefix="$" decimals={2} />
@@ -2233,20 +2279,12 @@ export default function App() {
               </button>
             </div>
           </div>
-          </div>
 
-        </header>
+        </div>
 
         {/* Rep bar — thin strip under HUD */}
         <div className="h-1 bg-zinc-950 w-full">
           <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
-        </div>
-        
-        {/* Global Progress Section */}
-        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-2">
-          <div className="max-w-7xl mx-auto">
-            <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
-          </div>
         </div>
       </div>
 
@@ -3154,7 +3192,11 @@ export default function App() {
                 );
               })()}
 
-              
+              {/* --- GLOBAL PROGRESS BAR --- */}
+              <div className="mb-6">
+                <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
+              </div>
+
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
                 <>
@@ -4313,9 +4355,130 @@ export default function App() {
         }
         .animate-premium-burst { animation: premium-burst ease-out forwards; }
       `}} />
+
     </div>
   </div>
     <Analytics />
     </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DELIVERY MICROGAME COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+function DeliveryMicrogame({ onComplete }) {
+  const [playerLane, setPlayerLane] = useState(1); // 0, 1, 2
+  const [obstacles, setObstacles] = useState([
+    { id: 1, lane: 0, y: -20 }, 
+    { id: 2, lane: 2, y: -60 }, 
+    { id: 3, lane: 1, y: -100 }
+  ]);
+  const [timeLeft, setTimeLeft] = useState(5000); // 5 seconds in milliseconds
+  const playerLaneRef = useRef(1);
+
+  const moveLeft = () => {
+    setPlayerLane(p => {
+      const newLane = Math.max(0, p - 1);
+      playerLaneRef.current = newLane;
+      return newLane;
+    });
+  };
+  const moveRight = () => {
+    setPlayerLane(p => {
+      const newLane = Math.min(2, p + 1);
+      playerLaneRef.current = newLane;
+      return newLane;
+    });
+  };
+
+  useEffect(() => {
+    const tick = 50;
+    const speed = 2; // Obstacle falling speed (pixels per tick)
+
+    const loop = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 0) {
+          clearInterval(loop);
+          onComplete(true); // Survived!
+          return 0;
+        }
+        return t - tick;
+      });
+
+      setObstacles(prev => {
+        let next = prev.map(o => ({ ...o, y: o.y + speed }));
+        
+        // Hitbox collision (Player is at y: 75-95)
+        const hit = next.some(o => o.lane === playerLaneRef.current && o.y > 75 && o.y < 95);
+        if (hit) {
+          clearInterval(loop);
+          onComplete(false); // Crashed!
+        }
+        return next;
+      });
+    }, tick);
+
+    return () => clearInterval(loop);
+  }, [onComplete]);
+
+  return (
+    <div className="w-full max-w-md bg-black rounded-2xl border-4 border-yellow-500 overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(212,175,55,0.3)] animate-in zoom-in duration-200">
+      
+      {/* Header */}
+      <div className="bg-zinc-950 p-4 flex justify-between items-center border-b-4 border-yellow-500">
+        <div className="text-yellow-400 font-black uppercase tracking-widest flex items-center gap-2 text-lg">
+          <MapPin size={20} /> Delivery Challenge
+        </div>
+        <div className="text-yellow-100 font-mono font-bold text-xl tabular-nums">
+          {Math.ceil(timeLeft/1000)}s
+        </div>
+      </div>
+
+      {/* Highway View */}
+      <div className="h-80 relative bg-zinc-950 overflow-hidden flex border-b-4 border-yellow-500">
+        {/* Lanes */}
+        <div className="absolute inset-0 flex justify-evenly pointer-events-none opacity-20">
+          <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
+          <div className="w-1 h-full bg-dashed-line animate-slide-down"></div>
+        </div>
+
+        {/* Obstacles */}
+        {obstacles.map(obs => (
+          <div key={obs.id} className="absolute w-1/3 flex justify-center" style={{ left: `${obs.lane * 33.33}%`, top: `${obs.y}%` }}>
+            <div className="bg-[#2a2a2a] border-2 border-yellow-600 rounded w-12 h-10 flex items-center justify-center relative overflow-hidden">
+               <div className="absolute inset-0 flex"><div className="w-1/2 bg-yellow-500 transform -skew-x-12"></div></div>
+            </div>
+          </div>
+        ))}
+
+        {/* Player */}
+        <div className="absolute w-1/3 flex justify-center bottom-4 transition-all duration-150" style={{ left: `${playerLane * 33.33}%` }}>
+          <div className="text-5xl">
+            🚗
+          </div>
+        </div>
+      </div>
+
+      {/* Massive Controls for Mobile */}
+      <div className="p-6 flex gap-4 bg-black">
+        <button 
+          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
+          onClick={moveLeft}
+          onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
+        >◀</button>
+        <button 
+          className="flex-1 h-20 bg-yellow-500 hover:bg-yellow-400 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 rounded-xl font-black text-4xl text-zinc-900 select-none touch-manipulation focus:outline-none transition-all shadow-lg"
+          onClick={moveRight}
+          onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
+        >▶</button>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .bg-dashed-line { background-image: linear-gradient(to bottom, #444 50%, transparent 50%); background-size: 100% 40px; }
+        @keyframes slide-down { 0% { background-position: 0 0; } 100% { background-position: 0 40px; } }
+        .animate-slide-down { animation: slide-down 1s linear infinite; }
+      `}} />
+    </div>
   );
 }
