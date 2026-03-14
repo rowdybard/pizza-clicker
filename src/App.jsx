@@ -1592,11 +1592,12 @@ export default function App() {
 
   // 5. Achievement Loop
   useEffect(() => {
-     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted, reputation, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain };
+     const stateSnapshot = { totalPizzasSold, totalClicks, perfectBakes, money, franchiseLicenses, lifetimeMoney, combo, deliveriesCompleted, reputation, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain, vipTokens, marketShares };
      let newlyUnlocked = [];
      ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements.includes(ach.id) && ach.req(stateSnapshot)) {
            newlyUnlocked.push(ach.id);
+           console.log('Achievement unlocked:', ach.name);
            const popupId = Date.now() + Math.random();
            setAchievementToasts(prev => [...prev, { id: popupId, name: ach.name }]);
            setTimeout(() => setAchievementToasts(prev => prev.filter(t => t.id !== popupId)), 4000);
@@ -1606,7 +1607,7 @@ export default function App() {
   // money/reputation/combo update every 100ms — excluded from deps to prevent render storms.
   // Achievements that depend on them (combo_max etc.) will still fire because totalPizzasSold
   // and totalClicks are updated on every click/tick and will re-trigger this effect.
-  }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain]);
+  }, [totalPizzasSold, totalClicks, perfectBakes, franchiseLicenses, lifetimeMoney, unlockedAchievements, deliveriesCompleted, inventory, totalMarketTrades, marketProfitLifetime, biggestMarketGain, vipTokens, marketShares, money, reputation]);
 
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
