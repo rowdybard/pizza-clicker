@@ -2010,40 +2010,69 @@ export default function App() {
       )}
 
       {/* --- ACHIEVEMENT DETAIL MODAL --- */}
-      {selectedAchievement && (
-        <div className="fixed inset-0 z-[102] bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedAchievement(null)}>
-          <div className="bg-zinc-950 border-4 border-amber-500 rounded-2xl p-8 max-w-md w-full text-center relative shadow-[0_0_60px_rgba(245,158,11,0.4)]" onClick={(e) => e.stopPropagation()}>
-            {/* Close button */}
-            <button onClick={() => setSelectedAchievement(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-300 transition-colors">
-              <span className="text-2xl">×</span>
-            </button>
-            
-            {/* Icon */}
-            <div className="mb-4">
-              {(ACHIEVEMENT_META[selectedAchievement.id]?.icon || <Star className="w-16 h-16 mx-auto" />)}
-            </div>
-            
-            {/* Title */}
-            <h2 className="text-2xl font-black uppercase tracking-widest text-amber-400 mb-3" style={{ fontSize: '1.5rem' }}>
-              {selectedAchievement.name}
-            </h2>
-            
-            {/* Description */}
-            <p className="text-zinc-300 mb-6" style={{ fontSize: '14pt', lineHeight: '1.5' }}>
-              {selectedAchievement.desc}
-            </p>
-            
-            {/* Close button */}
-            <button 
-              onClick={() => setSelectedAchievement(null)}
-              className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold rounded-lg transition-colors"
-              style={{ fontSize: '14pt' }}
+      {selectedAchievement && (() => {
+        const meta = ACHIEVEMENT_META[selectedAchievement.id] || {};
+        const isSecret = meta.isSecret;
+        const isUnlocked = unlockedAchievements.includes(selectedAchievement.id);
+        const isSecretLocked = isSecret && !isUnlocked;
+        
+        return (
+          <div className="fixed inset-0 z-[102] bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedAchievement(null)}>
+            <div 
+              className={`bg-zinc-950 border-4 rounded-2xl p-8 max-w-md w-full text-center relative`}
+              style={{
+                borderColor: isSecretLocked ? '#d946ef' : '#f59e0b',
+                boxShadow: isSecretLocked ? '0 0 60px rgba(217,70,239,0.6)' : '0 0 60px rgba(245,158,11,0.4)'
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              Close
-            </button>
+              {/* Close button */}
+              <button onClick={() => setSelectedAchievement(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-300 transition-colors">
+                <span className="text-2xl">×</span>
+              </button>
+              
+              {/* Icon */}
+              <div className="mb-4">
+                {isSecretLocked ? (
+                  <svg className="w-24 h-24 mx-auto text-fuchsia-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{
+                    filter: 'drop-shadow(0 0 20px #d946ef) drop-shadow(0 0 40px #a855f7)'
+                  }}>
+                    <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                  </svg>
+                ) : (
+                  meta.icon ? React.cloneElement(meta.icon, { className: 'w-24 h-24 mx-auto' }) : <Star className="w-24 h-24 mx-auto" />
+                )}
+              </div>
+              
+              {/* Title */}
+              <h2 
+                className={`text-2xl font-black uppercase tracking-widest mb-3 ${isSecretLocked ? 'text-fuchsia-400' : 'text-amber-400'}`}
+                style={{ fontSize: '1.5rem' }}
+              >
+                {isSecretLocked ? 'THE SYNDICATE KEY' : selectedAchievement.name}
+              </h2>
+              
+              {/* Description or Hint */}
+              <p className={`mb-6 ${isSecretLocked ? 'text-fuchsia-300' : 'text-zinc-300'}`} style={{ fontSize: '14pt', lineHeight: '1.5' }}>
+                {isSecretLocked ? meta.hint : selectedAchievement.desc}
+              </p>
+              
+              {/* Close button */}
+              <button 
+                onClick={() => setSelectedAchievement(null)}
+                className={`px-6 py-3 font-bold rounded-lg transition-colors ${
+                  isSecretLocked 
+                    ? 'bg-fuchsia-600 hover:bg-fuchsia-500 text-white' 
+                    : 'bg-amber-600 hover:bg-amber-500 text-zinc-950'
+                }`}
+                style={{ fontSize: '14pt' }}
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* --- DELIVERY MICROGAME (placeholder — DeliveryMicrogame component not yet implemented) --- */}
 
@@ -3095,34 +3124,47 @@ export default function App() {
                         // SECRET RIDDLE (Syndicate File)
                         if (isSecretLocked) {
                           return (
-                            <div key={ach.id} className="relative rounded-3xl p-1 aspect-square" style={{
-                              background: 'linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #d946ef 100%)',
-                              boxShadow: '0 0 40px rgba(217,70,239,0.6), inset 0 2px 4px rgba(255,255,255,0.2)'
-                            }}>
+                            <button
+                              key={ach.id}
+                              onClick={() => setSelectedAchievement(ach)}
+                              className="relative rounded-3xl p-1 aspect-square transition-all hover:scale-105 cursor-pointer"
+                              style={{
+                                background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%)',
+                                boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
+                                zIndex: 10
+                              }}
+                            >
                               {/* File label */}
-                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-fuchsia-400/60 z-20">SYNDICATE FILE 14-B</div>
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60 z-20">SYNDICATE FILE 14-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
-                                {/* Glow effect */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-transparent to-fuchsia-950/30 pointer-events-none" />
+                                {/* Inner fuchsia border frame */}
+                                <div className="absolute inset-3 rounded-2xl border-4 border-fuchsia-500 pointer-events-none" style={{
+                                  boxShadow: 'inset 0 0 30px rgba(217,70,239,0.4), 0 0 30px rgba(217,70,239,0.6)'
+                                }} />
                                 
-                                {/* Lock icon with glow */}
+                                {/* Corner brackets */}
+                                <div className="absolute top-4 left-4 w-6 h-6 border-t-4 border-l-4 border-fuchsia-500 rounded-tl-lg" />
+                                <div className="absolute top-4 right-4 w-6 h-6 border-t-4 border-r-4 border-fuchsia-500 rounded-tr-lg" />
+                                <div className="absolute bottom-4 left-4 w-6 h-6 border-b-4 border-l-4 border-fuchsia-500 rounded-bl-lg" />
+                                <div className="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-fuchsia-500 rounded-br-lg" />
+                                
+                                {/* Fingerprint icon with intense glow */}
                                 <div className="relative z-10 mb-3">
-                                  <Lock className="w-16 h-16 text-fuchsia-500" style={{ filter: 'drop-shadow(0 0 20px #d946ef) drop-shadow(0 0 40px #a855f7)' }} />
+                                  <svg className="w-20 h-20 text-fuchsia-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{
+                                    filter: 'drop-shadow(0 0 20px #d946ef) drop-shadow(0 0 40px #a855f7) drop-shadow(0 0 60px #d946ef)'
+                                  }}>
+                                    <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                                  </svg>
                                 </div>
                                 
                                 {/* Title */}
-                                <p className="text-sm font-black uppercase tracking-wider text-center leading-tight text-fuchsia-400 mb-2 relative z-10">
-                                  THE OBSIDIAN SYNDICATE IS WATCHING...
-                                </p>
-                                
-                                {/* Riddle */}
-                                <p className="text-[10px] text-fuchsia-500/80 text-center leading-relaxed relative z-10">
-                                  A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.
+                                <p className="text-sm font-black uppercase tracking-wider text-center leading-tight text-fuchsia-400 relative z-10">
+                                  THE SYNDICATE KEY
                                 </p>
                               </div>
-                            </div>
+                            </button>
                           );
                         }
 
@@ -3131,21 +3173,19 @@ export default function App() {
                           return (
                             <div key={ach.id} className="relative rounded-3xl p-1 aspect-square" style={{
                               background: 'linear-gradient(135deg, #3f3f46 0%, #27272a 50%, #3f3f46 100%)',
-                              boxShadow: '0 0 20px rgba(63,63,70,0.3)'
+                              boxShadow: '0 0 20px rgba(63,63,70,0.3)',
+                              zIndex: 1
                             }}>
                               {/* File label */}
                               <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700 z-20">SYNDICATE FILE 14-B</div>
                               
                               {/* Inner card */}
                               <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
-                                {/* Faint icon silhouette */}
-                                <div className="mb-3 opacity-10">
-                                  {meta.icon ? React.cloneElement(meta.icon, { className: 'w-16 h-16 text-zinc-600' }) : <Star className="w-16 h-16 text-zinc-600" />}
-                                </div>
-                                
-                                {/* Play button silhouette for locked */}
-                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-950/30 to-fuchsia-900/20 flex items-center justify-center mb-2">
-                                  <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-fuchsia-800/40 border-b-[12px] border-b-transparent ml-1" />
+                                {/* Large icon silhouette with deep shadow */}
+                                <div className="mb-3 opacity-15" style={{
+                                  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9)) drop-shadow(0 4px 8px rgba(0,0,0,0.8))'
+                                }}>
+                                  {meta.icon ? React.cloneElement(meta.icon, { className: 'w-20 h-20 text-zinc-700' }) : <Star className="w-20 h-20 text-zinc-700" />}
                                 </div>
                                 
                                 {/* Title */}
@@ -3165,7 +3205,8 @@ export default function App() {
                             className="relative rounded-3xl p-1 aspect-square transition-all hover:scale-105 cursor-pointer"
                             style={{
                               background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%)',
-                              boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)'
+                              boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
+                              zIndex: 10
                             }}
                           >
                             {/* File label */}
