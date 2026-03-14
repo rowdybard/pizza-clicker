@@ -563,7 +563,8 @@ export default function App() {
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
   const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
-  const canAccessVaultTab = franchiseLicenses >= 25 || hasVaultProgress;
+  const canAccessVaultTab = hasVaultProgress;
+  const canExchangeLicensesForSlice = franchiseLicenses >= 25;
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
@@ -915,6 +916,13 @@ export default function App() {
   }, [syndicatePerks.shadowCapital, pushLog]);
 
   const usePrestigeDecline = useCallback(() => setShowPrestigeModal(false), []);
+
+  const exchangeLicensesForGoldenSlice = useCallback(() => {
+    if (franchiseLicenses < 25) return;
+    setFranchiseLicenses(prev => Math.max(0, prev - 25));
+    setGoldenSlices(prev => prev + 1);
+    pushLog('spend', '🌙 Ascension exchange: -25 Licenses, +1 Golden Slice', 0);
+  }, [franchiseLicenses, pushLog]);
 
   // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
@@ -2086,6 +2094,18 @@ export default function App() {
                       <span className="text-sm text-amber-200 font-bold uppercase tracking-wider">Licenses Owned</span>
                       <span className="font-display text-2xl text-amber-400 tabular-nums">{franchiseLicenses}</span>
                     </div>
+                    {canExchangeLicensesForSlice && (
+                      <div className="rounded-lg border border-yellow-700/60 bg-yellow-950/50 p-3 space-y-2">
+                        <div className="text-xs font-black uppercase tracking-widest text-yellow-500">Ascension Available</div>
+                        <div className="text-sm text-yellow-100">Exchange 25 licenses to acquire 1 Golden Slice.</div>
+                        <button
+                          onClick={exchangeLicensesForGoldenSlice}
+                          className="w-full py-2 bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-display text-sm font-black tracking-widest rounded-lg border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
+                        >
+                          EXCHANGE 25 LICENSES
+                        </button>
+                      </div>
+                    )}
                     {pendingLicenses > 0 && (
                       <button
                         onClick={() => {
