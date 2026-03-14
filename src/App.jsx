@@ -2286,7 +2286,7 @@ export default function App() {
                 ) : isClean ? (
                   <>
                     <Sparkles className="w-6 h-6 text-blue-400 mr-2" />
-                    <span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {cleanBoostTimer}s</span>
+                    <span className="text-blue-300 tabular-nums">Clean Kitchen Boost: {Math.ceil(cleanBoostTimer)}s</span>
                   </>
                 ) : (
                   'Awaiting Orders...'
