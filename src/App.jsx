@@ -2887,8 +2887,9 @@ export default function App() {
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
-                  // For intendedCost, always use the full custom amount (not capped by allowedPurchases)
-                  intendedCost = calculateBulkCost(upgrade.baseCost, count, customBuyAmount);
+                  // For intendedCost, use the actual purchasable amount (respecting 250 cap)
+                  const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 250 - count));
+                  intendedCost = calculateBulkCost(upgrade.baseCost, count, actualCustomAmount);
                 } else {
                   // Keep the multiplier locked - buy what you can afford, not what the multiplier says
                   const requestedAmount = Math.min(Number(buyMultiplier), allowedPurchases);
@@ -3031,7 +3032,10 @@ export default function App() {
                             return buyAmount > 1 ? 'MAX' : 'BUY ×1';
                           }
                           return buyAmount > 0 ? `BUY ×${buyAmount}` : (() => {
-                            if (buyMultiplier === 'custom') return `BUY ×${customBuyAmount}`;
+                            if (buyMultiplier === 'custom') {
+                              const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 250 - count));
+                              return `BUY ×${actualCustomAmount}`;
+                            }
                             return `BUY ×${buyMultiplier}`;
                           })();
                         })()}
