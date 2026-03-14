@@ -56,10 +56,19 @@ export default function ExecutiveStickerbook() {
   // Default to showing the first unlocked award in the focus panel
   const [selectedAward, setSelectedAward] = useState(AWARDS_DB[0]);
   const [showModal, setShowModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const focusPanelRef = useRef(null);
 
   const unlockedCount = AWARDS_DB.filter(a => a.isUnlocked).length;
   const totalCount = AWARDS_DB.length;
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleAwardClick = (award) => {
     setSelectedAward(award);
@@ -83,7 +92,7 @@ export default function ExecutiveStickerbook() {
 
   return (
     // Self-contained scroll viewport to override App.jsx hidden overflow
-    <div className="h-[100dvh] w-full overflow-y-auto overscroll-y-contain bg-[#1c1c1e] text-zinc-100 p-3 sm:p-6 md:p-8 font-sans flex flex-col items-center pb-32">
+    <div className="h-[100dvh] w-full overflow-y-auto overscroll-y-contain bg-[#1c1c1e] text-zinc-100 p-3 sm:p-6 md:p-8 font-sans flex flex-col items-center pb-32 overflow-visible">
       
       {/* HEADER */}
       <div className="w-full max-w-4xl mb-4 md:mb-6 flex flex-row justify-between items-end px-1 md:px-2 gap-2">
@@ -114,7 +123,7 @@ export default function ExecutiveStickerbook() {
             // STATE A: Unlocked (Gold Enamel Pin)
             if (award.isUnlocked) {
               return (
-                <div key={award.id} className="relative">
+                <div key={award.id} className="relative z-[1000]">
                   <button 
                     data-award-id={award.id}
                     onClick={() => handleAwardClick(award)}
@@ -133,9 +142,9 @@ export default function ExecutiveStickerbook() {
                     </div>
                   </button>
                   
-                  {/* Popover panel attached to this award */}
-                  {isSelected && showModal && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                  {/* Popover panel attached to this award (desktop only) */}
+                  {isSelected && showModal && !isMobile && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                       <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                         <button 
                           onClick={closeModal}
@@ -162,7 +171,7 @@ export default function ExecutiveStickerbook() {
             // STATE B: Syndicate Secret (Wax Seal / Locked Folder)
             if (award.isSecret) {
               return (
-                <div key={award.id} className="relative">
+                <div key={award.id} className="relative z-[1000]">
                   <button 
                     data-award-id={award.id}
                     onClick={() => handleAwardClick(award)}
@@ -177,9 +186,9 @@ export default function ExecutiveStickerbook() {
                     </div>
                   </button>
                   
-                  {/* Popover panel for secret awards */}
-                  {isSelected && showModal && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                  {/* Popover panel for secret awards (desktop only) */}
+                  {isSelected && showModal && !isMobile && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                       <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                         <button 
                           onClick={closeModal}
@@ -225,9 +234,9 @@ export default function ExecutiveStickerbook() {
                   </div>
                 </button>
                 
-                {/* Popover panel for locked awards */}
-                {isSelected && showModal && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                {/* Popover panel for locked awards (desktop only) */}
+                {isSelected && showModal && !isMobile && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto">
                     <div className="bg-zinc-800/98 border-2 border-zinc-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                       <button 
                         onClick={closeModal}
@@ -250,11 +259,76 @@ export default function ExecutiveStickerbook() {
               </div>
             );
           })}
-        </div>
-
 
       </div>
 
+      {/* --- MOBILE MODAL (Appears on mobile only) --- */}
+      {showModal && isMobile && selectedAward && (
+        <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={closeModal} />
+          <div className="relative bg-zinc-800/95 border border-zinc-700/50 rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl pointer-events-auto">
+            {/* Close button */}
+            <button 
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-200 transition-colors"
+            >
+              <span className="text-xl">×</span>
+            </button>
+            
+            {/* Award details */}
+            <div className="flex gap-4 items-start">
+              {/* Icon */}
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl flex items-center justify-center shadow-inner border-2 transition-colors duration-500
+                ${selectedAward.isUnlocked 
+                  ? 'bg-gradient-to-br from-amber-100 to-amber-300 border-amber-400' 
+                  : selectedAward.isSecret 
+                    ? 'bg-gradient-to-br from-rose-900 to-rose-950 border-rose-800'
+                    : 'bg-zinc-900 border-zinc-800'}`}
+              >
+                <div className={`transition-all duration-500 ${selectedAward.isUnlocked ? 'scale-110 drop-shadow-lg' : selectedAward.isSecret ? 'scale-100' : 'scale-100 opacity-30 grayscale'}`}>
+                  {selectedAward.icon}
+                </div>
+              </div>
+
+              {/* Text content */}
+              <div className="flex-1 min-w-0">
+                {selectedAward.isSecret && !selectedAward.isUnlocked ? (
+                  <>
+                    <div className="text-xs font-black text-rose-500 uppercase tracking-[0.2em] mb-1 flex items-center gap-1">
+                      <Lock size={12} /> Encrypted
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-black text-zinc-100 mb-2">
+                      Classified
+                    </h3>
+                    <div className="bg-rose-950/30 border border-rose-900/50 p-3 rounded-lg">
+                      <p className="text-sm text-rose-200/80 italic leading-relaxed font-serif">
+                        "{selectedAward.riddle}"
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={`text-xs font-black uppercase tracking-[0.2em] mb-1 flex items-center gap-1
+                      ${selectedAward.isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}
+                    >
+                      {selectedAward.isUnlocked ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-zinc-600" />}
+                      {selectedAward.isUnlocked ? 'Verified' : 'Pending'}
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-black text-white mb-2">
+                      {selectedAward.title}
+                    </h3>
+                    <p className="text-sm text-zinc-400 leading-relaxed font-medium">
+                      {selectedAward.desc}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      </div>
     </div>
   );
 }
