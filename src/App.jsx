@@ -917,9 +917,9 @@ export default function App() {
       setMarketCrashBanner(true);
       setTimeout(() => setMarketCrashBanner(false), 4000);
     } else if (type === 'instantCash') {
-      const WARP_CAP = 1e6;
+      const WARP_CAP = 1e8;
       const ips = engineRefs.current.idleProfitPerSec;
-      const efficiency = 1 / (1 + ips / WARP_CAP);
+      const efficiency = ips <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(ips / WARP_CAP));
       const bonus = Math.min(ips * 600 * efficiency, 1e12);
       setMoney(m => m + bonus);
       setLifetimeMoney(lm => lm + bonus);
@@ -934,8 +934,8 @@ export default function App() {
     const cooldownRemaining = deliveryCooldowns[dest.id] || 0;
     if (cooldownRemaining > 0) return;
 
-    const WARP_CAP = 1e6; // softcap threshold: $1M/sec idle
-    const warpEfficiency = 1 / (1 + idleProfitPerSec / WARP_CAP);
+    const WARP_CAP = 1e8; // softcap threshold: $100M/sec idle
+    const warpEfficiency = idleProfitPerSec <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(idleProfitPerSec / WARP_CAP));
     const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
     const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
 
@@ -2822,8 +2822,8 @@ export default function App() {
                       const onCooldown = cooldown > 0;
                       const req = dest.unlockReq;
                       const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
-                      const WARP_CAP = 1e6;
-                      const warpEfficiencyDisplay = 1 / (1 + idleProfitPerSec / WARP_CAP);
+                      const WARP_CAP = 1e8;
+                      const warpEfficiencyDisplay = idleProfitPerSec <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(idleProfitPerSec / WARP_CAP));
                       const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
                       const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
                       if (!isUnlocked) {
