@@ -114,9 +114,9 @@ export default function ExecutiveStickerbook() {
 
       
       {/* --- 2. THE TACTILE GRID (3 wide on mobile) --- */}
-      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner">
+      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-inner overflow-hidden">
         
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 relative">
           {AWARDS_DB.map((award, index) => {
             const isSelected = selectedAward.id === award.id;
             const gridCols = window.innerWidth >= 1280 ? 5 : window.innerWidth >= 768 ? 5 : window.innerWidth >= 640 ? 4 : 3;
@@ -148,7 +148,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel attached to this award (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute bottom-full mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
+                    <div className={`absolute -top-20 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
                       isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
                     }`}>
                       <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
@@ -196,7 +196,7 @@ export default function ExecutiveStickerbook() {
                   
                   {/* Popover panel for secret awards (desktop only) */}
                   {isSelected && showModal && !isMobile && (
-                    <div className={`absolute bottom-full mb-2 w-64 sm:w-80 z-[9999] pointer-events-auto ${
+                    <div className={`absolute -top-20 mb-2 w-56 sm:w-64 z-[9999] pointer-events-auto ${
                       isLeftColumn ? 'left-0' : isRightColumn ? 'right-0' : 'left-1/2 -translate-x-1/2'
                     }`}>
                       <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
