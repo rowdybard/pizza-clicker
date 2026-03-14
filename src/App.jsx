@@ -202,6 +202,7 @@ const MILESTONES = [10, 25, 50, 100, 250];
 const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
 const STAR_THRESHOLDS = [0, 500, 3000, 15000, 75000, 400000];
 const FRANCHISE_BASE_COST = 5e14; // steeper license progression to slow late-game snowballing
+const LICENSES_PER_ASCENSION_SLICE = 25;
 
 const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, valueColor, rows, statsOpen, setStatsOpen }) => {
   const open = statsOpen[sKey];
@@ -355,6 +356,30 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
   );
 });
 
+const AscensionModal = React.memo(function AscensionModal({ snapshot, onDecline, onConfirm }) {
+  if (!snapshot) return null;
+  const { sliceGain, licenseCost, remainingLicenses } = snapshot;
+  return (
+    <div className="fixed inset-0 z-[101] bg-black/95 flex items-center justify-center p-4">
+      <div className="bg-zinc-950 border-4 border-yellow-600/80 rounded-xl p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(161,98,7,0.35)]">
+        <Moon className="w-20 h-20 text-yellow-500 mx-auto mb-6" />
+        <h2 className="text-4xl text-yellow-400 mb-4 whitespace-nowrap" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700, letterSpacing: '0.05em'}}>Ascension Rite</h2>
+        <p className="text-yellow-200/70 text-lg mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Trade your Corporate Licenses for permanent Golden Slices?</p>
+        <div className="bg-black/50 p-6 rounded-lg border-2 border-yellow-700/50 mb-8 text-left space-y-4">
+          <div className="text-red-300/90 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-red-400">−</span> <span>Spend <span className="font-bold tabular-nums">{licenseCost}</span> Franchise License{licenseCost !== 1 ? 's' : ''}.</span></div>
+          <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{sliceGain}</span> Golden Slice{sliceGain !== 1 ? 's' : ''} permanently.</span></div>
+          <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Licenses remaining after Ascension: <span className="font-bold tabular-nums">{remainingLicenses}</span>.</span></div>
+          <div className="text-yellow-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-yellow-400">+</span> <span>Golden Slices can be spent in the Syndicate Vault for permanent powers.</span></div>
+        </div>
+        <div className="flex gap-4">
+          <button onClick={onDecline} className="flex-1 py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
+          <button onClick={onConfirm} className="flex-1 py-4 bg-yellow-700 hover:bg-yellow-600 text-zinc-950 text-xl rounded-lg border-2 border-yellow-500 hover:border-yellow-400 transition-colors shadow-[0_0_20px_rgba(161,98,7,0.4)]" style={{fontFamily: 'Playfair Display, serif', fontWeight: 700}}>Ascend</button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 
 export default function App() {
   // --- EMERGENCY UNLOCK EFFECT ---
@@ -489,7 +514,10 @@ export default function App() {
   const [cleanBoostTimer, setCleanBoostTimer] = useState(0);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
+  const [showAscensionModal, setShowAscensionModal] = useState(false);
+  const [ascensionSnapshot, setAscensionSnapshot] = useState(null);
   const prestigeSnapshotRef = useRef(null);
+  const ascensionSnapshotRef = useRef(null);
   const [bakeState, setBakeState] = useState('idle'); // 'idle' | 'pressed' | 'flash'
   const bakeTimerRef = useRef(null);
   const [particles, setParticles] = useState([]);
@@ -562,9 +590,11 @@ export default function App() {
     return Math.pow(n - 4, 2) * FRANCHISE_BASE_COST;
   })();
   const pendingLicenses = Math.max(0, totalEarnableLicenses - franchiseLicenses);
+  const affordableAscensionSlices = Math.floor(franchiseLicenses / LICENSES_PER_ASCENSION_SLICE);
+  const ascensionLicenseCost = affordableAscensionSlices * LICENSES_PER_ASCENSION_SLICE;
   const hasVaultProgress = goldenSlices > 0 || Object.values(syndicatePerks).some(Boolean);
   const canAccessVaultTab = hasVaultProgress;
-  const canExchangeLicensesForSlice = franchiseLicenses >= 25;
+  const canExchangeLicensesForSlice = affordableAscensionSlices > 0;
   // Licenses boost production + click. Steeper scaling to make runs 5+ viable.
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
@@ -917,12 +947,30 @@ export default function App() {
 
   const usePrestigeDecline = useCallback(() => setShowPrestigeModal(false), []);
 
-  const exchangeLicensesForGoldenSlice = useCallback(() => {
-    if (franchiseLicenses < 25) return;
-    setFranchiseLicenses(prev => Math.max(0, prev - 25));
-    setGoldenSlices(prev => prev + 1);
-    pushLog('spend', '🌙 Ascension exchange: -25 Licenses, +1 Golden Slice', 0);
-  }, [franchiseLicenses, pushLog]);
+  const openAscensionModal = useCallback(() => {
+    const sliceGain = Math.floor(franchiseLicenses / LICENSES_PER_ASCENSION_SLICE);
+    if (sliceGain <= 0) return;
+    const licenseCost = sliceGain * LICENSES_PER_ASCENSION_SLICE;
+    const snap = {
+      sliceGain,
+      licenseCost,
+      remainingLicenses: franchiseLicenses - licenseCost,
+    };
+    setAscensionSnapshot(snap);
+    ascensionSnapshotRef.current = snap;
+    setShowAscensionModal(true);
+  }, [franchiseLicenses]);
+
+  const confirmAscension = useCallback(() => {
+    const snap = ascensionSnapshotRef.current;
+    if (!snap) return;
+    setFranchiseLicenses(prev => Math.max(0, prev - snap.licenseCost));
+    setGoldenSlices(prev => prev + snap.sliceGain);
+    pushLog('spend', `🌙 Ascension exchange: -${snap.licenseCost} Licenses, +${snap.sliceGain} Golden Slice${snap.sliceGain !== 1 ? 's' : ''}`, 0);
+    setShowAscensionModal(false);
+  }, [pushLog]);
+
+  const declineAscension = useCallback(() => setShowAscensionModal(false), []);
 
   // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
@@ -1779,6 +1827,14 @@ export default function App() {
         />
       )}
 
+      {showAscensionModal && (
+        <AscensionModal
+          snapshot={ascensionSnapshot}
+          onDecline={declineAscension}
+          onConfirm={confirmAscension}
+        />
+      )}
+
 
       {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
       {deliveryGame && (
@@ -2097,12 +2153,13 @@ export default function App() {
                     {canExchangeLicensesForSlice && (
                       <div className="rounded-lg border border-yellow-700/60 bg-yellow-950/50 p-3 space-y-2">
                         <div className="text-xs font-black uppercase tracking-widest text-yellow-500">Ascension Available</div>
-                        <div className="text-sm text-yellow-100">Exchange 25 licenses to acquire 1 Golden Slice.</div>
+                        <div className="text-sm text-yellow-100">You can transmute <span className="font-bold tabular-nums">{ascensionLicenseCost}</span> licenses into <span className="font-bold tabular-nums">{affordableAscensionSlices}</span> Golden Slice{affordableAscensionSlices !== 1 ? 's' : ''}.</div>
+                        <div className="text-xs text-yellow-300/90 italic">The obsidian ledger remembers every empire that fed it.</div>
                         <button
-                          onClick={exchangeLicensesForGoldenSlice}
+                          onClick={openAscensionModal}
                           className="w-full py-2 bg-yellow-500 hover:bg-yellow-400 text-zinc-900 font-display text-sm font-black tracking-widest rounded-lg border-b-[3px] border-yellow-800 active:border-b-0 active:translate-y-[3px] transition-all btn-tactile"
                         >
-                          EXCHANGE 25 LICENSES
+                          ASCEND
                         </button>
                       </div>
                     )}
