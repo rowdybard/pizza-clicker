@@ -286,7 +286,7 @@ const computeOfflineEarnings = (data) => {
   const flourMult       = 1 + (flourShares * 0.001);
   const pepMult         = 1 + (pepShares * 0.001);
 
-  const licenseFloor   = licenses > 0 ? 2 * Math.pow(1.4, licenses) : 0;
+  const licenseFloor   = licenses > 0 ? Math.sqrt(licenses) * 0.5 : 0;
   const finalProdRate  = (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourMult;
   const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult;
   const profitPerSec   = finalProdRate * finalPrice;
@@ -332,7 +332,7 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
   const { pendingLicenses: snapPending, franchiseLicenses: snapCurrent } = snapshot;
   const newLics = snapCurrent + snapPending;
   const startCash = 500 * Math.pow(newLics, 2);
-  const floorPizzas = 2 * Math.pow(1.4, newLics);
+  const floorPizzas = Math.sqrt(newLics) * 0.5;
   const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
   return (
     <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
@@ -437,11 +437,18 @@ export default function App() {
   const [goldenSlices, setGoldenSlices] = useState(safeNum(initialData?.goldenSlices, 0));
   const [ascensionSpentLicenses, setAscensionSpentLicenses] = useState(safeNum(initialData?.ascensionSpentLicenses, 0));
   const [syndicatePerks, setSyndicatePerks] = useState(() => ({
-    shadowCapital:  initialData?.syndicatePerks?.shadowCapital  ?? false,
-    quantumOven:    initialData?.syndicatePerks?.quantumOven    ?? false,
-    insiderTrading: initialData?.syndicatePerks?.insiderTrading ?? false,
-    autoArm:        initialData?.syndicatePerks?.autoArm        ?? false,
+    shadowCapital:    initialData?.syndicatePerks?.shadowCapital    ?? false,
+    quantumOven:      initialData?.syndicatePerks?.quantumOven      ?? false,
+    insiderTrading:   initialData?.syndicatePerks?.insiderTrading   ?? false,
+    autoArm:          initialData?.syndicatePerks?.autoArm          ?? false,
     goldenPowerCount: initialData?.syndicatePerks?.goldenPowerCount ?? 0,
+    realityBend:      initialData?.syndicatePerks?.realityBend      ?? false,
+    goldenTouch:      initialData?.syndicatePerks?.goldenTouch      ?? false,
+    pizzaSingularity: initialData?.syndicatePerks?.pizzaSingularity ?? false,
+    infiniteOven:     initialData?.syndicatePerks?.infiniteOven     ?? false,
+    ascension:        initialData?.syndicatePerks?.ascension        ?? false,
+    timeLoop:         initialData?.syndicatePerks?.timeLoop         ?? false,
+    marketGod:        initialData?.syndicatePerks?.marketGod        ?? false,
   }));
 
   // --- MARKET STATE ---
@@ -657,8 +664,8 @@ export default function App() {
   const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
   
-  // Ascension perk: clicks gain +10% of /sec production
-  const synergisticClickBonus = syndicatePerks.ascension ? (displayProfitPerSec * 0.10) / pizzaPrice : 0;
+  // Ascension perk: clicks gain +10% of idle production rate (uses franchisedProduction to avoid forward reference)
+  const synergisticClickBonus = syndicatePerks.ascension ? franchisedProduction * 0.10 : 0;
   const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
@@ -1002,7 +1009,7 @@ export default function App() {
     clickTimestampsRef.current = [];
     setVipTokens(0);
     setDeliveryCooldowns({});
-    setSyndicatePerks({ shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false, goldenPowerCount: 0 });
+    setSyndicatePerks({ shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false, goldenPowerCount: 0, realityBend: false, goldenTouch: false, pizzaSingularity: false, infiniteOven: false, ascension: false, timeLoop: false, marketGod: false });
     setMarketUnlocked(false);
     setMarketShares({ flour: 0, cheese: 0, pepperoni: 0, truffles: 0 });
     setMarketPrices({ flour: 15, cheese: 60, pepperoni: 250, truffles: 1200 });
@@ -1118,7 +1125,7 @@ export default function App() {
       rushTimeLeft: 0, vipSpawned: false, hasStarted: false,
       clickTimestamps: [], // ring buffer for rolling CPS
       syndicatePerks: { shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false },
-      currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0,
+      currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0, marketUnlocked: false,
   });
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
@@ -1131,7 +1138,8 @@ export default function App() {
       engineRefs.current.currentClickPower = currentClickPower;
       engineRefs.current.pizzaPrice = pizzaPrice;
       engineRefs.current.idleClickMoney = currentClickPower * pizzaPrice;
-  }, [idleProfitPerSec, idlePizzasPerSec, rushTimeLeft, vipSpawned, totalPizzasSold, syndicatePerks, currentClickPower, pizzaPrice]);
+      engineRefs.current.marketUnlocked = marketUnlocked;
+  }, [idleProfitPerSec, idlePizzasPerSec, rushTimeLeft, vipSpawned, totalPizzasSold, syndicatePerks, currentClickPower, pizzaPrice, marketUnlocked]);
 
   // 1. The 100ms Smooth Ticker & Combo Engine
   useEffect(() => {
@@ -1181,7 +1189,7 @@ export default function App() {
           setRecentCps(state.clicksThisSecond);
           state.clicksThisSecond = 0; 
 
-          const timerSlowdown = syndicatePerks.timeLoop ? 0.2 : 1; // 5× slower = decrement by 0.2 instead of 1
+          const timerSlowdown = state.syndicatePerks?.timeLoop ? 0.2 : 1; // 5× slower = decrement by 0.2 instead of 1
           setRushTimeLeft(prev => Math.max(0, prev - timerSlowdown));
           setCleanBoostTimer(prev => Math.max(0, prev - timerSlowdown));
 
@@ -1218,7 +1226,7 @@ export default function App() {
             }
             if (!state.hasStarted || Math.random() >= 0.005) return prev;
             // Only include marketCrash if market is unlocked
-            const types = marketUnlocked ? ['frenzy', 'marketCrash', 'instantCash'] : ['frenzy', 'instantCash'];
+            const types = state.marketUnlocked ? ['frenzy', 'marketCrash', 'instantCash'] : ['frenzy', 'instantCash'];
             return {
               id: Date.now(),
               type: types[Math.floor(Math.random() * types.length)],
@@ -1229,7 +1237,7 @@ export default function App() {
           });
 
           // Market manipulation cooldowns (global)
-          const marketCooldownReduction = syndicatePerks.marketGod ? 0.25 : 1; // 75% faster = decrement by 0.25 instead of 1
+          const marketCooldownReduction = state.syndicatePerks?.marketGod ? 0.25 : 1; // 75% faster = decrement by 0.25 instead of 1
           setMarketCooldowns(prev => ({
             rumors:  Math.max(0, prev.rumors  - marketCooldownReduction),
             squeeze: Math.max(0, prev.squeeze - marketCooldownReduction),
@@ -1536,8 +1544,6 @@ export default function App() {
 
   const appBgClass = franchiseLicenses >= 5
     ? 'bg-stone-950 text-stone-100'
-    : franchiseLicenses >= 1
-    ? 'bg-zinc-900 text-zinc-100'
     : 'bg-zinc-900 text-zinc-100';
 
   useEffect(() => {
@@ -1920,20 +1926,7 @@ export default function App() {
       )}
 
 
-      {/* --- NEW WARIOWARE-STYLE DELIVERY MICROGAME --- */}
-      {deliveryGame && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <DeliveryMicrogame 
-            onComplete={(success) => {
-              const baseReward = 2000;
-              const finalReward = success ? baseReward * 2 : Math.floor(baseReward * 0.5);
-              setMoney(m => m + finalReward);
-              pushLog('click', `🚗 Delivery ${success ? 'Success' : 'Failed'}: +$${fmt(finalReward)}`, finalReward);
-              setDeliveryGame(null);
-            }}
-          />
-        </div>
-      )}
+      {/* --- DELIVERY MICROGAME (placeholder — DeliveryMicrogame component not yet implemented) --- */}
 
       {/* ── MAIN CONTENT (offset for HUD) ── */}
       <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-28 pb-6 px-4 md:px-6">
@@ -2932,7 +2925,7 @@ export default function App() {
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-sm text-yellow-600 font-black uppercase tracking-widest">Price Bonus</div>
-                      <div className="font-display text-2xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 2}%</div>
+                      <div className="font-display text-2xl text-yellow-400 tabular-nums">+{unlockedAchievements.length * 3}%</div>
                     </div>
                   </div>
 
@@ -3302,8 +3295,7 @@ export default function App() {
                                 const proceeds = shares * price * (1 - FEE);
                                 const basis = marketCostBasis[key] || 0;
                                 const pnl = proceeds - basis;
-                                console.log('SELL ALL:', { shares, price, proceeds, basis, pnl, label });
-                                setMoney(m => m + proceeds);
+                                                setMoney(m => m + proceeds);
                                 setLifetimeMoney(lm => lm + proceeds);
                                 setMarketShares(prev => ({ ...prev, [key]: 0 }));
                                 setMarketCostBasis(prev => ({ ...prev, [key]: 0 }));
@@ -3595,8 +3587,6 @@ export default function App() {
         </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
-
         *, *::-webkit-scrollbar { scrollbar-width: none; }
         *::-webkit-scrollbar { display: none; }
 
@@ -3621,13 +3611,6 @@ export default function App() {
         }
 
         .text-money { color: #84cc16; }
-        .text-glow-green  {}
-        .text-glow-blue   {}
-        .text-glow-red    {}
-        .text-glow-yellow {}
-        .text-glow-orange {}
-        .text-glow-purple {}
-
         /* Tactile depth button base — add border-b-[N] border-[darker-color] and active:border-b-0 active:translate-y-[N] */
         .btn-tactile {
           transition: border-bottom-width 80ms ease, transform 80ms ease, background-color 120ms ease;
