@@ -2287,7 +2287,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="text-4xl font-display text-red-100 flex items-center gap-2 tabular-nums">
-                  <Clock className="w-8 h-8" /> 0:{rushTimeLeft.toString().padStart(2, '0')}
+                  <Clock className="w-8 h-8" /> 0:{Math.ceil(rushTimeLeft).toString().padStart(2, '0')}
                 </div>
               </div>
             )}

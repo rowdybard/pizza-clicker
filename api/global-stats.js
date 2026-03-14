@@ -10,7 +10,7 @@ export async function GET() {
     console.log('GET - Environment check - KV_REST_API_URL:', process.env.KV_REST_API_URL ? 'SET' : 'NOT SET');
     console.log('GET - Environment check - KV_REST_API_TOKEN:', process.env.KV_REST_API_TOKEN ? 'SET' : 'NOT SET');
     
-    // Try to use KV client directly with retry
+    // Try to use KV client directly
     try {
       const total = await kv.get('crust_fund_global_pizzas');
       const count = total ? parseInt(total, 10) : 0;
