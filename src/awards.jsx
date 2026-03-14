@@ -169,7 +169,7 @@ export default function ExecutiveStickerbook() {
         </div>
 
         {/* --- INLINE FOCUS PANEL (Appears next to selected award) --- */}
-        {isSelected && (
+        {selectedAward && (
           <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedAward(AWARDS_DB[0])} />
             <div className="relative bg-zinc-800/95 border border-zinc-700/50 rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl pointer-events-auto">
