@@ -52,13 +52,13 @@ const AWARDS_DB = [
   { id: 'rid_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> }
 ];
 
-export default function ExecutiveStickerbook() {
+export default function ExecutiveStickerbook({ unlockedIds = [] }) {
   const [selectedId, setSelectedId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [gridWidth, setGridWidth] = useState(5); 
   const containerRef = useRef(null);
 
-  const unlockedCount = AWARDS_DB.filter(a => a.isUnlocked).length;
+  const unlockedCount = unlockedIds.length;
   const totalCount = AWARDS_DB.length;
 
   // Responsive Detection & Grid Column Tracking
@@ -99,6 +99,7 @@ export default function ExecutiveStickerbook() {
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 sm:gap-6 relative">
           {AWARDS_DB.map((award, index) => {
             const isSelected = selectedId === award.id;
+            const isUnlocked = unlockedIds.includes(award.id);
             
             // Boundary Handling for Desktop Popovers
             const colIndex = index % gridWidth;
@@ -115,12 +116,12 @@ export default function ExecutiveStickerbook() {
                 <button
                   onClick={() => handleToggle(award.id)}
                   className={`w-full aspect-square rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-200 relative group
-                    ${award.isUnlocked ? 'bg-zinc-800 border-2 border-zinc-700 hover:border-zinc-500' : award.isSecret ? 'bg-zinc-950 border-2 border-rose-900/30' : 'bg-zinc-800/30 border-2 border-zinc-800/50'}
+                    ${isUnlocked ? 'bg-zinc-800 border-2 border-zinc-700 hover:border-zinc-500' : award.isSecret ? 'bg-zinc-950 border-2 border-rose-900/30' : 'bg-zinc-800/30 border-2 border-zinc-800/50'}
                     ${isSelected ? 'scale-110 shadow-2xl border-white/50' : 'hover:scale-105 shadow-lg'}
                   `}
                 >
                   {/* UNLOCKED STATE: Gold Coin */}
-                  {award.isUnlocked ? (
+                  {isUnlocked ? (
                     <div className="w-3/4 h-3/4 rounded-full bg-gradient-to-br from-yellow-200 via-amber-400 to-amber-600 p-[2px] shadow-lg">
                       <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-full flex items-center justify-center border border-amber-600/30">
                         <div className="scale-75 sm:scale-90 opacity-90">{award.icon}</div>
@@ -149,13 +150,13 @@ export default function ExecutiveStickerbook() {
                     `}
                   >
                     <div className={`p-4 rounded-2xl border-2 shadow-2xl backdrop-blur-xl bg-zinc-900/98
-                      ${award.isSecret && !award.isUnlocked ? 'border-rose-500 shadow-rose-500/20' : 'border-zinc-500 shadow-black/80'}
+                      ${award.isSecret && !isUnlocked ? 'border-rose-500 shadow-rose-500/20' : 'border-zinc-500 shadow-black/80'}
                     `}>
                       <button onClick={() => setSelectedId(null)} className="absolute top-2 right-2 text-zinc-600 hover:text-white transition-colors">
                         <X size={16} />
                       </button>
 
-                      {award.isSecret && !award.isUnlocked ? (
+                      {award.isSecret && !isUnlocked ? (
                         <>
                           <div className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1 flex items-center gap-1">
                             <Lock size={12} /> Encrypted File
@@ -167,9 +168,9 @@ export default function ExecutiveStickerbook() {
                         </>
                       ) : (
                         <>
-                          <div className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1 ${award.isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}>
-                             {award.isUnlocked ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-zinc-700" />}
-                             {award.isUnlocked ? 'Verified Asset' : 'Pending Dossier'}
+                          <div className={`text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1 ${isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}>
+                             {isUnlocked ? <CheckCircle2 size={12} /> : <div className="w-2 h-2 rounded-full bg-zinc-700" />}
+                             {isUnlocked ? 'Verified Asset' : 'Pending Dossier'}
                           </div>
                           <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{award.title}</h3>
                           <p className="text-sm text-zinc-400 leading-snug font-medium">{award.desc}</p>
@@ -179,7 +180,7 @@ export default function ExecutiveStickerbook() {
                     {/* Tail Arrow: STEMS FROM BOTTOM RIGHT IF ON RIGHT COLUMN */}
                     <div className={`w-4 h-4 bg-zinc-900 border-b-2 border-r-2 transform rotate-45 absolute -bottom-2
                       ${isFirstCol ? 'left-6' : isLastCol ? 'right-6' : 'left-1/2 -translate-x-1/2'}
-                      ${award.isSecret && !award.isUnlocked ? 'border-rose-500' : 'border-zinc-500'}
+                      ${award.isSecret && !isUnlocked ? 'border-rose-500' : 'border-zinc-500'}
                     `} />
                   </div>
                 )}
@@ -204,13 +205,13 @@ export default function ExecutiveStickerbook() {
               return (
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className={`w-24 h-24 rounded-3xl flex items-center justify-center border-2 shadow-inner
-                    ${award.isUnlocked ? 'bg-amber-400/10 border-amber-500' : award.isSecret ? 'bg-rose-900/20 border-rose-700' : 'bg-zinc-800 border-zinc-700'}
+                    ${isUnlocked ? 'bg-amber-400/10 border-amber-500' : award.isSecret ? 'bg-rose-900/20 border-rose-700' : 'bg-zinc-800 border-zinc-700'}
                   `}>
-                    <div className={award.isUnlocked ? 'scale-150' : 'scale-125 opacity-50'}>{award.icon}</div>
+                    <div className={isUnlocked ? 'scale-150' : 'scale-125 opacity-50'}>{award.icon}</div>
                   </div>
                   
                   <div className="w-full">
-                    {award.isSecret && !award.isUnlocked ? (
+                    {award.isSecret && !isUnlocked ? (
                       <>
                         <span className="text-xs font-black text-rose-500 tracking-[0.2em] uppercase">Encrypted Dossier</span>
                         <h2 className="text-2xl font-black text-white mt-1 uppercase">Classified</h2>
@@ -220,8 +221,8 @@ export default function ExecutiveStickerbook() {
                       </>
                     ) : (
                       <>
-                        <span className={`text-xs font-black tracking-[0.2em] uppercase ${award.isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}>
-                           {award.isUnlocked ? 'Verified Asset' : 'Pending Goal'}
+                        <span className={`text-xs font-black tracking-[0.2em] uppercase ${isUnlocked ? 'text-amber-500' : 'text-zinc-500'}`}>
+                           {isUnlocked ? 'Verified Asset' : 'Pending Goal'}
                         </span>
                         <h2 className="text-3xl font-black text-white mt-1 uppercase tracking-tight">{award.title}</h2>
                         <p className="mt-3 text-zinc-400 font-medium leading-relaxed">{award.desc}</p>

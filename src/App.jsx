@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Analytics } from '@vercel/analytics/react';
 import ExecutiveStickerbook from './awards.jsx';
 import GlobalProgressBar from './GlobalProgressBar.jsx';
-import { addGlobalPizzas } from './redis.js';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -537,9 +536,12 @@ export default function App() {
   const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 5, 10, 'custom', or 'MAX' (locked at value when selected)
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
-  // Global pizza tracking
-  const [lastGlobalSync, setLastGlobalSync] = useState(0);
-  const [pendingGlobalPizzas, setPendingGlobalPizzas] = useState(0);
+  // Global Network Sync Engine
+  const [globalPizzas, setGlobalPizzas] = useState(0);
+  const [displayGlobalPizzas, setDisplayGlobalPizzas] = useState(0);
+  const pendingProduction = useRef(0);
+  const unsyncedPizzas = useRef(0);
+  const lastSyncTime = useRef(0);
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -852,8 +854,8 @@ export default function App() {
     setReputation(prev => prev + reputationEarned);
     setTotalClicks(prev => prev + 1);
     
-    // Sync to global counter
-    syncGlobalPizzas(currentClickPower);
+    // Add to pending production for global sync
+    pendingProduction.current += currentClickPower;
 
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1019,8 +1021,8 @@ export default function App() {
     pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
     setTotalPizzasSold(tp => tp + warpPizzas);
     
-    // Sync to global counter
-    syncGlobalPizzas(warpPizzas);
+    // Add to pending production for global sync
+    pendingProduction.current += warpPizzas;
 
     if (dest.rushSeconds > 0) {
       setRushTimeLeft(prev => prev + dest.rushSeconds);
@@ -1145,34 +1147,80 @@ export default function App() {
 
   const declineAscension = useCallback(() => setShowAscensionModal(false), []);
 
-  // --- GLOBAL PIZZA SYNC ---
-  const syncGlobalPizzas = useCallback(async (amount) => {
-    if (amount <= 0) return;
+  // --- GLOBAL NETWORK SYNC ENGINE ---
+  const syncWithGlobalSyndicate = useCallback(async () => {
+    const now = Date.now();
+    
+    // Only sync every 5 seconds
+    if (now - lastSyncTime.current < 5000) return;
+    
+    const totalToSync = pendingProduction.current + unsyncedPizzas.current;
+    if (totalToSync <= 0) return;
     
     try {
-      setPendingGlobalPizzas(prev => prev + amount);
+      const response = await fetch('/api/global-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: Math.floor(totalToSync) }),
+      });
       
-      // Sync every 10 pizzas or every 5 seconds, whichever comes first
-      const now = Date.now();
-      const shouldSync = pendingGlobalPizzas + amount >= 10 || now - lastGlobalSync > 5000;
-      
-      if (shouldSync) {
-        const totalToSync = pendingGlobalPizzas + amount;
-        await addGlobalPizzas(totalToSync);
-        setPendingGlobalPizzas(0);
-        setLastGlobalSync(now);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setGlobalPizzas(data.total);
+          setDisplayGlobalPizzas(data.total);
+          pendingProduction.current = 0;
+          unsyncedPizzas.current = 0;
+          lastSyncTime.current = now;
+        }
       }
     } catch (error) {
-      console.error('Error syncing global pizzas:', error);
+      console.error('Error syncing with global syndicate:', error);
+      // Save unsynced pizzas for next attempt
+      unsyncedPizzas.current += pendingProduction.current;
+      pendingProduction.current = 0;
+      lastSyncTime.current = now;
     }
-  }, [pendingGlobalPizzas, lastGlobalSync, addGlobalPizzas]);
+  }, []);
+
+  // Initial fetch of global stats
+  useEffect(() => {
+    const fetchGlobalStats = async () => {
+      try {
+        const response = await fetch('/api/global-stats');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setGlobalPizzas(data.total);
+            setDisplayGlobalPizzas(data.total);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching global stats:', error);
+      }
+    };
+    
+    fetchGlobalStats();
+    
+    // Sync every 5 seconds
+    const syncInterval = setInterval(syncWithGlobalSyndicate, 5000);
+    
+    return () => clearInterval(syncInterval);
+  }, [syncWithGlobalSyndicate]);
 
   // Force sync on page unload
   useEffect(() => {
     const handleBeforeUnload = async () => {
-      if (pendingGlobalPizzas > 0) {
+      const totalToSync = pendingProduction.current + unsyncedPizzas.current;
+      if (totalToSync > 0) {
         try {
-          await addGlobalPizzas(pendingGlobalPizzas);
+          await fetch('/api/global-stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: Math.floor(totalToSync) }),
+          });
         } catch (error) {
           console.error('Error syncing on unload:', error);
         }
@@ -1181,7 +1229,7 @@ export default function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [pendingGlobalPizzas]);
+  }, []);
 
 // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
@@ -1290,8 +1338,8 @@ export default function App() {
               setTotalPizzasSold(tp => tp + pizzasThisTick);
               setReputation(r => r + (state.idleRepPerSec / 10));
               
-              // Sync to global counter
-              syncGlobalPizzas(pizzasThisTick);
+              // Add to pending production for global sync
+              pendingProduction.current += pizzasThisTick;
           }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
@@ -2766,7 +2814,7 @@ export default function App() {
 
               {/* --- GLOBAL PROGRESS BAR --- */}
               <div className="mb-6">
-                <GlobalProgressBar />
+                <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
               </div>
 
               {/* --- TAB: UPGRADES --- */}
@@ -3241,7 +3289,7 @@ export default function App() {
               )}
 
               {/* --- TAB: ACHIEVEMENTS (Executive Portfolio) --- */}
-              {activeTab === 'achievements' && <ExecutiveStickerbook />}
+              {activeTab === 'achievements' && <ExecutiveStickerbook unlockedIds={unlockedAchievements} />}
 
               {/* --- TAB: STATS --- */}
               {activeTab === 'stats' && (() => {

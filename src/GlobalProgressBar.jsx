@@ -1,48 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Pizza, Users, TrendingUp, Globe } from 'lucide-react';
-import { getGlobalPizzas, getGlobalProgress, getFormattedGlobalPizzas } from './redis';
 
-export default function GlobalProgressBar() {
-  const [globalPizzas, setGlobalPizzas] = useState(0);
-  const [globalProgress, setGlobalProgress] = useState(0);
+const GLOBAL_PIZZAS_GOAL = 1000000000; // 1 billion pizzas goal
+
+export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
+  const [displayPizzas, setDisplayPizzas] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(0);
   const [formattedPizzas, setFormattedPizzas] = useState('0');
-  const [isLoading, setIsLoading] = useState(true);
+  const animationRef = useRef(null);
+  const previousPizzas = useRef(0);
 
-  // Fetch global pizza data
-  useEffect(() => {
-    const fetchGlobalData = async () => {
-      try {
-        const [total, progress, formatted] = await Promise.all([
-          getGlobalPizzas(),
-          getGlobalProgress(),
-          getFormattedGlobalPizzas()
-        ]);
-        
-        setGlobalPizzas(total);
-        setGlobalProgress(progress);
-        setFormattedPizzas(formatted);
-      } catch (error) {
-        console.error('Error fetching global data:', error);
-      } finally {
-        setIsLoading(false);
+  // Smooth count-up animation
+  const animateCountUp = (from, to, duration = 1000) => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    const startTime = performance.now();
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const current = from + (to - from) * easeOutQuart;
+      
+      setDisplayPizzas(Math.floor(current));
+      setDisplayProgress((current / GLOBAL_PIZZAS_GOAL) * 100);
+      
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
       }
     };
-
-    fetchGlobalData();
     
-    // Update every 30 seconds
-    const interval = setInterval(fetchGlobalData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    animationRef.current = requestAnimationFrame(animate);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 animate-pulse">
-        <div className="h-4 bg-zinc-700 rounded mb-2"></div>
-        <div className="h-3 bg-zinc-700 rounded w-3/4"></div>
-      </div>
-    );
-  }
+  // Format number with K, M, B notation
+  const formatNumber = (num) => {
+    if (num >= 1000000000) {
+      return `${(num / 1000000000).toFixed(2)}B`;
+    } else if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(2)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    } else {
+      return num.toString();
+    }
+  };
+
+  // Update when global pizzas change
+  useEffect(() => {
+    if (currentGlobalPizzas !== previousPizzas.current) {
+      animateCountUp(previousPizzas.current, currentGlobalPizzas);
+      previousPizzas.current = currentGlobalPizzas;
+    }
+  }, [currentGlobalPizzas]);
+
+  // Update formatted display
+  useEffect(() => {
+    setFormattedPizzas(formatNumber(displayPizzas));
+  }, [displayPizzas]);
 
   return (
     <div className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 shadow-inner">
@@ -63,11 +81,11 @@ export default function GlobalProgressBar() {
         <div className="w-full bg-zinc-900 rounded-full h-6 overflow-hidden border border-zinc-600">
           <div 
             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
-            style={{ width: `${globalProgress}%` }}
+            style={{ width: `${Math.min(displayProgress, 100)}%` }}
           >
-            {globalProgress > 5 && (
+            {displayProgress > 5 && (
               <span className="text-xs font-black text-white tabular-nums">
-                {globalProgress.toFixed(1)}%
+                {displayProgress.toFixed(1)}%
               </span>
             )}
           </div>
@@ -103,15 +121,15 @@ export default function GlobalProgressBar() {
       {/* Progress message */}
       <div className="mt-2 text-center">
         <p className="text-xs text-zinc-400 font-medium">
-          {globalProgress < 1 ? 
+          {displayProgress < 1 ? 
             "The journey begins..." :
-            globalProgress < 25 ?
+            displayProgress < 25 ?
               "Keep baking! We're just getting started!" :
-            globalProgress < 50 ?
+            displayProgress < 50 ?
               "Great progress! Halfway there!" :
-            globalProgress < 75 ?
+            displayProgress < 75 ?
               "Amazing! The world is hungry!" :
-            globalProgress < 99 ?
+            displayProgress < 99 ?
               "Incredible! So close to the goal!" :
               "🎉 GOAL REACHED! The world is fed! 🎉"
           }
