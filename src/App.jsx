@@ -856,10 +856,8 @@ export default function App() {
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
     
-    // Immediate sync for large click bursts
-    if (pendingProduction.current >= 5) {
-      syncWithGlobalSyndicate();
-    }
+    // Immediate sync for every click to minimize mobile loss
+    syncWithGlobalSyndicate();
     
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1293,11 +1291,11 @@ export default function App() {
     }
   }, [syncWithGlobalSyndicate, _offlineCalc]);
 
-  // Sync Loop - every 1 second for ultra-responsive updates
+  // Sync Loop - every 500ms for ultra-aggressive mobile sync
   useEffect(() => {
     const syncInterval = setInterval(() => {
       syncWithGlobalSyndicate();
-    }, 1000); // Sync every 1 second
+    }, 500); // Sync every 500ms for mobile reliability
 
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
@@ -1366,14 +1364,29 @@ export default function App() {
       forceSyncAll();
     };
 
+    const handleBlur = (e) => {
+      // When window loses focus (app switching, etc.)
+      console.log('Window blur event, triggering force sync...');
+      forceSyncAll();
+    };
+
+    const handleFocus = (e) => {
+      // When window regains focus
+      console.log('Window focus event - resumed game');
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
     };
   }, []);
 
@@ -1487,8 +1500,8 @@ export default function App() {
               // Add to pending production for global sync
               pendingProduction.current += pizzasThisTick;
               
-              // Immediate sync for large bursts (more than 10 pizzas)
-              if (pendingProduction.current >= 10) {
+              // Immediate sync for production to minimize mobile loss
+              if (pizzasThisTick >= 1) {
                 syncWithGlobalSyndicate();
               }
                         }
