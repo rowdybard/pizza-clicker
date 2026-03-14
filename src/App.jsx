@@ -3086,7 +3086,7 @@ export default function App() {
 
                   {/* 3-column stickerbook grid */}
                   <div className="overflow-y-auto" style={{ maxHeight: '34rem' }}>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-3">
                       {ACHIEVEMENTS.map(ach => {
                         const isUnlocked = unlockedAchievements.includes(ach.id);
                         const meta = ACHIEVEMENT_META[ach.id] || {};
@@ -3095,24 +3095,33 @@ export default function App() {
                         // SECRET RIDDLE (Syndicate File)
                         if (isSecretLocked) {
                           return (
-                            <div key={ach.id} className="relative bg-black border-4 border-fuchsia-600 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 aspect-square overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                              {/* Crown silhouette overlay - very subtle */}
-                              <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-                                <Crown className="w-20 h-20 text-fuchsia-500" />
+                            <div key={ach.id} className="relative rounded-3xl p-1 aspect-square" style={{
+                              background: 'linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #d946ef 100%)',
+                              boxShadow: '0 0 40px rgba(217,70,239,0.6), inset 0 2px 4px rgba(255,255,255,0.2)'
+                            }}>
+                              {/* File label */}
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-fuchsia-400/60 z-20">SYNDICATE FILE 14-B</div>
+                              
+                              {/* Inner card */}
+                              <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-950 rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
+                                {/* Glow effect */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-transparent to-fuchsia-950/30 pointer-events-none" />
+                                
+                                {/* Lock icon with glow */}
+                                <div className="relative z-10 mb-3">
+                                  <Lock className="w-16 h-16 text-fuchsia-500" style={{ filter: 'drop-shadow(0 0 20px #d946ef) drop-shadow(0 0 40px #a855f7)' }} />
+                                </div>
+                                
+                                {/* Title */}
+                                <p className="text-sm font-black uppercase tracking-wider text-center leading-tight text-fuchsia-400 mb-2 relative z-10">
+                                  THE OBSIDIAN SYNDICATE IS WATCHING...
+                                </p>
+                                
+                                {/* Riddle */}
+                                <p className="text-[10px] text-fuchsia-500/80 text-center leading-relaxed relative z-10">
+                                  A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.
+                                </p>
                               </div>
-                              {/* Biometric lock */}
-                              <div className="relative z-10 mb-2">
-                                <Lock className="w-10 h-10 text-fuchsia-500 animate-pulse" style={{ filter: 'drop-shadow(0 0 12px #d946ef) drop-shadow(0 0 24px #a855f7)' }} />
-                                <div className="absolute -inset-2 border-2 border-fuchsia-600/30 rounded-lg animate-pulse" />
-                                <div className="absolute -inset-4 border border-fuchsia-700/20 rounded-xl animate-pulse" style={{ animationDelay: '0.3s' }} />
-                              </div>
-                              {/* Riddle text */}
-                              <p className="text-sm text-fuchsia-400 font-bold uppercase tracking-wider text-center leading-relaxed relative z-10">
-                                THE OBSIDIAN SYNDICATE IS WATCHING...
-                              </p>
-                              <p className="text-xs text-fuchsia-600 italic text-center leading-relaxed relative z-10">
-                                A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.
-                              </p>
                             </div>
                           );
                         }
@@ -3120,15 +3129,29 @@ export default function App() {
                         // LOCKED PUBLIC (Dark Silhouette)
                         if (!isUnlocked) {
                           return (
-                            <div key={ach.id} className="relative bg-zinc-950 border-2 border-zinc-900 rounded-2xl p-3 flex flex-col items-center justify-center aspect-square overflow-hidden">
-                              {/* Faint fuchsia data pattern */}
-                              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-950/10 via-transparent to-fuchsia-950/5 pointer-events-none" />
-                              <div className="absolute inset-0 opacity-5 pointer-events-none" style={{
-                                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(168,85,247,0.1) 2px, rgba(168,85,247,0.1) 4px)',
-                              }} />
-                              {/* Name only, no icon */}
-                              <div className="text-sm font-black uppercase tracking-widest text-center leading-tight text-zinc-800 w-full px-1">
-                                {ach.name}
+                            <div key={ach.id} className="relative rounded-3xl p-1 aspect-square" style={{
+                              background: 'linear-gradient(135deg, #3f3f46 0%, #27272a 50%, #3f3f46 100%)',
+                              boxShadow: '0 0 20px rgba(63,63,70,0.3)'
+                            }}>
+                              {/* File label */}
+                              <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-zinc-700 z-20">SYNDICATE FILE 14-B</div>
+                              
+                              {/* Inner card */}
+                              <div className="relative w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4">
+                                {/* Faint icon silhouette */}
+                                <div className="mb-3 opacity-10">
+                                  {meta.icon ? React.cloneElement(meta.icon, { className: 'w-16 h-16 text-zinc-600' }) : <Star className="w-16 h-16 text-zinc-600" />}
+                                </div>
+                                
+                                {/* Play button silhouette for locked */}
+                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-950/30 to-fuchsia-900/20 flex items-center justify-center mb-2">
+                                  <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-fuchsia-800/40 border-b-[12px] border-b-transparent ml-1" />
+                                </div>
+                                
+                                {/* Title */}
+                                <div className="text-xs font-black uppercase tracking-widest text-center leading-tight text-zinc-700">
+                                  {ach.name}
+                                </div>
                               </div>
                             </div>
                           );
@@ -3139,27 +3162,34 @@ export default function App() {
                           <button
                             key={ach.id}
                             onClick={() => setSelectedAchievement(ach)}
-                            className="relative overflow-hidden rounded-2xl border-4 shadow-2xl flex flex-col items-center justify-end gap-1 p-3 aspect-square transition-all hover:scale-105 hover:brightness-110 cursor-pointer"
+                            className="relative rounded-3xl p-1 aspect-square transition-all hover:scale-105 cursor-pointer"
                             style={{
-                              background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #0a0a0a 100%)',
-                              borderImage: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706, #fbbf24) 1',
-                              boxShadow: '0 0 30px rgba(251,191,36,0.3), inset 0 1px 0 rgba(251,191,36,0.2)',
+                              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%)',
+                              boxShadow: '0 0 40px rgba(251,191,36,0.5), inset 0 2px 4px rgba(255,255,255,0.3)'
                             }}
                           >
-                            {/* Textured fuchsia gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/20 via-transparent to-fuchsia-950/10 pointer-events-none" />
-                            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
-                              backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(168,85,247,0.3) 0%, transparent 50%)',
-                            }} />
-                            {/* Green checkmark badge */}
-                            <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-green-400 z-20" style={{ filter: 'drop-shadow(0 0 6px rgba(74,222,128,0.9))' }} />
-                            {/* Large vibrant icon */}
-                            <div className={`mb-2 ${meta.color || 'text-emerald-400'} relative z-10`} style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>
-                              {meta.icon || <Star className="w-12 h-12" />}
+                            {/* File label */}
+                            <div className="absolute -top-1 right-2 text-[7px] font-black uppercase tracking-widest text-amber-600/60 z-20">SYNDICATE FILE 14-B</div>
+                            
+                            {/* Checkmark badge */}
+                            <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-20" style={{ boxShadow: '0 0 12px rgba(34,197,94,0.8)' }}>
+                              <CheckCircle className="w-5 h-5 text-white" strokeWidth={3} />
                             </div>
-                            {/* Title */}
-                            <div className="text-sm font-black uppercase tracking-widest text-center leading-tight text-emerald-300 w-full px-0.5 relative z-10" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
-                              {ach.name}
+                            
+                            {/* Inner card */}
+                            <div className="relative w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black rounded-[1.25rem] flex flex-col items-center justify-center p-4 overflow-hidden">
+                              {/* Subtle glow overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-amber-950/5 pointer-events-none" />
+                              
+                              {/* Large icon */}
+                              <div className={`mb-3 ${meta.color || 'text-emerald-400'} relative z-10`} style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.8))' }}>
+                                {meta.icon ? React.cloneElement(meta.icon, { className: 'w-20 h-20' }) : <Star className="w-20 h-20" />}
+                              </div>
+                              
+                              {/* Title */}
+                              <div className="text-sm font-black uppercase tracking-widest text-center leading-tight text-emerald-400 w-full relative z-10" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}>
+                                {ach.name}
+                              </div>
                             </div>
                           </button>
                         );
