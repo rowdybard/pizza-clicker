@@ -114,66 +114,140 @@ export default function ExecutiveStickerbook() {
             // STATE A: Unlocked (Gold Enamel Pin)
             if (award.isUnlocked) {
               return (
-                <button 
-                  key={award.id}
-                  data-award-id={award.id}
-                  onClick={() => handleAwardClick(award)}
-                  className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
-                    bg-zinc-800 border-2 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-zinc-900
-                    ${isSelected ? 'border-amber-400 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-zinc-700 hover:border-zinc-500 hover:scale-105'}`}
-                >
-                  <div className="absolute -top-1.5 -right-1.5 bg-green-500 text-zinc-950 rounded-full p-0.5 shadow-md z-20">
-                    <CheckCircle2 size={12} strokeWidth={3} className="sm:w-[14px] sm:h-[14px]" />
-                  </div>
-                  {/* The "Pin" */}
-                  <div className="w-3/4 h-3/4 rounded-full bg-gradient-to-br from-yellow-100 via-amber-400 to-amber-600 p-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
-                    <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-full flex items-center justify-center border border-amber-600/50">
-                      <div className="scale-75 drop-shadow-sm">{award.icon}</div>
+                <div key={award.id} className="relative">
+                  <button 
+                    data-award-id={award.id}
+                    onClick={() => handleAwardClick(award)}
+                    className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 w-full
+                      bg-zinc-800 border-2 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-zinc-900
+                      ${isSelected && showModal ? 'border-amber-400 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-zinc-700 hover:border-zinc-500 hover:scale-105'}`}
+                  >
+                    <div className="absolute -top-1.5 -right-1.5 bg-green-500 text-zinc-950 rounded-full p-0.5 shadow-md z-20">
+                      <CheckCircle2 size={12} strokeWidth={3} className="sm:w-[14px] sm:h-[14px]" />
                     </div>
-                  </div>
-                </button>
+                    {/* The "Pin" */}
+                    <div className="w-3/4 h-3/4 rounded-full bg-gradient-to-br from-yellow-100 via-amber-400 to-amber-600 p-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
+                      <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-full flex items-center justify-center border border-amber-600/50">
+                        <div className="scale-75 drop-shadow-sm">{award.icon}</div>
+                      </div>
+                    </div>
+                  </button>
+                  
+                  {/* Popover panel attached to this award */}
+                  {isSelected && showModal && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                      <div className="bg-zinc-800/98 border-2 border-amber-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
+                        <button 
+                          onClick={closeModal}
+                          className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
+                        >
+                          <span className="text-sm">×</span>
+                        </button>
+                        
+                        <div className="flex items-center gap-1 mb-2">
+                          <CheckCircle2 size={12} className="text-amber-500" />
+                          <span className="text-xs font-black text-amber-500 uppercase tracking-wider">Verified</span>
+                        </div>
+                        <h3 className="text-base sm:text-lg font-black text-white mb-2">{award.title}</h3>
+                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
+                      </div>
+                      {/* Arrow pointing to icon */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-amber-400"></div>
+                    </div>
+                  )}
+                </div>
               );
             }
 
             // STATE B: Syndicate Secret (Wax Seal / Locked Folder)
             if (award.isSecret) {
               return (
-                <button 
-                  key={award.id}
-                  data-award-id={award.id}
-                  onClick={() => handleAwardClick(award)}
-                  className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
-                    bg-zinc-950 border-2 shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:ring-offset-zinc-900
-                    ${isSelected ? 'border-rose-500 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-rose-900/20 hover:border-rose-800/50 hover:scale-105'}`}
-                >
-                  {/* The "Wax Seal" */}
-                  <div className="w-2/3 h-2/3 rounded-full bg-gradient-to-br from-rose-700 to-rose-950 border border-rose-900 shadow-xl flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
-                    <div className="scale-75 text-rose-300 opacity-90">{award.icon}</div>
-                  </div>
-                </button>
+                <div key={award.id} className="relative">
+                  <button 
+                    data-award-id={award.id}
+                    onClick={() => handleAwardClick(award)}
+                    className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 w-full
+                      bg-zinc-950 border-2 shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:ring-offset-zinc-900
+                      ${isSelected && showModal ? 'border-rose-500 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)]' : 'border-rose-900/20 hover:border-rose-800/50 hover:scale-105'}`}
+                  >
+                    {/* The "Wax Seal" */}
+                    <div className="w-2/3 h-2/3 rounded-full bg-gradient-to-br from-rose-700 to-rose-950 border border-rose-900 shadow-xl flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
+                      <div className="scale-75 text-rose-300 opacity-90">{award.icon}</div>
+                    </div>
+                  </button>
+                  
+                  {/* Popover panel for secret awards */}
+                  {isSelected && showModal && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                      <div className="bg-zinc-800/98 border-2 border-rose-500 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
+                        <button 
+                          onClick={closeModal}
+                          className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
+                        >
+                          <span className="text-sm">×</span>
+                        </button>
+                        
+                        <div className="flex items-center gap-1 mb-2">
+                          <Lock size={12} className="text-rose-500" />
+                          <span className="text-xs font-black text-rose-500 uppercase tracking-wider">Encrypted</span>
+                        </div>
+                        <h3 className="text-base sm:text-lg font-black text-zinc-100 mb-2">Classified</h3>
+                        <div className="bg-rose-950/30 border border-rose-900/50 p-2 rounded-lg">
+                          <p className="text-xs sm:text-sm text-rose-200/80 italic leading-relaxed font-serif">"{award.riddle}"</p>
+                        </div>
+                      </div>
+                      {/* Arrow pointing to icon */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-rose-500"></div>
+                    </div>
+                  )}
+                </div>
               );
             }
 
             // STATE C: Normal Locked (Recessed Silhouette)
             return (
-              <button 
-                key={award.id}
-                data-award-id={award.id}
-                onClick={() => setSelectedAward(award)}
-                className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 
-                  bg-zinc-800/30 border-2 shadow-[inset_0_4px_12px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-900
-                  ${isSelected ? 'border-zinc-400 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] bg-zinc-800/60' : 'border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/50'}`}
-              >
-                {/* INDENTED 3D SHADOW EFFECT (Lightened): 
-                  - brightness-150 forces the dark zinc-600 icons into a highly visible silver/gray.
-                  - drop-shadow adds a crisp 1px bright rim to the bottom edge simulating a light source from above.
-                  - opacity-80 ensures it blends into the background without disappearing.
-                */}
-                <div className="scale-[0.85] brightness-150 drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] opacity-80 transition-all duration-200">
-                  {award.icon}
-                </div>
-              </button>
+              <div key={award.id} className="relative">
+                <button 
+                  data-award-id={award.id}
+                  onClick={() => handleAwardClick(award)}
+                  className={`relative aspect-square rounded-xl md:rounded-[1.25rem] flex items-center justify-center transition-all duration-200 w-full
+                    bg-zinc-800/30 border-2 shadow-[inset_0_4px_12px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 focus:ring-offset-zinc-900
+                    ${isSelected && showModal ? 'border-zinc-400 scale-110 z-10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] bg-zinc-800/60' : 'border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/50'}`}
+                >
+                  {/* INDENTED 3D SHADOW EFFECT (Lightened): 
+                    - brightness-150 forces the dark zinc-600 icons into a highly visible silver/gray.
+                    - drop-shadow adds a crisp 1px bright rim to the bottom edge simulating a light source from above.
+                    - opacity-80 ensures it blends into the background without disappearing.
+                  */}
+                  <div className="scale-[0.85] brightness-150 drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] opacity-80 transition-all duration-200">
+                    {award.icon}
+                  </div>
+                </button>
+                
+                {/* Popover panel for locked awards */}
+                {isSelected && showModal && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-80 z-50 pointer-events-auto">
+                    <div className="bg-zinc-800/98 border-2 border-zinc-400 rounded-xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
+                      <button 
+                        onClick={closeModal}
+                        className="absolute -top-2 -right-2 bg-zinc-900 border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 transition-colors shadow-lg"
+                      >
+                        <span className="text-sm">×</span>
+                      </button>
+                      
+                      <div className="flex items-center gap-1 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-zinc-600" />
+                        <span className="text-xs font-black text-zinc-500 uppercase tracking-wider">Pending</span>
+                      </div>
+                      <h3 className="text-base sm:text-lg font-black text-white mb-2">{award.title}</h3>
+                      <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{award.desc}</p>
+                    </div>
+                    {/* Arrow pointing to icon */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-zinc-400"></div>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
