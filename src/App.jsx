@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import ExecutiveStickerbook from './awards.jsx';
+import GlobalProgressBar from './GlobalProgressBar.jsx';
+import { addGlobalPizzas } from './redis.js';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -534,6 +536,10 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 5, 10, 'custom', or 'MAX' (locked at value when selected)
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
+  
+  // Global pizza tracking
+  const [lastGlobalSync, setLastGlobalSync] = useState(0);
+  const [pendingGlobalPizzas, setPendingGlobalPizzas] = useState(0);
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -845,6 +851,9 @@ export default function App() {
     setTotalPizzasSold(prev => prev + currentClickPower);
     setReputation(prev => prev + reputationEarned);
     setTotalClicks(prev => prev + 1);
+    
+    // Sync to global counter
+    syncGlobalPizzas(currentClickPower);
 
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1009,6 +1018,9 @@ export default function App() {
     setLifetimeMoney(m => m + warpMoney);
     pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
     setTotalPizzasSold(tp => tp + warpPizzas);
+    
+    // Sync to global counter
+    syncGlobalPizzas(warpPizzas);
 
     if (dest.rushSeconds > 0) {
       setRushTimeLeft(prev => prev + dest.rushSeconds);
@@ -1133,7 +1145,45 @@ export default function App() {
 
   const declineAscension = useCallback(() => setShowAscensionModal(false), []);
 
-  // --- SETTINGS ACTIONS ---
+  // --- GLOBAL PIZZA SYNC ---
+  const syncGlobalPizzas = useCallback(async (amount) => {
+    if (amount <= 0) return;
+    
+    try {
+      setPendingGlobalPizzas(prev => prev + amount);
+      
+      // Sync every 10 pizzas or every 5 seconds, whichever comes first
+      const now = Date.now();
+      const shouldSync = pendingGlobalPizzas + amount >= 10 || now - lastGlobalSync > 5000;
+      
+      if (shouldSync) {
+        const totalToSync = pendingGlobalPizzas + amount;
+        await addGlobalPizzas(totalToSync);
+        setPendingGlobalPizzas(0);
+        setLastGlobalSync(now);
+      }
+    } catch (error) {
+      console.error('Error syncing global pizzas:', error);
+    }
+  }, [pendingGlobalPizzas, lastGlobalSync, addGlobalPizzas]);
+
+  // Force sync on page unload
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if (pendingGlobalPizzas > 0) {
+        try {
+          await addGlobalPizzas(pendingGlobalPizzas);
+        } catch (error) {
+          console.error('Error syncing on unload:', error);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [pendingGlobalPizzas]);
+
+// --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
@@ -1234,10 +1284,14 @@ export default function App() {
           const state = engineRefs.current;
           
           if (state.idlePizzasPerSec > 0) {
+              const pizzasThisTick = state.idlePizzasPerSec / 10;
               setMoney(m => m + (state.idleProfitPerSec / 10));
               setLifetimeMoney(lm => lm + (state.idleProfitPerSec / 10));
-              setTotalPizzasSold(tp => tp + (state.idlePizzasPerSec / 10));
+              setTotalPizzasSold(tp => tp + pizzasThisTick);
               setReputation(r => r + (state.idleRepPerSec / 10));
+              
+              // Sync to global counter
+              syncGlobalPizzas(pizzasThisTick);
           }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
@@ -2709,6 +2763,11 @@ export default function App() {
                   </div>
                 );
               })()}
+
+              {/* --- GLOBAL PROGRESS BAR --- */}
+              <div className="mb-6">
+                <GlobalProgressBar />
+              </div>
 
               {/* --- TAB: UPGRADES --- */}
               {activeTab === 'upgrades' && (
