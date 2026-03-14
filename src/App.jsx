@@ -2880,14 +2880,14 @@ export default function App() {
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
-                  intendedCost = calculateBulkCost(upgrade.baseCost, count, requestedAmount);
+                  intendedCost = calculateBulkCost(upgrade.baseCost, count, Math.min(customBuyAmount, allowedPurchases));
                 } else {
                   // Keep the multiplier locked - buy what you can afford, not what the multiplier says
                   const requestedAmount = Math.min(Number(buyMultiplier), allowedPurchases);
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
-                  intendedCost = calculateBulkCost(upgrade.baseCost, count, requestedAmount);
+                  intendedCost = calculateBulkCost(upgrade.baseCost, count, Math.min(Number(buyMultiplier), allowedPurchases));
                   
                   // Don't change the multiplier - keep it locked at user's selection
                   // This prevents accidental 1x purchases when user has 10x locked
