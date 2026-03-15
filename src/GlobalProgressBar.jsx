@@ -101,7 +101,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                   <div className="text-xs font-black text-zinc-400 tabular-nums">
                     {displayProgress.toFixed(2)}%
                   </div>
-                  <div className="text-xs text-zinc-500">1B Goal</div>
+                  <div className="text-xs text-zinc-500">$100Q Goal</div>
                 </div>
                 <ChevronUp className="w-3 h-3 text-zinc-500" />
               </div>
