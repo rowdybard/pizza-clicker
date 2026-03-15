@@ -3406,10 +3406,10 @@ export default function App() {
                                 setBuyMultiplier(1);
                               }
                             }}
-                            className={`flex-1 px-2 py-2 rounded-lg font-display text-xs sm:text-sm font-black tracking-wider transition-all ${
+                            className={`flex-1 px-2 py-2 rounded-lg font-display text-sm sm:text-base font-black tracking-wider transition-all ${
                               buyMultiplier === mult
-                                ? 'bg-zinc-700 text-white border border-zinc-500'
-                                : 'text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                                ? 'bg-zinc-700 text-amber-300 border border-zinc-500'
+                                : 'text-amber-200 hover:bg-zinc-700 hover:text-amber-100'
                             }`}
                           >
                             {mult === 'MAX' ? 'MAX' : mult === 'custom' ? `${customBuyAmount}` : `${mult}x`}
