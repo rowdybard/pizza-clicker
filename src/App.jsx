@@ -3018,95 +3018,7 @@ export default function App() {
             />
           </div>
 
-          {/* CORPORATE OFFICE - Below Bake & Box */}
-          {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
-            <div className="w-full max-w-md mx-auto mt-4">
-              <div className="bg-[#030005] rounded-xl border-2 border-fuchsia-900 shadow-[0_0_40px_rgba(168,85,247,0.1)] overflow-hidden">
-                {/* Header toggle */}
-                <button
-                  onClick={() => setCorpOfficeOpen(prev => !prev)}
-                  className="w-full px-5 py-3 bg-fuchsia-950/40 hover:bg-fuchsia-950/70 flex items-center justify-between gap-2 transition-all"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Building className="w-5 h-5 text-fuchsia-400" />
-                    <span className="text-base font-black uppercase tracking-widest text-fuchsia-300">Corporate Office</span>
                   </div>
-                  <span className={`text-base font-black text-fuchsia-400 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
-                </button>
-
-                {corpOfficeOpen && (
-                  <div className="p-5 flex flex-col gap-4">
-                    {/* Licenses owned row */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Licenses Owned</span>
-                      <span className="font-display text-xl text-fuchsia-300 tabular-nums">{franchiseLicenses}</span>
-                    </div>
-
-                    {/* ── Transmutation Grid ── */}
-                    {canExchangeLicensesForSlice && (
-                      <div className="flex items-center justify-center gap-6 p-4 bg-black/40 rounded-2xl">
-                        {/* Input: Licenses */}
-                        <div className="flex flex-col items-center gap-1">
-                          <Building className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                          <span className="text-4xl font-black italic text-white tabular-nums leading-none">{ascensionLicenseCost}</span>
-                          <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">licenses</span>
-                        </div>
-                        {/* Catalyst */}
-                        <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
-                          <div className="absolute inset-0 rounded-full bg-fuchsia-500/25 blur-md" />
-                          <Sparkles className="w-8 h-8 text-fuchsia-400 relative z-10 animate-pulse" style={{ filter: 'drop-shadow(0 0 10px #a855f7)' }} />
-                        </div>
-                        {/* Output: Golden Slices */}
-                        <div className="flex flex-col items-center gap-1">
-                          <Star className="w-6 h-6 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
-                          <span className="text-4xl font-black text-amber-500 tabular-nums leading-none">{affordableAscensionSlices}</span>
-                          <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest">golden slice{affordableAscensionSlices !== 1 ? 's' : ''}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── Ascend Button ── */}
-                    {canExchangeLicensesForSlice && (
-                      <button
-                        onClick={openAscensionModal}
-                        className="w-full bg-gradient-to-r from-fuchsia-700 to-purple-600 border-b-[8px] border-purple-900 rounded-xl px-10 py-5 text-white font-black hover:scale-105 active:scale-95 active:border-b-[4px] active:translate-y-1 transition-all duration-[60ms] flex flex-col items-center shadow-[0_20px_40px_rgba(112,26,117,0.5)] group"
-                      >
-                        <span className="text-[10px] uppercase font-bold tracking-[0.3em] opacity-70 group-hover:opacity-100 transition-opacity">SELL EMPIRE & LIQUIDATE ASSETS</span>
-                        <span className="text-2xl font-black uppercase tracking-wider mt-0.5">ASCEND TO THE SYNDICATE</span>
-                      </button>
-                    )}
-
-                    {/* ── Pending Licenses (Prestige) ── */}
-                    {pendingLicenses > 0 && (
-                      <button
-                        onClick={() => {
-                          const snap = { pendingLicenses, franchiseLicenses };
-                          setPrestigeSnapshot(snap);
-                          prestigeSnapshotRef.current = snap;
-                          setShowPrestigeModal(true);
-                        }}
-                        className="w-full py-3 bg-zinc-950 border-2 border-zinc-800 hover:border-amber-900 text-zinc-400 text-sm font-bold uppercase tracking-widest rounded-xl transition-colors"
-                      >
-                        SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
-                      </button>
-                    )}
-
-                    {/* ── Next License cost ── */}
-                    {pendingLicenses === 0 && (
-                      <div className="text-center py-1">
-                        <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Next License</div>
-                        <div className="font-display text-base text-fuchsia-400 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
-                      </div>
-                    )}
-
-                    {/* Flavor text */}
-                    <p className="text-xs text-zinc-700 italic text-center">The obsidian ledger remembers every empire that fed it.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Right Area: Management & Upgrades */}
         <div className="lg:col-span-7 flex flex-col gap-8 transition-all duration-300 opacity-100 mt-2">
@@ -3158,6 +3070,96 @@ export default function App() {
               </div>
             </div>
 
+            {/* CORPORATE OFFICE - Below Tab Navigation */}
+            {(lifetimeMoney > 100000 || franchiseLicenses > 0) && (
+              <div className="bg-zinc-900 border-b-4 border-zinc-950">
+                <div className="px-3 pt-3 pb-3">
+                  <div className="bg-[#030005] rounded-xl border-2 border-fuchsia-900 shadow-[0_0_40px_rgba(168,85,247,0.1)] overflow-hidden">
+                    {/* Header toggle */}
+                    <button
+                      onClick={() => setCorpOfficeOpen(prev => !prev)}
+                      className="w-full px-5 py-3 bg-fuchsia-950/40 hover:bg-fuchsia-950/70 flex items-center justify-between gap-2 transition-all"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Building className="w-5 h-5 text-fuchsia-400" />
+                        <span className="text-base font-black uppercase tracking-widest text-fuchsia-300">Corporate Office</span>
+                      </div>
+                      <span className={`text-base font-black text-fuchsia-400 transition-transform duration-200 ${corpOfficeOpen ? 'rotate-180' : ''}`}>▾</span>
+                    </button>
+
+                    {corpOfficeOpen && (
+                      <div className="p-5 flex flex-col gap-4">
+                        {/* Licenses owned row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Licenses Owned</span>
+                          <span className="font-display text-xl text-fuchsia-300 tabular-nums">{franchiseLicenses}</span>
+                        </div>
+
+                        {/* ── Transmutation Grid ── */}
+                        {canExchangeLicensesForSlice && (
+                          <div className="flex items-center justify-center gap-6 p-4 bg-black/40 rounded-2xl">
+                            {/* Input: Licenses */}
+                            <div className="flex flex-col items-center gap-1">
+                              <Building className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                              <span className="text-4xl font-black italic text-white tabular-nums leading-none">{ascensionLicenseCost}</span>
+                              <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">licenses</span>
+                            </div>
+                            {/* Catalyst */}
+                            <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
+                              <div className="absolute inset-0 rounded-full bg-fuchsia-500/25 blur-md" />
+                              <Sparkles className="w-8 h-8 text-fuchsia-400 relative z-10 animate-pulse" style={{ filter: 'drop-shadow(0 0 10px #a855f7)' }} />
+                            </div>
+                            {/* Output: Golden Slices */}
+                            <div className="flex flex-col items-center gap-1">
+                              <Star className="w-6 h-6 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                              <span className="text-4xl font-black text-amber-500 tabular-nums leading-none">{affordableAscensionSlices}</span>
+                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest">golden slice{affordableAscensionSlices !== 1 ? 's' : ''}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ── Ascend Button ── */}
+                        {canExchangeLicensesForSlice && (
+                          <button
+                            onClick={openAscensionModal}
+                            className="w-full bg-gradient-to-r from-fuchsia-700 to-purple-600 border-b-[8px] border-purple-900 rounded-xl px-10 py-5 text-white font-black hover:scale-105 active:scale-95 active:border-b-[4px] active:translate-y-1 transition-all duration-[60ms] flex flex-col items-center shadow-[0_20px_40px_rgba(112,26,117,0.5)] group"
+                          >
+                            <span className="text-[10px] uppercase font-bold tracking-[0.3em] opacity-70 group-hover:opacity-100 transition-opacity">SELL EMPIRE & LIQUIDATE ASSETS</span>
+                            <span className="text-2xl font-black uppercase tracking-wider mt-0.5">ASCEND TO THE SYNDICATE</span>
+                          </button>
+                        )}
+
+                        {/* ── Pending Licenses (Prestige) ── */}
+                        {pendingLicenses > 0 && (
+                          <button
+                            onClick={() => {
+                              const snap = { pendingLicenses, franchiseLicenses };
+                              setPrestigeSnapshot(snap);
+                              prestigeSnapshotRef.current = snap;
+                              setShowPrestigeModal(true);
+                            }}
+                            className="w-full py-3 bg-zinc-950 border-2 border-zinc-800 hover:border-amber-900 text-zinc-400 text-sm font-bold uppercase tracking-widest rounded-xl transition-colors"
+                          >
+                            SELL FOR +{pendingLicenses} LICENSE{pendingLicenses > 1 ? 'S' : ''}
+                          </button>
+                        )}
+
+                        {/* ── Next License cost ── */}
+                        {pendingLicenses === 0 && (
+                          <div className="text-center py-1">
+                            <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Next License</div>
+                            <div className="font-display text-base text-fuchsia-400 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
+                          </div>
+                        )}
+
+                        {/* Flavor text */}
+                        <p className="text-xs text-zinc-700 italic text-center">The obsidian ledger remembers every empire that fed it.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="p-4 pt-6 space-y-4 bg-zinc-900">
               
