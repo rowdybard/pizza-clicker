@@ -121,25 +121,28 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
 
   // Filter achievements to only show the next unlockable in each track + all unlocked + all secrets
   const getVisibleAchievements = () => {
-    const visible = new Set();
+    const visible = [];
     
-    // Always include all unlocked achievements
-    unlockedIds.forEach(id => visible.add(id));
+    // First, add all unlocked achievements (show progress first)
+    AWARDS_DB.filter(a => unlockedIds.includes(a.id) && !a.isSecret).forEach(a => visible.push(a));
     
-    // Always include all secret achievements
-    AWARDS_DB.filter(a => a.isSecret).forEach(a => visible.add(a.id));
-    
-    // For each track, find the first not-yet-unlocked achievement and add it
+    // Then add the next unlockable achievement from each track
     Object.values(TRACKS).forEach(track => {
       for (const achievementId of track) {
         if (!unlockedIds.includes(achievementId)) {
-          visible.add(achievementId);
-          break; // Only add the first locked one in each track
+          const achievement = AWARDS_DB.find(a => a.id === achievementId);
+          if (achievement && !achievement.isSecret) {
+            visible.push(achievement);
+            break; // Only add the first locked one in each track
+          }
         }
       }
     });
     
-    return AWARDS_DB.filter(a => visible.has(a.id));
+    // Finally, add all secret achievements at the bottom
+    AWARDS_DB.filter(a => a.isSecret).forEach(a => visible.push(a));
+    
+    return visible;
   };
 
   const visibleAchievements = getVisibleAchievements();
