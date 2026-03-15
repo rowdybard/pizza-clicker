@@ -816,10 +816,18 @@ export default function App() {
     setMoneyLog(prev => [entry, ...prev].slice(0, 200));
   }, []);
 
+  // Track active touches for multi-finger support
+  const activeTouchesRef = useRef(new Set());
+
   const handleBakePress = (e) => {
     if (e.type?.includes('touch') && e.cancelable) {
       e.preventDefault();
     }
+    
+    // Add this touch to active touches
+    const touchId = e.type?.includes('touch') ? e.touches?.[0]?.identifier : 'mouse';
+    activeTouchesRef.current.add(touchId);
+    
     playSound('pop');
     setBakeState('pressed');
     setIsPressed(true);
@@ -834,12 +842,43 @@ export default function App() {
     // Click spark particles intentionally disabled; keep core click/press engine unchanged.
   };
 
-  const handleBakeRelease = () => {
-    setIsPressed(false);
-    setBakeState('flash');
-    setPressStyle({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
-    if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current);
-    bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80);
+  const handleBakeRelease = (e) => {
+    // Remove this touch from active touches
+    const touchId = e.type?.includes('touch') ? e.changedTouches?.[0]?.identifier : 'mouse';
+    activeTouchesRef.current.delete(touchId);
+    
+    // Only release if no active touches remain
+    if (activeTouchesRef.current.size === 0) {
+      setIsPressed(false);
+      setBakeState('flash');
+      setPressStyle({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
+      if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current);
+      bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80);
+    }
+  };
+
+  const handleBakeMove = (e) => {
+    if (!isPressed || activeTouchesRef.current.size === 0) return;
+    
+    // Update tilt based on the most recent touch position
+    const rect = e.currentTarget.getBoundingClientRect();
+    let clientX, clientY;
+    
+    if (e.type?.includes('touch') && e.touches?.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.clientX !== undefined) {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    } else {
+      return;
+    }
+    
+    const rawX = ((clientX - rect.left) / rect.width - 0.5) * 2;
+    const rawY = ((clientY - rect.top) / rect.height - 0.5) * 2;
+    const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
+    const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
+    setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
   };
 
   // --- CORE ACTIONS ---
@@ -2854,14 +2893,16 @@ export default function App() {
             </div>
             {/* Layer 1: Ghost Hitbox — absorbs all pointer events */}
             <div
-              className="absolute inset-0 z-[60] cursor-pointer touch-none"
+              className="absolute inset-0 z-[60] cursor-pointer"
               style={{ WebkitTapHighlightColor: 'transparent' }}
               onClick={handleBakeAndBox}
               onMouseDown={handleBakePress}
               onMouseUp={handleBakeRelease}
               onMouseLeave={handleBakeRelease}
+              onMouseMove={handleBakeMove}
               onTouchStart={handleBakePress}
               onTouchEnd={handleBakeRelease}
+              onTouchMove={handleBakeMove}
             />
           </div>
 
