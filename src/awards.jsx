@@ -4,7 +4,7 @@ import {
   Lock, MousePointerClick, CircleDollarSign, 
   ShieldQuestion, CheckCircle2, Crown, Terminal, 
   TrendingDown, Briefcase, Zap, Rocket, Truck, 
-  Clock, Ghost, Eye, X, Camera, Mouse, Droplets, Shield
+  Clock, Ghost, Eye, X, Camera, Mouse, Droplets, Shield, Gem
 } from 'lucide-react';
 
 // --- THE EXPANDED DATABASE (Full 55-slot capacity) ---
