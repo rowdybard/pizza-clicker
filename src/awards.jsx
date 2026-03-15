@@ -48,8 +48,20 @@ const AWARDS_DB = [
   { id: 'rep_500', title: 'Rising Star', isSecret: false, isUnlocked: false, desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', icon: <Star size={40} className="text-zinc-600" /> },
   { id: 'rep_10k', title: 'Household Name', isSecret: false, isUnlocked: false, desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', icon: <Star size={40} className="text-zinc-600" /> },
 
-  // 5. THE SYNDICATE RIDDLES (Secret Tier)
+  // 5. THE 11 SYNDICATE RIDDLES (Secret Tier)
   { id: 'dispo_sadge', title: 'Scammed Outta Dispo', isSecret: true, isUnlocked: false, riddle: "Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.", icon: <Lock size={32} className="text-rose-200" /> },
+  { id: 'secret_2', title: 'Zero-Day Cipher', isSecret: true, isUnlocked: false, riddle: "The ledger is pristine, but the architecture has a flaw. Tap the un-tappable to shatter the illusion of control.", icon: <Terminal size={32} className="text-rose-200" /> },
+  { id: 'secret_3', title: 'The Day Trader', isSecret: true, isUnlocked: false, riddle: "The Obsidian Syndicate feasts on the panicked. To join the table, you must intentionally bleed your own portfolio.", icon: <TrendingDown size={32} className="text-rose-200" /> },
+  { id: 'secret_4', title: 'Rival CEO', isSecret: true, isUnlocked: false, riddle: "Pride is a liability. True power comes when you are willing to liquidate your soul to the corporate machine.", icon: <Building2 size={32} className="text-rose-200" /> },
+  { id: 'secret_5', title: 'Alleyway Barnaby', isSecret: true, isUnlocked: false, riddle: "Where there is smoke, there is a free meal. Some clients prefer the taste of failure.", icon: <ShieldQuestion size={32} className="text-rose-200" /> },
+  { id: 'secret_6', title: 'Late-Night Dave', isSecret: true, isUnlocked: false, riddle: "The best deals are made when the sun is dead. We are technically closed, but the oven is still hot.", icon: <Clock size={32} className="text-rose-200" /> },
+  { id: 'secret_7', title: 'The Phantom Driver', isSecret: true, isUnlocked: false, riddle: "Execute a maneuver when the ledger reads zero. The ghost walks only when the factory is silent.", icon: <Ghost size={32} className="text-rose-200" /> },
+  { id: 'secret_8', title: 'Michelin Critic', isSecret: true, isUnlocked: false, riddle: "True art cannot be bought, it must go completely viral against all mathematical odds.", icon: <Star size={32} className="text-rose-200" /> },
+  { id: 'secret_9', title: 'The Office Intern', isSecret: true, isUnlocked: false, riddle: "Repetition breeds insanity, or in our case, efficiency. Drop the package at the same desk until they notice.", icon: <Briefcase size={32} className="text-rose-200" /> },
+  { id: 'secret_10', title: 'The Watcher', isSecret: true, isUnlocked: false, riddle: "Patience is the currency of the elite. Do absolutely nothing, and watch the world burn.", icon: <Eye size={32} className="text-rose-200" /> },
+  { id: 'secret_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> },
+
+  // 6. ADDITIONAL REGULAR ACHIEVEMENTS
   { id: 'billionaire', title: 'Pizza Billionaire', isSecret: false, isUnlocked: false, desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', icon: <Crown size={40} className="text-zinc-600" /> },
   { id: 'life_10k', title: 'Humble Beginnings', isSecret: false, isUnlocked: false, desc: 'Your first $10,000 earned. Every fortune starts somewhere. The Syndicate remembers its own humble origins.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
   { id: 'life_10m', title: 'Crust Fund', isSecret: false, isUnlocked: false, desc: 'Ten million earned across all timelines. Your legacy grows. The dough rises, as do you.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> }
