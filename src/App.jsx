@@ -246,6 +246,7 @@ const UPGRADES = [
   { id: 'hyperPress', name: 'Hyper Press', type: 'click', baseCost: 45000000, multi: 1.65, baseValue: 90, reqStars: 3, icon: <Rocket className="text-orange-400" /> },
   { id: 'quantumTap', name: 'Quantum Tap', type: 'click', baseCost: 4000000000, multi: 1.65, baseValue: 600, reqStars: 4, icon: <Zap className="text-orange-400" /> },
   { id: 'neuralClicker', name: 'Neural Clicker', type: 'click', baseCost: 1200000000000, multi: 1.65, baseValue: 4500, reqStars: 5, icon: <Crown className="text-orange-400" /> },
+  { id: 'ergonomicChair', name: 'Ergonomic CEO Chair', type: 'click', baseCost: 50000000000000, multi: 1.65, baseValue: 15000, reqStars: 5, icon: <Briefcase className="text-orange-400" />, reqLicenses: 5 },
   { id: 'doughRoller', name: 'Auto-Roller', type: 'production', baseCost: 75, multi: 1.18, baseValue: 0.33, reqStars: 0, icon: <ChefHat className="text-blue-400" /> },
   { id: 'lineCook', name: 'Line Cook', type: 'production', baseCost: 450, multi: 1.18, baseValue: 0.8, reqStars: 1, icon: <Users className="text-blue-400" /> },
   { id: 'driver', name: 'Prep Station', type: 'production', baseCost: 2800, multi: 1.18, baseValue: 4, reqStars: 2, icon: <Flame className="text-blue-400" /> },
@@ -657,7 +658,7 @@ export default function App() {
           const prev_upgrade = path[idx - 1];
           const prevCount = safeNum(inventory?.[prev_upgrade.id], 0);
           const cost = calculateCost(upgrade.baseCost, safeNum(inventory?.[upgrade.id], 0));
-          if (prevCount >= 1 && money >= cost * 0.8 && starLevel >= upgrade.reqStars) {
+          if (prevCount >= 1 && money >= cost * 0.8 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
             next.add(upgrade.id);
           }
         });
@@ -3473,7 +3474,7 @@ export default function App() {
 
                     {/* Upgrade Cards */}
                   {UPGRADES.filter(u => upgradeFilter === 'all' || u.type === upgradeFilter).map((upgrade) => {
-                const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars;
+                const isLocked = franchiseLicenses === 0 && starLevel < upgrade.reqStars || (upgrade.reqLicenses && franchiseLicenses < upgrade.reqLicenses);
                 const count = safeNum(inventory?.[upgrade.id], 0);
                 const cost = getCost(upgrade);
                 const nextMilestone = getNextMilestone(count);
@@ -3512,7 +3513,21 @@ export default function App() {
                             <Lock className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
                           </div>
                           <p className="text-xs text-zinc-500 font-bold flex items-center gap-1.5">
-                            <Star className="w-3 h-3 shrink-0" /> Requires {upgrade.reqStars} ★ · {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
+                            {upgrade.reqLicenses ? (
+                              <>
+                                <Building className="w-3 h-3 shrink-0" /> Requires {upgrade.reqLicenses} License{upgrade.reqLicenses > 1 ? 's' : ''}
+                                {upgrade.reqStars > 0 && (
+                                  <>
+                                    <span className="text-zinc-600">·</span>
+                                    <Star className="w-3 h-3 shrink-0" /> {upgrade.reqStars} ★
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <Star className="w-3 h-3 shrink-0" /> Requires {upgrade.reqStars} ★ · {fmtInt(scaledStarThresholds[upgrade.reqStars])} rep
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -3921,7 +3936,7 @@ export default function App() {
                                 <div className="flex flex-wrap gap-2">
                                   {typeUpgrades.map(u => {
                                     const count = safeNum(inventory?.[u.id], 0);
-                                    const locked = franchiseLicenses === 0 && starLevel < u.reqStars;
+                                    const locked = franchiseLicenses === 0 && starLevel < u.reqStars || (u.reqLicenses && franchiseLicenses < u.reqLicenses);
                                     return (
                                       <div key={u.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-sm font-bold tabular-nums ${
                                         locked ? 'bg-zinc-900/40 border-zinc-700/30 text-zinc-600' :
