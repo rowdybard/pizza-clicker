@@ -3465,6 +3465,7 @@ export default function App() {
                 const cost = getCost(upgrade);
                 const nextMilestone = getNextMilestone(count);
                 const multi = getMilestoneMultiplier(count);
+                const progress = nextMilestone === 'MAX' ? 100 : (count / nextMilestone) * 100;
 
                 // Show only revealed upgrades (path-gated); applies to locked and unlocked alike
                 if (!revealedUpgrades.has(upgrade.id)) return null;
