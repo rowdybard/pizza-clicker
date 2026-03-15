@@ -144,7 +144,7 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
 
   const visibleAchievements = getVisibleAchievements();
   const unlockedCount = unlockedIds.length;
-  const totalCount = AWARDS_DB.length;
+  const totalCount = 84; // Total achievements from main game
 
   // Responsive Detection & Grid Column Tracking
   useEffect(() => {
