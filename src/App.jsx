@@ -1022,8 +1022,12 @@ export default function App() {
 
     const WARP_CAP = 1e8; // softcap threshold: $100M/sec idle
     const warpEfficiency = idleProfitPerSec <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(idleProfitPerSec / WARP_CAP));
-    const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency;
-    const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency;
+    
+    // Reputation-based multiplier: 1% bonus per 100 reputation, up to 50% at 5000 rep
+    const reputationMultiplier = 1 + Math.min(0.5, reputation / 500000);
+    
+    const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiency * reputationMultiplier;
+    const warpPizzas = idlePizzasPerSec * dest.warpSeconds * warpEfficiency * reputationMultiplier;
 
     setMoney(m => m + warpMoney);
     setLifetimeMoney(m => m + warpMoney);
@@ -3570,7 +3574,11 @@ export default function App() {
                       const isUnlocked = totalPizzasSold >= req.pizzas && starLevel >= req.stars && lifetimeMoney >= req.lifetime && franchiseLicenses >= (req.licenses || 0);
                       const WARP_CAP = 1e8;
                       const warpEfficiencyDisplay = idleProfitPerSec <= WARP_CAP ? 1.0 : 1.0 / (1 + Math.log10(idleProfitPerSec / WARP_CAP));
-                      const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay;
+                      
+                      // Reputation-based multiplier: 1% bonus per 100 reputation, up to 50% at 5000 rep
+                      const reputationMultiplierDisplay = 1 + Math.min(0.5, reputation / 500000);
+                      
+                      const warpMoney = idleProfitPerSec * dest.warpSeconds * warpEfficiencyDisplay * reputationMultiplierDisplay;
                       const cooldownPct = onCooldown ? (cooldown / dest.cooldown) * 100 : 0;
                       if (!isUnlocked) {
                         const conditions = [
