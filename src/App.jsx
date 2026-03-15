@@ -2893,8 +2893,8 @@ export default function App() {
             </div>
             {/* Layer 1: Ghost Hitbox — absorbs all pointer events */}
             <div
-              className="absolute inset-0 z-[60] cursor-pointer"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              className="absolute inset-0 z-[60] cursor-pointer touch-none"
+              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'none' }}
               onClick={handleBakeAndBox}
               onMouseDown={handleBakePress}
               onMouseUp={handleBakeRelease}
