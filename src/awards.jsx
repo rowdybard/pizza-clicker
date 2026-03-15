@@ -10,46 +10,49 @@ import {
 // --- THE EXPANDED DATABASE (Full 55-slot capacity) ---
 const AWARDS_DB = [
   // 1. THE TREASURY ROADMAP (Money Milestones)
-  { id: 'money_1', title: 'Open for Business', isSecret: false, isUnlocked: true, desc: 'Earn your first dollar. The empire begins.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
-  { id: 'money_2', title: 'In the Black', isSecret: false, isUnlocked: true, desc: 'Reach $10,000 in the bank. You are officially profitable.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
-  { id: 'money_3', title: 'Millionaire', isSecret: false, isUnlocked: true, desc: 'Reach $1,000,000. Time to buy a yacht.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
-  { id: 'money_4', title: 'Billionaire', isSecret: false, isUnlocked: false, desc: 'Goal: Reach $1,000,000,000. Welcome to the three comma club.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
-  { id: 'money_5', title: 'Trillionaire', isSecret: false, isUnlocked: false, desc: 'Goal: Reach $1,000,000,000,000. Small countries borrow from you.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
-  { id: 'money_6', title: 'Quadrillionaire', isSecret: false, isUnlocked: false, desc: 'Goal: Reach $1,000,000,000,000,000. Math starts breaking down.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
-  { id: 'money_7', title: 'Beyond Counting', isSecret: false, isUnlocked: false, desc: 'Goal: Max out the integer limit. Pure economic singularity.', icon: <Star size={40} className="text-zinc-600" /> },
+  { id: 'first_blood', title: 'Open for Business', isSecret: false, isUnlocked: true, desc: 'Every empire begins with a single slice. The Syndicate has taken notice of your first sale.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
+  { id: 'bank_10k', title: 'Ten Grand', isSecret: false, isUnlocked: true, desc: 'Your first real savings. $10,000 in liquid capital. The foundation of something greater.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
+  { id: 'bank_100k', title: 'Six Figures', isSecret: false, isUnlocked: true, desc: 'Six figures in the bank. You are no longer playing the game—you are becoming the game.', icon: <CircleDollarSign size={40} className="text-amber-500" /> },
+  { id: 'bank_1m', title: 'Liquid Millionaire', isSecret: false, isUnlocked: false, desc: 'One million in liquid assets. The weight of wealth changes you. You feel the Syndicate\'s gaze intensify.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
+  { id: 'bank_1b', title: 'Tres Commas', isSecret: false, isUnlocked: false, desc: 'Three commas. A billion dollars sitting idle. At this scale, money becomes a weapon, a tool, a reality unto itself.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
+  { id: 'bank_1t', title: 'Trillionaire', isSecret: false, isUnlocked: false, desc: 'One trillion dollars. You have transcended economics. The Syndicate nods in approval—you are ready for the Vault.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
+  { id: 'life_1t', title: 'Infinite Wealth', isSecret: false, isUnlocked: false, desc: 'One trillion earned across all realities. Wealth is no longer a goal—it is a state of being. The Syndicate beckons.', icon: <Star size={40} className="text-zinc-600" /> },
 
   // 2. THE PRODUCTION ROADMAP (Pizza Milestones)
-  { id: 'prod_1', title: 'First Bake', isSecret: false, isUnlocked: true, desc: 'You baked a pizza. It probably tastes okay.', icon: <Pizza size={40} className="text-orange-500" /> },
-  { id: 'prod_2', title: 'Local Legend', isSecret: false, isUnlocked: true, desc: 'Baked 10,000 pizzas. The neighborhood knows your name.', icon: <Flame size={40} className="text-orange-500" /> },
-  { id: 'prod_3', title: 'Pizza Magnate', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1,000,000 Pizzas', icon: <Building2 size={40} className="text-zinc-600" /> },
-  { id: 'prod_4', title: 'National Chain', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 100,000,000 Pizzas', icon: <Truck size={40} className="text-zinc-600" /> },
-  { id: 'prod_5', title: 'Global Empire', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 10 Billion Pizzas', icon: <Globe2 size={40} className="text-zinc-600" /> },
-  { id: 'prod_6', title: 'Factory Planet', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1 Trillion Pizzas. The crust consumes all.', icon: <Globe2 size={40} className="text-zinc-600" /> },
-  { id: 'prod_7', title: 'Universal Crust', isSecret: false, isUnlocked: false, desc: 'Goal: Bake 1 Quadrillion Pizzas.', icon: <Rocket size={40} className="text-zinc-600" /> },
+  { id: 'pizza_100', title: 'Warming Up', isSecret: false, isUnlocked: true, desc: 'One hundred pizzas sold. The oven is warm, your hands are steady. This is just the prelude.', icon: <Pizza size={40} className="text-orange-500" /> },
+  { id: 'pizza_10k', title: 'Local Legend', isSecret: false, isUnlocked: true, desc: 'Your name echoes through the streets. 10,000 pizzas sold. The neighborhood whispers your recipes like sacred texts.', icon: <Flame size={40} className="text-orange-500" /> },
+  { id: 'pizza_1m', title: 'Pizza Magnate', isSecret: false, isUnlocked: false, desc: 'One million souls fed. Your influence spreads like sauce on dough. The Obsidian Syndicate watches with interest.', icon: <Building2 size={40} className="text-zinc-600" /> },
+  { id: 'pizza_100k', title: 'Neighborhood Favorite', isSecret: false, isUnlocked: false, desc: 'One hundred thousand pizzas. You are no longer a chef—you are an institution. A pillar of the community.', icon: <Truck size={40} className="text-zinc-600" /> },
+  { id: 'pizza_10m', title: 'National Chain', isSecret: false, isUnlocked: false, desc: 'Ten million pizzas across the nation. Your brand is everywhere. The Syndicate takes note of your expansion.', icon: <Globe2 size={40} className="text-zinc-600" /> },
+  { id: 'pizza_1b', title: 'Global Dominance', isSecret: false, isUnlocked: false, desc: 'One billion pizzas sold worldwide. Nations rise and fall on your supply chain. You are no longer in the pizza business—you ARE the pizza business.', icon: <Globe2 size={40} className="text-zinc-600" /> },
+  { id: 'pizza_1t', title: 'Universal Crust', isSecret: false, isUnlocked: false, desc: 'One trillion pizzas baked across all realities. The crust transcends space and time.', icon: <Rocket size={40} className="text-zinc-600" /> },
 
   // 3. THE CARPAL TUNNEL SERIES (Clicking)
-  { id: 'click_1', title: 'Warming Up', isSecret: false, isUnlocked: true, desc: 'Manually clicked the Bake button 100 times.', icon: <MousePointerClick size={40} className="text-blue-500" /> },
-  { id: 'click_2', title: 'Carpal Tunnel', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 10,000 times.', icon: <Zap size={40} className="text-zinc-600" /> },
-  { id: 'click_3', title: 'Machine Gun', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 100,000 times.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
-  { id: 'click_4', title: 'Silicon Smasher', isSecret: false, isUnlocked: false, desc: 'Goal: Manually click 1,000,000 times. Buy a new mouse.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
+  { id: 'click_100', title: 'Finger Stretches', isSecret: false, isUnlocked: true, desc: 'One hundred clicks. Your fingers learn the rhythm. Click. Profit. Repeat. The mantra begins.', icon: <MousePointerClick size={40} className="text-blue-500" /> },
+  { id: 'clicker_1k', title: 'Carpal Tunnel', isSecret: false, isUnlocked: false, desc: 'Your fingers have become instruments of profit. 1,000 clicks. Each one a prayer to the god of commerce.', icon: <Zap size={40} className="text-zinc-600" /> },
+  { id: 'click_10k', title: 'Clicking Machine', isSecret: false, isUnlocked: false, desc: 'Ten thousand clicks. You and the pizza are one. The boundary between action and intention dissolves.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
+  { id: 'click_100k', title: 'The Auto-Clicker', isSecret: false, isUnlocked: false, desc: 'One hundred thousand clicks. Are you clicking, or is the universe clicking through you? The Syndicate knows the answer.', icon: <MousePointerClick size={40} className="text-zinc-600" /> },
 
   // 4. THE CORPORATE LADDER & LIFESTYLE
-  { id: 'pres_1', title: 'Hostile Takeover', isSecret: false, isUnlocked: false, desc: 'Goal: Earn your first Franchise License.', icon: <Briefcase size={40} className="text-zinc-600" /> },
-  { id: 'pres_2', title: 'Monopoly', isSecret: false, isUnlocked: false, desc: 'Goal: Hold 50 Franchise Licenses simultaneously.', icon: <Crown size={40} className="text-zinc-600" /> },
-  { id: 'time_1', title: 'Shift Worker', isSecret: false, isUnlocked: false, desc: 'Goal: Play for 24 hours total.', icon: <Clock size={40} className="text-zinc-600" /> },
+  { id: 'sellout', title: 'Corporate Sellout', isSecret: false, isUnlocked: false, desc: 'You sold your soul for a Franchise License. But was it really yours to begin with? The cycle begins anew.', icon: <Briefcase size={40} className="text-zinc-600" /> },
+  { id: 'combo_max', title: 'On Fire!', isSecret: false, isUnlocked: false, desc: 'Time bends to your will. 100x combo achieved. You have touched the edge of what the Syndicate calls "The Flow State."', icon: <Zap size={40} className="text-zinc-600" /> },
+  { id: 'perfect_pull', title: 'Chef\'s Kiss', isSecret: false, isUnlocked: false, desc: 'Perfection achieved. The oven reveals its secrets only to those who listen. This is the first step toward mastery.', icon: <Flame size={40} className="text-zinc-600" /> },
+  { id: 'combo_10', title: 'Heating Up', isSecret: false, isUnlocked: false, desc: 'Ten-click combo. The rhythm accelerates. You feel the heat building, the momentum gathering.', icon: <Zap size={40} className="text-zinc-600" /> },
+  { id: 'combo_50', title: 'Blazing Fast', isSecret: false, isUnlocked: false, desc: 'Fifty-click combo. Your hands are a blur. Time itself seems to slow around you. The Syndicate calls this "temporal dilation."', icon: <Zap size={40} className="text-zinc-600" /> },
+  { id: 'perfect_10', title: 'Oven Master', isSecret: false, isUnlocked: false, desc: 'Ten perfect pizzas. You have learned to read the oven\'s language. Heat, time, and intuition become one.', icon: <Flame size={40} className="text-zinc-600" /> },
+  { id: 'perfect_50', title: 'Flawless Execution', isSecret: false, isUnlocked: false, desc: 'Fifty perfect pizzas. Perfection is no longer luck—it is your default state. The oven obeys your will.', icon: <Flame size={40} className="text-zinc-600" /> },
+  { id: 'delivery_first', title: 'Road Trip', isSecret: false, isUnlocked: false, desc: 'The first delivery through the time-warped routes. You have glimpsed the temporal network the Syndicate controls.', icon: <Truck size={40} className="text-zinc-600" /> },
+  { id: 'delivery_10', title: 'Logistics Master', isSecret: false, isUnlocked: false, desc: 'Ten journeys through folded space. You begin to understand: the map is not the territory. The territory is whatever you make it.', icon: <Truck size={40} className="text-zinc-600" /> },
+  { id: 'delivery_50', title: 'Logistics Expert', isSecret: false, isUnlocked: false, desc: 'Fifty deliveries through the warped routes. You navigate the impossible with ease. The Syndicate\'s temporal network is yours to command.', icon: <Rocket size={40} className="text-zinc-600" /> },
+  { id: 'delivery_250', title: 'Worldwide Shipping', isSecret: false, isUnlocked: false, desc: 'Two hundred fifty deliveries across space and time. You have mastered the art of being everywhere at once.', icon: <Rocket size={40} className="text-zinc-600" /> },
+  { id: 'rep_500', title: 'Rising Star', isSecret: false, isUnlocked: false, desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', icon: <Star size={40} className="text-zinc-600" /> },
+  { id: 'rep_10k', title: 'Household Name', isSecret: false, isUnlocked: false, desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', icon: <Star size={40} className="text-zinc-600" /> },
 
-  // 5. THE 11 SYNDICATE RIDDLES (Secret Tier)
-  { id: 'rid_1', title: 'The Syndicate Key', isSecret: true, isUnlocked: false, riddle: "A concealed shadow is revealed to those who look closer. Beyond the bank, what is hidden? A very specific balance is the key.", icon: <Lock size={32} className="text-rose-200" /> },
-  { id: 'rid_2', title: 'Zero-Day Cipher', isSecret: true, isUnlocked: false, riddle: "The ledger is pristine, but the architecture has a flaw. Tap the un-tappable to shatter the illusion of control.", icon: <Terminal size={32} className="text-rose-200" /> },
-  { id: 'rid_3', title: 'The Day Trader', isSecret: true, isUnlocked: false, riddle: "The Obsidian Syndicate feasts on the panicked. To join the table, you must intentionally bleed your own portfolio.", icon: <TrendingDown size={32} className="text-rose-200" /> },
-  { id: 'rid_4', title: 'Rival CEO', isSecret: true, isUnlocked: false, riddle: "Pride is a liability. True power comes when you are willing to liquidate your soul to the corporate machine.", icon: <Building2 size={32} className="text-rose-200" /> },
-  { id: 'rid_5', title: 'Alleyway Barnaby', isSecret: true, isUnlocked: false, riddle: "Where there is smoke, there is a free meal. Some clients prefer the taste of failure.", icon: <ShieldQuestion size={32} className="text-rose-200" /> },
-  { id: 'rid_6', title: 'Late-Night Dave', isSecret: true, isUnlocked: false, riddle: "The best deals are made when the sun is dead. We are technically closed, but the oven is still hot.", icon: <Clock size={32} className="text-rose-200" /> },
-  { id: 'rid_7', title: 'The Phantom Driver', isSecret: true, isUnlocked: false, riddle: "Execute a maneuver when the ledger reads zero. The ghost walks only when the factory is silent.", icon: <Ghost size={32} className="text-rose-200" /> },
-  { id: 'rid_8', title: 'Michelin Critic', isSecret: true, isUnlocked: false, riddle: "True art cannot be bought, it must go completely viral against all mathematical odds.", icon: <Star size={32} className="text-rose-200" /> },
-  { id: 'rid_9', title: 'The Office Intern', isSecret: true, isUnlocked: false, riddle: "Repetition breeds insanity, or in our case, efficiency. Drop the package at the same desk until they notice.", icon: <Briefcase size={32} className="text-rose-200" /> },
-  { id: 'rid_10', title: 'The Watcher', isSecret: true, isUnlocked: false, riddle: "Patience is the currency of the elite. Do absolutely nothing, and watch the world burn.", icon: <Eye size={32} className="text-rose-200" /> },
-  { id: 'rid_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> }
+  // 5. THE SYNDICATE RIDDLES (Secret Tier)
+  { id: 'dispo_sadge', title: 'Scammed Outta Dispo', isSecret: true, isUnlocked: false, riddle: "Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.", icon: <Lock size={32} className="text-rose-200" /> },
+  { id: 'billionaire', title: 'Pizza Billionaire', isSecret: false, isUnlocked: false, desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'life_10k', title: 'Humble Beginnings', isSecret: false, isUnlocked: false, desc: 'Your first $10,000 earned. Every fortune starts somewhere. The Syndicate remembers its own humble origins.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
+  { id: 'life_10m', title: 'Crust Fund', isSecret: false, isUnlocked: false, desc: 'Ten million earned across all timelines. Your legacy grows. The dough rises, as do you.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> }
 ];
 
 export default function ExecutiveStickerbook({ unlockedIds = [] }) {
