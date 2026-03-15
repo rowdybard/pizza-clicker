@@ -3553,14 +3553,14 @@ export default function App() {
                 const canAfford = buyAmount > 0 && money >= displayCost;
                 
                 return (
-                  <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] p-4 gap-4 relative group">
+                  <div key={upgrade.id} className="bg-[#1a1a1c] border border-zinc-800 rounded-2xl p-3 flex flex-col gap-3 relative overflow-hidden">
                     
-                    {/* Desktop: Horizontal Layout | Mobile: Vertical Layout */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    {/* ROW 1: Icon & Header Info (Side-by-Side to save height) */}
+                    <div className="flex flex-row items-start gap-3 w-full">
                       
-                      {/* Icon Block */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-zinc-950 border border-zinc-900 shadow-inner flex items-center justify-center relative overflow-hidden group-hover:border-zinc-800 transition-colors">
-                        <div className={`text-3xl sm:text-4xl ${
+                      {/* ICON AREA: Moved left, made slightly smaller */}
+                      <div className="w-12 h-12 shrink-0 bg-black rounded-xl border border-zinc-700 flex items-center justify-center relative">
+                        <div className={`text-2xl ${
                           upgrade.type === 'production' ? 'text-blue-400' :
                           upgrade.type === 'quality' ? 'text-amber-400' :
                           'text-orange-400'
@@ -3570,86 +3570,84 @@ export default function App() {
                         
                         {/* Owned Badge */}
                         {count > 0 && (
-                          <div className="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 bg-zinc-900 border border-zinc-700 px-1.5 py-1 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center">
-                            <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                          <div className="absolute -bottom-1 -right-1 bg-zinc-900 border border-zinc-700 px-1 py-0.5 rounded shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-10 flex items-center">
+                            <Check className="w-2.5 h-2.5 text-green-400" />
                           </div>
                         )}
                       </div>
 
-                      {/* Content Area */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-display text-lg sm:text-xl font-black text-amber-100 tracking-wider leading-tight">{upgrade.name}</h3>
-                              {/* Milestone Multiplier Badges */}
-                              {MILESTONES.map((milestone, idx) => {
-                                if (count >= milestone) {
-                                  const multiplier = MILESTONE_MULTS_OVERRIDE[idx];
-                                  return (
-                                    <span key={milestone} className={`px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider shrink-0 ${
-                                      upgrade.type === 'production' ? 'bg-blue-900/60 text-blue-300 border border-blue-700' :
-                                      upgrade.type === 'quality' ? 'bg-amber-900/60 text-amber-300 border border-amber-700' :
-                                      'bg-orange-900/60 text-orange-300 border border-orange-700'
-                                    }`}>
-                                      {multiplier}×
-                                    </span>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </div>
-                            <p className="text-xs sm:text-sm text-zinc-300 font-medium tabular-nums">
-                              {upgrade.type === 'production' && (() => {
-                                const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
-                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
-                                return count === 0
-                                  ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
-                                  : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
-                              })()}
-                              {upgrade.type === 'quality' && (() => {
-                                const gainPerPizza = upgrade.baseValue;
-                                return count === 0
-                                  ? <span>Next: <span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span></span>
-                                  : <span><span className="text-amber-400 font-bold">+<span className="text-amber-300">${Math.floor(gainPerPizza * 100) / 100}</span>/pizza</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(projectedPizzaPrice)}/pizza</span></span>;
-                              })()}
-                              {upgrade.type === 'click' && (() => {
-                                const cur = fmt(upgrade.baseValue * count * multi * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                                const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier);
-                                return count === 0
-                                  ? <span>Next: <span className="text-orange-400 font-bold">+{nxt} pizzas/click</span></span>
-                                  : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
-                              })()}
-                            </p>
+                      {/* TEXT & STATS AREA: Placed next to the icon */}
+                      <div className="flex flex-col flex-1 min-w-0 justify-center">
+                        {/* Title & Multipliers */}
+                        <div className="flex flex-row flex-wrap items-center gap-2 mb-0.5">
+                          <h3 className="text-amber-100 font-black uppercase text-base truncate leading-none">
+                            {upgrade.name}
+                          </h3>
+                          <div className="flex flex-row gap-1">
+                            {/* Milestone Multiplier Badges */}
+                            {MILESTONES.map((milestone, idx) => {
+                              if (count >= milestone) {
+                                const multiplier = MILESTONE_MULTS_OVERRIDE[idx];
+                                return (
+                                  <span key={milestone} className={`px-1.5 py-0.5 rounded text-xs font-black uppercase tracking-wider shrink-0 ${
+                                    upgrade.type === 'production' ? 'bg-blue-900/60 text-blue-300 border border-blue-700' :
+                                    upgrade.type === 'quality' ? 'bg-amber-900/60 text-amber-300 border border-amber-700' :
+                                    'bg-orange-900/60 text-orange-300 border border-orange-700'
+                                  }`}>
+                                    {multiplier}×
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })}
                           </div>
                         </div>
-
-                        {/* Laser Cut Progress Bar */}
-                        {nextMilestone !== 'MAX' && (
-                          <div className="mt-2">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="text-sm font-display font-black text-zinc-400 tabular-nums">
-                                {count}/{nextMilestone}
-                              </div>
-                              <div className="text-sm font-black text-zinc-500 uppercase tracking-wider tabular-nums">
-                                Next ${fmt(cost)}
-                              </div>
-                            </div>
-                            <div className="h-1.5 bg-zinc-950 rounded-full relative shadow-inner overflow-hidden border border-zinc-900/50">
-                              <div className="h-full bg-amber-600 relative transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.8)]" style={{ width: `${Math.min(100, (count / nextMilestone) * 100)}%` }}></div>
-                            </div>
-                          </div>
-                        )}
-
-                        {nextMilestone === 'MAX' && (
-                          <div className="mt-2 text-sm font-black text-zinc-500 uppercase tracking-wider tabular-nums">
-                            Next ${fmt(cost)}
-                          </div>
-                        )}
+                        
+                        {/* Stats Text (e.g., 33.72K/click -> 34.05K/click) */}
+                        <div className="text-xs text-amber-500/80 font-bold truncate">
+                          {upgrade.type === 'production' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-blue-400 font-bold">+{nxt}/sec</span></span>
+                              : <span><span className="text-blue-400 font-bold">{cur}/sec</span><span className="text-zinc-500 mx-1">→</span><span className="text-blue-300 font-bold">{nxt}/sec</span></span>;
+                          })()}
+                          {upgrade.type === 'quality' && (() => {
+                            const gainPerPizza = upgrade.baseValue;
+                            const curPrice = pizzaPrice;
+                            const nxtPrice = curPrice + gainPerPizza;
+                            return <span>Price: <span className="text-amber-400 font-bold">${fmt(curPrice)}</span><span className="text-zinc-500 mx-1">→</span><span className="text-amber-300 font-bold">${fmt(nxtPrice)}</span></span>;
+                          })()}
+                          {upgrade.type === 'click' && (() => {
+                            const cur = fmt(upgrade.baseValue * count * multi * vipTokenMultiplier);
+                            const nxt = fmt(upgrade.baseValue * (count + 1) * getMilestoneMultiplier(count + 1) * vipTokenMultiplier);
+                            return count === 0
+                              ? <span>Next: <span className="text-orange-400 font-bold">+{nxt}/click</span></span>
+                              : <span><span className="text-orange-400 font-bold">{cur}/click</span><span className="text-zinc-500 mx-1">→</span><span className="text-orange-300 font-bold">{nxt}/click</span></span>;
+                          })()}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Mobile-Optimized Action Button */}
+                    {/* ROW 2: Progress Bar (Unchanged, just tighter spacing) */}
+                    <div className="flex flex-col gap-1.5 w-full">
+                      <div className="flex justify-between text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                        <span>{count}/{nextMilestone === 'MAX' ? 'MAX' : nextMilestone}</span>
+                        <span>Next ${fmt(cost)}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${
+                            upgrade.type === 'production' ? 'bg-blue-500' :
+                            upgrade.type === 'quality' ? 'bg-amber-500' :
+                            'bg-orange-500'
+                          }`}
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* ROW 3: Slim Buy Button */}
                     <button 
                       onClick={() => {
                         if (!canAfford || buyAmount <= 0) return;
@@ -3660,18 +3658,18 @@ export default function App() {
                         }
                       }}
                       disabled={!canAfford}
-                      className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all duration-150 relative overflow-hidden group ${
+                      className={`w-full py-2 bg-zinc-800/50 rounded-xl flex flex-col items-center justify-center border-2 border-transparent hover:border-amber-500/50 active:scale-[0.98] transition-all ${
                         canAfford 
                           ? 'bg-gradient-to-b from-amber-600 to-amber-700 border-amber-950 border-t-amber-500 shadow-[0_4px_0_#78350f,0_0_15px_rgba(217,119,6,0.1)] hover:from-amber-500 hover:to-amber-600 active:shadow-[0_0px_0_#78350f] active:translate-y-[4px] cursor-pointer' 
                           : 'bg-zinc-900 border-zinc-950 border-t-zinc-800 shadow-[0_4px_0_#000000] cursor-not-allowed opacity-50'
                       }`}
                     >
-                      <span className={`font-display text-xl font-black tabular-nums leading-none ${
+                      <span className={`text-lg font-black leading-none mb-0.5 ${
                         canAfford ? 'text-amber-100' : 'text-zinc-600'
                       }`}>
                         ${fmt(canAfford ? displayCost : intendedCost)}
                       </span>
-                      <span className={`text-xs font-bold uppercase tracking-wider ${
+                      <span className={`text-[9px] font-black text-zinc-500 uppercase tracking-wider ${
                         canAfford ? 'text-amber-200' : 'text-zinc-500'
                       }`}>
                         {(() => {
