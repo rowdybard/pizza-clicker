@@ -4286,11 +4286,9 @@ export default function App() {
 
             </div>
 
-            {/* ── MONETIZATION STRIP ── */}
+            {/* ── FOOTER STRIP ── */}
             <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-zinc-700 bg-zinc-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                <Zap className="w-3 h-3 text-zinc-600" />
-                Monetization
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
