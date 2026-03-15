@@ -818,6 +818,7 @@ export default function App() {
 
   // Track active touches for multi-finger support
   const activeTouchesRef = useRef(new Set());
+  const processedTouchesRef = useRef(new Set());
 
   const handleBakePress = (e) => {
     if (e.type?.includes('touch') && e.cancelable) {
@@ -826,6 +827,12 @@ export default function App() {
     
     // Add this touch to active touches
     const touchId = e.type?.includes('touch') ? e.touches?.[0]?.identifier : 'mouse';
+    
+    // Prevent double processing of the same touch
+    if (processedTouchesRef.current.has(touchId)) {
+      return;
+    }
+    processedTouchesRef.current.add(touchId);
     activeTouchesRef.current.add(touchId);
     
     // Earn money and reputation immediately on press
@@ -862,8 +869,20 @@ export default function App() {
     
     if (e.type?.includes('touch') && e.touches?.length > 0) {
       // For touch events, use the specific touch that triggered this press
-      popupX = (e.touches[0].clientX - rect.left) + (Math.random() * 40 - 20);
-      popupY = (e.touches[0].clientY - rect.top) + (Math.random() * 40 - 20);
+      // Find the touch that matches our touchId
+      const currentTouchId = e.type?.includes('touch') ? e.touches?.[0]?.identifier : 'mouse';
+      let targetTouch = e.touches[0];
+      
+      // Try to find the matching touch by identifier
+      for (let i = 0; i < e.touches.length; i++) {
+        if (e.touches[i].identifier === currentTouchId) {
+          targetTouch = e.touches[i];
+          break;
+        }
+      }
+      
+      popupX = (targetTouch.clientX - rect.left) + (Math.random() * 40 - 20);
+      popupY = (targetTouch.clientY - rect.top) + (Math.random() * 40 - 20);
     } else if (e.clientX !== undefined) {
       // For mouse events
       popupX = (e.clientX - rect.left) + (Math.random() * 40 - 20);
@@ -915,9 +934,10 @@ export default function App() {
   };
 
   const handleBakeRelease = (e) => {
-    // Remove this touch from active touches
+    // Remove this touch from active touches and processed touches
     const touchId = e.type?.includes('touch') ? e.changedTouches?.[0]?.identifier : 'mouse';
     activeTouchesRef.current.delete(touchId);
+    processedTouchesRef.current.delete(touchId);
     
     // Only release if no active touches remain
     if (activeTouchesRef.current.size === 0) {
