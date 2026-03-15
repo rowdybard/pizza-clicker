@@ -69,7 +69,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                 <Globe className="w-3 h-3 text-blue-400" />
                 <span className="text-xs font-black text-zinc-400 uppercase tracking-wider">Global</span>
                 <span className="text-xs font-black text-blue-400 tabular-nums">
-                  {displayProgress.toFixed(1)}%
+                  {displayProgress.toFixed(2)}%
                 </span>
               </div>
               <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -99,7 +99,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
               <div className="flex items-center gap-2">
                 <div className="text-right">
                   <div className="text-xs font-black text-zinc-400 tabular-nums">
-                    {displayProgress.toFixed(1)}%
+                    {displayProgress.toFixed(2)}%
                   </div>
                   <div className="text-xs text-zinc-500">1B Goal</div>
                 </div>
