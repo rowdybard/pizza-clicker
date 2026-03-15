@@ -7,6 +7,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const [displayPizzas, setDisplayPizzas] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0);
   const [formattedPizzas, setFormattedPizzas] = useState('0');
+  const [isExpanded, setIsExpanded] = useState(false);
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
 
@@ -55,60 +56,69 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   }, [displayPizzas]);
 
   return (
-    <div className="group w-full bg-zinc-800/30 border border-zinc-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:py-2">
-      {/* Collapsed state - just a thin bar with arrow */}
-      <div className="px-3 py-1 group-hover:hidden">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="w-3 h-3 text-blue-400" />
-            <span className="text-xs font-black text-zinc-400 uppercase tracking-wider">Global</span>
-            <span className="text-xs font-black text-blue-400 tabular-nums">
-              {displayProgress.toFixed(1)}%
-            </span>
-          </div>
-          <ChevronDown className="w-3 h-3 text-zinc-500 group-hover:rotate-180 transition-transform" />
-        </div>
-        <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden mt-1">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${Math.min(displayProgress, 100)}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Expanded state - full info on hover */}
-      <div className="px-3 py-2 hidden group-hover:block">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-blue-400" />
-            <span className="text-xs font-black text-zinc-300 uppercase tracking-wider">Global Mission</span>
-            <Pizza className="w-3 h-3 text-orange-400" />
-            <span className="text-sm font-black text-orange-400 tabular-nums">
-              {formattedPizzas}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="text-right">
-              <div className="text-xs font-black text-zinc-400 tabular-nums">
-                {displayProgress.toFixed(1)}%
+    <div className="w-full bg-zinc-800/30 border border-zinc-700/50 rounded-lg overflow-hidden transition-all duration-300">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg"
+      >
+        {/* Collapsed state */}
+        {!isExpanded && (
+          <div className="px-3 py-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="w-3 h-3 text-blue-400" />
+                <span className="text-xs font-black text-zinc-400 uppercase tracking-wider">Global</span>
+                <span className="text-xs font-black text-blue-400 tabular-nums">
+                  {displayProgress.toFixed(1)}%
+                </span>
               </div>
-              <div className="text-xs text-zinc-500">1B Goal</div>
+              <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
             </div>
-            <ChevronUp className="w-3 h-3 text-zinc-500" />
+            <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden mt-1">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${Math.min(displayProgress, 100)}%` }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Progress Bar */}
-        <div className="mt-1.5">
-          <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${Math.min(displayProgress, 100)}%` }}
-            />
+        {/* Expanded state */}
+        {isExpanded && (
+          <div className="px-3 py-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-black text-zinc-300 uppercase tracking-wider">Global Mission</span>
+                <Pizza className="w-3 h-3 text-orange-400" />
+                <span className="text-sm font-black text-orange-400 tabular-nums">
+                  {formattedPizzas}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <div className="text-xs font-black text-zinc-400 tabular-nums">
+                    {displayProgress.toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-zinc-500">1B Goal</div>
+                </div>
+                <ChevronUp className="w-3 h-3 text-zinc-500" />
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mt-1.5">
+              <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(displayProgress, 100)}%` }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </button>
     </div>
   );
 }
