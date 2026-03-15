@@ -822,21 +822,24 @@ export default function App() {
   const lastTouchTimeRef = useRef(0);
 
   const handleBakePress = (e) => {
-    // Prevent mouse events on touch devices to avoid double processing
-    if (e.type?.includes('touch')) {
+    // Completely separate touch and mouse handling
+    const isTouchEvent = e.type?.includes('touch');
+    
+    if (isTouchEvent) {
       if (e.cancelable) {
         e.preventDefault();
       }
-      // Only process touch events on touch devices
+      // Only process touch events
     } else {
-      // Only process mouse events if we haven't seen any touch events recently
-      if (Date.now() - (lastTouchTimeRef.current || 0) < 100) {
-        return; // Ignore mouse events shortly after touch events
+      // For mouse events, check if we're on a touch device
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (isTouchDevice) {
+        return; // Completely ignore mouse events on touch devices
       }
     }
     
     // Add this touch to active touches
-    const touchId = e.type?.includes('touch') ? e.touches?.[0]?.identifier : 'mouse';
+    const touchId = isTouchEvent ? e.touches?.[0]?.identifier : 'mouse';
     
     // Prevent double processing of the same touch
     if (processedTouchesRef.current.has(touchId)) {
@@ -844,11 +847,6 @@ export default function App() {
     }
     processedTouchesRef.current.add(touchId);
     activeTouchesRef.current.add(touchId);
-    
-    // Track last touch time to prevent mouse event interference
-    if (e.type?.includes('touch')) {
-      lastTouchTimeRef.current = Date.now();
-    }
     
     // Earn money and reputation immediately on press
     const moneyEarned = pizzaPrice * currentClickPower;
@@ -949,8 +947,19 @@ export default function App() {
   };
 
   const handleBakeRelease = (e) => {
+    // Completely separate touch and mouse handling
+    const isTouchEvent = e.type?.includes('touch');
+    
+    if (!isTouchEvent) {
+      // For mouse events, check if we're on a touch device
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (isTouchDevice) {
+        return; // Completely ignore mouse events on touch devices
+      }
+    }
+    
     // Remove this touch from active touches and processed touches
-    const touchId = e.type?.includes('touch') ? e.changedTouches?.[0]?.identifier : 'mouse';
+    const touchId = isTouchEvent ? e.changedTouches?.[0]?.identifier : 'mouse';
     activeTouchesRef.current.delete(touchId);
     processedTouchesRef.current.delete(touchId);
     
@@ -967,11 +976,22 @@ export default function App() {
   const handleBakeMove = (e) => {
     if (!isPressed || activeTouchesRef.current.size === 0) return;
     
+    // Completely separate touch and mouse handling
+    const isTouchEvent = e.type?.includes('touch');
+    
+    if (!isTouchEvent) {
+      // For mouse events, check if we're on a touch device
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (isTouchDevice) {
+        return; // Completely ignore mouse events on touch devices
+      }
+    }
+    
     // Update tilt based on center of all active touches
     const rect = e.currentTarget.getBoundingClientRect();
     let centerX, centerY;
     
-    if (e.type?.includes('touch') && e.touches?.length > 0) {
+    if (isTouchEvent && e.touches?.length > 0) {
       // For multi-touch, calculate the average center of all touches
       let totalX = 0, totalY = 0;
       for (let i = 0; i < e.touches.length; i++) {
@@ -981,7 +1001,7 @@ export default function App() {
       centerX = totalX / e.touches.length;
       centerY = totalY / e.touches.length;
     } else if (e.clientX !== undefined) {
-      // For mouse events
+      // For mouse events (desktop only)
       centerX = e.clientX;
       centerY = e.clientY;
     } else {
