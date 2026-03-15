@@ -876,6 +876,16 @@ export default function App() {
     };
     localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
     
+    // Accumulate clicks for log — flush every 5s regardless of click rate
+    const pc = pendingClickRef.current;
+    pc.total += moneyEarned;
+    pc.count += 1;
+    const flushNow = Date.now();
+    if (flushNow - pc.lastFlush > 5000 && pc.count > 0) {
+      pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
+      pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
+    }
+    
     // Create click popup for this press at the correct touch location
     const rect = e.currentTarget.getBoundingClientRect();
     let popupX, popupY;
