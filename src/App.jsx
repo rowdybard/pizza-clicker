@@ -856,23 +856,58 @@ export default function App() {
     };
     localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
     
-    // Create click popup for this press
+    // Create click popup for this press at the correct touch location
     const rect = e.currentTarget.getBoundingClientRect();
-    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width / 2);
-    const clientY = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height / 2);
-    const x = (clientX - rect.left) + (Math.random() * 40 - 20);
-    const y = (clientY - rect.top) + (Math.random() * 40 - 20);
+    let popupX, popupY;
+    
+    if (e.type?.includes('touch') && e.touches?.length > 0) {
+      // For touch events, use the specific touch that triggered this press
+      popupX = (e.touches[0].clientX - rect.left) + (Math.random() * 40 - 20);
+      popupY = (e.touches[0].clientY - rect.top) + (Math.random() * 40 - 20);
+    } else if (e.clientX !== undefined) {
+      // For mouse events
+      popupX = (e.clientX - rect.left) + (Math.random() * 40 - 20);
+      popupY = (e.clientY - rect.top) + (Math.random() * 40 - 20);
+    } else {
+      // Fallback to center
+      popupX = rect.width / 2 + (Math.random() * 40 - 20);
+      popupY = rect.height / 2 + (Math.random() * 40 - 20);
+    }
+    
     const now = Date.now();
     setClickPopups(prev => { 
-      const next = [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]; 
+      const next = [...prev, { id: now + Math.random(), x: popupX, y: popupY, value: fmt(moneyEarned), expiresAt: now + 1000 }]; 
       return next.length > 25 ? next.slice(next.length - 25) : next; 
     });
     
     playSound('pop');
     setBakeState('pressed');
     setIsPressed(true);
-    const rawX = ((clientX - rect.left) / rect.width - 0.5) * 2;
-    const rawY = ((clientY - rect.top) / rect.height - 0.5) * 2;
+    
+    // Calculate tilt based on center of all active touches
+    let centerX, centerY;
+    
+    if (e.type?.includes('touch') && e.touches?.length > 0) {
+      // For multi-touch, calculate the average center of all touches
+      let totalX = 0, totalY = 0;
+      for (let i = 0; i < e.touches.length; i++) {
+        totalX += e.touches[i].clientX;
+        totalY += e.touches[i].clientY;
+      }
+      centerX = totalX / e.touches.length;
+      centerY = totalY / e.touches.length;
+    } else if (e.clientX !== undefined) {
+      // For mouse events
+      centerX = e.clientX;
+      centerY = e.clientY;
+    } else {
+      // Fallback to center
+      centerX = rect.left + rect.width / 2;
+      centerY = rect.top + rect.height / 2;
+    }
+    
+    const rawX = ((centerX - rect.left) / rect.width - 0.5) * 2;
+    const rawY = ((centerY - rect.top) / rect.height - 0.5) * 2;
     const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
     const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
     setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
@@ -897,22 +932,29 @@ export default function App() {
   const handleBakeMove = (e) => {
     if (!isPressed || activeTouchesRef.current.size === 0) return;
     
-    // Update tilt based on the most recent touch position
+    // Update tilt based on center of all active touches
     const rect = e.currentTarget.getBoundingClientRect();
-    let clientX, clientY;
+    let centerX, centerY;
     
     if (e.type?.includes('touch') && e.touches?.length > 0) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
+      // For multi-touch, calculate the average center of all touches
+      let totalX = 0, totalY = 0;
+      for (let i = 0; i < e.touches.length; i++) {
+        totalX += e.touches[i].clientX;
+        totalY += e.touches[i].clientY;
+      }
+      centerX = totalX / e.touches.length;
+      centerY = totalY / e.touches.length;
     } else if (e.clientX !== undefined) {
-      clientX = e.clientX;
-      clientY = e.clientY;
+      // For mouse events
+      centerX = e.clientX;
+      centerY = e.clientY;
     } else {
       return;
     }
     
-    const rawX = ((clientX - rect.left) / rect.width - 0.5) * 2;
-    const rawY = ((clientY - rect.top) / rect.height - 0.5) * 2;
+    const rawX = ((centerX - rect.left) / rect.width - 0.5) * 2;
+    const rawY = ((centerY - rect.top) / rect.height - 0.5) * 2;
     const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
     const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
     setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
@@ -920,28 +962,9 @@ export default function App() {
 
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
-    // Money and reputation are now earned on press, this handles remaining logic
-    
-    // Immediate sync for every click to minimize mobile loss
-    syncWithGlobalSyndicate();
-    
-    // Accumulate clicks for log — flush every 5s regardless of click rate
-    const pc = pendingClickRef.current;
-    const moneyEarned = pizzaPrice * currentClickPower;
-    pc.total += moneyEarned;
-    pc.count += 1;
-    const flushNow = Date.now();
-    if (flushNow - pc.lastFlush > 5000 && pc.count > 0) {
-      pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
-      pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
-    }
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
-    const y = e.clientY ? (e.clientY - rect.top) + (Math.random() * 40 - 20) : rect.height / 2 + (Math.random() * 40 - 20);
-    
-    const now = Date.now();
-    setClickPopups(prev => { const next = [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]; return next.length > 25 ? next.slice(next.length - 25) : next; });
+    // This function is no longer used for money earning
+    // All money earning happens in handleBakePress
+    // This function is kept for compatibility but does nothing
   };
 
   const handlePullFromOven = () => {
