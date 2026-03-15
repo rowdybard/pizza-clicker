@@ -2572,7 +2572,7 @@ export default function App() {
       {/* --- DELIVERY MICROGAME (placeholder — DeliveryMicrogame component not yet implemented) --- */}
 
       {/* ── MAIN CONTENT (offset for HUD) ── */}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-20 pb-6 px-4 md:px-6">
+      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 pt-32 pb-6 px-4 md:px-6">
         
         {/* Left Area: Action Center */}
         <div className="lg:col-span-5 flex flex-col gap-6 relative mt-2">
