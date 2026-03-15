@@ -61,7 +61,38 @@ const AWARDS_DB = [
   { id: 'secret_10', title: 'The Watcher', isSecret: true, isUnlocked: false, riddle: "Patience is the currency of the elite. Do absolutely nothing, and watch the world burn.", icon: <Eye size={32} className="text-rose-200" /> },
   { id: 'secret_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> },
 
-  // 6. ADDITIONAL REGULAR ACHIEVEMENTS
+  // 6. FRANCHISE ACHIEVEMENTS
+  { id: 'franchise_5', title: 'Corporate Board', isSecret: false, isUnlocked: false, desc: 'Five Franchise Licenses. You sit at the table now. The Corporate veil begins to lift, revealing something darker beneath.', icon: <Briefcase size={40} className="text-zinc-600" /> },
+  { id: 'franchise_10', title: 'Pizza Conglomerate', isSecret: false, isUnlocked: false, desc: 'Ten Franchise Licenses. Your empire spans realities. Each reset makes you stronger. The Syndicate smiles.', icon: <Building2 size={40} className="text-zinc-600" /> },
+  { id: 'franchise_25', title: 'Global Syndicate', isSecret: false, isUnlocked: false, desc: 'Twenty-five Licenses. You have become what you once feared. The Obsidian Syndicate welcomes you as one of their own.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'franchise_50', title: 'Crust Fund', isSecret: false, isUnlocked: false, desc: 'Fifty Licenses. Your wealth compounds across timelines. The Syndicate reveals the first truth: time is a circle.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'franchise_100', title: 'Galactic Dominance', isSecret: false, isUnlocked: false, desc: 'One hundred Licenses. You control galaxies of franchises. The Syndicate whispers: "You are ready for the Golden Slices."', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'franchise_150', title: 'Universal Control', isSecret: false, isUnlocked: false, desc: 'One hundred fifty Licenses. Universes bend to your franchise model. The Syndicate reveals the second truth: reality is negotiable.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'franchise_200', title: 'Dimensional Overlord', isSecret: false, isUnlocked: false, desc: 'Two hundred Licenses. You operate across dimensions. The Syndicate reveals the third truth: you were always one of us.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'franchise_250', title: 'Pizza God', isSecret: true, isUnlocked: false, desc: 'Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.', icon: <Crown size={32} className="text-rose-200" /> },
+
+  // 7. LIFETIME EARNINGS
+  { id: 'life_1q', title: 'Quadrillionaire', isSecret: false, isUnlocked: false, desc: 'One quadrillion dollars earned. Numbers lose meaning at this scale. The Syndicate nods: "You understand now."', icon: <Star size={40} className="text-zinc-600" /> },
+  { id: 'life_1qi', title: 'Beyond Counting', isSecret: true, isUnlocked: false, desc: 'One quintillion dollars. Mathematics breaks down. You have transcended the concept of wealth itself. The Vault awaits.', icon: <Star size={32} className="text-rose-200" /> },
+
+  // 8. PIZZA VOLUME
+  { id: 'pizza_10b', title: 'Factory Planet', isSecret: false, isUnlocked: false, desc: 'Ten billion pizzas. Entire planets are dedicated to your production. The Syndicate reveals: this is only one timeline.', icon: <Globe2 size={40} className="text-zinc-600" /> },
+  { id: 'pizza_1t', title: 'Universe Fed', isSecret: true, isUnlocked: false, desc: 'One trillion pizzas. You have fed entire universes. The Syndicate whispers: "Every slice contains a fragment of eternity."', icon: <Rocket size={32} className="text-rose-200" /> },
+
+  // 9. LATE UPGRADES
+  { id: 'upgrade_wagyu', title: 'Premium Grade', isSecret: false, isUnlocked: false, desc: 'Wagyu beef on pizza. Decadence incarnate. The Syndicate approves of your refined taste for the excessive.', icon: <Star size={40} className="text-zinc-600" /> },
+  { id: 'upgrade_antimatter', title: 'Beyond Physics', isSecret: false, isUnlocked: false, desc: 'Antimatter crust. You have broken the laws of physics for profit. The Syndicate reveals: reality is just another ingredient.', icon: <Zap size={40} className="text-zinc-600" /> },
+  { id: 'upgrade_neural', title: 'Mind Over Pizza', isSecret: false, isUnlocked: false, desc: 'Neural interface clicking. Your thoughts become pizzas. The boundary between mind and matter dissolves. The Syndicate smiles.', icon: <Crown size={40} className="text-zinc-600" /> },
+  { id: 'upgrade_michelin', title: 'Fine Dining', isSecret: false, isUnlocked: false, desc: 'A Michelin Star. The culinary elite recognize your mastery. But the Syndicate knows: stars are just burning gas.', icon: <Star size={40} className="text-zinc-600" /> },
+
+  // 10. MARKET ACHIEVEMENTS
+  { id: 'market_first_trade', title: 'Wall Street Rookie', isSecret: false, isUnlocked: false, desc: 'Your first market trade. You have entered the game within the game. The Syndicate controls the market—but you can learn to dance with it.', icon: <TrendingDown size={40} className="text-zinc-600" /> },
+  { id: 'market_100_trades', title: 'Day Trader', isSecret: false, isUnlocked: false, desc: 'One hundred trades. You read the patterns now. Buy low, sell high. The Syndicate watches your growing understanding.', icon: <TrendingDown size={40} className="text-zinc-600" /> },
+  { id: 'market_1k_trades', title: 'Market Veteran', isSecret: false, isUnlocked: false, desc: 'One thousand trades. The market is your playground. You manipulate flour prices like a puppet master. The Syndicate nods in approval.', icon: <TrendingDown size={40} className="text-zinc-600" /> },
+  { id: 'market_profit_1m', title: 'Portfolio Manager', isSecret: false, isUnlocked: false, desc: 'One million in market profits. You have learned to extract value from chaos itself. The Syndicate reveals: chaos is just order you don\'t understand yet.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
+  { id: 'market_big_win', title: 'Diamond Hands', isSecret: true, isUnlocked: false, desc: 'One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: "Diamond hands forge diamond empires."', icon: <Gem size={32} className="text-rose-200" /> },
+
+  // 11. ADDITIONAL REGULAR ACHIEVEMENTS
   { id: 'billionaire', title: 'Pizza Billionaire', isSecret: false, isUnlocked: false, desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', icon: <Crown size={40} className="text-zinc-600" /> },
   { id: 'life_10k', title: 'Humble Beginnings', isSecret: false, isUnlocked: false, desc: 'Your first $10,000 earned. Every fortune starts somewhere. The Syndicate remembers its own humble origins.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
   { id: 'life_10m', title: 'Crust Fund', isSecret: false, isUnlocked: false, desc: 'Ten million earned across all timelines. Your legacy grows. The dough rises, as do you.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> }
@@ -73,6 +104,45 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
   const [gridWidth, setGridWidth] = useState(5); 
   const containerRef = useRef(null);
 
+  // Define achievement tracks with their order
+  const TRACKS = {
+    money: ['first_blood', 'bank_10k', 'bank_100k', 'bank_1m', 'bank_1b', 'bank_1t'],
+    pizza: ['pizza_100', 'pizza_10k', 'pizza_1m', 'pizza_100k', 'pizza_10m', 'pizza_1b', 'pizza_10b', 'pizza_1t'],
+    click: ['click_100', 'clicker_1k', 'click_10k', 'click_100k'],
+    combo: ['combo_10', 'combo_50', 'combo_max'],
+    perfect: ['perfect_pull', 'perfect_10', 'perfect_50'],
+    delivery: ['delivery_first', 'delivery_10', 'delivery_50', 'delivery_250'],
+    reputation: ['rep_500', 'rep_10k'],
+    franchise: ['sellout', 'franchise_5', 'franchise_10', 'franchise_25', 'franchise_50', 'franchise_100', 'franchise_150', 'franchise_200', 'franchise_250'],
+    lifetime: ['life_10k', 'life_10m', 'billionaire', 'life_1q', 'life_1qi'],
+    upgrades: ['upgrade_wagyu', 'upgrade_antimatter', 'upgrade_neural', 'upgrade_michelin'],
+    market: ['market_first_trade', 'market_100_trades', 'market_1k_trades', 'market_profit_1m', 'market_big_win']
+  };
+
+  // Filter achievements to only show the next unlockable in each track + all unlocked + all secrets
+  const getVisibleAchievements = () => {
+    const visible = new Set();
+    
+    // Always include all unlocked achievements
+    unlockedIds.forEach(id => visible.add(id));
+    
+    // Always include all secret achievements
+    AWARDS_DB.filter(a => a.isSecret).forEach(a => visible.add(a.id));
+    
+    // For each track, find the first not-yet-unlocked achievement and add it
+    Object.values(TRACKS).forEach(track => {
+      for (const achievementId of track) {
+        if (!unlockedIds.includes(achievementId)) {
+          visible.add(achievementId);
+          break; // Only add the first locked one in each track
+        }
+      }
+    });
+    
+    return AWARDS_DB.filter(a => visible.has(a.id));
+  };
+
+  const visibleAchievements = getVisibleAchievements();
   const unlockedCount = unlockedIds.length;
   const totalCount = AWARDS_DB.length;
 
@@ -112,7 +182,7 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
       {/* THE GRID CONTAINER */}
       <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[2rem] p-4 sm:p-8 shadow-2xl relative mb-60">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 sm:gap-6 relative">
-          {AWARDS_DB.map((award, index) => {
+          {visibleAchievements.map((award, index) => {
             const isSelected = selectedId === award.id;
             const isUnlocked = unlockedIds.includes(award.id);
             
