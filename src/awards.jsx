@@ -48,12 +48,17 @@ const AWARDS_DB = [
   { id: 'rep_500', title: 'Rising Star', isSecret: false, isUnlocked: false, desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', icon: <Star size={40} className="text-zinc-600" /> },
   { id: 'rep_10k', title: 'Household Name', isSecret: false, isUnlocked: false, desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', icon: <Star size={40} className="text-zinc-600" /> },
 
-  // 5. SECRET ACHIEVEMENTS (Real ones from main game)
+  // 5. SECRET ACHIEVEMENTS (Real ones from main game + additional solvable ones)
   { id: 'dispo_sadge', title: 'Scammed Outta Dispo', isSecret: true, isUnlocked: false, riddle: "Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.", icon: <Lock size={32} className="text-rose-200" /> },
   { id: 'franchise_250', title: 'Pizza God', isSecret: true, isUnlocked: false, riddle: "Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.", icon: <Crown size={32} className="text-rose-200" /> },
   { id: 'life_1qi', title: 'Beyond Counting', isSecret: true, isUnlocked: false, riddle: "One quintillion dollars. Mathematics breaks down. You have transcended the concept of wealth itself. The Vault awaits.", icon: <Star size={32} className="text-rose-200" /> },
   { id: 'pizza_1t', title: 'Universe Fed', isSecret: true, isUnlocked: false, riddle: "One trillion pizzas. You have fed entire universes. The Syndicate whispers: 'Every slice contains a fragment of eternity.'", icon: <Rocket size={32} className="text-rose-200" /> },
   { id: 'market_big_win', title: 'Diamond Hands', isSecret: true, isUnlocked: false, riddle: "One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: 'Diamond hands forge diamond empires.'", icon: <Gem size={32} className="text-rose-200" /> },
+  { id: 'zero_balance', title: 'Clean Slate', isSecret: true, isUnlocked: false, riddle: "The ledger reads zero, yet you persist. True power is having nothing to lose. Find emptiness in the black.", icon: <CircleDollarSign size={32} className="text-rose-200" /> },
+  { id: 'max_combo', title: 'Temporal Mastery', isSecret: true, isUnlocked: false, riddle: "Time bends to your will at the peak. The flow state reveals itself when numbers align perfectly. Seek the hundredth click.", icon: <Zap size={32} className="text-rose-200" /> },
+  { id: 'oven_perfection', title: 'The Perfect Bake', isSecret: true, isUnlocked: false, riddle: "The oven speaks in whispers of gold. Perfection awaits those who listen to the heat. Find the sweet spot in time.", icon: <Flame size={32} className="text-rose-200" /> },
+  { id: 'first_trade', title: 'Market Initiation', isSecret: true, isUnlocked: false, riddle: "The market awaits your first move. Every empire begins with a single transaction. Take the first step into the game within the game.", icon: <TrendingDown size={32} className="text-rose-200" /> },
+  { id: 'reputation_peak', title: 'Local Legend', isSecret: true, isUnlocked: false, riddle: "Your name echoes through the streets. Five hundred souls recognize your greatness. The community bows to your pizza mastery.", icon: <Star size={32} className="text-rose-200" /> },
 
   // 6. FRANCHISE ACHIEVEMENTS
   { id: 'franchise_5', title: 'Corporate Board', isSecret: false, isUnlocked: false, desc: 'Five Franchise Licenses. You sit at the table now. The Corporate veil begins to lift, revealing something darker beneath.', icon: <Briefcase size={40} className="text-zinc-600" /> },
@@ -145,7 +150,7 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
 
   const visibleAchievements = getVisibleAchievements();
   const unlockedCount = unlockedIds.length;
-  const totalCount = 84; // Total achievements from main game
+  const totalCount = 84; // Total achievements (79 regular + 5 new secret solvable ones)
 
   // Responsive Detection & Grid Column Tracking
   useEffect(() => {
