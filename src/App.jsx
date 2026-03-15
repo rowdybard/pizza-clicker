@@ -819,10 +819,20 @@ export default function App() {
   // Track active touches for multi-finger support
   const activeTouchesRef = useRef(new Set());
   const processedTouchesRef = useRef(new Set());
+  const lastTouchTimeRef = useRef(0);
 
   const handleBakePress = (e) => {
-    if (e.type?.includes('touch') && e.cancelable) {
-      e.preventDefault();
+    // Prevent mouse events on touch devices to avoid double processing
+    if (e.type?.includes('touch')) {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      // Only process touch events on touch devices
+    } else {
+      // Only process mouse events if we haven't seen any touch events recently
+      if (Date.now() - (lastTouchTimeRef.current || 0) < 100) {
+        return; // Ignore mouse events shortly after touch events
+      }
     }
     
     // Add this touch to active touches
@@ -834,6 +844,11 @@ export default function App() {
     }
     processedTouchesRef.current.add(touchId);
     activeTouchesRef.current.add(touchId);
+    
+    // Track last touch time to prevent mouse event interference
+    if (e.type?.includes('touch')) {
+      lastTouchTimeRef.current = Date.now();
+    }
     
     // Earn money and reputation immediately on press
     const moneyEarned = pizzaPrice * currentClickPower;
