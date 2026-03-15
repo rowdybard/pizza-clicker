@@ -3670,8 +3670,8 @@ export default function App() {
                       }`}>
                         ${fmt(canAfford ? displayCost : intendedCost)}
                       </span>
-                      <span className={`text-[9px] font-black text-zinc-500 uppercase tracking-wider ${
-                        canAfford ? 'text-amber-200' : 'text-zinc-500'
+                      <span className={`text-sm font-black uppercase tracking-wider ${
+                        canAfford ? 'text-amber-300' : 'text-zinc-500'
                       }`}>
                         {(() => {
                           if (buyMultiplier === 'MAX') {
