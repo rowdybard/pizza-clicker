@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-const GLOBAL_PIZZAS_GOAL = 1000000000; // 1 billion pizzas goal
+const GLOBAL_PIZZAS_GOAL = 100000000000000000; // 100 quadrillion pizzas goal
 
 export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const [displayPizzas, setDisplayPizzas] = useState(0);
