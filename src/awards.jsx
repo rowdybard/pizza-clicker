@@ -48,18 +48,12 @@ const AWARDS_DB = [
   { id: 'rep_500', title: 'Rising Star', isSecret: false, isUnlocked: false, desc: 'Five hundred reputation points. People speak your name with reverence. Your star is ascending.', icon: <Star size={40} className="text-zinc-600" /> },
   { id: 'rep_10k', title: 'Household Name', isSecret: false, isUnlocked: false, desc: 'Ten thousand reputation. You are legend. Children dream of your pizzas. The Syndicate sees potential.', icon: <Star size={40} className="text-zinc-600" /> },
 
-  // 5. THE 11 SYNDICATE RIDDLES (Secret Tier)
+  // 5. SECRET ACHIEVEMENTS (Real ones from main game)
   { id: 'dispo_sadge', title: 'Scammed Outta Dispo', isSecret: true, isUnlocked: false, riddle: "Exactly $13.00. A very specific balance. The Syndicate smiles. You have found the first key hidden in plain sight.", icon: <Lock size={32} className="text-rose-200" /> },
-  { id: 'secret_2', title: 'Zero-Day Cipher', isSecret: true, isUnlocked: false, riddle: "The ledger is pristine, but the architecture has a flaw. Tap the un-tappable to shatter the illusion of control.", icon: <Terminal size={32} className="text-rose-200" /> },
-  { id: 'secret_3', title: 'The Day Trader', isSecret: true, isUnlocked: false, riddle: "The Obsidian Syndicate feasts on the panicked. To join the table, you must intentionally bleed your own portfolio.", icon: <TrendingDown size={32} className="text-rose-200" /> },
-  { id: 'secret_4', title: 'Rival CEO', isSecret: true, isUnlocked: false, riddle: "Pride is a liability. True power comes when you are willing to liquidate your soul to the corporate machine.", icon: <Building2 size={32} className="text-rose-200" /> },
-  { id: 'secret_5', title: 'Alleyway Barnaby', isSecret: true, isUnlocked: false, riddle: "Where there is smoke, there is a free meal. Some clients prefer the taste of failure.", icon: <ShieldQuestion size={32} className="text-rose-200" /> },
-  { id: 'secret_6', title: 'Late-Night Dave', isSecret: true, isUnlocked: false, riddle: "The best deals are made when the sun is dead. We are technically closed, but the oven is still hot.", icon: <Clock size={32} className="text-rose-200" /> },
-  { id: 'secret_7', title: 'The Phantom Driver', isSecret: true, isUnlocked: false, riddle: "Execute a maneuver when the ledger reads zero. The ghost walks only when the factory is silent.", icon: <Ghost size={32} className="text-rose-200" /> },
-  { id: 'secret_8', title: 'Michelin Critic', isSecret: true, isUnlocked: false, riddle: "True art cannot be bought, it must go completely viral against all mathematical odds.", icon: <Star size={32} className="text-rose-200" /> },
-  { id: 'secret_9', title: 'The Office Intern', isSecret: true, isUnlocked: false, riddle: "Repetition breeds insanity, or in our case, efficiency. Drop the package at the same desk until they notice.", icon: <Briefcase size={32} className="text-rose-200" /> },
-  { id: 'secret_10', title: 'The Watcher', isSecret: true, isUnlocked: false, riddle: "Patience is the currency of the elite. Do absolutely nothing, and watch the world burn.", icon: <Eye size={32} className="text-rose-200" /> },
-  { id: 'secret_11', title: 'The Obsidian Truth', isSecret: true, isUnlocked: false, riddle: "A Trillion dollars in the bank, yet you refuse to sell your soul. The Syndicate respects a stubborn king.", icon: <Crown size={32} className="text-rose-200" /> },
+  { id: 'franchise_250', title: 'Pizza God', isSecret: true, isUnlocked: false, riddle: "Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.", icon: <Crown size={32} className="text-rose-200" /> },
+  { id: 'life_1qi', title: 'Beyond Counting', isSecret: true, isUnlocked: false, riddle: "One quintillion dollars. Mathematics breaks down. You have transcended the concept of wealth itself. The Vault awaits.", icon: <Star size={32} className="text-rose-200" /> },
+  { id: 'pizza_1t', title: 'Universe Fed', isSecret: true, isUnlocked: false, riddle: "One trillion pizzas. You have fed entire universes. The Syndicate whispers: 'Every slice contains a fragment of eternity.'", icon: <Rocket size={32} className="text-rose-200" /> },
+  { id: 'market_big_win', title: 'Diamond Hands', isSecret: true, isUnlocked: false, riddle: "One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: 'Diamond hands forge diamond empires.'", icon: <Gem size={32} className="text-rose-200" /> },
 
   // 6. FRANCHISE ACHIEVEMENTS
   { id: 'franchise_5', title: 'Corporate Board', isSecret: false, isUnlocked: false, desc: 'Five Franchise Licenses. You sit at the table now. The Corporate veil begins to lift, revealing something darker beneath.', icon: <Briefcase size={40} className="text-zinc-600" /> },
@@ -69,15 +63,12 @@ const AWARDS_DB = [
   { id: 'franchise_100', title: 'Galactic Dominance', isSecret: false, isUnlocked: false, desc: 'One hundred Licenses. You control galaxies of franchises. The Syndicate whispers: "You are ready for the Golden Slices."', icon: <Crown size={40} className="text-zinc-600" /> },
   { id: 'franchise_150', title: 'Universal Control', isSecret: false, isUnlocked: false, desc: 'One hundred fifty Licenses. Universes bend to your franchise model. The Syndicate reveals the second truth: reality is negotiable.', icon: <Crown size={40} className="text-zinc-600" /> },
   { id: 'franchise_200', title: 'Dimensional Overlord', isSecret: false, isUnlocked: false, desc: 'Two hundred Licenses. You operate across dimensions. The Syndicate reveals the third truth: you were always one of us.', icon: <Crown size={40} className="text-zinc-600" /> },
-  { id: 'franchise_250', title: 'Pizza God', isSecret: true, isUnlocked: false, desc: 'Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.', icon: <Crown size={32} className="text-rose-200" /> },
 
   // 7. LIFETIME EARNINGS
   { id: 'life_1q', title: 'Quadrillionaire', isSecret: false, isUnlocked: false, desc: 'One quadrillion dollars earned. Numbers lose meaning at this scale. The Syndicate nods: "You understand now."', icon: <Star size={40} className="text-zinc-600" /> },
-  { id: 'life_1qi', title: 'Beyond Counting', isSecret: true, isUnlocked: false, desc: 'One quintillion dollars. Mathematics breaks down. You have transcended the concept of wealth itself. The Vault awaits.', icon: <Star size={32} className="text-rose-200" /> },
 
   // 8. PIZZA VOLUME
   { id: 'pizza_10b', title: 'Factory Planet', isSecret: false, isUnlocked: false, desc: 'Ten billion pizzas. Entire planets are dedicated to your production. The Syndicate reveals: this is only one timeline.', icon: <Globe2 size={40} className="text-zinc-600" /> },
-  { id: 'pizza_1t', title: 'Universe Fed', isSecret: true, isUnlocked: false, desc: 'One trillion pizzas. You have fed entire universes. The Syndicate whispers: "Every slice contains a fragment of eternity."', icon: <Rocket size={32} className="text-rose-200" /> },
 
   // 9. LATE UPGRADES
   { id: 'upgrade_wagyu', title: 'Premium Grade', isSecret: false, isUnlocked: false, desc: 'Wagyu beef on pizza. Decadence incarnate. The Syndicate approves of your refined taste for the excessive.', icon: <Star size={40} className="text-zinc-600" /> },
@@ -90,7 +81,6 @@ const AWARDS_DB = [
   { id: 'market_100_trades', title: 'Day Trader', isSecret: false, isUnlocked: false, desc: 'One hundred trades. You read the patterns now. Buy low, sell high. The Syndicate watches your growing understanding.', icon: <TrendingDown size={40} className="text-zinc-600" /> },
   { id: 'market_1k_trades', title: 'Market Veteran', isSecret: false, isUnlocked: false, desc: 'One thousand trades. The market is your playground. You manipulate flour prices like a puppet master. The Syndicate nods in approval.', icon: <TrendingDown size={40} className="text-zinc-600" /> },
   { id: 'market_profit_1m', title: 'Portfolio Manager', isSecret: false, isUnlocked: false, desc: 'One million in market profits. You have learned to extract value from chaos itself. The Syndicate reveals: chaos is just order you don\'t understand yet.', icon: <CircleDollarSign size={40} className="text-zinc-600" /> },
-  { id: 'market_big_win', title: 'Diamond Hands', isSecret: true, isUnlocked: false, desc: 'One hundred thousand dollars in a single trade. You held when others would fold. The Syndicate whispers: "Diamond hands forge diamond empires."', icon: <Gem size={32} className="text-rose-200" /> },
 
   // 11. ADDITIONAL REGULAR ACHIEVEMENTS
   { id: 'billionaire', title: 'Pizza Billionaire', isSecret: false, isUnlocked: false, desc: 'One billion dollars. Money is just numbers now. The Syndicate whispers: "This is only the beginning."', icon: <Crown size={40} className="text-zinc-600" /> },
