@@ -283,22 +283,26 @@ export default function ExecutiveStickerbook({ unlockedIds = [] }) {
 
       {/* MOBILE MODAL OVERLAY */}
       {isMobile && selectedId && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[200] flex items-end justify-center p-0 animate-in fade-in duration-200">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedId(null)} />
-          <div className="relative w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl animate-in zoom-in-95">
-            <button onClick={() => setSelectedId(null)} className="absolute top-4 right-4 p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white">
-              <X size={20} />
-            </button>
+          <div className="relative w-full bg-zinc-900 border-t border-zinc-800 rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[70vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-1 bg-zinc-700 rounded-full mx-auto" />
+              <button onClick={() => setSelectedId(null)} className="absolute top-4 right-4 p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
             
             {(() => {
               const award = AWARDS_DB.find(a => a.id === selectedId);
+              const isUnlocked = unlockedIds.includes(selectedId);
               if (!award) return null;
               return (
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className={`w-24 h-24 rounded-3xl flex items-center justify-center border-2 shadow-inner
                     ${isUnlocked ? 'bg-amber-400/10 border-amber-500' : award.isSecret ? 'bg-rose-900/20 border-rose-700' : 'bg-zinc-800 border-zinc-700'}
                   `}>
-                    <div className={isUnlocked ? 'scale-150' : 'scale-125 opacity-50'}>{award.icon}</div>
+                    <div className={`${isUnlocked ? 'scale-150 text-amber-200' : 'scale-125 opacity-50'}`}>{award.icon}</div>
                   </div>
                   
                   <div className="w-full">
