@@ -2112,8 +2112,8 @@ export default function App() {
     <>
       <div className={`min-h-screen font-body select-none flex flex-col relative overflow-x-hidden transition-colors duration-500 pb-24 md:pb-28 ${appBgClass} ${isShaking ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}>
 
-      {/* Floating Spy Icon - Top Right */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Floating Spy Icon - Top Right (hidden on mobile) */}
+      <div className="fixed top-4 right-4 z-50 hidden sm:block">
         <a 
           href="https://discord.gg/kd5FTs3Gsd" 
           target="_blank" 
@@ -2322,6 +2322,17 @@ export default function App() {
                   className="w-full py-3 bg-amber-800 hover:bg-amber-700 border-b-[3px] border-amber-950 text-amber-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]"
                 >
                   <Moon className="w-5 h-5" /> SUPPORT THE DEVELOPER
+                </a>
+                <a
+                  href="https://discord.gg/kd5FTs3Gsd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sm:hidden w-full py-3 bg-purple-800 hover:bg-purple-700 border-b-[3px] border-purple-950 text-purple-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C5.2972 8.8622 4.5 11.734 4.5 14.574c0 .0952.0442.1849.1199.2532 1.851 1.3688 3.6489 2.1992 5.4164 2.7447a.0777.0777 0 00.0842-.0276c.4178-.5738.7966-1.1849 1.1234-1.8309a.076.076 0 00-.0416-.1057c-.7478-.2841-1.456-.6307-2.1295-1.0322a.077.077 0 01-.0076-.1277c.1432-.1074.2864-.2187.4225-.3314a.074.074 0 01.0776-.0105c4.4735 2.0423 9.3227 2.0423 13.7446 0a.074.074 0 01.0785.0095c.1362.1127.2794.2243.4225.3317a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-2.1295 1.0322.076.076 0 00-.0415.1057c.3335.646.7124 1.2571 1.1234 1.8309a.076.076 0 00.0842.0276c1.7764-.5455 3.5742-1.376 5.4164-2.7447a.076.076 0 00.1199-.2532c0-2.941-.876-5.808-2.7862-8.2057a.0699.0699 0 00-.0321-.0277zM8.9978 12.3225c-1.0774 0-1.9649-.9905-1.9649-2.2064s.8705-2.2064 1.9649-2.2064c1.0992 0 1.979.995 1.979 2.2064 0 1.2159-.8798 2.2064-1.979 2.2064zm6.0238 0c-1.0774 0-1.9649-.9905-1.9649-2.2064s.8705-2.2064 1.9649-2.2064c1.0992 0 1.979.995 1.979 2.2064 0 1.2159-.8798 2.2064-1.979 2.2064z"/>
+                  </svg>
+                  JOIN DISCORD
                 </a>
                 <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-700 flex flex-col gap-2">
                   <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Import Save Code</div>
