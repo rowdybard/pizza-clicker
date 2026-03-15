@@ -729,7 +729,7 @@ export default function App() {
   // Vault perk multipliers
   const realityBendMult = syndicatePerks.realityBend ? 2 : 1;
   const goldenTouchMult = syndicatePerks.goldenTouch ? 3 : 1;
-  const goldenPowerMult = 1 + (syndicatePerks.goldenPowerCount * 0.05); // 5% per purchase
+  const goldenPowerMult = 1 + Math.min(2.0, syndicatePerks.goldenPowerCount * 0.05); // 5% per purchase, capped at 200%
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades (much more conservative)
   const licenseProductionFloor = franchiseLicenses > 0 ? Math.sqrt(franchiseLicenses) * 0.5 : 0;
