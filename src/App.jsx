@@ -3583,7 +3583,7 @@ export default function App() {
                       if (!isUnlocked) {
                         const conditions = [
                           req.pizzas  > 0 && { label: `Sell ${fmtInt(req.pizzas)} pizzas`,          current: totalPizzasSold,       target: req.pizzas    },
-                          req.stars   > 0 && { label: `Reach ${req.stars}-star reputation`,          current: starLevel,             target: req.stars     },
+                          req.stars   > 0 && { label: `Reach ${fmtInt(scaledStarThresholds[req.stars])} reputation`, current: reputation, target: scaledStarThresholds[req.stars] },
                           req.lifetime > 0 && { label: `Earn $${fmt(req.lifetime)} lifetime`,        current: lifetimeMoney,         target: req.lifetime  },
                           (req.licenses||0) > 0 && { label: `Own ${req.licenses} Franchise Licenses`, current: franchiseLicenses,   target: req.licenses  },
                         ].filter(Boolean);
