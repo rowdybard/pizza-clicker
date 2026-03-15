@@ -3550,7 +3550,7 @@ export default function App() {
                   // This prevents accidental 1x purchases when user has 10x locked
                 }
 
-                const canAfford = buyAmount > 0;
+                const canAfford = buyAmount > 0 && money >= displayCost;
                 
                 return (
                   <div key={upgrade.id} className="bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-950 border-t-zinc-700 rounded-xl shadow-[0_8px_0_#000000] p-4 gap-4 relative group">
