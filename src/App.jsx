@@ -2453,6 +2453,17 @@ export default function App() {
                 <button onClick={handleManualSave} className="w-full py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile border-b-[3px] border-zinc-900 active:border-b-0 active:translate-y-[3px]">
                   <Save className="w-5 h-5" /> FORCE SAVE GAME
                 </button>
+                <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`w-full py-3 flex items-center justify-center gap-3 px-3 rounded-xl border transition-all font-display tracking-widest btn-tactile border-b-[3px] active:border-b-0 active:translate-y-[3px] ${
+                  isMuted
+                    ? 'border-zinc-600 bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 border-b-zinc-900'
+                    : 'border-zinc-600 bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 border-b-zinc-900'
+                }`}>
+                  {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {isMuted ? 'UNMUTE SOUND' : 'MUTE SOUND'}
+                </button>
+                <button className="w-full py-3 bg-amber-800 hover:bg-amber-700 border-b-[3px] border-amber-950 text-amber-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
+                  <Crown className="w-5 h-5" /> PREMIUM PASS
+                </button>
                 <button onClick={handleExportSave} className="w-full py-3 bg-blue-800 hover:bg-blue-700 border-b-[3px] border-blue-950 text-blue-100 font-display tracking-widest rounded-xl flex items-center justify-center gap-3 btn-tactile active:border-b-0 active:translate-y-[3px]">
                   <Download className="w-5 h-5" /> EXPORT SAVE CODE
                 </button>
@@ -4427,25 +4438,6 @@ export default function App() {
 
             </div>
 
-            {/* ── FOOTER STRIP ── */}
-            <div className="fixed bottom-0 inset-x-0 z-30 border-t-2 border-zinc-700 bg-zinc-900/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => { setIsMuted(m => !m); _isMuted = !_isMuted; }} className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
-                  isMuted
-                    ? 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
-                  : 'border-zinc-600/50 bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500'
-                }`}
-                >
-                  {isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
-                  {isMuted ? 'Muted' : 'Sound'}
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-700 bg-amber-900 text-[10px] font-black uppercase tracking-widest text-amber-300 hover:bg-amber-800 transition-colors btn-tactile border-b-[2px] border-b-amber-950 active:border-b-0 active:translate-y-[2px]">
-                  <Crown className="w-3 h-3" /> Premium Pass
-                </button>
-              </div>
-            </div>
 
         </div>
 
