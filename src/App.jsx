@@ -828,6 +828,34 @@ export default function App() {
     const touchId = e.type?.includes('touch') ? e.touches?.[0]?.identifier : 'mouse';
     activeTouchesRef.current.add(touchId);
     
+    // Earn money and reputation immediately on press
+    const moneyEarned = pizzaPrice * currentClickPower;
+    const reputationEarned = Math.max(1, Math.ceil(Math.pow(currentClickPower, 0.6) * 0.35));
+
+    setMoney(prev => prev + moneyEarned);
+    setLifetimeMoney(prev => prev + moneyEarned);
+    setTotalPizzasSold(prev => prev + currentClickPower);
+    setReputation(prev => prev + reputationEarned);
+    setTotalClicks(prev => prev + 1);
+    
+    // Update combo and click tracking
+    setCombo(prev => Math.min(prev + 1, 100));
+    setComboDecayTimer(10); 
+    
+    engineRefs.current.clicksThisSecond += 1;
+    engineRefs.current.lastClickTime = Date.now();
+    engineRefs.current.clickTimestamps.push(Date.now());
+    
+    // Add to pending production for global sync
+    pendingProduction.current += currentClickPower;
+    
+    // Save to localStorage as backup for mobile
+    const backupData = {
+      pendingPizzas: pendingProduction.current,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
+    
     playSound('pop');
     setBakeState('pressed');
     setIsPressed(true);
@@ -883,30 +911,14 @@ export default function App() {
 
   // --- CORE ACTIONS ---
   const handleBakeAndBox = (e) => {
-    const moneyEarned = pizzaPrice * currentClickPower;
-    const reputationEarned = Math.max(1, Math.ceil(Math.pow(currentClickPower, 0.6) * 0.35));
-
-    setMoney(prev => prev + moneyEarned);
-    setLifetimeMoney(prev => prev + moneyEarned);
-    setTotalPizzasSold(prev => prev + currentClickPower);
-    setReputation(prev => prev + reputationEarned);
-    setTotalClicks(prev => prev + 1);
-    
-    // Add to pending production for global sync
-    pendingProduction.current += currentClickPower;
-    
-    // Save to localStorage as backup for mobile
-    const backupData = {
-      pendingPizzas: pendingProduction.current,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
+    // Money and reputation are now earned on press, this handles remaining logic
     
     // Immediate sync for every click to minimize mobile loss
     syncWithGlobalSyndicate();
     
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
+    const moneyEarned = pizzaPrice * currentClickPower;
     pc.total += moneyEarned;
     pc.count += 1;
     const flushNow = Date.now();
@@ -914,13 +926,6 @@ export default function App() {
       pushLog('click', `${pc.count} click${pc.count > 1 ? 's' : ''}`, pc.total);
       pc.total = 0; pc.count = 0; pc.lastFlush = flushNow;
     }
-
-    setCombo(prev => Math.min(prev + 1, 100));
-    setComboDecayTimer(10); 
-    
-    engineRefs.current.clicksThisSecond += 1;
-    engineRefs.current.lastClickTime = Date.now();
-    engineRefs.current.clickTimestamps.push(Date.now());
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX ? (e.clientX - rect.left) + (Math.random() * 40 - 20) : rect.width / 2 + (Math.random() * 40 - 20);
