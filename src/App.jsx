@@ -856,12 +856,21 @@ export default function App() {
     };
     localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
     
-    playSound('pop');
-    setBakeState('pressed');
-    setIsPressed(true);
+    // Create click popup for this press
     const rect = e.currentTarget.getBoundingClientRect();
     const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width / 2);
     const clientY = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height / 2);
+    const x = (clientX - rect.left) + (Math.random() * 40 - 20);
+    const y = (clientY - rect.top) + (Math.random() * 40 - 20);
+    const now = Date.now();
+    setClickPopups(prev => { 
+      const next = [...prev, { id: now + Math.random(), x, y, value: fmt(moneyEarned), expiresAt: now + 1000 }]; 
+      return next.length > 25 ? next.slice(next.length - 25) : next; 
+    });
+    
+    playSound('pop');
+    setBakeState('pressed');
+    setIsPressed(true);
     const rawX = ((clientX - rect.left) / rect.width - 0.5) * 2;
     const rawY = ((clientY - rect.top) / rect.height - 0.5) * 2;
     const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
@@ -2900,7 +2909,6 @@ export default function App() {
             <div
               className="absolute inset-0 z-[60] cursor-pointer touch-none"
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'none' }}
-              onClick={handleBakeAndBox}
               onMouseDown={handleBakePress}
               onMouseUp={handleBakeRelease}
               onMouseLeave={handleBakeRelease}
