@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-const GLOBAL_PIZZAS_GOAL = 100000000000000000; // 100 quadrillion pizzas goal
+const GLOBAL_PIZZAS_GOAL = 1000000000000000; // 1 quadrillion pizzas goal (adjusted for proper scaling)
 
 export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const [displayPizzas, setDisplayPizzas] = useState(0);
@@ -44,6 +44,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
 
   // Update when global pizzas change
   useEffect(() => {
+    console.log('GlobalProgressBar - currentGlobalPizzas:', currentGlobalPizzas, 'Goal:', GLOBAL_PIZZAS_GOAL, 'Progress %:', (currentGlobalPizzas / GLOBAL_PIZZAS_GOAL) * 100);
     if (currentGlobalPizzas !== previousPizzas.current) {
       animateNumber(previousPizzas.current, currentGlobalPizzas);
       previousPizzas.current = currentGlobalPizzas;
