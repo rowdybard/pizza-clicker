@@ -1758,6 +1758,27 @@ export default function App() {
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
         if (decoded.deliveryCooldowns) setDeliveryCooldowns(decoded.deliveryCooldowns);
         if (decoded.revealedUpgrades) setRevealedUpgrades(new Set(decoded.revealedUpgrades));
+        
+        // Ensure new upgrades are properly revealed after import
+        setRevealedUpgrades(prev => {
+          const updated = new Set(prev);
+          ['click','production','quality'].forEach(type => {
+            const path = UPGRADES.filter(u => u.type === type);
+            path.forEach((upgrade, idx) => {
+              if (idx === 0) { updated.add(upgrade.id); return; }
+              const prev_upgrade = path[idx - 1];
+              const prevCount = safeNum(decoded.inventory?.[prev_upgrade.id], 0);
+              const cost = calculateCost(upgrade.baseCost, safeNum(decoded.inventory?.[upgrade.id], 0));
+              const starLevel = STAR_THRESHOLDS.filter(t => safeNum(decoded.reputation, 0) >= t).length - 1;
+              const franchiseLicenses = safeNum(decoded.franchiseLicenses, 0);
+              if (prevCount >= 1 && safeNum(decoded.money, 0) >= cost * 0.8 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
+                updated.add(upgrade.id);
+              }
+            });
+          });
+          return updated;
+        });
+        
         setShowSettings(false); setImportText("");
       }
     } catch (e) {
