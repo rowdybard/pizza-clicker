@@ -1801,7 +1801,7 @@ export default function App() {
       setLifetimeMoney(1e308);
       setFranchiseLicenses(100000); // Test high license count
       setGoldenSlices(0); // Keep vault locked
-      setTotalPizzasSold(1e20);
+      setTotalPizzasSold(1e6); // Reduced from 1e20 to avoid global inflation
       setReputation(999999);
       setAscensionSpentLicenses(0);
       setMarketUnlocked(true);
@@ -1824,6 +1824,33 @@ export default function App() {
         maxInventory[u.id] = 250;
       });
       setInventory(maxInventory);
+      
+      setShowSettings(false);
+      setImportText('');
+      return;
+    }
+    
+    // Admin code to reset global progress
+    if (importText.trim().toLowerCase() === 'resetglobal') {
+      // Send a tiny amount to help bring the average back down
+      pendingProduction.current = Math.max(0, pendingProduction.current - 1e15);
+      // Force immediate sync to update server
+      const syncData = {
+        pizzas: Math.max(0, pendingProduction.current),
+        clientTime: Date.now(),
+        forceReset: true
+      };
+      
+      fetch('https://pizzafund.onrender.com/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(syncData)
+      }).then(() => {
+        console.log('Global progress reset initiated');
+        setGlobalPizzas(prev => Math.max(0, prev - 1e15));
+      }).catch(err => {
+        console.error('Failed to reset global progress:', err);
+      });
       
       setShowSettings(false);
       setImportText('');
