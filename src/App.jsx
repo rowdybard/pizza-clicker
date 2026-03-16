@@ -657,7 +657,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [importText, setImportText] = useState("");
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
-  const [showMigrationModal, setShowMigrationModal] = useState(initialData?.migrationBonus || false);
+  const [showMigrationModal, setShowMigrationModal] = useState(false);
   const [hudSettingsOpen, setHudSettingsOpen] = useState(false);
   const [upgradeFilter, setUpgradeFilter] = useState('all');
   const [statsOpen, setStatsOpen] = useState({ production: true, clicking: false, lifetime: false, prestige: false, owned: false });
@@ -719,6 +719,13 @@ export default function App() {
     });
   // eslint-disable-next-line
   }, [money, inventory, starLevel]);
+
+  // Show migration modal for v10 players after component mounts
+  useEffect(() => {
+    if (initialData?.migrationBonus) {
+      setShowMigrationModal(true);
+    }
+  }, [initialData?.migrationBonus]);
 
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
