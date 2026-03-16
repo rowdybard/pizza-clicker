@@ -138,6 +138,13 @@ const ACHIEVEMENTS = [
   { id: 'franchise_150', name: 'Universal Control', desc: 'One hundred fifty Licenses. Universes bend to your franchise model. The Syndicate reveals the second truth: reality is negotiable.', req: (s) => s.franchiseLicenses >= 150 },
   { id: 'franchise_200', name: 'Dimensional Overlord', desc: 'Two hundred Licenses. You operate across dimensions. The Syndicate reveals the third truth: you were always one of us.', req: (s) => s.franchiseLicenses >= 200 },
   { id: 'franchise_250', name: 'Pizza God',          desc: 'Two hundred fifty Licenses. The maximum. You have ascended beyond mortal comprehension. The Obsidian Syndicate bows to you—for you ARE the Syndicate.',  req: (s) => s.franchiseLicenses >= 250 },
+  { id: 'franchise_500', name: 'Cosmic Architect',   desc: 'Five hundred Licenses. You design universes with pizza franchises. The Syndicate reveals: you are the architect of reality itself.', req: (s) => s.franchiseLicenses >= 500 },
+  { id: 'franchise_1000', name: 'Dimensional Weaver', desc: 'One thousand Licenses. You weave dimensions together with your empire. The Syndicate kneels: you are the loom of existence.', req: (s) => s.franchiseLicenses >= 1000 },
+  { id: 'franchise_2500', name: 'Temporal Sovereign', desc: 'Two thousand five hundred Licenses. Time itself serves your franchise model. The Syndicate bows: you are master of past, present, and future.', req: (s) => s.franchiseLicenses >= 2500 },
+  { id: 'franchise_5000', name: 'Reality Shaper',     desc: 'Five thousand Licenses. You shape reality with your business decisions. The Syndicate reveals: you are the sculptor of all that is.', req: (s) => s.franchiseLicenses >= 5000 },
+  { id: 'franchise_10000', name: 'Existential Overlord', desc: 'Ten thousand Licenses. Existence itself is your franchise. The Syndicate proclaims: you are the meaning of being.', req: (s) => s.franchiseLicenses >= 10000 },
+  { id: 'franchise_25000', name: 'Transcendent Entity', desc: 'Twenty-five thousand Licenses. You have transcended the very concept of business. The Syndicate whispers: you are beyond us now.', req: (s) => s.franchiseLicenses >= 25000 },
+  { id: 'franchise_50000', name: 'Pizza Singularity',  desc: 'Fifty thousand Licenses. The ultimate singularity. You have become pizza itself. The Syndicate dissolves: you are the final form.', req: (s) => s.franchiseLicenses >= 50000 },
 
   // Lifetime earnings — deep progression
   { id: 'life_1q',  name: 'Quadrillionaire',   desc: 'One quadrillion dollars earned. Numbers lose meaning at this scale. The Syndicate nods: "You understand now."',              req: (s) => s.lifetimeMoney >= 1e15  },
@@ -265,8 +272,8 @@ const UPGRADES = [
   { id: 'antimatterCrust', name: 'Antimatter Crust', type: 'quality', baseCost: 300000000000, multi: 1.72, baseValue: 225.00, reqStars: 5, icon: <Sparkles className="text-amber-400" /> },
 ];
 
-const MILESTONES = [10, 25, 50, 100, 250];
-const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25];
+const MILESTONES = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000];
+const MILESTONE_MULTS_OVERRIDE = [2.5, 2.0, 1.75, 1.5, 1.25, 1.2, 1.15, 1.1, 1.05, 1.02, 1.01, 1.0];
 const STAR_THRESHOLDS = [0, 500, 3000, 15000, 75000, 400000];
 const FRANCHISE_BASE_COST = 5e14; // steeper license progression to slow late-game snowballing
 const LICENSES_PER_ASCENSION_SLICE = 25;
@@ -667,6 +674,10 @@ export default function App() {
           if (prevCount >= 1 && money >= cost * 0.8 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
             next.add(upgrade.id);
           }
+          // Special case: if previous upgrade is at MAX (50,000), always reveal the next upgrade if requirements are met
+          if (prevCount >= 50000 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
+            next.add(upgrade.id);
+          }
         });
       });
       return next;
@@ -681,8 +692,8 @@ export default function App() {
   }, []);
   const getNextMilestone = (count) => MILESTONES.find(m => count < m) || 'MAX';
 
-  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 250.
-  const MAX_LICENSES = 250;
+  // Piecewise: first 5 licenses cheap (sqrt of small pool), rest on steep curve. Hard cap at 50,000.
+  const MAX_LICENSES = 50000;
   const _earlyRaw = Math.sqrt(lifetimeMoney / 150000);
   const earlyLicenses = Math.min(5, Number.isFinite(_earlyRaw) ? Math.floor(_earlyRaw) : 5);
   const _mainRaw = Math.sqrt(Math.max(0, lifetimeMoney) / FRANCHISE_BASE_COST);
@@ -1105,7 +1116,7 @@ export default function App() {
 
   const buyUpgrade = (upgrade) => {
     const currentCount = safeNum(inventory?.[upgrade.id], 0);
-    const atMaxBoost = currentCount >= MILESTONES[MILESTONES.length - 1]; // 250 is max
+    const atMaxBoost = currentCount >= MILESTONES[MILESTONES.length - 1]; // 50,000 is max
     
     if (atMaxBoost) return; // Don't allow buying if at max boost
     
@@ -1119,7 +1130,7 @@ export default function App() {
 
   const buyUpgradeN = (upgrade, n) => {
     const currentCount = safeNum(inventory?.[upgrade.id], 0);
-    const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250 is max
+    const maxBoost = MILESTONES[MILESTONES.length - 1]; // 50,000 is max
     const allowedPurchases = Math.max(0, maxBoost - currentCount);
     const actualPurchases = Math.min(n, allowedPurchases);
     
@@ -1771,7 +1782,12 @@ export default function App() {
               const cost = calculateCost(upgrade.baseCost, safeNum(decoded.inventory?.[upgrade.id], 0));
               const starLevel = STAR_THRESHOLDS.filter(t => safeNum(decoded.reputation, 0) >= t).length - 1;
               const franchiseLicenses = safeNum(decoded.franchiseLicenses, 0);
+              // Reveal if previous upgrade is owned (including at MAX) and other requirements are met
               if (prevCount >= 1 && safeNum(decoded.money, 0) >= cost * 0.8 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
+                updated.add(upgrade.id);
+              }
+              // Special case: if previous upgrade is at MAX (50,000), always reveal the next upgrade if requirements are met
+              if (prevCount >= 50000 && starLevel >= upgrade.reqStars && (!upgrade.reqLicenses || franchiseLicenses >= upgrade.reqLicenses)) {
                 updated.add(upgrade.id);
               }
             });
@@ -3567,7 +3583,7 @@ export default function App() {
                 }
 
                 // Calculate display cost and buy amount
-                const maxBoost = MILESTONES[MILESTONES.length - 1]; // 250
+                const maxBoost = MILESTONES[MILESTONES.length - 1]; // 50,000
                 const allowedPurchases = Math.max(0, maxBoost - count);
                 let buyAmount = 0;
                 let displayCost = 0;
@@ -3579,9 +3595,9 @@ export default function App() {
                   displayCost = maxBundle.cost;
                   // If can't afford any, show cost of 1 upgrade
                   intendedCost = maxBundle.amount > 0 ? maxBundle.cost : calculateCost(upgrade.baseCost, count);
-                  // Ensure we never try to buy more than 250 total upgrades
-                  if (count + buyAmount > 250) {
-                    const cappedAmount = Math.max(0, 250 - count);
+                  // Ensure we never try to buy more than 50,000 total upgrades
+                  if (count + buyAmount > 50000) {
+                    const cappedAmount = Math.max(0, 50000 - count);
                     buyAmount = cappedAmount;
                     displayCost = cappedAmount > 0 ? calculateBulkCost(upgrade.baseCost, count, cappedAmount) : 0;
                   }
@@ -3590,8 +3606,8 @@ export default function App() {
                   const affordableBundle = calculateMaxAffordable(upgrade.baseCost, count, money, requestedAmount);
                   buyAmount = affordableBundle.amount;
                   displayCost = affordableBundle.cost;
-                  // For intendedCost, use the actual purchasable amount (respecting 250 cap)
-                  const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 250 - count));
+                  // For intendedCost, use the actual purchasable amount (respecting 50,000 cap)
+                  const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 50000 - count));
                   intendedCost = calculateBulkCost(upgrade.baseCost, count, actualCustomAmount);
                 } else {
                   // Keep the multiplier locked - buy what you can afford, not what the multiplier says
@@ -3734,7 +3750,7 @@ export default function App() {
                           }
                           return buyAmount > 0 ? `BUY ×${buyAmount}` : (() => {
                             if (buyMultiplier === 'custom') {
-                              const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 250 - count));
+                              const actualCustomAmount = Math.min(customBuyAmount, Math.max(0, 50000 - count));
                               return `BUY ×${actualCustomAmount}`;
                             }
                             return `BUY ×${buyMultiplier}`;
