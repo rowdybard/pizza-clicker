@@ -727,30 +727,6 @@ export default function App() {
     }
   }, [initialData?.migrationBonus]);
 
-  // Auto-correct inflated global progress from edgetest abuse
-  useEffect(() => {
-    // If global progress is unreasonably high (>10%), auto-correct it
-    if (globalPizzas > 1e15) { // More than 1 quadrillion pizzas = ~10%+ progress
-      console.log('Auto-correcting inflated global progress');
-      setGlobalPizzas(1.7e13); // Reset to ~1.17% (1.7e13 is roughly 1.17% of 1.46e15)
-      
-      // Also sync to server to correct the global count
-      const syncData = {
-        pizzas: 1.7e13,
-        clientTime: Date.now(),
-        autoCorrection: true
-      };
-      
-      fetch('https://pizzafund.onrender.com/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(syncData)
-      }).catch(err => {
-        console.log('Failed to sync global correction:', err);
-      });
-    }
-  }, [globalPizzas]);
-
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
     MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS_OVERRIDE[i]; });
