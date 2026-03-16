@@ -366,7 +366,7 @@ const computeOfflineEarnings = (data) => {
   const realityBendMult  = (data.syndicatePerks?.realityBend) ? 2 : 1; // Binary: 2x if unlocked, 1x if not
   const goldenPowerMult  = 1 + Math.min(2.0, (data.syndicatePerks?.goldenPowerCount || 0) * 0.05); // 5% per purchase, capped at 200%
 
-  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, franchiseLicenses) : 0;
+  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, Math.min(franchiseLicenses, 100)) : 0;
   const finalProdRate  = (prodRate + licenseProductionFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult;
   const finalPrice     = pizzaPrice * achievementMult * vipMult * pepSynergyMult * realityBendMult;
   const profitPerSec   = finalProdRate * finalPrice;
@@ -750,7 +750,7 @@ export default function App() {
   const goldenPowerMult = 1 + Math.min(2.0, syndicatePerks.goldenPowerCount * 0.05); // 5% per purchase, capped at 200%
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades (much more conservative)
-  const licenseProductionFloor = franchiseLicenses > 0 ? Math.sqrt(franchiseLicenses) * 0.5 : 0;
+  const licenseProductionFloor = franchiseLicenses > 0 ? Math.min(Math.sqrt(franchiseLicenses) * 0.5, 1000) : 0;
   // Production and click both benefit from licenses + star power
   const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
