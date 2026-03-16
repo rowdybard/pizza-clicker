@@ -368,7 +368,7 @@ const computeOfflineEarnings = (data) => {
 
   // Reproduce star level from saved reputation
   const rep = safeNum(data.reputation, 0);
-  const starScale = Math.min(2.0, 1 + (licenses * 0.15));
+  const starScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
   const scaledThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * starScale));
   const starLevel = scaledThresholds.filter(t => rep >= t).length - 1;
 
@@ -379,9 +379,9 @@ const computeOfflineEarnings = (data) => {
     if (u.type === 'quality')    pizzaPrice += u.baseValue * count;
   });
 
-  const franchiseMult   = Math.min(25, licenses <= 10
-    ? 1 + (licenses * 1.2)
-    : (1 + 10 * 1.2) * Math.pow(1.20, licenses - 10));
+  const franchiseMult   = Math.min(25, franchiseLicenses <= 10
+    ? 1 + (franchiseLicenses * 1.2)
+    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10));
   const starPowerMult   = Math.pow(1.6, starLevel);
   const achievementMult = 1 + (achievements * 0.03);
   const vipMult         = 1 + (vipToks * 0.08);
@@ -445,7 +445,9 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
   const newLics = snapCurrent + snapPending;
   const startCash = 500 * Math.pow(newLics, 2);
   const floorPizzas = Math.sqrt(newLics) * 0.5;
-  const floorMoney = floorPizzas * Math.pow(1.25, newLics) * 2.5;
+  // Use safe exponent calculation to prevent Infinity
+  const safeLicenseExponent = Math.min(newLics, 3000);
+  const floorMoney = floorPizzas * Math.pow(1.25, safeLicenseExponent) * Math.pow(1.25, Math.max(0, newLics - 3000) * 0.001) * 2.5;
   return (
     <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
       <div className="bg-zinc-950 border-4 border-amber-600/80 rounded-xl p-5 sm:p-10 max-w-lg w-full text-center relative shadow-[0_0_60px_rgba(217,119,6,0.3)]">
@@ -457,7 +459,7 @@ const PrestigeModal = React.memo(function PrestigeModal({ snapshot, onDecline, o
           <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Acquire <span className="text-2xl font-bold tabular-nums">{snapPending}</span> Franchise License{snapPending !== 1 ? 's' : ''} ({newLics} total).</span></div>
           <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Commence next venture with <span className="font-bold tabular-nums">${fmtMod(startCash)}</span> capital.</span></div>
           <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>Passive foundation: ~<span className="font-bold tabular-nums">${fmtMod(floorMoney)}</span>/sec prior to enhancements.</span></div>
-          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmtMod(1 + newLics * 1.2)}× production/click · {fmtMod(Math.pow(1.25, newLics))}× price multiplier.</span></div>
+          <div className="text-amber-300 text-base flex items-start gap-3" style={{fontFamily: 'Playfair Display, serif'}}><span className="text-2xl leading-none text-amber-400">+</span> <span>{fmtMod(1 + newLics * 1.2)}× production/click · {fmtMod(Math.pow(1.25, safeLicenseExponent) * Math.pow(1.25, Math.max(0, newLics - 3000) * 0.001))}× price multiplier.</span></div>
         </div>
         <div className="flex gap-4">
           <button onClick={onDecline} className="flex-1 py-3 sm:py-4 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-base sm:text-xl rounded-lg border-2 border-zinc-700 hover:border-zinc-600 transition-colors" style={{fontFamily: 'Playfair Display, serif', fontWeight: 600}}>Decline</button>
@@ -2326,6 +2328,10 @@ export default function App() {
   };
 
   const Num = ({ value, prefix = '', suffix = '', decimals = 2 }) => {
+    // Handle Infinity and invalid numbers
+    if (!isFinite(value)) {
+      return <span>{prefix}∞{suffix}</span>;
+    }
     const abs = Math.abs(value);
     if (abs < 1e3) return <span>{prefix}{value.toFixed(decimals)}{suffix}</span>;
     return <span>{prefix}{fmt(value)}{suffix}</span>;
