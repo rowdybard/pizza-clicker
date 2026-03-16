@@ -353,9 +353,15 @@ const computeOfflineEarnings = (data) => {
   const flourMult       = 1 + (flourShares * 0.001);
   const pepMult         = 1 + (pepShares * 0.001);
 
-  const licenseFloor   = licenses > 0 ? Math.sqrt(licenses) * 0.5 : 0;
-  const finalProdRate  = (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourMult;
-  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepMult;
+  // Calculate missing multipliers for offline earnings (matching live calculation)
+  const flourSynergyMult = 1 + Math.min(flourShares * 0.001, 0.5); // Cap at 50% bonus
+  const pepSynergyMult   = 1 + Math.min(pepShares * 0.001, 0.5); // Cap at 50% bonus
+  const realityBendMult  = (data.syndicatePerks?.realityBend) ? 2 : 1; // Binary: 2x if unlocked, 1x if not
+  const goldenPowerMult  = 1 + Math.min(2.0, (data.syndicatePerks?.goldenPowerCount || 0) * 0.05); // 5% per purchase, capped at 200%
+
+  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, franchiseLicenses) : 0;
+  const finalProdRate  = (prodRate + licenseProductionFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult;
+  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepSynergyMult * realityBendMult;
   const profitPerSec   = finalProdRate * finalPrice;
   const pizzasPerSec   = finalProdRate;
 
@@ -3661,8 +3667,8 @@ export default function App() {
                     {/* ROW 2: Progress Bar (Unchanged, just tighter spacing) */}
                     <div className="flex flex-col gap-1.5 w-full">
                       <div className="flex justify-between text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                        <span>{count}/{nextMilestone === 'MAX' ? 'MAX' : nextMilestone}</span>
                         <span>Next ${fmt(cost)}</span>
+                        <span style={{ fontSize: '14pt' }}>{count}/{nextMilestone === 'MAX' ? 'MAX' : nextMilestone}</span>
                       </div>
                       <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div 
