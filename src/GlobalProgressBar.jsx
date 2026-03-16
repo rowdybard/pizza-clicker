@@ -12,7 +12,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const previousPizzas = useRef(0);
 
   // Smooth number animation - faster and more responsive
-  const animateNumber = (from, to, duration = 300) => {
+  const animateNumber = (from, to, duration = 100) => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -76,7 +76,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
             </div>
             <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden mt-1">
               <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-100 ease-out"
                 style={{ width: `${Math.min(displayProgress, 100)}%` }}
               />
             </div>
@@ -111,7 +111,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
             <div className="mt-1.5">
               <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-100 ease-out"
                   style={{ width: `${Math.min(displayProgress, 100)}%` }}
                 />
               </div>
