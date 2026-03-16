@@ -354,7 +354,7 @@ const computeOfflineEarnings = (data) => {
 
   // Reproduce the same upgrade math from the component
   const inv = data.inventory || {};
-  const licenses = safeNum(data.franchiseLicenses, 0);
+  const franchiseLicenses = safeNum(data.franchiseLicenses, 0);
   const vipToks  = safeNum(data.vipTokens, 0);
   const achievements = (data.unlockedAchievements || []).length;
   const flourShares = safeNum(data.marketShares?.flour, 0);
