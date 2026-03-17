@@ -593,7 +593,7 @@ export default function App() {
   
   // Global Network Sync Engine
   const [globalPizzas, setGlobalPizzas] = useState(0);
-  const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 1); // Global buff multiplier (1x = no buff, 2x = active buff)
+  const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
   const lastSyncTime = useRef(0);
   const lastPollTime = useRef(0);
