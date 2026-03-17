@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-const GLOBAL_PIZZAS_GOAL = 100048000000000000; // ~100 quadrillion pizzas goal (calibrated for 50.88% at 50,877,515,368,476,370 pizzas)
+const GLOBAL_PIZZAS_GOAL = 250000000000000000000; // 250 quintillion pizzas goal (increased for rapid progress)
 
 export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const [displayPizzas, setDisplayPizzas] = useState(0);
@@ -10,6 +10,11 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
+
+  // Check if 2x buff is active (goal reached)
+  const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
+  const isBuffActive = currentGlobalPizzas >= GOAL;
+  const progressComplete = displayProgress >= 100;
 
   // Smooth number animation - faster and more responsive
   const animateNumber = (from, to, duration = 100) => {
@@ -71,12 +76,21 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                 <span className="text-xs font-black text-blue-400 tabular-nums">
                   {displayProgress.toFixed(2)}%
                 </span>
+                {progressComplete && (
+                  <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
+                    ✓ COMPLETE
+                  </span>
+                )}
               </div>
               <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
             </div>
             <div className="w-full bg-zinc-900 rounded-full h-1 overflow-hidden mt-1">
               <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-100 ease-out"
+                className={`h-full rounded-full transition-all duration-100 ease-out ${
+                  progressComplete 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                    : 'bg-gradient-to-r from-blue-500 to-purple-500'
+                }`}
                 style={{ width: `${Math.min(displayProgress, 100)}%` }}
               />
             </div>
@@ -94,6 +108,11 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                 <span className="text-sm font-black text-orange-400 tabular-nums">
                   {formattedPizzas}
                 </span>
+                {progressComplete && (
+                  <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
+                    ✓ LEVEL COMPLETE
+                  </span>
+                )}
               </div>
               
               <div className="flex items-center gap-2">
@@ -101,7 +120,12 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                   <div className="text-xs font-black text-zinc-400 tabular-nums">
                     {displayProgress.toFixed(2)}%
                   </div>
-                  <div className="text-xs text-zinc-500">$100Q Goal</div>
+                  <div className="text-xs text-zinc-500">$250Q Goal</div>
+                  {isBuffActive && (
+                    <div className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
+                      2X BUFF ACTIVE
+                    </div>
+                  )}
                 </div>
                 <ChevronUp className="w-3 h-3 text-zinc-500" />
               </div>
@@ -111,7 +135,11 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
             <div className="mt-1.5">
               <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-100 ease-out"
+                  className={`h-full rounded-full transition-all duration-100 ease-out ${
+                    progressComplete 
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                      : 'bg-gradient-to-r from-blue-500 to-purple-500'
+                  }`}
                   style={{ width: `${Math.min(displayProgress, 100)}%` }}
                 />
               </div>

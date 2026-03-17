@@ -593,6 +593,7 @@ export default function App() {
   
   // Global Network Sync Engine
   const [globalPizzas, setGlobalPizzas] = useState(0);
+  const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 1); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
   const lastSyncTime = useRef(0);
   const lastPollTime = useRef(0);
@@ -734,6 +735,15 @@ export default function App() {
     }
   }, [initialData?.migrationBonus]);
 
+  // Check for global buff activation when goal is reached
+  useEffect(() => {
+    const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
+    if (globalPizzas >= GOAL && globalBuffMultiplier === 1) {
+      console.log('Global goal reached! Activating 2x global buff');
+      setGlobalBuffMultiplier(2);
+    }
+  }, [globalPizzas, globalBuffMultiplier]);
+
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
     MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS_OVERRIDE[i]; });
@@ -801,13 +811,13 @@ export default function App() {
 
   // License passive floor: guaranteed pizzas/sec even with no upgrades (much more conservative)
   const licenseProductionFloor = franchiseLicenses > 0 ? Math.min(Math.sqrt(franchiseLicenses) * 0.5, 1000) : 0;
-  // Production and click both benefit from licenses + star power
-  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult;
+  // Production and click both benefit from licenses + star power + global buff
+  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult * globalBuffMultiplier;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
   
   // Ascension perk: clicks gain +10% of idle production rate (uses franchisedProduction to avoid forward reference)
   const synergisticClickBonus = syndicatePerks.ascension ? franchisedProduction * 0.10 : 0;
-  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult;
+  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult * globalBuffMultiplier;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
@@ -1779,7 +1789,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), globalBuffMultiplier
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -1855,6 +1865,7 @@ export default function App() {
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
         if (decoded.deliveryCooldowns) setDeliveryCooldowns(decoded.deliveryCooldowns);
         if (decoded.revealedUpgrades) setRevealedUpgrades(new Set(decoded.revealedUpgrades));
+        if (decoded.globalBuffMultiplier !== undefined) setGlobalBuffMultiplier(decoded.globalBuffMultiplier);
         
         // Ensure new upgrades are properly revealed after import
         setRevealedUpgrades(prev => {
@@ -1897,7 +1908,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now() 
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), globalBuffMultiplier
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -1917,6 +1928,7 @@ export default function App() {
       syndicatePerks: { shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false },
       currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0, marketUnlocked: false,
       lastGlobalSyncSave: Date.now(), // Track when we last saved global sync state
+      globalBuffMultiplier: 1,
   });
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;

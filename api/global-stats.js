@@ -123,11 +123,31 @@ export async function POST(request) {
     
     console.log('POST - Attempting to add amount:', amount);
     
-    if (typeof amount !== 'number' || amount <= 0) {
-      return Response.json({ 
-        success: false, 
-        error: 'Invalid amount. Must be a positive number.' 
-      }, { status: 400 });
+    // The absolute maximum pizzas a player could legitimately generate in 10 seconds.
+    // Adjust this number based on your endgame balance (e.g., 5 Billion).
+    const MAX_REALISTIC_SYNC = 5000000000; 
+    
+    // Safety check: Reject negative, missing, NaN, or hacked massive numbers
+    if (!amount || typeof amount !== 'number' || amount <= 0 || amount > MAX_REALISTIC_SYNC) {
+      console.warn(`Suspicious sync amount blocked: ${amount}`);
+      
+      redis = createRedisClient();
+      if (redis) {
+        await redis.connect();
+        const current = await redis.get('crust_fund_global_pizzas');
+        await redis.disconnect();
+        return Response.json({ 
+          success: false, 
+          total: current ? parseInt(current, 10) : 0,
+          warning: "Amount exceeded realistic limits"
+        });
+      } else {
+        return Response.json({ 
+          success: false, 
+          total: cachedTotal,
+          warning: "Amount exceeded realistic limits"
+        });
+      }
     }
     
     redis = createRedisClient();
@@ -144,9 +164,9 @@ export async function POST(request) {
       });
     }
 
-    // Connect and increment
+    // Connect and increment with safety
     await redis.connect();
-    const newTotal = await redis.incrby('crust_fund_global_pizzas', amount);
+    const newTotal = await redis.incrby('crust_fund_global_pizzas', Math.floor(amount));
     
     // Update cache on successful operation
     cachedTotal = newTotal;
@@ -163,7 +183,9 @@ export async function POST(request) {
     console.error('POST - Redis error:', error.message);
     
     // If Redis is down, try to update cache and return cached + amount
-    const estimatedTotal = cachedTotal + amount;
+    const body = await request.json().catch(() => ({ amount: 0 }));
+    const { amount } = body;
+    const estimatedTotal = cachedTotal + (amount || 0);
     console.log('POST - Redis down, returning estimated total:', estimatedTotal);
     
     return Response.json({ 
