@@ -1415,11 +1415,13 @@ export default function App() {
         console.log('Sync response:', data);
         if (data.success) {
           // CRITICAL: Only subtract after successful response
-          pendingProduction.current -= amountToSend;
+          console.log('Before subtract - pendingProduction.current:', pendingProduction.current, 'amountToSend:', amountToSend);
+          pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
           setGlobalPizzas(data.total);
           lastSyncTime.current = Date.now();
           
           console.log('Sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
+          console.log('After subtract - pendingProduction.current:', pendingProduction.current);
           
           // Log different response types
           if (data.mock) {
