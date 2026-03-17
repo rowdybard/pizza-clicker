@@ -592,7 +592,8 @@ export default function App() {
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
   // Global Network Sync Engine
-  const [globalPizzas, setGlobalPizzas] = useState(0); // Start at 0, server will update with real value
+  const [globalPizzas, setGlobalPizzas] = useState(0); // Server total (may lose precision at large numbers)
+  const [localPendingPizzas, setLocalPendingPizzas] = useState(0); // Local unsent pizzas for real-time display
   const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
   const lastSyncTime = useRef(0);
@@ -738,9 +739,7 @@ export default function App() {
   // Check for global buff activation when goal is reached
   useEffect(() => {
     const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
-    console.log('Buff check - Global pizzas:', globalPizzas, 'Goal:', GOAL, 'Buff active:', globalBuffMultiplier);
     if (globalPizzas >= GOAL && globalBuffMultiplier === 1) {
-      console.log('Global goal reached! Activating 2x global buff');
       setGlobalBuffMultiplier(2);
     }
   }, [globalPizzas, globalBuffMultiplier]);
@@ -948,10 +947,10 @@ export default function App() {
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
     
-    // Immediate sync for clicks to ensure they count right away
-    if (currentClickPower >= 1) {
-      syncWithGlobalSyndicate();
-    }
+    // Immediate visual update for global counter
+    setLocalPendingPizzas(pendingProduction.current);
+    
+    // Sync with server (don't need immediate call on every click, 100ms tick handles it)
     
     // Save to localStorage as backup for mobile
     const backupData = {
@@ -1414,21 +1413,12 @@ export default function App() {
         const data = await response.json();
         console.log('Sync response:', data);
         if (data.success) {
-          // CRITICAL: Only subtract after successful response
-          console.log('Before subtract - pendingProduction.current:', pendingProduction.current, 'amountToSend:', amountToSend);
           pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
+          setLocalPendingPizzas(pendingProduction.current);
           
-          // Force update global pizzas with proper state change
           const newTotal = data.total;
-          setGlobalPizzas(prev => {
-            console.log('Updating globalPizzas from', prev, 'to', newTotal);
-            return newTotal;
-          });
-          
+          setGlobalPizzas(newTotal);
           lastSyncTime.current = Date.now();
-          
-          console.log('Sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
-          console.log('After subtract - pendingProduction.current:', pendingProduction.current);
           
           // Log different response types
           if (data.mock) {
@@ -1469,10 +1459,7 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setGlobalPizzas(prev => {
-            console.log('Polling update - globalPizzas from', prev, 'to', data.total);
-            return data.total;
-          });
+          setGlobalPizzas(data.total);
           lastPollTime.current = now;
           
           // Log different response types
@@ -1976,6 +1963,9 @@ export default function App() {
               
               // Add to pending production for global sync
               pendingProduction.current += pizzasThisTick;
+              
+              // Update local pending display for real-time global counter
+              setLocalPendingPizzas(pendingProduction.current);
               
               // Save to localStorage as backup for mobile
               const backupData = {
@@ -2599,7 +2589,7 @@ export default function App() {
         {/* Global Progress Section */}
         <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
           <div className="max-w-7xl mx-auto">
-            <GlobalProgressBar currentGlobalPizzas={globalPizzas} globalBuffMultiplier={globalBuffMultiplier} />
+            <GlobalProgressBar currentGlobalPizzas={globalPizzas} localPendingPizzas={localPendingPizzas} globalBuffMultiplier={globalBuffMultiplier} />
           </div>
         </div>
       </div>

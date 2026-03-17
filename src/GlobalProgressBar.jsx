@@ -1,65 +1,45 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-const GLOBAL_PIZZAS_GOAL = 250000000000000000000; // 250 quintillion pizzas goal (increased for rapid progress)
+const GLOBAL_PIZZAS_GOAL = 250000000000000000000; // 250 quintillion pizzas goal
 
-export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffMultiplier = 1 }) {
-  const [displayPizzas, setDisplayPizzas] = useState(0);
-  const [displayProgress, setDisplayProgress] = useState(0);
-  const [formattedPizzas, setFormattedPizzas] = useState('0');
+export default function GlobalProgressBar({ currentGlobalPizzas = 0, localPendingPizzas = 0, globalBuffMultiplier = 1 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const animationRef = useRef(null);
-  const previousPizzas = useRef(0);
+  const prevServerTotal = useRef(0);
+  const prevLocalPending = useRef(0);
 
-  // Check if 2x buff is active - use both goal completion and multiplier state
-  const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
-  const isBuffActive = currentGlobalPizzas >= GOAL || displayPizzas >= GOAL || globalBuffMultiplier > 1; // Check goal or multiplier state
-  const progressComplete = displayProgress >= 100;
+  // Buff detection — active if multiplier > 1 or goal reached
+  const isBuffActive = globalBuffMultiplier > 1 || currentGlobalPizzas >= GLOBAL_PIZZAS_GOAL;
 
-  // Smooth number animation - faster and more responsive
-  const animateNumber = (from, to, duration = 100) => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+  // Precision-safe progress: compute server % and local % separately, then add
+  // This avoids (bigNumber + smallNumber) losing the small part
+  const serverProgress = (currentGlobalPizzas / GLOBAL_PIZZAS_GOAL) * 100;
+  const localProgress = (localPendingPizzas / GLOBAL_PIZZAS_GOAL) * 100;
+  const totalProgress = serverProgress + localProgress;
+  const progressComplete = totalProgress >= 100;
+
+  // Format the display number — combine server + local using string math for large numbers
+  const formatDisplayTotal = () => {
+    // For numbers beyond MAX_SAFE_INTEGER, JS can't add small values accurately.
+    // Use BigInt for precise display when possible.
+    try {
+      const serverBig = BigInt(Math.floor(currentGlobalPizzas));
+      const localBig = BigInt(Math.floor(localPendingPizzas));
+      const total = serverBig + localBig;
+      return total.toLocaleString('en-US');
+    } catch {
+      // Fallback for environments without BigInt
+      return Math.floor(currentGlobalPizzas + localPendingPizzas).toLocaleString('en-US');
     }
-
-    const startTime = performance.now();
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Smooth easing function
-      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-      const current = from + (to - from) * easeOutCubic;
-      
-      setDisplayPizzas(Math.floor(current));
-      setDisplayProgress((current / GLOBAL_PIZZAS_GOAL) * 100);
-      
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Format number with commas (full number)
-  const formatNumber = (num) => {
-    return num.toLocaleString('en-US');
-  };
+  const formattedPizzas = formatDisplayTotal();
 
-  // Update when global pizzas change
+  // Track changes for logging
   useEffect(() => {
-    console.log('GlobalProgressBar - currentGlobalPizzas:', currentGlobalPizzas, 'GOAL:', GOAL, 'isBuffActive:', isBuffActive, 'progressComplete:', progressComplete);
-    if (currentGlobalPizzas !== previousPizzas.current) {
-      animateNumber(previousPizzas.current, currentGlobalPizzas);
-      previousPizzas.current = currentGlobalPizzas;
-    }
-  }, [currentGlobalPizzas, isBuffActive, progressComplete]);
-
-  // Update formatted display
-  useEffect(() => {
-    setFormattedPizzas(formatNumber(displayPizzas));
-  }, [displayPizzas]);
+    prevServerTotal.current = currentGlobalPizzas;
+    prevLocalPending.current = localPendingPizzas;
+  }, [currentGlobalPizzas, localPendingPizzas]);
 
   return (
     <div className="w-full bg-zinc-800/30 border border-zinc-700/50 rounded-lg overflow-hidden transition-all duration-300">
@@ -75,11 +55,11 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffM
                 <Globe className="w-3 h-3 text-blue-400" />
                 <span className="text-xs font-black text-zinc-400 uppercase tracking-wider">Global</span>
                 <span className="text-xs font-black text-blue-400 tabular-nums">
-                  {displayProgress.toFixed(2)}%
+                  {totalProgress.toFixed(2)}%
                 </span>
-                {progressComplete && (
+                {isBuffActive && (
                   <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
-                    ✓ COMPLETE
+                    2X BUFF
                   </span>
                 )}
               </div>
@@ -92,7 +72,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffM
                     ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
                     : 'bg-gradient-to-r from-blue-500 to-purple-500'
                 }`}
-                style={{ width: `${Math.min(displayProgress, 100)}%` }}
+                style={{ width: `${Math.min(totalProgress, 100)}%` }}
               />
             </div>
           </div>
@@ -109,36 +89,14 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffM
                 <span className="text-sm font-black text-orange-400 tabular-nums">
                   {formattedPizzas}
                 </span>
-                {progressComplete && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
-                      ✓ COMPLETE
-                    </span>
-                    {isBuffActive && (
-                      <div className="flex items-center gap-1 px-2 py-0.5 bg-green-500/20 border border-green-400/50 rounded-full">
-                        <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
-                          2X BUFF
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
               
               <div className="flex items-center gap-2">
                 <div className="text-right">
                   <div className="text-xs font-black text-zinc-400 tabular-nums">
-                    {displayProgress.toFixed(2)}%
+                    {totalProgress.toFixed(2)}%
                   </div>
-                  <div className="text-xs text-zinc-500">$250Q Goal</div>
-                  {isBuffActive && (
-                    <div className="flex items-center gap-1 text-green-400">
-                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-black uppercase tracking-wider">
-                        ACTIVE
-                      </span>
-                    </div>
-                  )}
+                  <div className="text-xs text-zinc-500">250Q Goal</div>
                 </div>
                 <ChevronUp className="w-3 h-3 text-zinc-500" />
               </div>
@@ -153,7 +111,7 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffM
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
                       : 'bg-gradient-to-r from-blue-500 to-purple-500'
                   }`}
-                  style={{ width: `${Math.min(displayProgress, 100)}%` }}
+                  style={{ width: `${Math.min(totalProgress, 100)}%` }}
                 >
                   {progressComplete && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
@@ -168,8 +126,8 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffM
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-xs font-black text-green-400 uppercase tracking-wider">
-                        2X Global Production & Click Buff Active
-                      </span>
+                    2X Global Production & Click Buff Active
+                  </span>
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
               </div>
