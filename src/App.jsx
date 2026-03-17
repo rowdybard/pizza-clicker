@@ -1848,15 +1848,6 @@ export default function App() {
       return;
     }
     
-    // Manual 2x buff activation for testing
-    if (importText.trim().toLowerCase() === 'activatebuff') {
-      console.log('Manually activating 2x global buff');
-      setGlobalBuffMultiplier(2);
-      setShowSettings(false);
-      setImportText('');
-      return;
-    }
-    
     try {
       if (!importText) return;
       const decoded = JSON.parse(atob(importText));

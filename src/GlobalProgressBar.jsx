@@ -110,9 +110,18 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                   {formattedPizzas}
                 </span>
                 {progressComplete && (
-                  <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
-                    ✓ LEVEL COMPLETE
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
+                      ✓ COMPLETE
+                    </span>
+                    {isBuffActive && (
+                      <div className="flex items-center gap-1 px-2 py-0.5 bg-green-500/20 border border-green-400/50 rounded-full">
+                        <span className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
+                          2X BUFF
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
               
@@ -123,8 +132,11 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
                   </div>
                   <div className="text-xs text-zinc-500">$250Q Goal</div>
                   {isBuffActive && (
-                    <div className="text-xs font-black text-green-400 uppercase tracking-wider animate-pulse">
-                      2X BUFF ACTIVE
+                    <div className="flex items-center gap-1 text-green-400">
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs font-black uppercase tracking-wider">
+                        ACTIVE
+                      </span>
                     </div>
                   )}
                 </div>
@@ -136,15 +148,32 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
             <div className="mt-1.5">
               <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className={`h-full rounded-full transition-all duration-100 ease-out ${
+                  className={`h-full rounded-full transition-all duration-100 ease-out relative ${
                     progressComplete 
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
                       : 'bg-gradient-to-r from-blue-500 to-purple-500'
                   }`}
                   style={{ width: `${Math.min(displayProgress, 100)}%` }}
-                />
+                >
+                  {progressComplete && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                  )}
+                </div>
               </div>
             </div>
+            
+            {/* Buff Status Banner */}
+            {isBuffActive && (
+              <div className="mt-2 px-2 py-1 bg-green-500/10 border border-green-400/30 rounded-lg">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-black text-green-400 uppercase tracking-wider">
+                        2X Global Production & Click Buff Active
+                      </span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </button>
