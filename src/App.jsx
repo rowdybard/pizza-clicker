@@ -592,7 +592,7 @@ export default function App() {
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
   // Global Network Sync Engine
-  const [globalPizzas, setGlobalPizzas] = useState(2585000000000000000); // Start at 2.585 quintillion
+  const [globalPizzas, setGlobalPizzas] = useState(0); // Start at 0, server will update with real value
   const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
   const lastSyncTime = useRef(0);
