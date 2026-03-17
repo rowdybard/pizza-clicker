@@ -1447,8 +1447,8 @@ export default function App() {
   const pollGlobalStats = useCallback(async () => {
     const now = Date.now();
     
-    // Only poll every 15 seconds and only if idle (no recent production)
-    if (now - lastPollTime.current < 15000 || pendingProduction.current > 0) return;
+    // Poll every 5 seconds regardless of local production — shows all players' contributions
+    if (now - lastPollTime.current < 5000) return;
     
     try {
       // Use correct API URL based on environment
