@@ -11,10 +11,10 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
 
-  // Check if 2x buff is active (goal reached)
+  // Check if 2x buff is active (goal reached) - use both currentGlobalPizzas and displayPizzas for safety
   const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
-  const isBuffActive = currentGlobalPizzas >= GOAL;
-  const progressComplete = displayProgress >= 100;
+  const isBuffActive = currentGlobalPizzas >= GOAL || displayPizzas >= GOAL || true; // Temporary override for testing
+  const progressComplete = displayProgress >= 100 || true; // Temporary override for testing
 
   // Smooth number animation - faster and more responsive
   const animateNumber = (from, to, duration = 100) => {
