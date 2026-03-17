@@ -1,45 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Pizza, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 const GLOBAL_PIZZAS_GOAL = 250000000000000000000; // 250 quintillion pizzas goal
 
-export default function GlobalProgressBar({ currentGlobalPizzas = 0, localPendingPizzas = 0, globalBuffMultiplier = 1 }) {
+export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalPizzasStr = '0', localPendingPizzas = 0, globalBuffMultiplier = 1 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const prevServerTotal = useRef(0);
-  const prevLocalPending = useRef(0);
 
   // Buff detection — active if multiplier > 1 or goal reached
   const isBuffActive = globalBuffMultiplier > 1 || currentGlobalPizzas >= GLOBAL_PIZZAS_GOAL;
 
   // Precision-safe progress: compute server % and local % separately, then add
-  // This avoids (bigNumber + smallNumber) losing the small part
+  // This avoids (bigNumber + smallNumber) losing the small part in float64
   const serverProgress = (currentGlobalPizzas / GLOBAL_PIZZAS_GOAL) * 100;
   const localProgress = (localPendingPizzas / GLOBAL_PIZZAS_GOAL) * 100;
   const totalProgress = serverProgress + localProgress;
   const progressComplete = totalProgress >= 100;
 
-  // Format the display number — combine server + local using string math for large numbers
-  const formatDisplayTotal = () => {
-    // For numbers beyond MAX_SAFE_INTEGER, JS can't add small values accurately.
-    // Use BigInt for precise display when possible.
+  // Precise display using the exact string from Redis + local pending as BigInt
+  const formattedPizzas = (() => {
     try {
-      const serverBig = BigInt(Math.floor(currentGlobalPizzas));
+      const serverBig = BigInt(globalPizzasStr);
       const localBig = BigInt(Math.floor(localPendingPizzas));
-      const total = serverBig + localBig;
-      return total.toLocaleString('en-US');
+      return (serverBig + localBig).toLocaleString('en-US');
     } catch {
-      // Fallback for environments without BigInt
       return Math.floor(currentGlobalPizzas + localPendingPizzas).toLocaleString('en-US');
     }
-  };
-
-  const formattedPizzas = formatDisplayTotal();
-
-  // Track changes for logging
-  useEffect(() => {
-    prevServerTotal.current = currentGlobalPizzas;
-    prevLocalPending.current = localPendingPizzas;
-  }, [currentGlobalPizzas, localPendingPizzas]);
+  })();
 
   return (
     <div className="w-full bg-zinc-800/30 border border-zinc-700/50 rounded-lg overflow-hidden transition-all duration-300">

@@ -80,6 +80,7 @@ export async function GET() {
     return Response.json({ 
       success: true, 
       total: count,
+      totalStr: total ? total.toString() : '0', // Precise string for large numbers
       cached: false
     });
   } catch (error) {
@@ -166,17 +167,22 @@ export async function POST(request) {
 
     // Connect and increment with safety
     await redis.connect();
-    const newTotal = await redis.incrby('crust_fund_global_pizzas', Math.floor(amount));
+    await redis.incrby('crust_fund_global_pizzas', Math.floor(amount));
+    // GET the raw string after increment — ioredis converts INCRBY reply to a JS number
+    // which loses precision beyond MAX_SAFE_INTEGER. GET returns the Redis string directly.
+    const exactStr = await redis.get('crust_fund_global_pizzas');
+    const newTotal = exactStr ? parseInt(exactStr, 10) : 0; // float64 for cache/compat
     
     // Update cache on successful operation
     cachedTotal = newTotal;
     lastSuccessfulFetch = Date.now();
     
-    console.log('POST - Successfully incremented to new total:', newTotal);
+    console.log('POST - Successfully incremented, new total string:', exactStr);
     
     return Response.json({ 
       success: true, 
       total: newTotal,
+      totalStr: exactStr || '0', // Precise Redis string, unaffected by JS float64 limits
       cached: false
     });
   } catch (error) {

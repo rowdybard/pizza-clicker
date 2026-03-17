@@ -592,7 +592,8 @@ export default function App() {
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
   // Global Network Sync Engine
-  const [globalPizzas, setGlobalPizzas] = useState(0); // Server total (may lose precision at large numbers)
+  const [globalPizzas, setGlobalPizzas] = useState(0); // Server total as float64 (used for % and buff checks)
+  const [globalPizzasStr, setGlobalPizzasStr] = useState('0'); // Exact string from server for BigInt display
   const [localPendingPizzas, setLocalPendingPizzas] = useState(0); // Local unsent pizzas for real-time display
   const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
@@ -1416,8 +1417,8 @@ export default function App() {
           pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
           setLocalPendingPizzas(pendingProduction.current);
           
-          const newTotal = data.total;
-          setGlobalPizzas(newTotal);
+          setGlobalPizzas(data.total);
+          if (data.totalStr) setGlobalPizzasStr(data.totalStr);
           lastSyncTime.current = Date.now();
           
           // Log different response types
@@ -1460,6 +1461,7 @@ export default function App() {
         const data = await response.json();
         if (data.success) {
           setGlobalPizzas(data.total);
+          if (data.totalStr) setGlobalPizzasStr(data.totalStr);
           lastPollTime.current = now;
           
           // Log different response types
@@ -2589,7 +2591,7 @@ export default function App() {
         {/* Global Progress Section */}
         <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
           <div className="max-w-7xl mx-auto">
-            <GlobalProgressBar currentGlobalPizzas={globalPizzas} localPendingPizzas={localPendingPizzas} globalBuffMultiplier={globalBuffMultiplier} />
+            <GlobalProgressBar currentGlobalPizzas={globalPizzas} globalPizzasStr={globalPizzasStr} localPendingPizzas={localPendingPizzas} globalBuffMultiplier={globalBuffMultiplier} />
           </div>
         </div>
       </div>
