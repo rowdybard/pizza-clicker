@@ -948,6 +948,11 @@ export default function App() {
     // Add to pending production for global sync
     pendingProduction.current += currentClickPower;
     
+    // Immediate sync for clicks to ensure they count right away
+    if (currentClickPower >= 1) {
+      syncWithGlobalSyndicate();
+    }
+    
     // Save to localStorage as backup for mobile
     const backupData = {
       pendingPizzas: pendingProduction.current,
