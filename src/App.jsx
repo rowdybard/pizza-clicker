@@ -1417,7 +1417,14 @@ export default function App() {
           // CRITICAL: Only subtract after successful response
           console.log('Before subtract - pendingProduction.current:', pendingProduction.current, 'amountToSend:', amountToSend);
           pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
-          setGlobalPizzas(data.total);
+          
+          // Force update global pizzas with proper state change
+          const newTotal = data.total;
+          setGlobalPizzas(prev => {
+            console.log('Updating globalPizzas from', prev, 'to', newTotal);
+            return newTotal;
+          });
+          
           lastSyncTime.current = Date.now();
           
           console.log('Sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
@@ -1462,7 +1469,10 @@ export default function App() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setGlobalPizzas(data.total);
+          setGlobalPizzas(prev => {
+            console.log('Polling update - globalPizzas from', prev, 'to', data.total);
+            return data.total;
+          });
           lastPollTime.current = now;
           
           // Log different response types
