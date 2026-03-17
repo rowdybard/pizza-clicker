@@ -305,11 +305,18 @@ const loadSaveData = () => {
     const saved = localStorage.getItem(SAVE_KEY);
     if (saved) return JSON.parse(saved);
     
-    // Check for v10 save and give apology bonus
+    // Only check for v10 migration if no v11 save exists and migration not complete
     const v10Save = localStorage.getItem('pizzaTycoonSave_v10');
-    if (v10Save) {
+    const migrationComplete = localStorage.getItem('pizzaTycoon_v11_migration_complete');
+    const hasV11Save = localStorage.getItem(SAVE_KEY);
+    
+    if (v10Save && !migrationComplete && !hasV11Save) {
       console.log('Migrating from v10 with apology bonus');
       const baseData = JSON.parse(v10Save);
+      
+      // Mark migration as complete to prevent double wipes
+      localStorage.setItem('pizzaTycoon_v11_migration_complete', 'true');
+      
       // Reset progression but give 100k starting cash
       return {
         ...baseData,
@@ -1830,32 +1837,6 @@ export default function App() {
       return;
     }
     
-    // Admin code to reset global progress
-    if (importText.trim().toLowerCase() === 'resetglobal') {
-      // Send a tiny amount to help bring the average back down
-      pendingProduction.current = Math.max(0, pendingProduction.current - 1e15);
-      // Force immediate sync to update server
-      const syncData = {
-        pizzas: Math.max(0, pendingProduction.current),
-        clientTime: Date.now(),
-        forceReset: true
-      };
-      
-      fetch('https://pizzafund.onrender.com/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(syncData)
-      }).then(() => {
-        console.log('Global progress reset initiated');
-        setGlobalPizzas(prev => Math.max(0, prev - 1e15));
-      }).catch(err => {
-        console.error('Failed to reset global progress:', err);
-      });
-      
-      setShowSettings(false);
-      setImportText('');
-      return;
-    }
     try {
       if (!importText) return;
       const decoded = JSON.parse(atob(importText));
