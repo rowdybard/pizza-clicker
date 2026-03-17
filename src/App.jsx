@@ -287,10 +287,10 @@ const AccSection = ({ sKey, icon, label, accentBorder, accentBg, accentText, val
       </button>
       {open && (
         <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-zinc-800/60">
-          {rows.map(({ label: rl, value, sub }) => (
+          {rows.map(({ label: rl, value, sub, valueClass }) => (
             <div key={rl} className="px-4 py-3 flex flex-col gap-0.5">
               <div className="text-sm font-black uppercase tracking-widest text-zinc-500">{rl}</div>
-              <div className={`font-display text-lg ${valueColor} tabular-nums leading-tight`}>{value}</div>
+              <div className={`font-display text-lg ${valueClass || valueColor} tabular-nums leading-tight`}>{value}</div>
               <div className="text-sm text-zinc-600 font-bold">{sub}</div>
             </div>
           ))}
@@ -4052,23 +4052,25 @@ export default function App() {
                     <AccSection sKey="production" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
                       accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
                       rows={[
-                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
-                        { label: 'Idle Profit / Sec', value: `$${fmtInt(idleProfitPerSec)}`, sub: 'without clicking' },
+                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'base production rate' },
+                        { label: 'Idle Profit / Sec', value: `$${fmtInt(idleProfitPerSec)}`, sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'without clicking' },
                         { label: 'Pizza Price', value: `$${fmt(pizzaPrice, 2)}`, sub: 'current ticket value' },
                         { label: 'Base Price', value: `$${fmt(basePizzaPrice, 2)}`, sub: 'before multipliers' },
                         { label: 'VIP Boost', value: `+${fmtInt((vipTokenMultiplier - 1) * 100)}%`, sub: 'all stats' },
                         { label: 'Ach. Boost', value: `+${fmtInt((achievementMultiplier - 1) * 100)}%`, sub: 'price only' },
+                        ...(globalBuffMultiplier > 1 ? [{ label: 'Global Buff', value: `${globalBuffMultiplier}× ACTIVE`, sub: 'community milestone', valueClass: 'text-green-400' }] : []),
                       ]}
                     />
                     <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
                       accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
                       rows={[
-                        { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
-                        { label: 'Per Click $', value: `$${fmtInt(currentClickPower * pizzaPrice)}`, sub: 'money per click' },
+                        { label: 'Click Power', value: fmt(currentClickPower), sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'pizzas per click' },
+                        { label: 'Per Click $', value: `$${fmtInt(currentClickPower * pizzaPrice)}`, sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'money per click' },
                         { label: 'Per Click Rep', value: fmtInt(currentClickPower), sub: 'rep per click' },
                         { label: 'Total Clicks', value: fmtInt(totalClicks), sub: 'lifetime' },
                         { label: 'Click Mult.', value: `${fmtInt(franchiseMultiplier * 100)}%`, sub: `${fmtInt(franchiseLicenses)} licenses` },
                         { label: 'Combo', value: `${fmtInt(combo)}x`, sub: 'decays on idle' },
+                        ...(globalBuffMultiplier > 1 ? [{ label: 'Global Buff', value: `${globalBuffMultiplier}× ACTIVE`, sub: 'community milestone', valueClass: 'text-green-400' }] : []),
                       ]}
                     />
                     <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
