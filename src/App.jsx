@@ -1656,11 +1656,11 @@ export default function App() {
     return () => clearInterval(syncInterval);
   }, [syncWithGlobalSyndicate]);
 
-  // Polling Loop - every 10 seconds for fresher data
+  // Polling Loop - every 5 seconds for all players (active and idle)
   useEffect(() => {
     const pollInterval = setInterval(() => {
       pollGlobalStats();
-    }, 10000); // Poll every 10 seconds
+    }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(pollInterval);
   }, [pollGlobalStats]);
