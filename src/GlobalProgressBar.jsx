@@ -3,7 +3,7 @@ import { Pizza, Users, TrendingUp, Globe, ChevronDown, ChevronUp } from 'lucide-
 
 const GLOBAL_PIZZAS_GOAL = 250000000000000000000; // 250 quintillion pizzas goal (increased for rapid progress)
 
-export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
+export default function GlobalProgressBar({ currentGlobalPizzas = 0, globalBuffMultiplier = 1 }) {
   const [displayPizzas, setDisplayPizzas] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0);
   const [formattedPizzas, setFormattedPizzas] = useState('0');
@@ -11,9 +11,9 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
   const animationRef = useRef(null);
   const previousPizzas = useRef(0);
 
-  // Check if 2x buff is active (goal reached) - use both currentGlobalPizzas and displayPizzas for safety
+  // Check if 2x buff is active - use both goal completion and multiplier state
   const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
-  const isBuffActive = currentGlobalPizzas >= GOAL || displayPizzas >= GOAL; // Check both values
+  const isBuffActive = currentGlobalPizzas >= GOAL || displayPizzas >= GOAL || globalBuffMultiplier > 1; // Check goal or multiplier state
   const progressComplete = displayProgress >= 100;
 
   // Smooth number animation - faster and more responsive

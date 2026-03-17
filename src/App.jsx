@@ -592,7 +592,7 @@ export default function App() {
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
   // Global Network Sync Engine
-  const [globalPizzas, setGlobalPizzas] = useState(50877515368476370); // Initialize with current global total to show buff
+  const [globalPizzas, setGlobalPizzas] = useState(2585000000000000000); // Start at 2.585 quintillion
   const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
   const pendingProduction = useRef(0);
   const lastSyncTime = useRef(0);
@@ -2582,7 +2582,7 @@ export default function App() {
         {/* Global Progress Section */}
         <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
           <div className="max-w-7xl mx-auto">
-            <GlobalProgressBar currentGlobalPizzas={globalPizzas} />
+            <GlobalProgressBar currentGlobalPizzas={globalPizzas} globalBuffMultiplier={globalBuffMultiplier} />
           </div>
         </div>
       </div>
