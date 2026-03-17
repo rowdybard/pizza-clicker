@@ -359,13 +359,37 @@ const computeOfflineEarnings = (data) => {
   if (goneSec < 30) return null; // ignore tiny gaps
   if (goneSec < 0) return null; // prevent negative time calculations
 
-  // Reproduce the same upgrade math from the component
+  // Soft-cap: anything beyond this is almost certainly a broken/hacked save
+  const MAX_OFFLINE_RATE = 1e12; // 1 trillion pizzas/sec — far beyond any legitimate endgame
+
+  const efficiency = 0.5; // 50% offline efficiency
+
+  // --- FAST PATH: use the live rates saved at last save time ---
+  // These are exact values from the live engine — no recomputation drift possible.
+  const savedIdleRate   = safeNum(data.savedIdleRate, -1);
+  const savedProfitRate = safeNum(data.savedProfitRate, -1);
+  if (savedIdleRate > 0 && savedProfitRate > 0 && isFinite(savedIdleRate) && isFinite(savedProfitRate)) {
+    const pizzasPerSec = Math.min(savedIdleRate, MAX_OFFLINE_RATE);
+    const profitPerSec = Math.min(savedProfitRate, MAX_OFFLINE_RATE);
+    return {
+      goneMs,
+      goneSec,
+      moneyEarned:  Math.max(0, profitPerSec * goneSec * efficiency),
+      pizzasEarned: Math.max(0, pizzasPerSec * goneSec * efficiency),
+      profitPerSec,
+      efficiency,
+      usedSavedRate: true,
+    };
+  }
+
+  // --- FALLBACK: recompute from inventory for saves without savedIdleRate ---
   const inv = data.inventory || {};
   const franchiseLicenses = safeNum(data.franchiseLicenses, 0);
   const vipToks  = safeNum(data.vipTokens, 0);
   const achievements = (data.unlockedAchievements || []).length;
   const flourShares = safeNum(data.marketShares?.flour, 0);
   const pepShares   = safeNum(data.marketShares?.pepperoni, 0);
+  const globalBuffMult = safeNum(data.globalBuffMultiplier, 1);
 
   const getMult = (count) => {
     let m = 1;
@@ -373,7 +397,6 @@ const computeOfflineEarnings = (data) => {
     return m;
   };
 
-  // Reproduce star level from saved reputation
   const rep = safeNum(data.reputation, 0);
   const starScale = Math.min(2.0, 1 + (franchiseLicenses * 0.15));
   const scaledThresholds = STAR_THRESHOLDS.map((t, i) => i === 0 ? 0 : Math.floor(t * starScale));
@@ -386,41 +409,37 @@ const computeOfflineEarnings = (data) => {
     if (u.type === 'quality')    pizzaPrice += u.baseValue * count;
   });
 
-  const franchiseMult   = Math.min(25, franchiseLicenses <= 10
+  const franchiseMult    = franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
-    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10));
-  const starPowerMult   = Math.pow(1.6, starLevel);
-  const achievementMult = 1 + (achievements * 0.03);
-  const vipMult         = 1 + (vipToks * 0.08);
-  const flourMult       = 1 + (flourShares * 0.001);
-  const pepMult         = 1 + (pepShares * 0.001);
+    : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10);
+  const starPowerMult    = Math.pow(1.6, starLevel);
+  const achievementMult  = 1 + (achievements * 0.03);
+  const vipMult          = 1 + (vipToks * 0.08);
+  const flourSynergyMult = 1 + Math.min(flourShares * 0.001, 0.5);
+  const pepSynergyMult   = 1 + Math.min(pepShares * 0.001, 0.5);
+  const realityBendMult  = data.syndicatePerks?.realityBend ? 2 : 1;
+  const goldenPowerMult  = 1 + Math.min(2.0, (data.syndicatePerks?.goldenPowerCount || 0) * 0.05);
+  const goldenTouchMult  = data.syndicatePerks?.goldenTouch ? 3 : 1;
+  const licenseFloor     = franchiseLicenses > 0 ? Math.min(Math.sqrt(franchiseLicenses) * 0.5, 1000) : 0;
 
-  // Calculate missing multipliers for offline earnings (matching live calculation)
-  const flourSynergyMult = 1 + Math.min(flourShares * 0.001, 0.5); // Cap at 50% bonus
-  const pepSynergyMult   = 1 + Math.min(pepShares * 0.001, 0.5); // Cap at 50% bonus
-  const realityBendMult  = (data.syndicatePerks?.realityBend) ? 2 : 1; // Binary: 2x if unlocked, 1x if not
-  const goldenPowerMult  = 1 + Math.min(2.0, (data.syndicatePerks?.goldenPowerCount || 0) * 0.05); // 5% per purchase, capped at 200%
-
-  const licenseProductionFloor = franchiseLicenses > 0 ? 2 * Math.pow(1.4, Math.min(franchiseLicenses, 100)) : 0;
-  const finalProdRate  = (prodRate + licenseProductionFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult;
-  const finalPrice     = pizzaPrice * achievementMult * vipMult * pepSynergyMult * realityBendMult;
-  const profitPerSec   = finalProdRate * finalPrice;
-  const pizzasPerSec   = finalProdRate;
+  const finalProdRate = Math.min(
+    (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult * globalBuffMult,
+    MAX_OFFLINE_RATE
+  );
+  const finalPrice    = pizzaPrice * achievementMult * vipMult * pepSynergyMult * realityBendMult;
+  const profitPerSec  = Math.min(finalProdRate * finalPrice * goldenTouchMult, MAX_OFFLINE_RATE);
+  const pizzasPerSec  = finalProdRate;
 
   if (profitPerSec <= 0) return null;
-
-  // Apply 50% offline efficiency
-  const efficiency = 0.5;
-  const moneyEarned  = Math.max(0, profitPerSec * goneSec * efficiency);
-  const pizzasEarned = Math.max(0, pizzasPerSec * goneSec * efficiency);
 
   return {
     goneMs,
     goneSec,
-    moneyEarned,
-    pizzasEarned,
+    moneyEarned:  Math.max(0, profitPerSec * goneSec * efficiency),
+    pizzasEarned: Math.max(0, pizzasPerSec * goneSec * efficiency),
     profitPerSec,
     efficiency,
+    usedSavedRate: false,
   };
 };
 
@@ -509,7 +528,54 @@ export default function App() {
     document.body.style.overflow = '';
     document.body.style.touchAction = 'manipulation';
   }, []);
+// --- TIKTOK LIVE INTEGRATION ---
+  useEffect(() => {
+    // SECURITY: Only connect if you add ?streamer=true to the URL!
+    // This stops normal web players from trying to connect to localhost.
+    const isStreamerMode = new URLSearchParams(window.location.search).get('streamer') === 'true';
+    if (!isStreamerMode) return;
 
+    // Dynamically import socket.io-client so it doesn't bloat the normal web build
+    import('socket.io-client').then(({ io }) => {
+      console.log("🍕 Connecting to TikTok Live Relay...");
+      const socket = io('http://localhost:8080');
+
+      socket.on('tiktok-gift', (data) => {
+        const { username, giftName, diamondCount } = data;
+        
+        // Tier 1: Small Gifts (Roses trigger a Dinner Rush)
+        if (giftName.toLowerCase().includes('rose') || diamondCount < 100) {
+          setRushTimeLeft(prev => prev + 30);
+          pushLogRef.current?.('golden', `🌹 ${username} sent a Rose! Dinner Rush!`, 0);
+          playSound('chaching');
+        } 
+        // Tier 2: Big Gifts (Galaxies trigger 5 mins of profit + 7x Frenzy)
+        else if (diamondCount >= 100) {
+          const bonus = engineRefs.current.idleProfitPerSec * 300; // 5 mins of idle profit
+          setMoney(m => m + bonus);
+          setLifetimeMoney(lm => lm + bonus);
+          
+          // Trigger the 7x Frenzy Visuals
+          setFrenzyMultiplier(7);
+          setTimeout(() => setFrenzyMultiplier(1), 15000);
+          
+          pushLogRef.current?.('golden', `🌌 ${username} sent a ${giftName}! MEGA BONUS!`, bonus);
+          setInstantCashPopup(bonus);
+          setTimeout(() => setInstantCashPopup(null), 3500);
+          playSound('pop');
+        }
+      });
+
+      // Optional: Let chatters type "pizza" to simulate a manual click!
+      socket.on('tiktok-chat', () => {
+         const autoMoney = engineRefs.current.idleClickMoney;
+         setMoney(m => m + autoMoney);
+         setTotalPizzasSold(tp => tp + engineRefs.current.currentClickPower);
+      });
+
+      return () => socket.disconnect();
+    });
+  }, []);
   const [initialData] = useState(() => loadSaveData());
   // Compute offline earnings once at load time — reused for both state init and modal display
   const _offlineCalc = useState(() => {
@@ -1915,7 +1981,7 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), globalBuffMultiplier
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), globalBuffMultiplier, savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
@@ -2159,7 +2225,7 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades) };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), globalBuffMultiplier, savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
