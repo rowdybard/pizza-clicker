@@ -49,11 +49,12 @@ export default function GlobalProgressBar({ currentGlobalPizzas = 0 }) {
 
   // Update when global pizzas change
   useEffect(() => {
+    console.log('GlobalProgressBar - currentGlobalPizzas:', currentGlobalPizzas, 'GOAL:', GOAL, 'isBuffActive:', isBuffActive, 'progressComplete:', progressComplete);
     if (currentGlobalPizzas !== previousPizzas.current) {
       animateNumber(previousPizzas.current, currentGlobalPizzas);
       previousPizzas.current = currentGlobalPizzas;
     }
-  }, [currentGlobalPizzas]);
+  }, [currentGlobalPizzas, isBuffActive, progressComplete]);
 
   // Update formatted display
   useEffect(() => {

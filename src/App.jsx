@@ -738,6 +738,7 @@ export default function App() {
   // Check for global buff activation when goal is reached
   useEffect(() => {
     const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
+    console.log('Buff check - Global pizzas:', globalPizzas, 'Goal:', GOAL, 'Buff active:', globalBuffMultiplier);
     if (globalPizzas >= GOAL && globalBuffMultiplier === 1) {
       console.log('Global goal reached! Activating 2x global buff');
       setGlobalBuffMultiplier(2);
@@ -1842,6 +1843,15 @@ export default function App() {
       });
       setInventory(maxInventory);
       
+      setShowSettings(false);
+      setImportText('');
+      return;
+    }
+    
+    // Manual 2x buff activation for testing
+    if (importText.trim().toLowerCase() === 'activatebuff') {
+      console.log('Manually activating 2x global buff');
+      setGlobalBuffMultiplier(2);
       setShowSettings(false);
       setImportText('');
       return;
