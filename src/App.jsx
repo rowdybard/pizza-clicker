@@ -3086,12 +3086,30 @@ socket.on('tiktok-chat', (data) => {
                         )}
 
                         {/* ── Next License cost ── */}
-                        {pendingLicenses === 0 && (
+                        {pendingLicenses === 0 && franchiseLicenses < 250 && (
                           <div className="text-center py-1">
                             <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Next License</div>
                             <div className="font-display text-base text-fuchsia-400 tabular-nums"><Num value={nextLicenseCost} prefix="$" decimals={0} /></div>
                           </div>
                         )}
+
+                        {/* ── Next Golden Slice ── */}
+                        {(() => {
+                          const currentSlices = Math.floor(franchiseLicenses / LICENSES_PER_ASCENSION_SLICE);
+                          const nextSliceThreshold = (currentSlices + 1) * LICENSES_PER_ASCENSION_SLICE;
+                          const licensesNeeded = nextSliceThreshold - franchiseLicenses;
+                          
+                          // Show if player has licenses but hasn't reached next threshold
+                          if (franchiseLicenses > 0 && licensesNeeded > 0) {
+                            return (
+                              <div className="text-center py-1">
+                                <div className="text-xs text-zinc-600 font-bold uppercase tracking-wider mb-0.5">Next Golden Slice</div>
+                                <div className="font-display text-base text-yellow-400 tabular-nums">{licensesNeeded} License{licensesNeeded !== 1 ? 's' : ''}</div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         {/* Flavor text */}
                         <p className="text-xs text-zinc-700 italic text-center">The obsidian ledger remembers every empire that fed it.</p>
