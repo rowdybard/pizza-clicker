@@ -19,13 +19,6 @@ const getAudioCtx = () => {
 };
 let _isMuted = false;
 const _isStreamerMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('streamer') === 'true';
-const cg = () => window.CrazyGames?.SDK;
-const cgData = () => cg()?.data ?? localStorage;
-const cgAd = () => ({
-  adStarted:  () => { _isMuted = true; },
-  adFinished: () => { _isMuted = false; },
-  adError:    () => { _isMuted = false; },
-});
 const playSound = (type) => {
   if (_isMuted) return;
   try {
@@ -573,42 +566,6 @@ socket.on('tiktok-chat', (data) => {
     };
   }, []);
 
-  // --- CRAZYGAMES SDK ---
-  useEffect(() => {
-    const sdk = cg();
-    if (!sdk) return;
-    (async () => {
-      try { sdk.game.loadingStart(); } catch (e) {}
-      try {
-        await sdk.init();
-        try {
-          const cloudRaw = sdk.data.getItem(SAVE_KEY);
-          if (cloudRaw) {
-            const cloudData = JSON.parse(cloudRaw);
-            const localRaw = localStorage.getItem(SAVE_KEY);
-            const localTime = localRaw ? (JSON.parse(localRaw).lastSaveTime ?? 0) : 0;
-            if ((cloudData.lastSaveTime ?? 0) > localTime) {
-              localStorage.setItem(SAVE_KEY, cloudRaw);
-              window.location.reload();
-              return;
-            }
-          }
-        } catch (e) {}
-        try { _isMuted = !!sdk.game.settings?.muteAudio; } catch (e) {}
-        try { sdk.game.addSettingsChangeListener((s) => { _isMuted = !!s.muteAudio; }); } catch (e) {}
-      } catch (e) {}
-      try { sdk.game.loadingStop(); } catch (e) {}
-      try { sdk.game.gameplayStart(); } catch (e) {}
-    })();
-  }, []);
-
-  // Periodic midgame ad every 5 minutes
-  useEffect(() => {
-    const sdk = cg();
-    if (!sdk) return;
-    const id = setInterval(() => sdk.ad.requestAd('midgame', cgAd()), 5 * 60 * 1000);
-    return () => clearInterval(id);
-  }, []);
   const [initialData] = useState(() => loadSaveData());
   // Compute offline earnings once at load time — reused for both state init and modal display
   const _offlineCalc = useState(() => {
@@ -747,18 +704,6 @@ socket.on('tiktok-chat', (data) => {
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
   const [showAscensionModal, setShowAscensionModal] = useState(false);
   const [ascensionSnapshot, setAscensionSnapshot] = useState(null);
-  // Pause/resume gameplay tracking when modals open
-  useEffect(() => {
-    const sdk = cg();
-    if (!sdk) return;
-    try {
-      if (showPrestigeModal || showAscensionModal) {
-        sdk.game.gameplayStop();
-      } else {
-        sdk.game.gameplayStart();
-      }
-    } catch (e) {}
-  }, [showPrestigeModal, showAscensionModal]);
   const prestigeSnapshotRef = useRef(null);
   const ascensionSnapshotRef = useRef(null);
   const [bakeState, setBakeState] = useState('idle'); // 'idle' | 'pressed' | 'flash'
@@ -1048,6 +993,7 @@ socket.on('tiktok-chat', (data) => {
     
     // Track for global stats
     pendingProduction.current += currentClickPower;
+    setLocalPendingPizzas(pendingProduction.current);
     
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1380,13 +1326,10 @@ socket.on('tiktok-chat', (data) => {
     setRevealedUpgrades(prestigeDefaultRevealed);
     pushLog('spend', `🏢 Prestige +${snap.pendingLicenses} License${snap.pendingLicenses > 1 ? 's' : ''}`, 0);
     setShowPrestigeModal(false);
-    cg()?.game.happytime();
-    cg()?.ad.requestAd('midgame', cgAd());
   }, [syndicatePerks.shadowCapital, pushLog]);
 
   const usePrestigeDecline = useCallback(() => {
     setShowPrestigeModal(false);
-    cg()?.ad.requestAd('midgame', cgAd());
   }, []);
 
   const openAscensionModal = useCallback(() => {
@@ -1479,6 +1422,7 @@ socket.on('tiktok-chat', (data) => {
 
   // --- GLOBAL STATS (60-second sync only) ---
   const [globalPizzas, setGlobalPizzas] = useState(0);
+  const [localPendingPizzas, setLocalPendingPizzas] = useState(0);
   const pendingProduction = useRef(0);
 
   const syncGlobalStats = useCallback(async () => {
@@ -1496,6 +1440,7 @@ socket.on('tiktok-chat', (data) => {
         const data = await response.json();
         if (data.success) {
           pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
+          setLocalPendingPizzas(pendingProduction.current);
           setGlobalPizzas(data.total);
         }
       }
@@ -1627,7 +1572,6 @@ socket.on('tiktok-chat', (data) => {
   };
 
   const handleHardReset = () => {
-    cgData().removeItem(SAVE_KEY);
     localStorage.removeItem(SAVE_KEY);
     window.location.reload();
   };
@@ -1638,7 +1582,7 @@ socket.on('tiktok-chat', (data) => {
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
        marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec
     };
-    cgData().setItem(SAVE_KEY, JSON.stringify(data));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
   };
 
@@ -1966,7 +1910,7 @@ socket.on('tiktok-chat', (data) => {
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
-      if (saveStateRef.current) cgData().setItem(SAVE_KEY, JSON.stringify({ ...saveStateRef.current, lastSaveTime: Date.now() }));
+      if (saveStateRef.current) localStorage.setItem(SAVE_KEY, JSON.stringify({ ...saveStateRef.current, lastSaveTime: Date.now() }));
     }, 2000);
     return () => clearInterval(saveLoop);
   }, []);
