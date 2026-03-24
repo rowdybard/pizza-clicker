@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ExecutiveStickerbook from './awards.jsx';
+import GlobalProgressBar from './GlobalProgressBar.jsx';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -2329,6 +2330,13 @@ socket.on('tiktok-chat', (data) => {
         {/* Rep bar — thin strip under HUD */}
         <div className="h-1 bg-zinc-950 w-full">
           <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
+        </div>
+
+        {/* Global Progress Section */}
+        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
+          <div className="max-w-7xl mx-auto">
+            <GlobalProgressBar currentGlobalPizzas={globalPizzas} globalPizzasStr={String(globalPizzas)} localPendingPizzas={localPendingPizzas} />
+          </div>
         </div>
         
       </div>
