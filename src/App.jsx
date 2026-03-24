@@ -1716,11 +1716,6 @@ socket.on('tiktok-chat', (data) => {
                 timestamp: Date.now()
               };
               localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
-              
-              // Immediate sync for production to minimize mobile loss
-              if (pizzasThisTick >= 1) {
-                syncWithGlobalSyndicate();
-              }
                         }
 
           const timeSinceClick = Date.now() - state.lastClickTime;
