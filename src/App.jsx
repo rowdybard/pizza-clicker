@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Analytics } from '@vercel/analytics/react';
 import ExecutiveStickerbook from './awards.jsx';
-import GlobalProgressBar from './GlobalProgressBar.jsx';
 import { 
   Pizza, Car, Store, TrendingUp, TrendingDown, ShoppingCart, 
   DollarSign, ChefHat, Users, Award, Star, Zap, Clock, Building,
@@ -20,6 +18,14 @@ const getAudioCtx = () => {
   return _audioCtx;
 };
 let _isMuted = false;
+const _isStreamerMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('streamer') === 'true';
+const cg = () => window.CrazyGames?.SDK;
+const cgData = () => cg()?.data ?? localStorage;
+const cgAd = () => ({
+  adStarted:  () => { _isMuted = true; },
+  adFinished: () => { _isMuted = false; },
+  adError:    () => { _isMuted = false; },
+});
 const playSound = (type) => {
   if (_isMuted) return;
   try {
@@ -305,47 +311,6 @@ const loadSaveData = () => {
     const saved = localStorage.getItem(SAVE_KEY);
     if (saved) return JSON.parse(saved);
     
-    // Only check for v10 migration if no v11 save exists and migration not complete
-    const v10Save = localStorage.getItem('pizzaTycoonSave_v10');
-    const migrationComplete = localStorage.getItem('pizzaTycoon_v11_migration_complete');
-    const hasV11Save = localStorage.getItem(SAVE_KEY);
-    
-    if (v10Save && !migrationComplete && !hasV11Save) {
-      console.log('Migrating from v10 with apology bonus');
-      const baseData = JSON.parse(v10Save);
-      
-      // Mark migration as complete to prevent double wipes
-      localStorage.setItem('pizzaTycoon_v11_migration_complete', 'true');
-      
-      // Reset progression but give 100k starting cash
-      return {
-        ...baseData,
-        money: 100000, // 100k starting cash
-        franchiseLicenses: 0,
-        reputation: 0,
-        totalPizzasSold: 0,
-        lifetimeMoney: 100000,
-        inventory: {},
-        unlockedAchievements: [],
-        goldenSlices: 0, // No golden slices
-        ascensionSpentLicenses: 0,
-        syndicatePerks: {},
-        marketUnlocked: false,
-        marketShares: { flour: 0, cheese: 0, pepperoni: 0, truffles: 0 },
-        totalMarketTrades: 0,
-        marketProfitLifetime: 0,
-        biggestMarketGain: 0,
-        deliveriesCompleted: 0,
-        vipTokens: 0,
-        totalClicks: 0,
-        perfectBakes: 0,
-        deliveryCooldowns: {},
-        marketCooldowns: { rumors: 0, squeeze: 0 },
-        manipTarget: 'flour',
-        revealedUpgrades: [],
-        migrationBonus: true // Flag to show welcome message
-      };
-    }
   } catch (e) {
     console.error("Save load failed", e);
   }
@@ -389,7 +354,6 @@ const computeOfflineEarnings = (data) => {
   const achievements = (data.unlockedAchievements || []).length;
   const flourShares = safeNum(data.marketShares?.flour, 0);
   const pepShares   = safeNum(data.marketShares?.pepperoni, 0);
-  const globalBuffMult = safeNum(data.globalBuffMultiplier, 1);
 
   const getMult = (count) => {
     let m = 1;
@@ -423,7 +387,7 @@ const computeOfflineEarnings = (data) => {
   const licenseFloor     = franchiseLicenses > 0 ? Math.min(Math.sqrt(franchiseLicenses) * 0.5, 1000) : 0;
 
   const finalProdRate = Math.min(
-    (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult * globalBuffMult,
+    (prodRate + licenseFloor) * franchiseMult * starPowerMult * vipMult * flourSynergyMult * realityBendMult * goldenPowerMult,
     MAX_OFFLINE_RATE
   );
   const finalPrice    = pizzaPrice * achievementMult * vipMult * pepSynergyMult * realityBendMult;
@@ -535,10 +499,16 @@ export default function App() {
     const isStreamerMode = new URLSearchParams(window.location.search).get('streamer') === 'true';
     if (!isStreamerMode) return;
 
+    // Hoist socket outside the promise so the useEffect cleanup can disconnect it.
+    // Without this, StrictMode fires the effect twice → two sockets → every event fires twice.
+    let socket = null;
+    let cancelled = false;
+
     // Dynamically import socket.io-client so it doesn't bloat the normal web build
     import('socket.io-client').then(({ io }) => {
+      if (cancelled) return; // StrictMode cleanup already ran before promise resolved
       console.log("🍕 Connecting to TikTok Live Relay...");
-      const socket = io('http://localhost:8080');
+      socket = io('http://localhost:8080');
 
       socket.on('tiktok-gift', (data) => {
         const { username, giftName, diamondCount } = data;
@@ -565,16 +535,79 @@ export default function App() {
           playSound('pop');
         }
       });
+// 1. THE DISHES COMMAND
+      socket.on('tiktok-scrub', (data) => {
+        setSideOrder(prev => {
+          // If there are no dirty dishes, do nothing
+          if (!prev || prev.type !== 'dishes' || prev.status !== 'dirty') return prev;
+          
+          // Add 34% progress (takes exactly 3 scrubs to hit 100%)
+          const newProg = prev.progress + 34;
+          
+          // If it hits 100%, trigger the Clean Boost!
+          if (newProg >= 100) {
+            setCleanBoostTimer(60); // 60 seconds of 2x click power
+            playSound('chaching');
+            pushLogRef.current?.('golden', `✨ ${data.username} finished the dishes!`, 0);
+            return { ...prev, progress: 100, status: 'clean' };
+          }
+          
+          return { ...prev, progress: newProg };
+        });
+      });
+// 3. THE PIZZA COMMAND — physically simulates a button press at a random spot
+socket.on('tiktok-chat', (data) => {
+  tikTokClickRef.current?.(data.username);
+});
 
-      // Optional: Let chatters type "pizza" to simulate a manual click!
-      socket.on('tiktok-chat', () => {
-         const autoMoney = engineRefs.current.idleClickMoney;
-         setMoney(m => m + autoMoney);
-         setTotalPizzasSold(tp => tp + engineRefs.current.currentClickPower);
+      // 4. THE SLICE COMMAND — claims the golden popup already on screen
+      socket.on('tiktok-slice', (data) => {
+        claimGoldenSliceRef.current?.(data.username);
       });
 
-      return () => socket.disconnect();
     });
+
+    return () => {
+      cancelled = true;
+      socket?.disconnect();
+    };
+  }, []);
+
+  // --- CRAZYGAMES SDK ---
+  useEffect(() => {
+    const sdk = cg();
+    if (!sdk) return;
+    (async () => {
+      try { sdk.game.loadingStart(); } catch (e) {}
+      try {
+        await sdk.init();
+        try {
+          const cloudRaw = sdk.data.getItem(SAVE_KEY);
+          if (cloudRaw) {
+            const cloudData = JSON.parse(cloudRaw);
+            const localRaw = localStorage.getItem(SAVE_KEY);
+            const localTime = localRaw ? (JSON.parse(localRaw).lastSaveTime ?? 0) : 0;
+            if ((cloudData.lastSaveTime ?? 0) > localTime) {
+              localStorage.setItem(SAVE_KEY, cloudRaw);
+              window.location.reload();
+              return;
+            }
+          }
+        } catch (e) {}
+        try { _isMuted = !!sdk.game.settings?.muteAudio; } catch (e) {}
+        try { sdk.game.addSettingsChangeListener((s) => { _isMuted = !!s.muteAudio; }); } catch (e) {}
+      } catch (e) {}
+      try { sdk.game.loadingStop(); } catch (e) {}
+      try { sdk.game.gameplayStart(); } catch (e) {}
+    })();
+  }, []);
+
+  // Periodic midgame ad every 5 minutes
+  useEffect(() => {
+    const sdk = cg();
+    if (!sdk) return;
+    const id = setInterval(() => sdk.ad.requestAd('midgame', cgAd()), 5 * 60 * 1000);
+    return () => clearInterval(id);
   }, []);
   const [initialData] = useState(() => loadSaveData());
   // Compute offline earnings once at load time — reused for both state init and modal display
@@ -657,14 +690,6 @@ export default function App() {
   const [buyMultiplier, setBuyMultiplier] = useState(1); // Can be 1, 5, 10, 'custom', or 'MAX' (locked at value when selected)
   const [customBuyAmount, setCustomBuyAmount] = useState(100); // Custom buy amount
   
-  // Global Network Sync Engine
-  const [globalPizzas, setGlobalPizzas] = useState(0); // Server total as float64 (used for % and buff checks)
-  const [globalPizzasStr, setGlobalPizzasStr] = useState('0'); // Exact string from server for BigInt display
-  const [localPendingPizzas, setLocalPendingPizzas] = useState(0); // Local unsent pizzas for real-time display
-  const [globalBuffMultiplier, setGlobalBuffMultiplier] = useState(initialData?.globalBuffMultiplier || 2); // Global buff multiplier (1x = no buff, 2x = active buff)
-  const pendingProduction = useRef(0);
-  const lastSyncTime = useRef(0);
-  const lastPollTime = useRef(0);
 
   // --- SPECIAL DELIVERY STATE ---
   const [specialDelivery, setSpecialDelivery] = useState(null);
@@ -722,6 +747,18 @@ export default function App() {
   const [prestigeSnapshot, setPrestigeSnapshot] = useState(null);
   const [showAscensionModal, setShowAscensionModal] = useState(false);
   const [ascensionSnapshot, setAscensionSnapshot] = useState(null);
+  // Pause/resume gameplay tracking when modals open
+  useEffect(() => {
+    const sdk = cg();
+    if (!sdk) return;
+    try {
+      if (showPrestigeModal || showAscensionModal) {
+        sdk.game.gameplayStop();
+      } else {
+        sdk.game.gameplayStart();
+      }
+    } catch (e) {}
+  }, [showPrestigeModal, showAscensionModal]);
   const prestigeSnapshotRef = useRef(null);
   const ascensionSnapshotRef = useRef(null);
   const [bakeState, setBakeState] = useState('idle'); // 'idle' | 'pressed' | 'flash'
@@ -803,14 +840,6 @@ export default function App() {
     }
   }, [initialData?.migrationBonus]);
 
-  // Check for global buff activation when goal is reached
-  useEffect(() => {
-    const GOAL = 250000000000000000000; // 250 quintillion pizzas goal
-    if (globalPizzas >= GOAL && globalBuffMultiplier === 1) {
-      setGlobalBuffMultiplier(2);
-    }
-  }, [globalPizzas, globalBuffMultiplier]);
-
   const getMilestoneMultiplier = useCallback((count) => {
     let multiplier = 1;
     MILESTONES.forEach((m, i) => { if (count >= m) multiplier *= MILESTONE_MULTS_OVERRIDE[i]; });
@@ -879,12 +908,12 @@ export default function App() {
   // License passive floor: guaranteed pizzas/sec even with no upgrades (much more conservative)
   const licenseProductionFloor = franchiseLicenses > 0 ? Math.min(Math.sqrt(franchiseLicenses) * 0.5, 1000) : 0;
   // Production and click both benefit from licenses + star power + global buff
-  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult * globalBuffMultiplier;
+  const franchisedProduction = (baseProductionRate + licenseProductionFloor) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * flourSynergyMult * realityBendMult * goldenPowerMult;
   const franchisedPrice = basePizzaPrice * franchisePriceMultiplier * achievementMultiplier * vipTokenMultiplier * pepperoniSynergyMult * realityBendMult;
   
   // Ascension perk: clicks gain +10% of idle production rate (uses franchisedProduction to avoid forward reference)
   const synergisticClickBonus = syndicatePerks.ascension ? franchisedProduction * 0.10 : 0;
-  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult * globalBuffMultiplier;
+  const franchisedClick = (baseClickPower + synergisticClickBonus) * franchiseMultiplier * starPowerMultiplier * vipTokenMultiplier * goldenPowerMult;
   
   const productionRate = isRush ? franchisedProduction * 2 : franchisedProduction;
   const pizzaPrice = isRush ? franchisedPrice * 1.25 : franchisedPrice;
@@ -966,6 +995,12 @@ export default function App() {
   const processedTouchesRef = useRef(new Set());
   const lastTouchTimeRef = useRef(0);
 
+  // TikTok virtual press — ref to the bake hitbox DOM node + the simulated click fn
+  const bakeHitboxRef = useRef(null);
+  const tikTokClickRef = useRef(null);
+  const claimGoldenSliceRef = useRef(null);
+  const autoOvenRef = useRef(null);
+
   const handleBakePress = (e) => {
     // Completely separate touch and mouse handling
     const isTouchEvent = e.type?.includes('touch');
@@ -1011,20 +1046,8 @@ export default function App() {
     engineRefs.current.lastClickTime = Date.now();
     engineRefs.current.clickTimestamps.push(Date.now());
     
-    // Add to pending production for global sync
+    // Track for global stats
     pendingProduction.current += currentClickPower;
-    
-    // Immediate visual update for global counter
-    setLocalPendingPizzas(pendingProduction.current);
-    
-    // Sync with server (don't need immediate call on every click, 100ms tick handles it)
-    
-    // Save to localStorage as backup for mobile
-    const backupData = {
-      pendingPizzas: pendingProduction.current,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('pizzaGlobalSyncBackup', JSON.stringify(backupData));
     
     // Accumulate clicks for log — flush every 5s regardless of click rate
     const pc = pendingClickRef.current;
@@ -1325,8 +1348,6 @@ export default function App() {
     pushLog('delivery', `🚗 Delivery — ${dest.name}`, warpMoney);
     setTotalPizzasSold(tp => tp + warpPizzas);
     
-    // Add to pending production for global sync
-    pendingProduction.current += warpPizzas;
 
     if (dest.rushSeconds > 0) {
       setRushTimeLeft(prev => prev + dest.rushSeconds);
@@ -1359,9 +1380,14 @@ export default function App() {
     setRevealedUpgrades(prestigeDefaultRevealed);
     pushLog('spend', `🏢 Prestige +${snap.pendingLicenses} License${snap.pendingLicenses > 1 ? 's' : ''}`, 0);
     setShowPrestigeModal(false);
+    cg()?.game.happytime();
+    cg()?.ad.requestAd('midgame', cgAd());
   }, [syndicatePerks.shadowCapital, pushLog]);
 
-  const usePrestigeDecline = useCallback(() => setShowPrestigeModal(false), []);
+  const usePrestigeDecline = useCallback(() => {
+    setShowPrestigeModal(false);
+    cg()?.ad.requestAd('midgame', cgAd());
+  }, []);
 
   const openAscensionModal = useCallback(() => {
     const sliceGain = Math.floor(franchiseLicenses / LICENSES_PER_ASCENSION_SLICE);
@@ -1451,418 +1477,47 @@ export default function App() {
 
   const declineAscension = useCallback(() => setShowAscensionModal(false), []);
 
-  // --- GLOBAL NETWORK SYNC ENGINE ---
-  const syncWithGlobalSyndicate = useCallback(async () => {
+  // --- GLOBAL STATS (60-second sync only) ---
+  const [globalPizzas, setGlobalPizzas] = useState(0);
+  const pendingProduction = useRef(0);
+
+  const syncGlobalStats = useCallback(async () => {
     const amountToSend = Math.floor(pendingProduction.current);
-    
-    console.log('Sync attempt - pending pizzas:', amountToSend);
-    
-    if (amountToSend <= 0) {
-      console.log('No pending pizzas to sync');
-      return;
-    }
+    if (amountToSend <= 0) return;
     
     try {
-      // Use correct API URL based on environment
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5173/api/global-stats'
-        : '/api/global-stats';
-        
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/global-stats', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: amountToSend }),
       });
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Sync response:', data);
         if (data.success) {
           pendingProduction.current = Math.max(0, pendingProduction.current - amountToSend);
-          setLocalPendingPizzas(pendingProduction.current);
-          
           setGlobalPizzas(data.total);
-          if (data.totalStr) setGlobalPizzasStr(data.totalStr);
-          lastSyncTime.current = Date.now();
-          
-          // Log different response types
-          if (data.mock) {
-            console.warn('Using mock KV data - environment variables not configured');
-          } else if (data.cached && data.estimated) {
-            console.warn('Using estimated total (Redis down):', data.total);
-          } else if (data.cached) {
-            console.warn('Using cached total:', data.total);
-          } else {
-            console.log('Real Redis data - global total updated:', data.total);
-          }
-        } else {
-          console.warn('Sync failed - success false:', data);
-        }
-      } else {
-        console.warn('Sync failed - HTTP error:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('Error syncing with global syndicate:', error);
-      // Don't subtract on error - keep for retry
-    }
-  }, []);
-
-  // Poll global stats to keep fresh
-  const pollGlobalStats = useCallback(async () => {
-    const now = Date.now();
-    
-    // Poll every 5 seconds regardless of local production — shows all players' contributions
-    if (now - lastPollTime.current < 5000) return;
-    
-    try {
-      // Use correct API URL based on environment
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5173/api/global-stats'
-        : '/api/global-stats';
-        
-      const response = await fetch(apiUrl);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setGlobalPizzas(data.total);
-          if (data.totalStr) setGlobalPizzasStr(data.totalStr);
-          lastPollTime.current = now;
-          
-          // Log different response types
-          if (data.mock) {
-            console.warn('Poll - Using mock KV data');
-          } else if (data.cached) {
-            console.warn('Poll - Using cached total:', data.total);
-          } else {
-            console.log('Poll - Real Redis data:', data.total);
-          }
         }
       }
     } catch (error) {
-      console.error('Error polling global stats:', error);
+      // Silent fail - will retry on next interval
     }
   }, []);
 
-  // Initial fetch on mount
-  useEffect(() => {
-    const fetchInitialStats = async () => {
-      try {
-        // Use correct API URL based on environment
-        const apiUrl = window.location.hostname === 'localhost' 
-          ? 'http://localhost:5173/api/global-stats'
-          : '/api/global-stats';
-          
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-                    if (data.success) {
-            setGlobalPizzas(data.total);
-            
-            // Log different response types
-            if (data.mock) {
-              console.warn('Initial - Using mock KV data');
-            } else if (data.cached) {
-              console.warn('Initial - Using cached total:', data.total);
-            } else {
-              console.log('Initial - Real Redis data:', data.total);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching initial global stats:', error);
-      }
-    };
-    
-    fetchInitialStats();
-    
-    // Add offline pizzas to global sync
-    if (_offlineCalc.report?.pizzasEarned > 0) {
-      const offlinePizzas = Math.floor(_offlineCalc.report.pizzasEarned);
-      pendingProduction.current += offlinePizzas;
-      console.log('Added offline pizzas to global sync:', offlinePizzas);
-      console.log('Offline report details:', _offlineCalc.report);
-      
-      // Always sync offline pizzas immediately, regardless of amount
-      setTimeout(() => {
-        console.log('Triggering immediate offline sync...');
-        syncWithGlobalSyndicate();
-      }, 500); // Shorter delay for faster sync
-    } else {
-      console.log('No offline pizzas to sync');
-    }
-    
-    // Check for localStorage backup from mobile session
-    const backupData = localStorage.getItem('pizzaGlobalSyncBackup');
-    if (backupData) {
-      try {
-        const parsed = JSON.parse(backupData);
-        const now = Date.now();
-        const ageMinutes = (now - parsed.timestamp) / (1000 * 60);
-        
-        // Only use backup if it's less than 10 minutes old
-        if (ageMinutes < 10 && parsed.pendingPizzas > 0) {
-          console.log('Found localStorage backup -', parsed.pendingPizzas, 'pizzas from', ageMinutes.toFixed(1), 'minutes ago');
-          pendingProduction.current += parsed.pendingPizzas;
-          
-          // Clear the backup after using it
-          localStorage.removeItem('pizzaGlobalSyncBackup');
-          
-          // Sync immediately
-          setTimeout(() => {
-            console.log('Triggering backup sync...');
-            syncWithGlobalSyndicate();
-          }, 500);
-        } else {
-          console.log('localStorage backup too old or empty, clearing...');
-          localStorage.removeItem('pizzaGlobalSyncBackup');
-        }
-      } catch (error) {
-        console.error('Error parsing localStorage backup:', error);
-        localStorage.removeItem('pizzaGlobalSyncBackup');
-      }
-    } else {
-      console.log('No localStorage backup found');
-    }
-    
-    // Check for production state recovery (when app was minimized)
-    const productionState = localStorage.getItem('pizzaProductionState');
-    if (productionState) {
-      try {
-        const parsed = JSON.parse(productionState);
-        const now = Date.now();
-        const timeSinceLastSave = (now - parsed.timestamp) / 1000; // seconds
-        
-        // If it's been more than 5 seconds, we were probably minimized
-        if (timeSinceLastSave > 5 && parsed.idlePizzasPerSec > 0) {
-          const missingPizzas = parsed.idlePizzasPerSec * timeSinceLastSave;
-          console.log('App was minimized for', timeSinceLastSave.toFixed(1), 'seconds');
-          console.log('Calculating missing production:', missingPizzas.toFixed(1), 'pizzas');
-          
-          pendingProduction.current += missingPizzas;
-          
-          // Clear the production state after recovery
-          localStorage.removeItem('pizzaProductionState');
-          
-          // Sync immediately
-          setTimeout(() => {
-            console.log('Triggering production recovery sync...');
-            syncWithGlobalSyndicate();
-          }, 500);
-        } else {
-          console.log('Production state is recent or no production, clearing...');
-          localStorage.removeItem('pizzaProductionState');
-        }
-      } catch (error) {
-        console.error('Error parsing production state:', error);
-        localStorage.removeItem('pizzaProductionState');
-      }
-    } else {
-      console.log('No production state found');
-    }
-    
-    // Check for emergency backup (last resort recovery)
-    const emergencyBackup = localStorage.getItem('pizzaEmergencyBackup');
-    if (emergencyBackup) {
-      try {
-        const parsed = JSON.parse(emergencyBackup);
-        const now = Date.now();
-        const ageMinutes = (now - parsed.timestamp) / (1000 * 60);
-        
-        // Only use emergency backup if it's less than 5 minutes old
-        if (ageMinutes < 5 && parsed.pendingPizzas > 0) {
-          console.log('Found emergency backup -', parsed.pendingPizzas, 'pizzas from', ageMinutes.toFixed(1), 'minutes ago');
-          pendingProduction.current += parsed.pendingPizzas;
-          
-          // Clear the emergency backup after using it
-          localStorage.removeItem('pizzaEmergencyBackup');
-          
-          // Sync immediately
-          setTimeout(() => {
-            console.log('Triggering emergency backup sync...');
-            syncWithGlobalSyndicate();
-          }, 500);
-        } else {
-          console.log('Emergency backup too old or empty, clearing...');
-          localStorage.removeItem('pizzaEmergencyBackup');
-        }
-      } catch (error) {
-        console.error('Error parsing emergency backup:', error);
-        localStorage.removeItem('pizzaEmergencyBackup');
-      }
-    } else {
-      console.log('No emergency backup found');
-    }
-  }, [syncWithGlobalSyndicate, _offlineCalc]);
-
-  // Continuous production state saving for mobile reliability
-  useEffect(() => {
-    const saveInterval = setInterval(() => {
-      const now = Date.now();
-      const state = {
-        pendingPizzas: pendingProduction.current,
-        idlePizzasPerSec: engineRefs.current.idlePizzasPerSec,
-        timestamp: now,
-        lastSaveTime: engineRefs.current.lastGlobalSyncSave
-      };
-      localStorage.setItem('pizzaProductionState', JSON.stringify(state));
-      engineRefs.current.lastGlobalSyncSave = now;
-    }, 2000); // Save every 2 seconds
-
-    return () => clearInterval(saveInterval);
-  }, []);
-
-  // Sync Loop - every 300ms for maximum robustness
+  // Sync every 60 seconds
   useEffect(() => {
     const syncInterval = setInterval(() => {
-      syncWithGlobalSyndicate();
-    }, 300); // Sync every 300ms for maximum reliability
-
+      syncGlobalStats();
+    }, 60000); // 60 seconds
     return () => clearInterval(syncInterval);
-  }, [syncWithGlobalSyndicate]);
-
-  // Polling Loop - every 5 seconds for all players (active and idle)
-  useEffect(() => {
-    const pollInterval = setInterval(() => {
-      pollGlobalStats();
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(pollInterval);
-  }, [pollGlobalStats]);
-
-  // Force sync on page unload and visibility change
-  useEffect(() => {
-    const forceSyncAll = async () => {
-      const amountToSend = Math.floor(pendingProduction.current);
-      console.log('Force sync attempt - pending pizzas:', amountToSend);
-      
-      if (amountToSend > 0) {
-        try {
-          const apiUrl = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5173/api/global-stats'
-            : '/api/global-stats';
-            
-          // Try multiple times for robustness
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-              const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amountToSend }),
-                // Use keepalive for better reliability during page unload
-                keepalive: true,
-                // Short timeout for mobile reliability
-                signal: AbortSignal.timeout(2000)
-              });
-              
-              if (response.ok) {
-                const data = await response.json();
-                console.log('Force sync successful - sent', amountToSend, 'pizzas, new total:', data.total);
-                pendingProduction.current -= amountToSend;
-                setGlobalPizzas(data.total);
-                return; // Success, exit retry loop
-              } else {
-                console.warn('Force sync attempt', attempt, 'failed:', response.status);
-                if (attempt === 3) {
-                  // Save to localStorage as last resort
-                  const emergencyBackup = {
-                    pendingPizzas: amountToSend,
-                    timestamp: Date.now(),
-                    emergency: true
-                  };
-                  localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
-                  console.log('Emergency backup saved to localStorage');
-                }
-              }
-            } catch (attemptError) {
-              console.error('Force sync attempt', attempt, 'error:', attemptError);
-              if (attempt === 3) {
-                // Save to localStorage as last resort
-                const emergencyBackup = {
-                  pendingPizzas: amountToSend,
-                  timestamp: Date.now(),
-                  emergency: true
-                };
-                localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
-                console.log('Emergency backup saved to localStorage due to error');
-              }
-            }
-            
-            // Brief delay between retries
-            if (attempt < 3) {
-              await new Promise(resolve => setTimeout(resolve, 100));
-            }
-          }
-        } catch (error) {
-          console.error('All force sync attempts failed:', error);
-          // Final emergency backup
-          const emergencyBackup = {
-            pendingPizzas: amountToSend,
-            timestamp: Date.now(),
-            emergency: true
-          };
-          localStorage.setItem('pizzaEmergencyBackup', JSON.stringify(emergencyBackup));
-          console.log('Final emergency backup saved to localStorage');
-        }
-      } else {
-        console.log('No pending pizzas to force sync');
-      }
-    };
-
-    const handleBeforeUnload = (e) => {
-      // Sync immediately when page is unloading
-      forceSyncAll();
-      // Don't show confirmation dialog - just sync
-      e.preventDefault = undefined;
-    };
-
-    const handleVisibilityChange = () => {
-      // Sync when page becomes hidden (app closed, tab switched, etc.)
-      if (document.hidden) {
-        console.log('Page hidden, triggering force sync...');
-        forceSyncAll();
-      }
-    };
-
-    const handlePageHide = (e) => {
-      // This is more reliable for mobile apps
-      console.log('Page hide event, triggering force sync...');
-      forceSyncAll();
-    };
-
-    const handleBlur = (e) => {
-      // When window loses focus (app switching, etc.)
-      console.log('Window blur event, triggering force sync...');
-      forceSyncAll();
-    };
-
-    const handleFocus = (e) => {
-      // When window regains focus
-      console.log('Window focus event - resumed game');
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pagehide', handlePageHide);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pagehide', handlePageHide);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, []);
+  }, [syncGlobalStats]);
 
 // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), globalBuffMultiplier
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades)
     };
     navigator.clipboard.writeText(btoa(JSON.stringify(data)));
     alert("Save code copied to clipboard!");
@@ -1938,7 +1593,6 @@ export default function App() {
         if (decoded.manipTarget) setManipTarget(decoded.manipTarget);
         if (decoded.deliveryCooldowns) setDeliveryCooldowns(decoded.deliveryCooldowns);
         if (decoded.revealedUpgrades) setRevealedUpgrades(new Set(decoded.revealedUpgrades));
-        if (decoded.globalBuffMultiplier !== undefined) setGlobalBuffMultiplier(decoded.globalBuffMultiplier);
         
         // Ensure new upgrades are properly revealed after import
         setRevealedUpgrades(prev => {
@@ -1973,6 +1627,7 @@ export default function App() {
   };
 
   const handleHardReset = () => {
+    cgData().removeItem(SAVE_KEY);
     localStorage.removeItem(SAVE_KEY);
     window.location.reload();
   };
@@ -1981,9 +1636,9 @@ export default function App() {
     const data = { 
        money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, 
        totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens,
-       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), globalBuffMultiplier, savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec
+       marketUnlocked, marketShares, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), lastSaveTime: Date.now(), savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec
     };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    cgData().setItem(SAVE_KEY, JSON.stringify(data));
     alert("Game saved successfully!");
   };
 
@@ -2000,8 +1655,6 @@ export default function App() {
       clickTimestamps: [], // ring buffer for rolling CPS
       syndicatePerks: { shadowCapital: false, quantumOven: false, insiderTrading: false, autoArm: false },
       currentClickPower: 1, pizzaPrice: 2.5, idleClickMoney: 0, marketUnlocked: false,
-      lastGlobalSyncSave: Date.now(), // Track when we last saved global sync state
-      globalBuffMultiplier: 1,
   });
   useEffect(() => {
       engineRefs.current.idleProfitPerSec = idleProfitPerSec;
@@ -2016,6 +1669,83 @@ export default function App() {
       engineRefs.current.idleClickMoney = currentClickPower * pizzaPrice;
       engineRefs.current.marketUnlocked = marketUnlocked;
   }, [idleProfitPerSec, idlePizzasPerSec, rushTimeLeft, vipSpawned, totalPizzasSold, syndicatePerks, currentClickPower, pizzaPrice, marketUnlocked]);
+
+  // Streamer mode: auto-perfect oven catch — updated every render for fresh state
+  autoOvenRef.current = () => {
+    setSideOrder(prev => {
+      if (!prev || prev.status !== 'cooking') return prev;
+      const profitSec = Math.max(engineRefs.current.idlePizzasPerSec, 1) * engineRefs.current.pizzaPrice;
+      const baseReward = prev.type === 'wings' ? profitSec * 45 : profitSec * 20;
+      const finalReward = baseReward * 5;
+      setMoney(m => m + finalReward);
+      setLifetimeMoney(lm => lm + finalReward);
+      setReputation(r => r + 25);
+      setPerfectBakes(b => b + 1);
+      pushLogRef.current?.('oven', '🔥 Auto Perfect Catch!', finalReward);
+      playSound('chaching');
+      return { ...prev, status: 'perfect', rewardEarned: finalReward };
+    });
+  };
+
+  // TikTok golden slice claim — updated every render so it captures the current event
+  claimGoldenSliceRef.current = (username) => {
+    if (!goldenSliceEvent) return;
+    pushLogRef.current?.('golden', `🍕 ${username} claimed a Golden Slice!`, 0);
+    handleGoldenSliceClick();
+  };
+
+  // TikTok virtual bake press — updated every render so it always captures fresh state
+  tikTokClickRef.current = (username) => {
+    const el = bakeHitboxRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // Random position in the inner 60% of the button
+    const clientX = rect.left + rect.width  * (0.2 + Math.random() * 0.6);
+    const clientY = rect.top  + rect.height * (0.2 + Math.random() * 0.6);
+    const popupX  = clientX - rect.left + (Math.random() * 40 - 20);
+    const popupY  = clientY - rect.top  + (Math.random() * 40 - 20);
+
+    // --- Game state (mirrors handleBakePress) ---
+    const clickPower  = engineRefs.current.currentClickPower;
+    const moneyEarned = clickPower * engineRefs.current.pizzaPrice;
+    const repEarned   = Math.max(1, Math.ceil(Math.pow(clickPower, 0.6) * 0.35));
+    setMoney(m => m + moneyEarned);
+    setLifetimeMoney(m => m + moneyEarned);
+    setTotalPizzasSold(tp => tp + clickPower);
+    setReputation(r => r + repEarned);
+    setTotalClicks(tc => tc + 1);
+    setCombo(c => Math.min(c + 1, 100));
+    setComboDecayTimer(10);
+    pendingProduction.current += clickPower;
+    setLocalPendingPizzas(pendingProduction.current);
+    engineRefs.current.clicksThisSecond += 1;
+    engineRefs.current.lastClickTime = Date.now();
+
+    // --- Popup ---
+    const now = Date.now();
+    setClickPopups(prev => {
+      const next = [...prev, { id: now + Math.random(), x: popupX, y: popupY, value: fmt(moneyEarned), expiresAt: now + 1000 }];
+      return next.length > 25 ? next.slice(next.length - 25) : next;
+    });
+    pushLogRef.current?.('click', `🍕 ${username} clicked the pizza!`, moneyEarned);
+    playSound('pop');
+
+    // --- Press visual (tilt + flash) ---
+    const rawX = ((clientX - rect.left) / rect.width  - 0.5) * 2;
+    const rawY = ((clientY - rect.top)  / rect.height - 0.5) * 2;
+    const tiltY = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.9) * 15;
+    const tiltX = -Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.9) * 15;
+    setPressStyle({ tiltX, tiltY, parallaxX: rawX * 0.08 * rect.width * 0.5, parallaxY: rawY * 0.08 * rect.height * 0.5 });
+    setBakeState('pressed');
+    setIsPressed(true);
+    setTimeout(() => {
+      setIsPressed(false);
+      setBakeState('flash');
+      setPressStyle({ tiltX: 0, tiltY: 0, parallaxX: 0, parallaxY: 0 });
+      if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current);
+      bakeTimerRef.current = setTimeout(() => setBakeState('idle'), 80);
+    }, 120);
+  };
 
   // 1. The 100ms Smooth Ticker & Combo Engine
   useEffect(() => {
@@ -2179,6 +1909,13 @@ export default function App() {
     return () => clearInterval(tick);
   }, [sideOrder?.status, sideOrder?.speed]);
 
+  // Streamer mode: auto-perfect when oven hits the sweet spot
+  useEffect(() => {
+    if (!_isStreamerMode) return;
+    if (!sideOrder || sideOrder.status !== 'cooking' || sideOrder.progress < 75) return;
+    autoOvenRef.current?.();
+  }, [sideOrder?.progress, sideOrder?.status]);
+
   // 4. Modal Cleanup Loop
   useEffect(() => {
     if (sideOrder && sideOrder.status === 'burnt' && sideOrder.rewardEarned === 0) {
@@ -2225,11 +1962,11 @@ export default function App() {
   // --- SAVE SYSTEM ---
   const saveStateRef = useRef();
   // Use a ref to always have fresh values without triggering re-renders
-  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), globalBuffMultiplier, savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec };
+  saveStateRef.current = { money, totalPizzasSold, reputation, lifetimeMoney, franchiseLicenses, inventory, totalClicks, perfectBakes, unlockedAchievements, deliveriesCompleted, vipTokens, marketUnlocked, marketShares, marketPrices, marketHistory, portfolioDelta, marketCostBasis, totalMarketTrades, marketProfitLifetime, biggestMarketGain, goldenSlices, ascensionSpentLicenses, syndicatePerks, marketCooldowns, manipTarget, deliveryCooldowns, revealedUpgrades: Array.from(revealedUpgrades), savedIdleRate: idlePizzasPerSec, savedProfitRate: idleProfitPerSec };
 
   useEffect(() => {
     const saveLoop = setInterval(() => {
-      if (saveStateRef.current) localStorage.setItem(SAVE_KEY, JSON.stringify({ ...saveStateRef.current, lastSaveTime: Date.now() }));
+      if (saveStateRef.current) cgData().setItem(SAVE_KEY, JSON.stringify({ ...saveStateRef.current, lastSaveTime: Date.now() }));
     }, 2000);
     return () => clearInterval(saveLoop);
   }, []);
@@ -2654,12 +2391,6 @@ export default function App() {
           <div className="h-full bg-yellow-400 transition-all duration-500" style={{ width: `${Math.min(100, (reputation / (nextStarReq || 1)) * 100)}%` }} />
         </div>
         
-        {/* Global Progress Section */}
-        <div className="bg-zinc-900/60 border-b border-zinc-800/30 px-4 py-1">
-          <div className="max-w-7xl mx-auto">
-            <GlobalProgressBar currentGlobalPizzas={globalPizzas} globalPizzasStr={globalPizzasStr} localPendingPizzas={localPendingPizzas} globalBuffMultiplier={globalBuffMultiplier} />
-          </div>
-        </div>
       </div>
 
       {/* --- SETTINGS MODAL --- */}
@@ -3256,6 +2987,7 @@ export default function App() {
             </div>
             {/* Layer 1: Ghost Hitbox — absorbs all pointer events */}
             <div
+              ref={bakeHitboxRef}
               className="absolute inset-0 z-[60] cursor-pointer touch-none"
               style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'none' }}
               onMouseDown={handleBakePress}
@@ -4118,25 +3850,23 @@ export default function App() {
                     <AccSection sKey="production" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<TrendingUp className="w-4 h-4 inline" />} label="Production"
                       accentBorder="border-blue-500/20" accentBg="bg-blue-900/20" accentText="text-blue-400" valueColor="text-blue-300"
                       rows={[
-                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'base production rate' },
-                        { label: 'Idle Profit / Sec', value: `$${fmtInt(idleProfitPerSec)}`, sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'without clicking' },
+                        { label: 'Idle Pizzas / Sec', value: fmt(idlePizzasPerSec), sub: 'base production rate' },
+                        { label: 'Idle Profit / Sec', value: `$${fmtInt(idleProfitPerSec)}`, sub: 'without clicking' },
                         { label: 'Pizza Price', value: `$${fmt(pizzaPrice, 2)}`, sub: 'current ticket value' },
                         { label: 'Base Price', value: `$${fmt(basePizzaPrice, 2)}`, sub: 'before multipliers' },
                         { label: 'VIP Boost', value: `+${fmtInt((vipTokenMultiplier - 1) * 100)}%`, sub: 'all stats' },
                         { label: 'Ach. Boost', value: `+${fmtInt((achievementMultiplier - 1) * 100)}%`, sub: 'price only' },
-                        ...(globalBuffMultiplier > 1 ? [{ label: 'Global Buff', value: `${globalBuffMultiplier}× ACTIVE`, sub: 'community milestone', valueClass: 'text-green-400' }] : []),
                       ]}
                     />
                     <AccSection sKey="clicking" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<MousePointerClick className="w-4 h-4 inline" />} label="Clicking"
                       accentBorder="border-orange-500/20" accentBg="bg-orange-900/20" accentText="text-orange-400" valueColor="text-orange-300"
                       rows={[
-                        { label: 'Click Power', value: fmt(currentClickPower), sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'pizzas per click' },
-                        { label: 'Per Click $', value: `$${fmtInt(currentClickPower * pizzaPrice)}`, sub: globalBuffMultiplier > 1 ? `incl. ${globalBuffMultiplier}x global buff` : 'money per click' },
+                        { label: 'Click Power', value: fmt(currentClickPower), sub: 'pizzas per click' },
+                        { label: 'Per Click $', value: `$${fmtInt(currentClickPower * pizzaPrice)}`, sub: 'money per click' },
                         { label: 'Per Click Rep', value: fmtInt(currentClickPower), sub: 'rep per click' },
                         { label: 'Total Clicks', value: fmtInt(totalClicks), sub: 'lifetime' },
                         { label: 'Click Mult.', value: `${fmtInt(franchiseMultiplier * 100)}%`, sub: `${fmtInt(franchiseLicenses)} licenses` },
                         { label: 'Combo', value: `${fmtInt(combo)}x`, sub: 'decays on idle' },
-                        ...(globalBuffMultiplier > 1 ? [{ label: 'Global Buff', value: `${globalBuffMultiplier}× ACTIVE`, sub: 'community milestone', valueClass: 'text-green-400' }] : []),
                       ]}
                     />
                     <AccSection sKey="lifetime" statsOpen={statsOpen} setStatsOpen={setStatsOpen} icon={<DollarSign className="w-4 h-4 inline" />} label="Lifetime Totals"
@@ -4779,8 +4509,6 @@ export default function App() {
 
     </div>
   </div>
-    <Analytics />
     </>
   );
 }
-
