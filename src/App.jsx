@@ -816,9 +816,10 @@ socket.on('tiktok-chat', (data) => {
   const franchiseMultiplier = Math.min(100, franchiseLicenses <= 10
     ? 1 + (franchiseLicenses * 1.2)
     : (1 + 10 * 1.2) * Math.pow(1.20, franchiseLicenses - 10));
-  // Licenses boost pizza price: +25% per license (compounding) with soft-cap at 3000 to prevent Infinity
-  const safeLicenseExponent = Math.min(franchiseLicenses, 3000);
-  const franchisePriceMultiplier = Math.pow(1.25, safeLicenseExponent) * Math.pow(1.25, Math.max(0, franchiseLicenses - 3000) * 0.001);
+  // Licenses boost pizza price: +25% per license (compounding) with hard cap to prevent Infinity
+  // Cap at 250 licenses for price multiplier (still allows 1M licenses for production)
+  const safeLicenseCount = Math.min(franchiseLicenses, 250);
+  const franchisePriceMultiplier = Math.pow(1.25, safeLicenseCount);
   // Star level gives a compounding production+click bonus (1.6^stars)
   const starPowerMultiplier = Math.pow(1.6, starLevel);
   // Price-side multipliers (flat, additive base)
@@ -1455,7 +1456,7 @@ socket.on('tiktok-chat', (data) => {
       syncGlobalStats();
     }, 60000); // 60 seconds
     return () => clearInterval(syncInterval);
-  }, [syncGlobalStats]);
+  }, []);
 
 // --- SETTINGS ACTIONS ---
   const handleExportSave = () => {
