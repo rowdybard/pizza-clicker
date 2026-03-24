@@ -3632,7 +3632,7 @@ socket.on('tiktok-chat', (data) => {
                       }`}>
                         {(() => {
                           if (buyMultiplier === 'MAX') {
-                            return buyAmount > 1 ? 'MAX' : 'BUY ×1';
+                            return buyAmount > 0 ? `MAX (×${buyAmount})` : 'MAX (×0)';
                           }
                           return buyAmount > 0 ? `BUY ×${buyAmount}` : (() => {
                             if (buyMultiplier === 'custom') {
